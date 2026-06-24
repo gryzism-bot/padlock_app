@@ -11,41 +11,72 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Subject subject = Subject.he;
   Tense tense = Tense.past;
+  Verb verb = Verb.work;
 
   @override
   Widget build(BuildContext context) {
-    final state = SentenceState(subject: 'he', verb: 'work', tense: tense);
+    final state = SentenceState(subject: subject, verb: verb, tense: tense);
 
     final grammarEngine = GrammarEngine();
 
     final sentence = grammarEngine.generate(state);
 
+    print('Generated sentence: $sentence');
     return Scaffold(
       appBar: AppBar(title: const Text('English Padlock')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // Left column
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      subject = Subject.he;
+                    });
+                  },
+                  child: const Text('HE'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      subject = Subject.they;
+                    });
+                  },
+                  child: const Text('THEY'),
+                ),
+              ],
+            ),
+
+            // Middle column
             Text(sentence, style: const TextStyle(fontSize: 32)),
 
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  tense = Tense.present;
-                });
-              },
-              child: const Text('PRESENT'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  tense = Tense.past;
-                });
-              },
-              child: const Text('PAST'),
+            // Right column
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      tense = Tense.past;
+                    });
+                  },
+                  child: const Text('PAST'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      tense = Tense.present;
+                    });
+                  },
+                  child: const Text('PRESENT'),
+                ),
+              ],
             ),
           ],
         ),

@@ -8,14 +8,30 @@ enum Tense { past, present }
 
 class GrammarEngine {
   String generate(SentenceState state) {
-    print('Tense: ${state.tense}');
+    print(state);
 
-    if (state.tense == Tense.past) {
+    if (state.subject == Subject.he &&
+        state.tense == Tense.past &&
+        state.verb == Verb.work) {
       return 'He worked.';
     }
 
-    if (state.tense == Tense.present) {
+    if (state.subject == Subject.he &&
+        state.tense == Tense.present &&
+        state.verb == Verb.work) {
       return 'He works.';
+    }
+
+    if (state.subject == Subject.they &&
+        state.tense == Tense.past &&
+        state.verb == Verb.work) {
+      return 'They worked.';
+    }
+
+    if (state.subject == Subject.they &&
+        state.tense == Tense.present &&
+        state.verb == Verb.work) {
+      return 'They work.';
     }
 
     return 'Unknown sentence';

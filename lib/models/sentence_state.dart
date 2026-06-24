@@ -1,8 +1,8 @@
 import "package:padlock_app/engine/grammar_engine.dart";
 
 class SentenceState {
-  final String subject;
-  final String verb;
+  final Subject subject;
+  final Verb verb;
   final Tense tense;
 
   const SentenceState({
@@ -10,4 +10,9 @@ class SentenceState {
     required this.verb,
     required this.tense,
   });
+
+  @override
+  String toString() {
+    return 'Subject: $subject, Verb: $verb, Tense: $tense';
+  }
 }
