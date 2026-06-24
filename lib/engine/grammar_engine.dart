@@ -8,6 +8,8 @@ enum Tense { past, present }
 
 class GrammarEngine {
   String generate(SentenceState state) {
+    print('Tense: ${state.tense}');
+
     if (state.tense == Tense.past) {
       return 'He worked.';
     }

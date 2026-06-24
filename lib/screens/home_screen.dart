@@ -11,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String tense = 'past';
+  Tense tense = Tense.past;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  tense = 'present';
+                  tense = Tense.present;
                 });
               },
               child: const Text('PRESENT'),
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  tense = 'past';
+                  tense = Tense.past;
                 });
               },
               child: const Text('PAST'),
