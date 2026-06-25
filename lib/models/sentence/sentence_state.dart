@@ -1,11 +1,11 @@
-import '../models/aspect.dart';
-import '../models/modal.dart';
-import '../models/phrase.dart';
-import '../models/polarity.dart';
-import '../models/sentence_form.dart';
-import '../models/subject.dart';
-import '../models/tense.dart';
-import '../models/verb.dart';
+import '../grammar/aspect.dart';
+import '../grammar/modal.dart';
+import '../grammar/phrase.dart';
+import '../grammar/polarity.dart';
+import '../grammar/sentence_form.dart';
+import '../grammar/subject.dart';
+import '../grammar/tense.dart';
+import '../grammar/verb.dart';
 
 class SentenceState {
   final Subject subject; // open

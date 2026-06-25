@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../engine/grammar_engine.dart';
 
-import '../models/aspect.dart';
-import '../models/modal.dart';
-import '../models/phrase.dart';
-import '../models/polarity.dart';
-import '../models/sentence_form.dart';
-import '../models/sentence_state.dart';
-import '../models/subject.dart';
-import '../models/verb.dart';
-import '../models/tense.dart';
+import '../models/grammar/aspect.dart';
+import '../models/grammar/modal.dart';
+import '../models/grammar/phrase.dart';
+import '../models/grammar/polarity.dart';
+import '../models/grammar/sentence_form.dart';
+import '../models/sentence/sentence_state.dart';
+import '../models/grammar/subject.dart';
+import '../models/grammar/verb.dart';
+import '../models/grammar/tense.dart';
 
 import '../data/subjects.dart';
 import '../data/verbs.dart';

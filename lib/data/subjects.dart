@@ -1,4 +1,4 @@
-import '../models/subject.dart';
+import '../models/grammar/subject.dart';
 
 const i = Subject(text: 'I', isThirdPerson: false, isPlural: false);
 
