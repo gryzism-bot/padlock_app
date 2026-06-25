@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../engine/grammar_engine.dart';
 
+import '../models/aspect.dart';
+import '../models/modal.dart';
+import '../models/phrase.dart';
+import '../models/polarity.dart';
+import '../models/sentence_form.dart';
 import '../models/sentence_state.dart';
 import '../models/subject.dart';
 import '../models/verb.dart';
@@ -21,12 +26,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Subject subject = he;
   Verb verb = work;
   Tense tense = Tense.past;
-
+  Aspect aspect = Aspect.simple;
+  Modal modal = Modal.none;
+  Polarity polarity = Polarity.positive;
+  SentenceForm sentenceForm = SentenceForm.statement;
+  Phrase? phrase;
   final GrammarEngine grammarEngine = GrammarEngine();
 
   @override
   Widget build(BuildContext context) {
-    final state = SentenceState(subject: subject, verb: verb, tense: tense);
+    final state = SentenceState(
+      subject: subject,
+      verb: verb,
+      tense: tense,
+      aspect: aspect,
+      modal: modal,
+      polarity: polarity,
+      sentenceForm: sentenceForm,
+      phrase: phrase,
+    );
 
     final sentence = grammarEngine.generate(state);
 
