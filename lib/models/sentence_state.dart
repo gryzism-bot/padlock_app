@@ -8,14 +8,14 @@ import '../models/tense.dart';
 import '../models/verb.dart';
 
 class SentenceState {
-  final Subject subject;
-  final Verb verb;
-  final Tense tense;
-  final Aspect aspect;
-  final Modal modal;
-  final Polarity polarity;
-  final SentenceForm sentenceForm;
-  final Phrase? phrase;
+  final Subject subject; // open
+  final Verb verb; // open
+  final Tense tense; 
+  final Aspect aspect; 
+  final Modal modal; 
+  final Polarity polarity; 
+  final SentenceForm sentenceForm; 
+  final Phrase? phrase; // open
 
   const SentenceState({
     required this.subject,

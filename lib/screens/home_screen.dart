@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final sentence = grammarEngine.generate(state);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('English Padlock')),
+      appBar: AppBar(title: const Text('The Lock')),
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
