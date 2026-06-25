@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../engine/grammar_engine.dart';
+
 import '../models/sentence_state.dart';
+import '../models/subject.dart';
+import '../models/verb.dart';
+import '../models/tense.dart';
+
+import '../data/subjects.dart';
+import '../data/verbs.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,33 +18,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Subject subject = Subject.he;
+  Subject subject = he;
+  Verb verb = work;
   Tense tense = Tense.past;
-  Verb verb = Verb.work;
+
+  final GrammarEngine grammarEngine = GrammarEngine();
 
   @override
   Widget build(BuildContext context) {
     final state = SentenceState(subject: subject, verb: verb, tense: tense);
 
-    final grammarEngine = GrammarEngine();
-
     final sentence = grammarEngine.generate(state);
 
-    print('Generated sentence: $sentence');
     return Scaffold(
       appBar: AppBar(title: const Text('English Padlock')),
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Left column
+            // SUBJECTS
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      subject = Subject.he;
+                      subject = he;
                     });
                   },
                   child: const Text('HE'),
@@ -45,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      subject = Subject.they;
+                      subject = they;
                     });
                   },
                   child: const Text('THEY'),
@@ -53,10 +59,40 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
 
-            // Middle column
-            Text(sentence, style: const TextStyle(fontSize: 32)),
+            // VERBS
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      verb = work;
+                    });
+                  },
+                  child: const Text('WORK'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      verb = go;
+                    });
+                  },
+                  child: const Text('GO'),
+                ),
+              ],
+            ),
 
-            // Right column
+            // SENTENCE
+            SizedBox(
+              width: 220,
+              child: Text(
+                sentence,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 32),
+              ),
+            ),
+
+            // TENSES
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -75,6 +111,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                   },
                   child: const Text('PRESENT'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      tense = Tense.future;
+                    });
+                  },
+                  child: const Text('FUTURE'),
                 ),
               ],
             ),

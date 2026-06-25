@@ -1,39 +1,38 @@
 import '../models/sentence_state.dart';
-
-enum Subject { he, she, it, they }
-
-enum Verb { work, play, eat }
-
-enum Tense { past, present }
+import '../models/tense.dart';
 
 class GrammarEngine {
   String generate(SentenceState state) {
-    print(state);
+    final subject = state.subject.text;
+    final verb = _buildVerb(state);
+    final phrase = _buildPhrase(state);
 
-    if (state.subject == Subject.he &&
-        state.tense == Tense.past &&
-        state.verb == Verb.work) {
-      return 'He worked.';
+    return '$subject $verb$phrase.';
+  }
+
+  String _buildVerb(SentenceState state) {
+    switch (state.tense) {
+      case Tense.past:
+        return state.verb.pastSimple;
+
+      case Tense.present:
+        if (state.subject.takesThirdPersonVerb) {
+          // Temporary implementation
+          return '${state.verb.infinitive}s';
+        }
+
+        return state.verb.infinitive;
+
+      case Tense.future:
+        return 'will ${state.verb.infinitive}';
+    }
+  }
+
+  String _buildPhrase(SentenceState state) {
+    if (state.phrase == null) {
+      return '';
     }
 
-    if (state.subject == Subject.he &&
-        state.tense == Tense.present &&
-        state.verb == Verb.work) {
-      return 'He works.';
-    }
-
-    if (state.subject == Subject.they &&
-        state.tense == Tense.past &&
-        state.verb == Verb.work) {
-      return 'They worked.';
-    }
-
-    if (state.subject == Subject.they &&
-        state.tense == Tense.present &&
-        state.verb == Verb.work) {
-      return 'They work.';
-    }
-
-    return 'Unknown sentence';
+    return ' ${state.phrase!.text}';
   }
 }
