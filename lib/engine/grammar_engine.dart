@@ -1,13 +1,14 @@
+import '../models/sentence.dart';
 import '../models/sentence_state.dart';
 import '../models/tense.dart';
 
 class GrammarEngine {
-  String generate(SentenceState state) {
+  Sentence generate(SentenceState state) {
     final subject = state.subject.text;
     final verb = _buildVerb(state);
     final phrase = _buildPhrase(state);
 
-    return '$subject $verb$phrase.';
+    return Sentence(text: '$subject $verb$phrase.', state: state);
   }
 
   String _buildVerb(SentenceState state) {

@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: 220,
               child: Text(
-                sentence,
+                sentence.text,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 32),
               ),
