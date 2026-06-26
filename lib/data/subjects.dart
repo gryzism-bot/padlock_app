@@ -1,10 +1,12 @@
+import '../models/grammar/Number.dart';
+import '../models/grammar/person.dart';
 import '../models/grammar/subject.dart';
 import '../models/language.dart';
 
 const i = Subject(
   text: 'i',
-  isThirdPerson: false,
-  isPlural: false,
+  person: Person.first,
+  number: Number.singular,
   translations: {
     Language.pl: 'ja',
     Language.es: 'yo',
@@ -35,8 +37,8 @@ const i = Subject(
 
 const you = Subject(
   text: 'you',
-  isThirdPerson: false,
-  isPlural: true,
+  person: Person.second,
+  number: Number.singular,
   translations: {
     Language.pl: 'ty',
     Language.es: 'tú',
@@ -67,8 +69,8 @@ const you = Subject(
 
 const he = Subject(
   text: 'he',
-  isThirdPerson: true,
-  isPlural: false,
+  person: Person.third,
+  number: Number.singular,
   translations: {
     Language.pl: 'on',
     Language.es: 'él',
@@ -99,8 +101,8 @@ const he = Subject(
 
 const she = Subject(
   text: 'she',
-  isThirdPerson: true,
-  isPlural: false,
+  person: Person.third,
+  number: Number.singular,
   translations: {
     Language.pl: 'ona',
     Language.es: 'ella',
@@ -131,8 +133,8 @@ const she = Subject(
 
 const it = Subject(
   text: 'it',
-  isThirdPerson: true,
-  isPlural: false,
+  person: Person.third,
+  number: Number.singular,
   translations: {
     Language.pl: 'ono',
     Language.es: 'ello',
@@ -163,8 +165,8 @@ const it = Subject(
 
 const we = Subject(
   text: 'we',
-  isThirdPerson: false,
-  isPlural: true,
+  person: Person.first,
+  number: Number.plural,
   translations: {
     Language.pl: 'my',
     Language.es: 'nosotros',
@@ -195,8 +197,8 @@ const we = Subject(
 
 const they = Subject(
   text: 'they',
-  isThirdPerson: true,
-  isPlural: true,
+  person: Person.third,
+  number: Number.plural,
   translations: {
     Language.pl: 'oni',
     Language.es: 'ellos',

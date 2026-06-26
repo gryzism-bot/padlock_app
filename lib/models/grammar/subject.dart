@@ -1,26 +1,24 @@
 import '../language.dart';
+import 'Number.dart';
+import 'person.dart';
 
 class Subject {
   final String text;
 
-  final bool isThirdPerson;
-  final bool isPlural;
+  final Person person;
+  final Number number;
+
   final Map<Language, String> translations;
 
   const Subject({
     required this.text,
-    required this.isThirdPerson,
-    required this.isPlural,
+    required this.person,
+    required this.number,
     required this.translations,
   });
 
-  bool get takesThirdPersonVerb => isThirdPerson && !isPlural;
+  bool get isPlural => number == Number.plural;
 
-  bool get takesAre => isPlural || text == 'You';
-
-  bool get takesIs => !takesAre;
-
-  bool get takesHave => isPlural || text == 'I' || text == 'You';
-
-  bool get takesHas => !takesHave;
+  bool get takesThirdPersonVerb =>
+      person == Person.third && number == Number.singular;
 }

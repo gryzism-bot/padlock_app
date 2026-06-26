@@ -1,0 +1,1 @@
+enum Number { singular, plural }
