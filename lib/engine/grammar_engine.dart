@@ -27,14 +27,14 @@ class GrammarEngine {
 
   void _applyTense(_SentenceBuilder builder) {
     switch (builder.state.tense) {
+      case Tense.past:
+        builder.verb = builder.state.verb.pastSimple;
+        break;
+
       case Tense.present:
         builder.verb = builder.state.subject.takesThirdPersonVerb
             ? builder.state.verb.presentThirdPerson
             : builder.state.verb.infinitive;
-        break;
-
-      case Tense.past:
-        builder.verb = builder.state.verb.pastSimple;
         break;
 
       case Tense.future:
@@ -51,12 +51,12 @@ class GrammarEngine {
 
       case Aspect.continuous:
         switch (builder.state.tense) {
-          case Tense.present:
-            builder.auxiliary = builder.state.subject.isPlural ? 'are' : 'is';
-            break;
-
           case Tense.past:
             builder.auxiliary = builder.state.subject.isPlural ? 'were' : 'was';
+            break;
+
+          case Tense.present:
+            builder.auxiliary = builder.state.subject.isPlural ? 'are' : 'is';
             break;
 
           case Tense.future:
@@ -70,14 +70,14 @@ class GrammarEngine {
 
       case Aspect.perfect:
         switch (builder.state.tense) {
+          case Tense.past:
+            builder.auxiliary = 'had';
+            break;
+
           case Tense.present:
             builder.auxiliary = builder.state.subject.takesThirdPersonVerb
                 ? 'has'
                 : 'have';
-            break;
-
-          case Tense.past:
-            builder.auxiliary = 'had';
             break;
 
           case Tense.future:
@@ -91,16 +91,16 @@ class GrammarEngine {
 
       case Aspect.perfectContinuous:
         switch (builder.state.tense) {
+          case Tense.past:
+            builder.auxiliary = 'had';
+            builder.helper = 'been';
+            break;
+
           case Tense.present:
             builder.auxiliary = builder.state.subject.takesThirdPersonVerb
                 ? 'has'
                 : 'have';
 
-            builder.helper = 'been';
-            break;
-
-          case Tense.past:
-            builder.auxiliary = 'had';
             builder.helper = 'been';
             break;
 
