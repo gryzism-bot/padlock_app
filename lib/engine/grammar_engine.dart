@@ -261,7 +261,29 @@ class GrammarEngine {
       parts.add(builder.timePhrase);
     }
 
-    return '${parts.join(' ')}.';
+    String punctuation;
+
+    switch (state.sentenceForm) {
+      case SentenceForm.statement:
+        punctuation = '.';
+        break;
+
+      case SentenceForm.question:
+        punctuation = '?';
+        break;
+
+      case SentenceForm.exclamation:
+        punctuation = '!';
+        break;
+
+      case SentenceForm.imperative:
+        punctuation = '.';
+        break;
+    }
+
+    final sentence = parts.join(' ').capitalizeFirst();
+
+    return '$sentence$punctuation';
   }
 }
 
@@ -278,5 +300,13 @@ class _SentenceBuilder {
   _SentenceBuilder(this.state) {
     timePhrase = state.timePhrase?.text ?? '';
     placePhrase = state.placePhrase?.text ?? '';
+  }
+}
+
+extension SentenceFormatting on String {
+  String capitalizeFirst() {
+    if (isEmpty) return this;
+
+    return this[0].toUpperCase() + substring(1);
   }
 }

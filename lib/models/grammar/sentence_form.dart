@@ -1,1 +1,1 @@
-enum SentenceForm { statement, question, imperative }
+enum SentenceForm { statement, question, imperative, exclamation }
