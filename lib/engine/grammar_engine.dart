@@ -68,7 +68,23 @@ class GrammarEngine {
         break;
 
       case Aspect.perfect:
-        // TODO
+        switch (builder.state.tense) {
+          case Tense.present:
+            builder.auxiliary = builder.state.subject.takesThirdPersonVerb
+                ? 'has'
+                : 'have';
+            break;
+
+          case Tense.past:
+            builder.auxiliary = 'had';
+            break;
+
+          case Tense.future:
+            builder.auxiliary = 'will have';
+            break;
+        }
+
+        builder.verb = builder.state.verb.pastParticiple;
         break;
 
       case Aspect.perfectContinuous:
