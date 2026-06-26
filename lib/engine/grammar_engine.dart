@@ -50,7 +50,21 @@ class GrammarEngine {
         break;
 
       case Aspect.continuous:
-        // TODO
+        switch (builder.state.tense) {
+          case Tense.present:
+            builder.auxiliary = builder.state.subject.isPlural ? 'are' : 'is';
+            break;
+
+          case Tense.past:
+            builder.auxiliary = builder.state.subject.isPlural ? 'were' : 'was';
+            break;
+
+          case Tense.future:
+            builder.auxiliary = 'will be';
+            break;
+        }
+
+        builder.verb = builder.state.verb.ingForm;
         break;
 
       case Aspect.perfect:

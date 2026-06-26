@@ -5,6 +5,7 @@ const work = Verb(
   presentThirdPerson: 'works',
   pastSimple: 'worked',
   pastParticiple: 'worked',
+  ingForm: 'working',
 );
 
 const play = Verb(
@@ -12,6 +13,7 @@ const play = Verb(
   presentThirdPerson: 'plays',
   pastSimple: 'played',
   pastParticiple: 'played',
+  ingForm: 'playing',
 );
 
 const go = Verb(
@@ -19,6 +21,7 @@ const go = Verb(
   presentThirdPerson: 'goes',
   pastSimple: 'went',
   pastParticiple: 'gone',
+  ingForm: 'going',
 );
 
 const verbs = [work, play, go];
