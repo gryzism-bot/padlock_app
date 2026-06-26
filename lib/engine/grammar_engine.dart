@@ -120,8 +120,25 @@ class GrammarEngine {
       case Modal.none:
         break;
 
-      case Modal.can:
-        builder.auxiliary = 'can';
+      // Strong obligation
+      case Modal.must:
+        builder.auxiliary = 'must';
+        builder.verb = builder.state.verb.infinitive;
+        break;
+
+      case Modal.oughtTo:
+        builder.auxiliary = 'ought to';
+        builder.verb = builder.state.verb.infinitive;
+        break;
+
+      case Modal.should:
+        builder.auxiliary = 'should';
+        builder.verb = builder.state.verb.infinitive;
+        break;
+
+      // Recommendation / possibility
+      case Modal.would:
+        builder.auxiliary = 'would';
         builder.verb = builder.state.verb.infinitive;
         break;
 
@@ -130,6 +147,12 @@ class GrammarEngine {
         builder.verb = builder.state.verb.infinitive;
         break;
 
+      case Modal.can:
+        builder.auxiliary = 'can';
+        builder.verb = builder.state.verb.infinitive;
+        break;
+
+      // Permission / probability
       case Modal.may:
         builder.auxiliary = 'may';
         builder.verb = builder.state.verb.infinitive;
@@ -140,33 +163,14 @@ class GrammarEngine {
         builder.verb = builder.state.verb.infinitive;
         break;
 
-      case Modal.must:
-        builder.auxiliary = 'must';
-        builder.verb = builder.state.verb.infinitive;
-        break;
-
+      // Future
       case Modal.shall:
         builder.auxiliary = 'shall';
         builder.verb = builder.state.verb.infinitive;
         break;
 
-      case Modal.should:
-        builder.auxiliary = 'should';
-        builder.verb = builder.state.verb.infinitive;
-        break;
-
       case Modal.will:
         builder.auxiliary = 'will';
-        builder.verb = builder.state.verb.infinitive;
-        break;
-
-      case Modal.would:
-        builder.auxiliary = 'would';
-        builder.verb = builder.state.verb.infinitive;
-        break;
-
-      case Modal.oughtTo:
-        builder.auxiliary = 'ought to';
         builder.verb = builder.state.verb.infinitive;
         break;
     }
