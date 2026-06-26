@@ -5,8 +5,10 @@ import '../engine/grammar_engine.dart';
 import '../models/grammar/aspect.dart';
 import '../models/grammar/modal.dart';
 import '../models/grammar/phrase.dart';
+import '../models/grammar/place_phrase.dart';
 import '../models/grammar/polarity.dart';
 import '../models/grammar/sentence_form.dart';
+import '../models/grammar/time_phrase.dart';
 import '../models/sentence/sentence_state.dart';
 import '../models/grammar/subject.dart';
 import '../models/grammar/verb.dart';
@@ -30,7 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Modal modal = Modal.none;
   Polarity polarity = Polarity.positive;
   SentenceForm sentenceForm = SentenceForm.statement;
-  Phrase? phrase;
+  TimePhrase? timePhrase;
+  PlacePhrase? placePhrase;
   final GrammarEngine grammarEngine = GrammarEngine();
 
   @override
@@ -43,7 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
       modal: modal,
       polarity: polarity,
       sentenceForm: sentenceForm,
-      phrase: phrase,
+      timePhrase: timePhrase,
+      placePhrase: placePhrase,
     );
 
     final sentence = grammarEngine.generate(state);

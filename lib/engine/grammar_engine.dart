@@ -1,10 +1,10 @@
 import '../models/grammar/aspect.dart';
 import '../models/grammar/modal.dart';
+import '../models/grammar/phrase_position.dart';
 import '../models/grammar/polarity.dart';
 import '../models/sentence/sentence.dart';
 import '../models/grammar/sentence_form.dart';
 import '../models/sentence/sentence_state.dart';
-import '../models/grammar/subject.dart';
 import '../models/grammar/tense.dart';
 
 class GrammarEngine {
@@ -124,19 +124,35 @@ class GrammarEngine {
     final state = builder.state;
     final parts = <String>[];
 
-    final isQuestion = state.sentenceForm == SentenceForm.question;
-    final isNegative = state.polarity == Polarity.negative;
+    // ---------- FRONT PHRASES ----------
 
-    if (isQuestion) {
+    if (state.timePhrase?.position == PhrasePosition.beforeSubject) {
+      parts.add(builder.timePhrase);
+    }
+
+    if (state.placePhrase?.position == PhrasePosition.beforeSubject) {
+      parts.add(builder.placePhrase);
+    }
+
+    // ---------- QUESTION ----------
+
+    if (state.sentenceForm == SentenceForm.question) {
       if (builder.auxiliary.isEmpty) {
-        if (state.tense == Tense.present) {
-          builder.auxiliary = state.subject.takesThirdPersonVerb
-              ? 'does'
-              : 'do';
-          builder.verb = state.verb.infinitive;
-        } else if (state.tense == Tense.past) {
-          builder.auxiliary = 'did';
-          builder.verb = state.verb.infinitive;
+        switch (state.tense) {
+          case Tense.present:
+            builder.auxiliary = state.subject.takesThirdPersonVerb
+                ? 'does'
+                : 'do';
+            builder.verb = state.verb.infinitive;
+            break;
+
+          case Tense.past:
+            builder.auxiliary = 'did';
+            builder.verb = state.verb.infinitive;
+            break;
+
+          case Tense.future:
+            break;
         }
       }
 
@@ -146,12 +162,14 @@ class GrammarEngine {
         parts.add(builder.subject);
       }
 
-      if (isNegative) {
+      if (state.polarity == Polarity.negative) {
         parts.add('not');
       }
 
       parts.add(builder.verb);
-    } else {
+    }
+    // ---------- STATEMENT / IMPERATIVE ----------
+    else {
       if (state.sentenceForm != SentenceForm.imperative) {
         parts.add(builder.subject);
       }
@@ -160,18 +178,24 @@ class GrammarEngine {
         parts.add(builder.auxiliary);
       }
 
-      if (isNegative) {
+      if (state.polarity == Polarity.negative) {
         if (builder.auxiliary.isEmpty) {
-          if (state.tense == Tense.present) {
-            parts.add(
-              state.subject.takesThirdPersonVerb ? 'does not' : 'do not',
-            );
-            builder.verb = state.verb.infinitive;
-          } else if (state.tense == Tense.past) {
-            parts.add('did not');
-            builder.verb = state.verb.infinitive;
-          } else {
-            parts.add('not');
+          switch (state.tense) {
+            case Tense.present:
+              parts.add(
+                state.subject.takesThirdPersonVerb ? 'does not' : 'do not',
+              );
+              builder.verb = state.verb.infinitive;
+              break;
+
+            case Tense.past:
+              parts.add('did not');
+              builder.verb = state.verb.infinitive;
+              break;
+
+            case Tense.future:
+              parts.add('not');
+              break;
           }
         } else {
           parts.add('not');
@@ -181,13 +205,17 @@ class GrammarEngine {
       parts.add(builder.verb);
     }
 
-    if (builder.phrase.isNotEmpty) {
-      parts.add(builder.phrase);
+    // ---------- BACK PHRASES ----------
+
+    if (state.placePhrase?.position == PhrasePosition.afterPredicate) {
+      parts.add(builder.placePhrase);
     }
 
-    final sentence = parts.join(' ').trim();
+    if (state.timePhrase?.position == PhrasePosition.afterPredicate) {
+      parts.add(builder.timePhrase);
+    }
 
-    return '${sentence[0].toUpperCase()}${sentence.substring(1)}.';
+    return '${parts.join(' ')}.';
   }
 }
 
@@ -197,9 +225,12 @@ class _SentenceBuilder {
   String subject = '';
   String auxiliary = '';
   String verb = '';
-  String phrase = '';
+
+  String timePhrase = '';
+  String placePhrase = '';
 
   _SentenceBuilder(this.state) {
-    phrase = state.phrase?.text ?? '';
+    timePhrase = state.timePhrase?.text ?? '';
+    placePhrase = state.placePhrase?.text ?? '';
   }
 }

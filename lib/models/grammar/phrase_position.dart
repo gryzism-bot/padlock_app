@@ -1,0 +1,1 @@
+enum PhrasePosition { beforeSubject, afterPredicate }

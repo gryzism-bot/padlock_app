@@ -1,21 +1,24 @@
 import '../grammar/aspect.dart';
 import '../grammar/modal.dart';
 import '../grammar/phrase.dart';
+import '../grammar/place_phrase.dart';
 import '../grammar/polarity.dart';
 import '../grammar/sentence_form.dart';
 import '../grammar/subject.dart';
 import '../grammar/tense.dart';
+import '../grammar/time_phrase.dart';
 import '../grammar/verb.dart';
 
 class SentenceState {
   final Subject subject; // open
   final Verb verb; // open
-  final Tense tense; 
-  final Aspect aspect; 
-  final Modal modal; 
-  final Polarity polarity; 
-  final SentenceForm sentenceForm; 
-  final Phrase? phrase; // open
+  final Tense tense;
+  final Aspect aspect;
+  final Modal modal;
+  final Polarity polarity;
+  final SentenceForm sentenceForm;
+  final TimePhrase? timePhrase;
+  final PlacePhrase? placePhrase;
 
   const SentenceState({
     required this.subject,
@@ -25,7 +28,8 @@ class SentenceState {
     required this.modal,
     required this.polarity,
     required this.sentenceForm,
-    this.phrase,
+    this.timePhrase,
+    this.placePhrase,
   });
 
   @override
@@ -38,7 +42,8 @@ Aspect: $aspect
 Modal: $modal
 Polarity: $polarity
 Form: $sentenceForm
-Phrase: ${phrase?.text}
+Time Phrase: ${timePhrase?.text}
+Place Phrase: ${placePhrase?.text}
 ''';
   }
 }
