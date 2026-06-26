@@ -1,6 +1,5 @@
 import '../grammar/aspect.dart';
 import '../grammar/modal.dart';
-import '../grammar/phrase.dart';
 import '../grammar/place_phrase.dart';
 import '../grammar/polarity.dart';
 import '../grammar/sentence_form.dart';
