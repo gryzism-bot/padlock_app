@@ -88,7 +88,23 @@ class GrammarEngine {
         break;
 
       case Aspect.perfectContinuous:
-        // TODO
+        switch (builder.state.tense) {
+          case Tense.present:
+            builder.auxiliary = builder.state.subject.takesThirdPersonVerb
+                ? 'has been'
+                : 'have been';
+            break;
+
+          case Tense.past:
+            builder.auxiliary = 'had been';
+            break;
+
+          case Tense.future:
+            builder.auxiliary = 'will have been';
+            break;
+        }
+
+        builder.verb = builder.state.verb.ingForm;
         break;
     }
   }
