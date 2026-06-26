@@ -60,7 +60,8 @@ class GrammarEngine {
             break;
 
           case Tense.future:
-            builder.auxiliary = 'will be';
+            builder.auxiliary = 'will';
+            builder.helper = 'be';
             break;
         }
 
@@ -80,7 +81,8 @@ class GrammarEngine {
             break;
 
           case Tense.future:
-            builder.auxiliary = 'will have';
+            builder.auxiliary = 'will';
+            builder.helper = 'have';
             break;
         }
 
@@ -91,16 +93,20 @@ class GrammarEngine {
         switch (builder.state.tense) {
           case Tense.present:
             builder.auxiliary = builder.state.subject.takesThirdPersonVerb
-                ? 'has been'
-                : 'have been';
+                ? 'has'
+                : 'have';
+
+            builder.helper = 'been';
             break;
 
           case Tense.past:
-            builder.auxiliary = 'had been';
+            builder.auxiliary = 'had';
+            builder.helper = 'been';
             break;
 
           case Tense.future:
-            builder.auxiliary = 'will have been';
+            builder.auxiliary = 'will';
+            builder.helper = 'have been';
             break;
         }
 
@@ -212,6 +218,10 @@ class GrammarEngine {
         parts.add('not');
       }
 
+      if (builder.helper.isNotEmpty) {
+        parts.add(builder.helper);
+      }
+
       parts.add(builder.verb);
     }
     // ---------- STATEMENT / IMPERATIVE ----------
@@ -246,6 +256,10 @@ class GrammarEngine {
         } else {
           parts.add('not');
         }
+      }
+
+      if (builder.helper.isNotEmpty) {
+        parts.add(builder.helper);
       }
 
       parts.add(builder.verb);
@@ -292,6 +306,7 @@ class _SentenceBuilder {
 
   String subject = '';
   String auxiliary = '';
+  String helper = '';
   String verb = '';
 
   String timePhrase = '';
