@@ -172,7 +172,7 @@ void main() {
     test('He can drive', () {
       final state = SentenceState(
         subject: he,
-        verb: drive,
+        verb: cook,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.can,
@@ -180,7 +180,7 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'He can drive.');
+      expect(engine.generate(state).text, 'He can cook.');
     });
 
     test('She should study', () {
