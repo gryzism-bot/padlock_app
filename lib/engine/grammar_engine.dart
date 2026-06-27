@@ -1,11 +1,11 @@
-import '../models/grammar/aspect.dart';
-import '../models/grammar/modal.dart';
-import '../models/grammar/phrase_position.dart';
-import '../models/grammar/polarity.dart';
+import '../models/grammar/verb/aspect.dart';
+import '../models/grammar/verb/modal.dart';
+import '../models/grammar/phrase/phrase_position.dart';
+import '../models/grammar/verb/polarity.dart';
 import '../models/sentence/sentence.dart';
 import '../models/grammar/sentence_form.dart';
 import '../models/sentence/sentence_state.dart';
-import '../models/grammar/tense.dart';
+import '../models/grammar/verb/tense.dart';
 
 class GrammarEngine {
   Sentence generate(SentenceState state) {

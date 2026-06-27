@@ -1,4 +1,4 @@
-import '../models/grammar/verb.dart';
+import '../models/grammar/verb/verb.dart';
 import '../models/language.dart';
 
 const work = Verb(

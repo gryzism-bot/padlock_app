@@ -1,5 +1,5 @@
-import '../language.dart';
-import 'Number.dart';
+import '../../language.dart';
+import 'number.dart';
 import 'person.dart';
 
 class Subject {

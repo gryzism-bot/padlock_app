@@ -4,11 +4,11 @@ import 'package:padlock_app/engine/grammar_engine.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-import 'package:padlock_app/models/grammar/aspect.dart';
-import 'package:padlock_app/models/grammar/modal.dart';
-import 'package:padlock_app/models/grammar/polarity.dart';
+import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/modal.dart';
+import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
-import 'package:padlock_app/models/grammar/tense.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
 
 import 'package:padlock_app/data/subjects.dart';
 import 'package:padlock_app/data/verbs.dart';

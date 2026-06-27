@@ -1,6 +1,6 @@
-import '../models/grammar/Number.dart';
-import '../models/grammar/person.dart';
-import '../models/grammar/subject.dart';
+import '../models/grammar/subject/number.dart';
+import '../models/grammar/subject/person.dart';
+import '../models/grammar/subject/subject.dart';
 import '../models/language.dart';
 
 const i = Subject(

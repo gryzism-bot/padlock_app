@@ -1,4 +1,4 @@
-import '../language.dart';
+import '../../language.dart';
 
 class Verb {
   final String infinitive;
