@@ -19,7 +19,6 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart';
-import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 
 import 'package:padlock_app/data/phrases/time_phrases.dart';
