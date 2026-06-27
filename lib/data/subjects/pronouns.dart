@@ -1,7 +1,7 @@
-import '../../models/grammar/subject/number.dart';
-import '../../models/grammar/subject/person.dart';
-import '../../models/grammar/subject/subject.dart';
-import '../../models/language.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/subject/person.dart';
+import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/language.dart';
 
 const i = Subject(
   text: 'i',

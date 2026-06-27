@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../engine/grammar_engine.dart';
+import 'package:padlock_app/engine/grammar_engine.dart';
 
-import '../models/grammar/verb/aspect.dart';
-import '../models/grammar/verb/modal.dart';
-import '../models/grammar/phrase/place_phrase.dart';
-import '../models/grammar/verb/polarity.dart';
-import '../models/grammar/sentence_form.dart';
-import '../models/grammar/phrase/time_phrase.dart';
-import '../models/sentence/sentence_state.dart';
-import '../models/grammar/subject/subject.dart';
-import '../models/grammar/verb/verb.dart';
-import '../models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/modal.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
+import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
+import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import '../data/subjects/pronouns.dart';
-import '../data/verbs/essential.dart';
+import 'package:padlock_app/data/subjects/pronouns.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

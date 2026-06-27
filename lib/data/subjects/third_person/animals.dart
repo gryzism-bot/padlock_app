@@ -1,5 +1,5 @@
-import '../../../models/language.dart';
-import '../../../models/grammar/subject/noun.dart';
+import 'package:padlock_app/models/language.dart';
+import 'package:padlock_app/models/grammar/subject/noun.dart';
 
 const cat = Noun(
   singular: 'cat',

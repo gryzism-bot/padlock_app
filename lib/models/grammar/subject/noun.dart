@@ -1,4 +1,4 @@
-import '../../language.dart';
+import 'package:padlock_app/models/language.dart';
 import 'number.dart';
 import 'person.dart';
 import 'subject.dart';

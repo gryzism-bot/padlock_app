@@ -1,12 +1,12 @@
-import '../grammar/verb/aspect.dart';
-import '../grammar/verb/modal.dart';
-import '../grammar/phrase/place_phrase.dart';
-import '../grammar/verb/polarity.dart';
-import '../grammar/sentence_form.dart';
-import '../grammar/subject/subject.dart';
-import '../grammar/verb/tense.dart';
-import '../grammar/phrase/time_phrase.dart';
-import '../grammar/verb/verb.dart';
+import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/modal.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
+import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
 
 class SentenceState {
   final Subject subject; // open
