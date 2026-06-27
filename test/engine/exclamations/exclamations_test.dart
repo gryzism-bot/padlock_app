@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -27,6 +28,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He works!');
@@ -41,6 +43,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He worked!');
@@ -55,6 +58,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will work!');
@@ -69,6 +73,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He is working!');
@@ -83,6 +88,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'They were working!');
@@ -97,6 +103,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will be working!');
@@ -111,6 +118,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has worked!');
@@ -125,6 +133,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He had worked!');
@@ -139,6 +148,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will have worked!');
@@ -153,6 +163,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has been working!');
@@ -167,6 +178,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He had been working!');
@@ -181,6 +193,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(
@@ -198,6 +211,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'They work!');
@@ -212,6 +226,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has gone!');
@@ -226,6 +241,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has been going!');

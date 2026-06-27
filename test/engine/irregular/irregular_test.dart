@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -27,6 +28,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He goes.');
@@ -41,6 +43,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He went.');
@@ -55,6 +58,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will go.');
@@ -69,6 +73,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He is going.');
@@ -83,6 +88,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He was going.');
@@ -97,6 +103,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will be going.');
@@ -111,6 +118,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has gone.');
@@ -125,6 +133,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He had gone.');
@@ -139,6 +148,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will have gone.');
@@ -153,6 +163,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has been going.');
@@ -167,6 +178,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He had been going.');
@@ -181,6 +193,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He will have been going.');
@@ -195,6 +208,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.question,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'Has he gone?');
@@ -209,6 +223,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'He has not gone.');
@@ -223,6 +238,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.question,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'Will he have been going?');
@@ -237,6 +253,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(
@@ -254,6 +271,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'They go.');
@@ -268,6 +286,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'They are going.');
@@ -282,6 +301,7 @@ void main() {
           modal: Modal.none,
           polarity: Polarity.positive,
           sentenceForm: SentenceForm.statement,
+          voice: Voice.active,
         );
 
         expect(grammarEngine.generate(state).text, 'They have gone.');

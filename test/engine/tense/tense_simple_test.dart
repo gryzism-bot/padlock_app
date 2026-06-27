@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -26,6 +27,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He works.');
@@ -40,6 +42,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He worked.');
@@ -54,6 +57,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He will work.');
@@ -68,6 +72,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He does not work.');
@@ -82,6 +87,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He did not work.');
@@ -96,6 +102,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He will not work.');
@@ -110,6 +117,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Does he work?');
@@ -124,6 +132,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Did he work?');
@@ -138,6 +147,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Will he work?');
@@ -152,6 +162,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Does he not work?');
@@ -166,6 +177,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Did he not work?');
@@ -180,6 +192,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Will he not work?');
@@ -194,6 +207,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.exclamation,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He works!');
@@ -208,6 +222,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.exclamation,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He worked!');
@@ -222,6 +237,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.exclamation,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He will work!');
@@ -236,6 +252,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.imperative,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Work.');
@@ -250,6 +267,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.imperative,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'Do not work.');
@@ -264,6 +282,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'They work.');
@@ -278,6 +297,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(grammarEngine.generate(state).text, 'He went.');

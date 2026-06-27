@@ -8,6 +8,7 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -35,6 +36,7 @@ void main() {
         tense: Tense.present,
         aspect: Aspect.perfect,
         modal: Modal.none,
+        voice: Voice.active,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         placePhrase: atHome,
@@ -53,6 +55,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
         placePhrase: inThePark,
         timePhrase: yesterday,
       );
@@ -74,6 +77,7 @@ void main() {
         sentenceForm: SentenceForm.statement,
         placePhrase: atSchool,
         timePhrase: tomorrow,
+        voice: Voice.active,
       );
 
       expect(
@@ -91,6 +95,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
         placePhrase: atHome,
       );
 
@@ -106,6 +111,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'Does Mary know?');
@@ -120,6 +126,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'Did the dog run?');
@@ -134,6 +141,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.active,
         timePhrase: tomorrow,
       );
 
@@ -149,6 +157,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'That car does not work.');
@@ -163,6 +172,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
         timePhrase: yesterday,
       );
 
@@ -181,6 +191,7 @@ void main() {
         modal: Modal.can,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'He can drive.');
@@ -195,6 +206,7 @@ void main() {
         modal: Modal.should,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'She should study.');
@@ -209,6 +221,7 @@ void main() {
         modal: Modal.must,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'Some dogs must work.');
@@ -223,6 +236,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.imperative,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'Cook.');
@@ -237,6 +251,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.exclamation,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'You run!');
@@ -251,6 +266,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'Each child has learned.');
@@ -265,6 +281,7 @@ void main() {
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
       );
 
       expect(engine.generate(state).text, 'The mouse has gone.');
@@ -279,6 +296,7 @@ void main() {
         modal: Modal.can,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        voice: Voice.active,
         placePhrase: toWork,
       );
 

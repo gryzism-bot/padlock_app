@@ -7,6 +7,7 @@ import 'package:padlock_app/models/grammar/subject/subject.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 
 class SentenceState {
   final Subject subject; // open
@@ -16,8 +17,9 @@ class SentenceState {
   final Modal modal;
   final Polarity polarity;
   final SentenceForm sentenceForm;
-  final TimePhrase? timePhrase;
-  final PlacePhrase? placePhrase;
+  final Voice voice;
+  final TimePhrase? timePhrase; //open
+  final PlacePhrase? placePhrase; //open
 
   const SentenceState({
     required this.subject,
@@ -27,6 +29,7 @@ class SentenceState {
     required this.modal,
     required this.polarity,
     required this.sentenceForm,
+    required this.voice,
     this.timePhrase,
     this.placePhrase,
   });
@@ -41,6 +44,7 @@ Aspect: $aspect
 Modal: $modal
 Polarity: $polarity
 Form: $sentenceForm
+Voice: $voice
 Time Phrase: ${timePhrase?.text}
 Place Phrase: ${placePhrase?.text}
 ''';

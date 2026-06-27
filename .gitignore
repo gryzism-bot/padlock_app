@@ -35,7 +35,6 @@ migrate_working_dir/
 build/
 /coverage/
 .packages
-
 # IDE
 .idea/
 .vscode/
@@ -55,3 +54,4 @@ android/local.properties
 
 # macOS
 .DS_Store
+test/engine/test_placeholder.dart

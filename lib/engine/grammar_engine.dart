@@ -2,6 +2,7 @@ import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -16,9 +17,19 @@ class GrammarEngine {
     _applyAspect(builder);
     _applyModal(builder);
 
-    final text = _buildSentence(builder);
+    final text = _applyVoice(builder);
 
     return Sentence(text: text, state: state);
+  }
+
+  String _applyVoice(_SentenceBuilder builder) {
+    switch (builder.voice) {
+      case Voice.active:
+        return _buildActive(builder);
+
+      case Voice.passive:
+        return _buildPassive(builder);
+    }
   }
 
   void _applySubject(_SentenceBuilder builder) {
@@ -176,7 +187,7 @@ class GrammarEngine {
     }
   }
 
-  String _buildSentence(_SentenceBuilder builder) {
+  String _buildActive(_SentenceBuilder builder) {
     final state = builder.state;
     final parts = <String>[];
 
@@ -311,10 +322,270 @@ class GrammarEngine {
 
     return '$sentence$punctuation';
   }
+
+  String _buildPassive(_SentenceBuilder builder) {
+    final state = builder.state;
+    final parts = <String>[];
+
+    // ---------- FRONT PHRASES ----------
+
+    if (state.timePhrase?.position == PhrasePosition.beforeSubject) {
+      parts.add(builder.timePhrase);
+    }
+
+    if (state.placePhrase?.position == PhrasePosition.beforeSubject) {
+      parts.add(builder.placePhrase);
+    }
+
+    // ---------- QUESTION ----------
+
+    if (state.sentenceForm == SentenceForm.question) {
+      switch (state.modal) {
+        case Modal.none:
+          _buildPassiveQuestionWithoutModal(builder, parts);
+          break;
+
+        default:
+          parts.add(builder.auxiliary);
+
+          if (builder.determiner.isNotEmpty) {
+            parts.add(builder.determiner);
+          }
+
+          parts.add(builder.subject);
+
+          parts.add('be');
+          parts.add(state.verb.pastParticiple);
+          break;
+      }
+    }
+    // ---------- STATEMENT / IMPERATIVE ----------
+    else {
+      if (state.sentenceForm != SentenceForm.imperative) {
+        if (builder.determiner.isNotEmpty) {
+          parts.add(builder.determiner);
+        }
+
+        parts.add(builder.subject);
+      }
+
+      switch (state.modal) {
+        case Modal.none:
+          _buildPassivePredicateWithoutModal(builder, parts);
+          break;
+
+        default:
+          parts.add(builder.auxiliary);
+          parts.add('be');
+          parts.add(state.verb.pastParticiple);
+          break;
+      }
+    }
+
+    // ---------- BACK PHRASES ----------
+
+    if (state.placePhrase?.position == PhrasePosition.afterPredicate) {
+      parts.add(builder.placePhrase);
+    }
+
+    if (state.timePhrase?.position == PhrasePosition.afterPredicate) {
+      parts.add(builder.timePhrase);
+    }
+
+    String punctuation;
+
+    switch (state.sentenceForm) {
+      case SentenceForm.statement:
+        punctuation = '.';
+        break;
+
+      case SentenceForm.question:
+        punctuation = '?';
+        break;
+
+      case SentenceForm.exclamation:
+        punctuation = '!';
+        break;
+
+      case SentenceForm.imperative:
+        punctuation = '.';
+        break;
+    }
+
+    final sentence = parts.join(' ').capitalizeFirst();
+
+    return '$sentence$punctuation';
+  }
+
+  void _buildPassivePredicateWithoutModal(
+    _SentenceBuilder builder,
+    List<String> parts,
+  ) {
+    final state = builder.state;
+
+    switch (state.aspect) {
+      case Aspect.simple:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.isPlural ? 'are' : 'is');
+            break;
+
+          case Tense.past:
+            parts.add(state.subject.isPlural ? 'were' : 'was');
+            break;
+
+          case Tense.future:
+            parts.add('will');
+            parts.add('be');
+            break;
+        }
+
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.continuous:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.isPlural ? 'are' : 'is');
+            parts.add('being');
+            break;
+
+          case Tense.past:
+            parts.add(state.subject.isPlural ? 'were' : 'was');
+            parts.add('being');
+            break;
+
+          case Tense.future:
+            throw UnimplementedError();
+        }
+
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.perfect:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.takesThirdPersonVerb ? 'has' : 'have');
+            parts.add('been');
+            break;
+
+          case Tense.past:
+            parts.add('had');
+            parts.add('been');
+            break;
+
+          case Tense.future:
+            parts.add('will');
+            parts.add('have');
+            parts.add('been');
+            break;
+        }
+
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.perfectContinuous:
+        throw UnimplementedError();
+    }
+  }
+
+  void _buildPassiveQuestionWithoutModal(
+    _SentenceBuilder builder,
+    List<String> parts,
+  ) {
+    final state = builder.state;
+
+    switch (state.aspect) {
+      case Aspect.simple:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.isPlural ? 'are' : 'is');
+            break;
+
+          case Tense.past:
+            parts.add(state.subject.isPlural ? 'were' : 'was');
+            break;
+
+          case Tense.future:
+            parts.add('will');
+            break;
+        }
+
+        if (builder.determiner.isNotEmpty) {
+          parts.add(builder.determiner);
+        }
+
+        parts.add(builder.subject);
+
+        if (state.tense == Tense.future) {
+          parts.add('be');
+        }
+
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.continuous:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.isPlural ? 'are' : 'is');
+            break;
+
+          case Tense.past:
+            parts.add(state.subject.isPlural ? 'were' : 'was');
+            break;
+
+          case Tense.future:
+            throw UnimplementedError();
+        }
+
+        if (builder.determiner.isNotEmpty) {
+          parts.add(builder.determiner);
+        }
+
+        parts.add(builder.subject);
+        parts.add('being');
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.perfect:
+        switch (state.tense) {
+          case Tense.present:
+            parts.add(state.subject.takesThirdPersonVerb ? 'has' : 'have');
+            break;
+
+          case Tense.past:
+            parts.add('had');
+            break;
+
+          case Tense.future:
+            parts.add('will');
+            break;
+        }
+
+        if (builder.determiner.isNotEmpty) {
+          parts.add(builder.determiner);
+        }
+
+        parts.add(builder.subject);
+
+        if (state.tense == Tense.future) {
+          parts.add('have');
+        }
+
+        parts.add('been');
+        parts.add(state.verb.pastParticiple);
+        break;
+
+      case Aspect.perfectContinuous:
+        throw UnimplementedError();
+    }
+  }
 }
 
 class _SentenceBuilder {
   final SentenceState state;
+
+  final Voice voice;
 
   String determiner = '';
   String subject = '';
@@ -325,7 +596,7 @@ class _SentenceBuilder {
   String timePhrase = '';
   String placePhrase = '';
 
-  _SentenceBuilder(this.state) {
+  _SentenceBuilder(this.state) : voice = state.voice {
     determiner = state.subject.determiner?.text ?? '';
 
     timePhrase = state.timePhrase?.text ?? '';

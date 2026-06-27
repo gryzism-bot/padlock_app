@@ -8,6 +8,7 @@ import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
+import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 import 'package:padlock_app/models/grammar/subject/subject.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Modal modal = Modal.none;
   Polarity polarity = Polarity.positive;
   SentenceForm sentenceForm = SentenceForm.statement;
+  Voice voice = Voice.active;
   TimePhrase? timePhrase;
   PlacePhrase? placePhrase;
   final GrammarEngine grammarEngine = GrammarEngine();
@@ -45,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       modal: modal,
       polarity: polarity,
       sentenceForm: sentenceForm,
+      voice: voice,
       timePhrase: timePhrase,
       placePhrase: placePhrase,
     );
