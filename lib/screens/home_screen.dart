@@ -13,8 +13,8 @@ import '../models/grammar/subject/subject.dart';
 import '../models/grammar/verb/verb.dart';
 import '../models/grammar/verb/tense.dart';
 
-import '../data/subjects.dart';
-import '../data/verbs.dart';
+import '../data/subjects/pronouns.dart';
+import '../data/verbs/verbs.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

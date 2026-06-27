@@ -1,5 +1,5 @@
-import '../models/grammar/verb/verb.dart';
-import '../models/language.dart';
+import '../../models/grammar/verb/verb.dart';
+import '../../models/language.dart';
 
 const work = Verb(
   infinitive: 'work',
