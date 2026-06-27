@@ -2,109 +2,105 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
-import 'package:padlock_app/models/sentence/sentence_state.dart';
-
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/data/subjects/pronouns.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/work.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart';
+
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('Simple', () {
-    test('Present Simple - statement', () {
+  group('Smoke', () {
+    test('John has worked at home today', () {
       final state = SentenceState(
-        subject: he,
+        subject: john.toSubject(Number.singular),
         verb: work,
         tense: Tense.present,
-        aspect: Aspect.simple,
+        aspect: Aspect.perfect,
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        placePhrase: atHome,
+        timePhrase: today,
       );
 
-      expect(grammarEngine.generate(state).text, 'He works.');
+      expect(engine.generate(state).text, 'John has worked at home today.');
     });
 
-    test('Past Simple - statement', () {
+    test('Dogs were running in the park yesterday', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: dog.toSubject(Number.plural),
+        verb: run,
         tense: Tense.past,
-        aspect: Aspect.simple,
+        aspect: Aspect.continuous,
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        placePhrase: inThePark,
+        timePhrase: yesterday,
       );
 
-      expect(grammarEngine.generate(state).text, 'He worked.');
+      expect(
+        engine.generate(state).text,
+        'Dogs were running in the park yesterday.',
+      );
     });
 
-    test('Future Simple - statement', () {
+    test('Teacher will teach at school tomorrow', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: teacher.toSubject(Number.singular),
+        verb: teach,
         tense: Tense.future,
         aspect: Aspect.simple,
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        placePhrase: atSchool,
+        timePhrase: tomorrow,
       );
 
-      expect(grammarEngine.generate(state).text, 'He will work.');
+      expect(
+        engine.generate(state).text,
+        'Teacher will teach at school tomorrow.',
+      );
     });
 
-    test('Present Simple - negative', () {
+    test('Cats have been sleeping at home', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: cat.toSubject(Number.plural),
+        verb: sleep,
         tense: Tense.present,
-        aspect: Aspect.simple,
+        aspect: Aspect.perfectContinuous,
         modal: Modal.none,
-        polarity: Polarity.negative,
+        polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        placePhrase: atHome,
       );
 
-      expect(grammarEngine.generate(state).text, 'He does not work.');
+      expect(engine.generate(state).text, 'Cats have been sleeping at home.');
     });
 
-    test('Past Simple - negative', () {
+    test('Does Mary know?', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He did not work.');
-    });
-
-    test('Future Simple - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will not work.');
-    });
-
-    test('Present Simple - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: mary.toSubject(Number.singular),
+        verb: know,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.none,
@@ -112,13 +108,13 @@ void main() {
         sentenceForm: SentenceForm.question,
       );
 
-      expect(grammarEngine.generate(state).text, 'Does he work?');
+      expect(engine.generate(state).text, 'Does Mary know?');
     });
 
-    test('Past Simple - question', () {
+    test('Did dog run?', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: dog.toSubject(Number.singular),
+        verb: run,
         tense: Tense.past,
         aspect: Aspect.simple,
         modal: Modal.none,
@@ -126,111 +122,99 @@ void main() {
         sentenceForm: SentenceForm.question,
       );
 
-      expect(grammarEngine.generate(state).text, 'Did he work?');
+      expect(engine.generate(state).text, 'Did dog run?');
     });
 
-    test('Future Simple - question', () {
+    test('Will John come tomorrow?', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: john.toSubject(Number.singular),
+        verb: come,
         tense: Tense.future,
         aspect: Aspect.simple,
         modal: Modal.none,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        timePhrase: tomorrow,
       );
 
-      expect(grammarEngine.generate(state).text, 'Will he work?');
+      expect(engine.generate(state).text, 'Will John come tomorrow?');
     });
 
-    test('Present Simple - negative question', () {
+    test('Car does not work', () {
       final state = SentenceState(
-        subject: he,
+        subject: car.toSubject(Number.singular),
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.none,
         polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
+        sentenceForm: SentenceForm.statement,
       );
 
-      expect(grammarEngine.generate(state).text, 'Does he not work?');
+      expect(engine.generate(state).text, 'Car does not work.');
     });
 
-    test('Past Simple - negative question', () {
+    test('Students did not study yesterday', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: student.toSubject(Number.plural),
+        verb: study,
         tense: Tense.past,
         aspect: Aspect.simple,
         modal: Modal.none,
         polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
+        sentenceForm: SentenceForm.statement,
+        timePhrase: yesterday,
       );
 
-      expect(grammarEngine.generate(state).text, 'Did he not work?');
+      expect(engine.generate(state).text, 'Students did not study yesterday.');
     });
 
-    test('Future Simple - negative question', () {
+    test('He can drive', () {
       final state = SentenceState(
         subject: he,
-        verb: work,
-        tense: Tense.future,
+        verb: drive,
+        tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
+        modal: Modal.can,
+        polarity: Polarity.positive,
+        sentenceForm: SentenceForm.statement,
       );
 
-      expect(grammarEngine.generate(state).text, 'Will he not work?');
+      expect(engine.generate(state).text, 'He can drive.');
     });
 
-    test('Present Simple - exclamation', () {
+    test('She should study', () {
       final state = SentenceState(
-        subject: he,
+        subject: she,
+        verb: study,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+        modal: Modal.should,
+        polarity: Polarity.positive,
+        sentenceForm: SentenceForm.statement,
+      );
+
+      expect(engine.generate(state).text, 'She should study.');
+    });
+
+    test('We must work', () {
+      final state = SentenceState(
+        subject: we,
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: Modal.must,
         polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
+        sentenceForm: SentenceForm.statement,
       );
 
-      expect(grammarEngine.generate(state).text, 'He works!');
+      expect(engine.generate(state).text, 'We must work.');
     });
 
-    test('Past Simple - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He worked!');
-    });
-
-    test('Future Simple - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will work!');
-    });
-
-    test('Present Simple - imperative', () {
+    test('Talk imperative', () {
       final state = SentenceState(
         subject: you,
-        verb: work,
+        verb: talk,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.none,
@@ -238,1395 +222,13 @@ void main() {
         sentenceForm: SentenceForm.imperative,
       );
 
-      expect(grammarEngine.generate(state).text, 'Work.');
+      expect(engine.generate(state).text, 'Talk.');
     });
 
-    test('Present Simple - negative imperative', () {
+    test('You run!', () {
       final state = SentenceState(
         subject: you,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.imperative,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Do not work.');
-    });
-
-    test('Present Simple - plural subject', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They work.');
-    });
-
-    test('Past Simple - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He went.');
-    });
-  });
-
-  group('Continuous', () {
-    test('Present Continuous - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is working.');
-    });
-
-    test('Past Continuous - statement', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were working.');
-    });
-
-    test('Future Continuous - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will be working.');
-    });
-
-    test('Present Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is not working.');
-    });
-
-    test('Past Continuous - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were not working.');
-    });
-
-    test('Future Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will not be working.');
-    });
-
-    test('Present Continuous - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Is he working?');
-    });
-
-    test('Past Continuous - question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Were they working?');
-    });
-
-    test('Future Continuous - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he be working?');
-    });
-
-    test('Present Continuous - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Is he not working?');
-    });
-
-    test('Past Continuous - negative question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Were they not working?');
-    });
-
-    test('Future Continuous - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he not be working?');
-    });
-
-    test('Present Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is working!');
-    });
-
-    test('Past Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were working!');
-    });
-
-    test('Future Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will be working!');
-    });
-
-    test('Present Continuous - plural subject', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They are working.');
-    });
-
-    test('Present Continuous - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is going.');
-    });
-  });
-
-  group('Perfect', () {
-    test('Present Perfect - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has worked.');
-    });
-
-    test('Past Perfect - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had worked.');
-    });
-
-    test('Future Perfect - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have worked.');
-    });
-
-    test('Present Perfect - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not worked.');
-    });
-
-    test('Past Perfect - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had not worked.');
-    });
-
-    test('Future Perfect - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will not have worked.');
-    });
-
-    test('Present Perfect - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he worked?');
-    });
-
-    test('Past Perfect - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he worked?');
-    });
-
-    test('Future Perfect - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he have worked?');
-    });
-
-    test('Present Perfect - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he not worked?');
-    });
-
-    test('Past Perfect - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he not worked?');
-    });
-
-    test('Future Perfect - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he not have worked?');
-    });
-
-    test('Present Perfect - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has worked!');
-    });
-
-    test('Past Perfect - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had worked!');
-    });
-
-    test('Future Perfect - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have worked!');
-    });
-
-    test('Present Perfect - plural subject', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have worked.');
-    });
-
-    test('Present Perfect - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has gone.');
-    });
-
-    test('Past Perfect - irregular verb', () {
-      final state = SentenceState(
-        subject: they,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had gone.');
-    });
-  });
-
-  group('Perfect Continuous', () {
-    test('Present Perfect Continuous - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been working.');
-    });
-
-    test('Past Perfect Continuous - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had been working.');
-    });
-
-    test('Future Perfect Continuous - statement', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have been working.');
-    });
-
-    test('Present Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not been working.');
-    });
-
-    test('Past Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had not been working.');
-    });
-
-    test('Future Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'He will not have been working.',
-      );
-    });
-
-    test('Present Perfect Continuous - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he been working?');
-    });
-
-    test('Past Perfect Continuous - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he been working?');
-    });
-
-    test('Future Perfect Continuous - question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he have been working?');
-    });
-
-    test('Present Perfect Continuous - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he not been working?');
-    });
-
-    test('Past Perfect Continuous - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he not been working?');
-    });
-
-    test('Future Perfect Continuous - negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'Will he not have been working?',
-      );
-    });
-
-    test('Present Perfect Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been working!');
-    });
-
-    test('Past Perfect Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had been working!');
-    });
-
-    test('Future Perfect Continuous - exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have been working!');
-    });
-
-    test('Present Perfect Continuous - plural subject', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have been working.');
-    });
-
-    test('Present Perfect Continuous - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been going.');
-    });
-
-    test('Past Perfect Continuous - irregular verb', () {
-      final state = SentenceState(
-        subject: they,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had been going.');
-    });
-  });
-
-  group('Polarity', () {
-    test('Present Simple - positive', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He works.');
-    });
-
-    test('Present Simple - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He does not work.');
-    });
-
-    test('Present Continuous - positive', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is working.');
-    });
-
-    test('Present Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is not working.');
-    });
-
-    test('Present Perfect - positive', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has worked.');
-    });
-
-    test('Present Perfect - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not worked.');
-    });
-
-    test('Present Perfect Continuous - positive', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been working.');
-    });
-
-    test('Present Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not been working.');
-    });
-
-    test('Past Simple - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They did not work.');
-    });
-
-    test('Future Simple - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will not work.');
-    });
-
-    test('Past Continuous - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were not working.');
-    });
-
-    test('Future Continuous - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will not be working.');
-    });
-
-    test('Past Perfect - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had not worked.');
-    });
-
-    test('Future Perfect - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will not have worked.');
-    });
-
-    test('Past Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had not been working.');
-    });
-
-    test('Future Perfect Continuous - negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'They will not have been working.',
-      );
-    });
-
-    test('Present Perfect - irregular verb negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not gone.');
-    });
-  });
-
-  group('Questions', () {
-    test('Present Simple question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Does he work?');
-    });
-
-    test('Past Simple question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Did he work?');
-    });
-
-    test('Future Simple question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he work?');
-    });
-
-    test('Present Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Is he working?');
-    });
-
-    test('Past Continuous question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Were they working?');
-    });
-
-    test('Future Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he be working?');
-    });
-
-    test('Present Perfect question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he worked?');
-    });
-
-    test('Past Perfect question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he worked?');
-    });
-
-    test('Future Perfect question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he have worked?');
-    });
-
-    test('Present Perfect Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he been working?');
-    });
-
-    test('Past Perfect Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he been working?');
-    });
-
-    test('Future Perfect Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he have been working?');
-    });
-
-    test('Present Simple negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Does he not work?');
-    });
-
-    test('Past Simple negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Did he not work?');
-    });
-
-    test('Future Simple negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he not work?');
-    });
-
-    test('Present Continuous negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Is he not working?');
-    });
-
-    test('Past Continuous negative question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Were they not working?');
-    });
-
-    test('Future Continuous negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he not be working?');
-    });
-
-    test('Present Perfect negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he not worked?');
-    });
-
-    test('Past Perfect negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he not worked?');
-    });
-
-    test('Future Perfect negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he not have worked?');
-    });
-
-    test('Present Perfect Continuous negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he not been working?');
-    });
-
-    test('Past Perfect Continuous negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Had he not been working?');
-    });
-
-    test('Future Perfect Continuous negative question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'Will he not have been working?',
-      );
-    });
-  });
-
-  group('Exclamations', () {
-    test('Present Simple exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
+        verb: run,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.none,
@@ -1634,759 +236,50 @@ void main() {
         sentenceForm: SentenceForm.exclamation,
       );
 
-      expect(grammarEngine.generate(state).text, 'He works!');
+      expect(engine.generate(state).text, 'You run!');
     });
 
-    test('Past Simple exclamation', () {
+    test('Children have learned', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He worked!');
-    });
-
-    test('Future Simple exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will work!');
-    });
-
-    test('Present Continuous exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is working!');
-    });
-
-    test('Past Continuous exclamation', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were working!');
-    });
-
-    test('Future Continuous exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will be working!');
-    });
-
-    test('Present Perfect exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: child.toSubject(Number.plural),
+        verb: learn,
         tense: Tense.present,
         aspect: Aspect.perfect,
         modal: Modal.none,
         polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
+        sentenceForm: SentenceForm.statement,
       );
 
-      expect(grammarEngine.generate(state).text, 'He has worked!');
+      expect(engine.generate(state).text, 'Children have learned.');
     });
 
-    test('Past Perfect exclamation', () {
+    test('Mouse has gone', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had worked!');
-    });
-
-    test('Future Perfect exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have worked!');
-    });
-
-    test('Present Perfect Continuous exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
+        subject: mouse.toSubject(Number.singular),
+        verb: go,
         tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
+        aspect: Aspect.perfect,
         modal: Modal.none,
         polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
+        sentenceForm: SentenceForm.statement,
       );
 
-      expect(grammarEngine.generate(state).text, 'He has been working!');
+      expect(engine.generate(state).text, 'Mouse has gone.');
     });
 
-    test('Past Perfect Continuous exclamation', () {
+    test('Teachers can travel to work', () {
       final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had been working!');
-    });
-
-    test('Future Perfect Continuous exclamation', () {
-      final state = SentenceState(
-        subject: he,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have been working!');
-    });
-
-    test('Present Simple exclamation - plural subject', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
+        subject: teacher.toSubject(Number.plural),
+        verb: travel,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They work!');
-    });
-
-    test('Present Perfect exclamation - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has gone!');
-    });
-
-    test('Present Perfect Continuous exclamation - irregular verb', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been going!');
-    });
-  });
-
-  group('Irregular verbs', () {
-    test('Go - Present Simple', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: Modal.can,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
+        placePhrase: toWork,
       );
 
-      expect(grammarEngine.generate(state).text, 'He goes.');
-    });
-
-    test('Go - Past Simple', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He went.');
-    });
-
-    test('Go - Future Simple', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will go.');
-    });
-
-    test('Go - Present Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He is going.');
-    });
-
-    test('Go - Past Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He was going.');
-    });
-
-    test('Go - Future Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will be going.');
-    });
-
-    test('Go - Present Perfect', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has gone.');
-    });
-
-    test('Go - Past Perfect', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had gone.');
-    });
-
-    test('Go - Future Perfect', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have gone.');
-    });
-
-    test('Go - Present Perfect Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has been going.');
-    });
-
-    test('Go - Past Perfect Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He had been going.');
-    });
-
-    test('Go - Future Perfect Continuous', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He will have been going.');
-    });
-
-    test('Go - Present Perfect question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Has he gone?');
-    });
-
-    test('Go - Present Perfect negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'He has not gone.');
-    });
-
-    test('Go - Future Perfect Continuous question', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Will he have been going?');
-    });
-
-    test('Go - Future Perfect Continuous negative', () {
-      final state = SentenceState(
-        subject: he,
-        verb: go,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'He will not have been going.',
-      );
-    });
-
-    test('Go - Present Simple plural', () {
-      final state = SentenceState(
-        subject: they,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They go.');
-    });
-
-    test('Go - Present Continuous plural', () {
-      final state = SentenceState(
-        subject: they,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They are going.');
-    });
-
-    test('Go - Present Perfect plural', () {
-      final state = SentenceState(
-        subject: they,
-        verb: go,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have gone.');
-    });
-  });
-
-  group('Plural subjects', () {
-    test('Present Simple', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They work.');
-    });
-
-    test('Past Simple', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They worked.');
-    });
-
-    test('Future Simple', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will work.');
-    });
-
-    test('Present Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They are working.');
-    });
-
-    test('Past Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They were working.');
-    });
-
-    test('Future Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will be working.');
-    });
-
-    test('Present Perfect', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have worked.');
-    });
-
-    test('Past Perfect', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had worked.');
-    });
-
-    test('Future Perfect', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They will have worked.');
-    });
-
-    test('Present Perfect Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have been working.');
-    });
-
-    test('Past Perfect Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.past,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They had been working.');
-    });
-
-    test('Future Perfect Continuous', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.future,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(
-        grammarEngine.generate(state).text,
-        'They will have been working.',
-      );
-    });
-
-    test('Present Simple question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Do they work?');
-    });
-
-    test('Present Continuous question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Are they working?');
-    });
-
-    test('Present Perfect question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Have they worked?');
-    });
-
-    test('Present Perfect Continuous question', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.question,
-      );
-
-      expect(grammarEngine.generate(state).text, 'Have they been working?');
-    });
-
-    test('Present Simple negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They do not work.');
-    });
-
-    test('Present Perfect negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have not worked.');
-    });
-
-    test('Present Perfect Continuous negative', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
-        polarity: Polarity.negative,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They have not been working.');
-    });
-
-    test('Present Simple exclamation', () {
-      final state = SentenceState(
-        subject: they,
-        verb: work,
-        tense: Tense.present,
-        aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.exclamation,
-      );
-
-      expect(grammarEngine.generate(state).text, 'They work!');
+      expect(engine.generate(state).text, 'Teachers can travel to work.');
     });
   });
 }

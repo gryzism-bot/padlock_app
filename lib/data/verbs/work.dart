@@ -46,7 +46,7 @@ const program = Verb(
   translations: {Language.pl: 'programować'},
 );
 
-const test = Verb(
+const testVerb = Verb(
   infinitive: 'test',
   presentThirdPerson: 'tests',
   pastSimple: 'tested',
