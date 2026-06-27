@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
-import 'package:padlock_app/models/grammar/subject/determiner.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
@@ -11,6 +10,7 @@ import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -46,7 +46,7 @@ void main() {
 
     test('The dog was running in the park yesterday', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.singular, determiner: Determiner.the),
+        subject: dog.toSubject(Number.singular, determiner: theDeterminer),
         verb: run,
         tense: Tense.past,
         aspect: Aspect.continuous,
@@ -65,10 +65,7 @@ void main() {
 
     test('This teacher will teach at school tomorrow', () {
       final state = SentenceState(
-        subject: teacher.toSubject(
-          Number.singular,
-          determiner: Determiner.thisDeterminer,
-        ),
+        subject: teacher.toSubject(Number.singular, determiner: thisDeterminer),
         verb: teach,
         tense: Tense.future,
         aspect: Aspect.simple,
@@ -116,7 +113,7 @@ void main() {
 
     test('Did the dog run?', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.singular, determiner: Determiner.the),
+        subject: dog.toSubject(Number.singular, determiner: theDeterminer),
         verb: run,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -145,7 +142,7 @@ void main() {
 
     test('That car does not work', () {
       final state = SentenceState(
-        subject: car.toSubject(Number.singular, determiner: Determiner.that),
+        subject: car.toSubject(Number.singular, determiner: thatDeterminer),
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -159,7 +156,7 @@ void main() {
 
     test('Our students did not study yesterday', () {
       final state = SentenceState(
-        subject: student.toSubject(Number.plural, determiner: Determiner.our),
+        subject: student.toSubject(Number.plural, determiner: ourDeterminer),
         verb: study,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -205,7 +202,7 @@ void main() {
 
     test('Some dogs must work', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.plural, determiner: Determiner.some),
+        subject: dog.toSubject(Number.plural, determiner: someDeterminer),
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -247,7 +244,7 @@ void main() {
 
     test('Each child has learned', () {
       final state = SentenceState(
-        subject: child.toSubject(Number.singular, determiner: Determiner.each),
+        subject: child.toSubject(Number.singular, determiner: eachDeterminer),
         verb: learn,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -261,7 +258,7 @@ void main() {
 
     test('The mouse has gone', () {
       final state = SentenceState(
-        subject: mouse.toSubject(Number.singular, determiner: Determiner.the),
+        subject: mouse.toSubject(Number.singular, determiner: theDeterminer),
         verb: go,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -275,7 +272,7 @@ void main() {
 
     test('Any teacher can travel to work', () {
       final state = SentenceState(
-        subject: teacher.toSubject(Number.singular, determiner: Determiner.any),
+        subject: teacher.toSubject(Number.singular, determiner: anyDeterminer),
         verb: travel,
         tense: Tense.present,
         aspect: Aspect.simple,

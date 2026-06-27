@@ -1,27 +1,12 @@
-enum Determiner {
-  none,
+import 'package:padlock_app/models/language.dart';
 
-  a,
-  an,
-  the,
+class Determiner {
+  final String text;
 
-  thisDeterminer,
-  that,
-  these,
-  those,
+  final Map<Language, String> translations;
 
-  my,
-  your,
-  his,
-  her,
-  our,
-  their,
-
-  some,
-  any,
-  each,
-  every,
-  no,
-  either,
-  neither,
+  const Determiner({
+    required this.text,
+    required this.translations,
+  });
 }

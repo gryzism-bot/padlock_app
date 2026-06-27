@@ -1,4 +1,3 @@
-import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
@@ -339,74 +338,5 @@ extension SentenceFormatting on String {
     if (isEmpty) return this;
 
     return this[0].toUpperCase() + substring(1);
-  }
-}
-
-extension DeterminerText on Determiner {
-  String get text {
-    switch (this) {
-      case Determiner.none:
-        return '';
-
-      case Determiner.the:
-        return 'the';
-
-      case Determiner.a:
-        return 'a';
-
-      case Determiner.an:
-        return 'an';
-
-      case Determiner.thisDeterminer:
-        return 'this';
-
-      case Determiner.that:
-        return 'that';
-
-      case Determiner.these:
-        return 'these';
-
-      case Determiner.those:
-        return 'those';
-
-      case Determiner.some:
-        return 'some';
-
-      case Determiner.any:
-        return 'any';
-
-      case Determiner.my:
-        return 'my';
-
-      case Determiner.your:
-        return 'your';
-
-      case Determiner.his:
-        return 'his';
-
-      case Determiner.her:
-        return 'her';
-
-      case Determiner.our:
-        return 'our';
-
-      case Determiner.their:
-        return 'their';
-
-      case Determiner.each:
-        return 'each';
-
-      case Determiner.every:
-        return 'every';
-
-      case Determiner.no:
-        return 'no';
-
-      case Determiner.either:
-        return 'either';
-
-      case Determiner.neither:
-        return 'neither';
-    }
   }
 }
