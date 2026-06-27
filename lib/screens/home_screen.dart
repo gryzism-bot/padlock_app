@@ -14,7 +14,7 @@ import '../models/grammar/verb/verb.dart';
 import '../models/grammar/verb/tense.dart';
 
 import '../data/subjects/pronouns.dart';
-import '../data/verbs/verbs.dart';
+import '../data/verbs/essential.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

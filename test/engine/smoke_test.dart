@@ -11,7 +11,7 @@ import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
 import 'package:padlock_app/data/subjects/pronouns.dart';
-import 'package:padlock_app/data/verbs/verbs.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
   final grammarEngine = GrammarEngine();
