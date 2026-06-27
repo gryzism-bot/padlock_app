@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/determiner.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
@@ -44,9 +45,9 @@ void main() {
       expect(engine.generate(state).text, 'John has worked at home today.');
     });
 
-    test('Dogs were running in the park yesterday', () {
+    test('The dog was running in the park yesterday', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.plural),
+        subject: dog.toSubject(Number.singular, determiner: Determiner.the),
         verb: run,
         tense: Tense.past,
         aspect: Aspect.continuous,
@@ -59,13 +60,16 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'Dogs were running in the park yesterday.',
+        'The dog was running in the park yesterday.',
       );
     });
 
-    test('Teacher will teach at school tomorrow', () {
+    test('This teacher will teach at school tomorrow', () {
       final state = SentenceState(
-        subject: teacher.toSubject(Number.singular),
+        subject: teacher.toSubject(
+          Number.singular,
+          determiner: Determiner.thisDeterminer,
+        ),
         verb: teach,
         tense: Tense.future,
         aspect: Aspect.simple,
@@ -78,7 +82,7 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'Teacher will teach at school tomorrow.',
+        'This teacher will teach at school tomorrow.',
       );
     });
 
@@ -111,9 +115,9 @@ void main() {
       expect(engine.generate(state).text, 'Does Mary know?');
     });
 
-    test('Did dog run?', () {
+    test('Did the dog run?', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.singular),
+        subject: dog.toSubject(Number.singular, determiner: Determiner.the),
         verb: run,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -122,7 +126,7 @@ void main() {
         sentenceForm: SentenceForm.question,
       );
 
-      expect(engine.generate(state).text, 'Did dog run?');
+      expect(engine.generate(state).text, 'Did the dog run?');
     });
 
     test('Will John come tomorrow?', () {
@@ -140,9 +144,9 @@ void main() {
       expect(engine.generate(state).text, 'Will John come tomorrow?');
     });
 
-    test('Car does not work', () {
+    test('That car does not work', () {
       final state = SentenceState(
-        subject: car.toSubject(Number.singular),
+        subject: car.toSubject(Number.singular, determiner: Determiner.that),
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -151,12 +155,12 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'Car does not work.');
+      expect(engine.generate(state).text, 'That car does not work.');
     });
 
-    test('Students did not study yesterday', () {
+    test('Our students did not study yesterday', () {
       final state = SentenceState(
-        subject: student.toSubject(Number.plural),
+        subject: student.toSubject(Number.plural, determiner: Determiner.our),
         verb: study,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -166,13 +170,16 @@ void main() {
         timePhrase: yesterday,
       );
 
-      expect(engine.generate(state).text, 'Students did not study yesterday.');
+      expect(
+        engine.generate(state).text,
+        'Our students did not study yesterday.',
+      );
     });
 
     test('He can drive', () {
       final state = SentenceState(
         subject: he,
-        verb: cook,
+        verb: drive,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.can,
@@ -180,7 +187,7 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'He can cook.');
+      expect(engine.generate(state).text, 'He can drive.');
     });
 
     test('She should study', () {
@@ -197,9 +204,9 @@ void main() {
       expect(engine.generate(state).text, 'She should study.');
     });
 
-    test('We must work', () {
+    test('Some dogs must work', () {
       final state = SentenceState(
-        subject: we,
+        subject: dog.toSubject(Number.plural, determiner: Determiner.some),
         verb: work,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -208,13 +215,13 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'We must work.');
+      expect(engine.generate(state).text, 'Some dogs must work.');
     });
 
-    test('Talk imperative', () {
+    test('Cook imperative', () {
       final state = SentenceState(
         subject: you,
-        verb: talk,
+        verb: cook,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: Modal.none,
@@ -222,7 +229,7 @@ void main() {
         sentenceForm: SentenceForm.imperative,
       );
 
-      expect(engine.generate(state).text, 'Talk.');
+      expect(engine.generate(state).text, 'Cook.');
     });
 
     test('You run!', () {
@@ -239,9 +246,9 @@ void main() {
       expect(engine.generate(state).text, 'You run!');
     });
 
-    test('Children have learned', () {
+    test('Each child has learned', () {
       final state = SentenceState(
-        subject: child.toSubject(Number.plural),
+        subject: child.toSubject(Number.singular, determiner: Determiner.each),
         verb: learn,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -250,12 +257,12 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'Children have learned.');
+      expect(engine.generate(state).text, 'Each child has learned.');
     });
 
-    test('Mouse has gone', () {
+    test('The mouse has gone', () {
       final state = SentenceState(
-        subject: mouse.toSubject(Number.singular),
+        subject: mouse.toSubject(Number.singular, determiner: Determiner.the),
         verb: go,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -264,12 +271,12 @@ void main() {
         sentenceForm: SentenceForm.statement,
       );
 
-      expect(engine.generate(state).text, 'Mouse has gone.');
+      expect(engine.generate(state).text, 'The mouse has gone.');
     });
 
-    test('Teachers can travel to work', () {
+    test('Any teacher can travel to work', () {
       final state = SentenceState(
-        subject: teacher.toSubject(Number.plural),
+        subject: teacher.toSubject(Number.singular, determiner: Determiner.any),
         verb: travel,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -279,7 +286,7 @@ void main() {
         placePhrase: toWork,
       );
 
-      expect(engine.generate(state).text, 'Teachers can travel to work.');
+      expect(engine.generate(state).text, 'Any teacher can travel to work.');
     });
   });
 }
