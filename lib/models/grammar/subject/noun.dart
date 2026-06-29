@@ -2,7 +2,7 @@ import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/language.dart';
 import 'number.dart';
 import 'person.dart';
-import 'subject.dart';
+import 'noun_phrase.dart';
 
 class Noun {
   final String singular;
@@ -11,22 +11,22 @@ class Noun {
   final Map<Language, String> singularTranslations;
   final Map<Language, String> pluralTranslations;
 
-  final Determiner? determiner;
-
   const Noun({
     required this.singular,
     required this.plural,
     required this.singularTranslations,
     required this.pluralTranslations,
-    this.determiner,
   });
 
-  Subject toSubject(Number number, {Determiner? determiner}) {
-    return Subject(
+  NounPhrase toNounPhrase(Number number, {Determiner? determiner}) {
+    return NounPhrase(
       text: number == Number.singular ? singular : plural,
+
       person: Person.third,
       number: number,
+
       determiner: determiner,
+
       translations: number == Number.singular
           ? singularTranslations
           : pluralTranslations,

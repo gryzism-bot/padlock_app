@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -15,7 +16,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -29,8 +29,8 @@ void main() {
     test('Does John work?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,
@@ -43,8 +43,8 @@ void main() {
     test('Do students study?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,
@@ -57,8 +57,8 @@ void main() {
     test('Did Mary work yesterday?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: work,
+          agent: mary.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,
@@ -72,8 +72,8 @@ void main() {
     test('Is the dog running?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
           sentenceForm: SentenceForm.question,
@@ -86,8 +86,8 @@ void main() {
     test('Are the dogs running?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.plural, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
           sentenceForm: SentenceForm.question,
@@ -100,8 +100,8 @@ void main() {
     test('Has John learned?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: learn,
+          agent: john.toNounPhrase(Number.singular),
+          action: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.question,
@@ -114,8 +114,8 @@ void main() {
     test('Have the students studied?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.question,
@@ -128,11 +128,11 @@ void main() {
     test('Will Mary travel tomorrow?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: travel,
+          agent: mary.toNounPhrase(Number.singular),
+          action: travel,
           tense: Tense.future,
           aspect: Aspect.simple,
-          modal: Modal.will,
+          modal: will,
           timePhrase: tomorrow,
           sentenceForm: SentenceForm.question,
         ),
@@ -144,14 +144,14 @@ void main() {
     test('Can the teacher work?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: work,
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -162,11 +162,11 @@ void main() {
     test('Should the students study?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -177,8 +177,8 @@ void main() {
     test('Does John not work?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
@@ -192,8 +192,8 @@ void main() {
     test('Did Mary not study yesterday?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
@@ -208,8 +208,8 @@ void main() {
     test('Is the dog not running?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
           polarity: Polarity.negative,
@@ -223,11 +223,11 @@ void main() {
     test('Can the dog not run?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
         ),
@@ -239,8 +239,8 @@ void main() {
     test('Was the house built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -254,8 +254,8 @@ void main() {
     test('Were the houses built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.plural, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -269,12 +269,12 @@ void main() {
     test('Can the house be built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -287,8 +287,8 @@ void main() {
     test('Was the house not built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -303,12 +303,15 @@ void main() {
     test('Should the bridge not be built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
         ),
@@ -320,8 +323,8 @@ void main() {
     test('Did Mary find the dog?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: findVerb,
+          agent: mary.toNounPhrase(Number.singular),
+          action: findVerb,
           tense: Tense.past,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,

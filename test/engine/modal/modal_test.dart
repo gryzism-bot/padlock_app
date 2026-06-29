@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -16,7 +17,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -30,11 +30,11 @@ void main() {
     test('John can work', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
         ),
       );
 
@@ -44,11 +44,11 @@ void main() {
     test('Mary should study', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
         ),
       );
 
@@ -58,11 +58,11 @@ void main() {
     test('The dog must run', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.must,
+          modal: must,
         ),
       );
 
@@ -72,11 +72,11 @@ void main() {
     test('The students may learn', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: learn,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: learn,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.may,
+          modal: may,
         ),
       );
 
@@ -86,11 +86,11 @@ void main() {
     test('John might travel', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: travel,
+          agent: john.toNounPhrase(Number.singular),
+          action: travel,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.might,
+          modal: might,
         ),
       );
 
@@ -100,11 +100,11 @@ void main() {
     test('Mary will work', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: work,
+          agent: mary.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.future,
           aspect: Aspect.simple,
-          modal: Modal.will,
+          modal: will,
         ),
       );
 
@@ -114,14 +114,14 @@ void main() {
     test('The teacher can teach at school', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: teach,
+          action: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           placePhrase: atSchool,
         ),
       );
@@ -132,11 +132,11 @@ void main() {
     test('John should work tomorrow', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           timePhrase: tomorrow,
         ),
       );
@@ -147,11 +147,11 @@ void main() {
     test('The dog cannot run', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           polarity: Polarity.negative,
         ),
       );
@@ -162,11 +162,11 @@ void main() {
     test('Mary should not study', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           polarity: Polarity.negative,
         ),
       );
@@ -177,11 +177,11 @@ void main() {
     test('Can John work?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -192,11 +192,11 @@ void main() {
     test('Should Mary study?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -207,11 +207,11 @@ void main() {
     test('Must the dog run?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.must,
+          modal: must,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -222,12 +222,12 @@ void main() {
     test('The house can be built', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
         ),
       );
 
@@ -237,12 +237,12 @@ void main() {
     test('Should the house be built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -253,12 +253,15 @@ void main() {
     test('The bridge must be built', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.must,
+          modal: must,
         ),
       );
 
@@ -268,11 +271,11 @@ void main() {
     test('The students may travel tomorrow', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: travel,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: travel,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.may,
+          modal: may,
           timePhrase: tomorrow,
         ),
       );
@@ -283,11 +286,11 @@ void main() {
     test('John might not work', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.might,
+          modal: might,
           polarity: Polarity.negative,
         ),
       );
@@ -298,14 +301,14 @@ void main() {
     test('The teacher will teach tomorrow', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: teach,
+          action: teach,
           tense: Tense.future,
           aspect: Aspect.simple,
-          modal: Modal.will,
+          modal: will,
           timePhrase: tomorrow,
         ),
       );

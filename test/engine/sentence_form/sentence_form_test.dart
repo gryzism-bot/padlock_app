@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -14,7 +15,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -29,8 +29,8 @@ void main() {
     test('Statement', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.statement,
@@ -43,8 +43,8 @@ void main() {
     test('Question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,
@@ -57,8 +57,8 @@ void main() {
     test('Exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.exclamation,
@@ -71,8 +71,8 @@ void main() {
     test('Imperative', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: you,
-          verb: work,
+          agent: you,
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.imperative,
@@ -85,8 +85,8 @@ void main() {
     test('Negative statement', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
@@ -100,8 +100,8 @@ void main() {
     test('Negative question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
@@ -115,8 +115,8 @@ void main() {
     test('Negative exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
           polarity: Polarity.negative,
@@ -130,8 +130,8 @@ void main() {
     test('Passive statement', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -145,8 +145,8 @@ void main() {
     test('Passive question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -160,12 +160,15 @@ void main() {
     test('Passive exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: build,
           voice: Voice.passive,
           tense: Tense.future,
           aspect: Aspect.simple,
-          modal: Modal.will,
+          modal: will,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -176,14 +179,14 @@ void main() {
     test('Modal question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: teach,
+          action: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -194,14 +197,14 @@ void main() {
     test('Modal exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: teach,
+          action: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.must,
+          modal: must,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -212,8 +215,8 @@ void main() {
     test('Plural question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,
@@ -226,8 +229,8 @@ void main() {
     test('Perfect question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: learn,
+          agent: john.toNounPhrase(Number.singular),
+          action: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.question,
@@ -242,8 +245,8 @@ void main() {
     test('Passive negative statement', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -258,8 +261,8 @@ void main() {
     test('Passive negative question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.simple,
@@ -274,12 +277,15 @@ void main() {
     test('Passive modal negative question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.should,
+          modal: should,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
         ),
@@ -291,8 +297,8 @@ void main() {
     test('Question with object', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: findVerb,
+          agent: mary.toNounPhrase(Number.singular),
+          action: findVerb,
           tense: Tense.past,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.question,

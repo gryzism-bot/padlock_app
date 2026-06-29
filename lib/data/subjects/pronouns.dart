@@ -1,9 +1,9 @@
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
-import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/language.dart';
 
-const i = Subject(
+const i = NounPhrase(
   text: 'i',
   person: Person.first,
   number: Number.singular,
@@ -35,7 +35,7 @@ const i = Subject(
   },
 );
 
-const you = Subject(
+const you = NounPhrase(
   text: 'you',
   person: Person.second,
   number: Number.singular,
@@ -67,7 +67,7 @@ const you = Subject(
   },
 );
 
-const he = Subject(
+const he = NounPhrase(
   text: 'he',
   person: Person.third,
   number: Number.singular,
@@ -99,7 +99,7 @@ const he = Subject(
   },
 );
 
-const she = Subject(
+const she = NounPhrase(
   text: 'she',
   person: Person.third,
   number: Number.singular,
@@ -131,7 +131,7 @@ const she = Subject(
   },
 );
 
-const it = Subject(
+const it = NounPhrase(
   text: 'it',
   person: Person.third,
   number: Number.singular,
@@ -163,7 +163,7 @@ const it = Subject(
   },
 );
 
-const we = Subject(
+const we = NounPhrase(
   text: 'we',
   person: Person.first,
   number: Number.plural,
@@ -195,7 +195,7 @@ const we = Subject(
   },
 );
 
-const they = Subject(
+const they = NounPhrase(
   text: 'they',
   person: Person.third,
   number: Number.plural,

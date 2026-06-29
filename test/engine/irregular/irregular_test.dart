@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -17,7 +18,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -29,8 +29,8 @@ void main() {
     test('John went home yesterday', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: go,
+          agent: john.toNounPhrase(Number.singular),
+          action: go,
           tense: Tense.past,
           aspect: Aspect.simple,
           placePhrase: atHome,
@@ -44,8 +44,8 @@ void main() {
     test('Mary has eaten', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: eat,
+          agent: mary.toNounPhrase(Number.singular),
+          action: eat,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -57,8 +57,8 @@ void main() {
     test('The dog ran', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -70,8 +70,8 @@ void main() {
     test('John has written', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: write,
+          agent: john.toNounPhrase(Number.singular),
+          action: write,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -83,8 +83,8 @@ void main() {
     test('Mary drank yesterday', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: drink,
+          agent: mary.toNounPhrase(Number.singular),
+          action: drink,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,
@@ -97,8 +97,8 @@ void main() {
     test('John has driven', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: drive,
+          agent: john.toNounPhrase(Number.singular),
+          action: drive,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -110,11 +110,11 @@ void main() {
     test('The teacher spoke', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: speak,
+          action: speak,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -126,8 +126,8 @@ void main() {
     test('Mary found the dog', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: findVerb,
+          agent: mary.toNounPhrase(Number.singular),
+          action: findVerb,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -139,8 +139,8 @@ void main() {
     test('John has taken', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: take,
+          agent: john.toNounPhrase(Number.singular),
+          action: take,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -152,8 +152,8 @@ void main() {
     test('The child slept', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: child.toSubject(Number.singular),
-          verb: sleep,
+          agent: child.toNounPhrase(Number.singular),
+          action: sleep,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -165,8 +165,8 @@ void main() {
     test('John knew', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: know,
+          agent: john.toNounPhrase(Number.singular),
+          action: know,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -178,8 +178,8 @@ void main() {
     test('Mary has bought', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: buy,
+          agent: mary.toNounPhrase(Number.singular),
+          action: buy,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -189,24 +189,23 @@ void main() {
     });
 
     test('The house was built', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
-          voice: Voice.passive,
-          tense: Tense.past,
-          aspect: Aspect.simple,
-        ),
+      final state = SentenceState(
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: build,
+        tense: Tense.past,
+        aspect: Aspect.simple,
+        voice: Voice.passive,
       );
 
-      expect(sentence.text, 'The house was built.');
+      expect(engine.generate(state).text, 'The house was built by John.');
     });
 
     test('John has done', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: doVerb,
+          agent: john.toNounPhrase(Number.singular),
+          action: doVerb,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -218,8 +217,8 @@ void main() {
     test('Mary came yesterday', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: come,
+          agent: mary.toNounPhrase(Number.singular),
+          action: come,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,
@@ -232,8 +231,8 @@ void main() {
     test('The boy began', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: boy.toSubject(Number.singular),
-          verb: begin,
+          agent: boy.toNounPhrase(Number.singular),
+          action: begin,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -245,8 +244,8 @@ void main() {
     test('The glass broke', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: glass.toSubject(Number.singular),
-          verb: breakVerb,
+          agent: glass.toNounPhrase(Number.singular),
+          action: breakVerb,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -258,9 +257,9 @@ void main() {
     test('John can swim', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: swim,
-          modal: Modal.can,
+          agent: john.toNounPhrase(Number.singular),
+          action: swim,
+          modal: can,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -272,8 +271,8 @@ void main() {
     test('Mary has seen', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: see,
+          agent: mary.toNounPhrase(Number.singular),
+          action: see,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -285,8 +284,8 @@ void main() {
     test('The choir sang', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: choir.toSubject(Number.singular),
-          verb: sing,
+          agent: choir.toNounPhrase(Number.singular),
+          action: sing,
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -298,8 +297,8 @@ void main() {
     test('John has been', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: be,
+          agent: john.toNounPhrase(Number.singular),
+          action: be,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -311,8 +310,8 @@ void main() {
     test('Mary has had', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: have,
+          agent: mary.toNounPhrase(Number.singular),
+          action: have,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -324,8 +323,8 @@ void main() {
     test('The cat got home', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: cat.toSubject(Number.singular),
-          verb: get,
+          agent: cat.toNounPhrase(Number.singular),
+          action: get,
           tense: Tense.past,
           aspect: Aspect.simple,
           placePhrase: atHome,
@@ -338,8 +337,8 @@ void main() {
     test('John read yesterday', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: read,
+          agent: john.toNounPhrase(Number.singular),
+          action: read,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -31,11 +31,11 @@ void main() {
   group('Smoke', () {
     test('John has worked at home today', () {
       final state = SentenceState(
-        subject: john.toSubject(Number.singular),
-        verb: work,
+        agent: john.toNounPhrase(Number.singular),
+        action: work,
         tense: Tense.present,
         aspect: Aspect.perfect,
-        modal: Modal.none,
+        modal: noModal,
         voice: Voice.active,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
@@ -48,11 +48,11 @@ void main() {
 
     test('The dog was running in the park yesterday', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-        verb: run,
+        agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: run,
         tense: Tense.past,
         aspect: Aspect.continuous,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -68,11 +68,14 @@ void main() {
 
     test('This teacher will teach at school tomorrow', () {
       final state = SentenceState(
-        subject: teacher.toSubject(Number.singular, determiner: thisDeterminer),
-        verb: teach,
+        agent: teacher.toNounPhrase(
+          Number.singular,
+          determiner: thisDeterminer,
+        ),
+        action: teach,
         tense: Tense.future,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         placePhrase: atSchool,
@@ -88,11 +91,11 @@ void main() {
 
     test('Cats have been sleeping at home', () {
       final state = SentenceState(
-        subject: cat.toSubject(Number.plural),
-        verb: sleep,
+        agent: cat.toNounPhrase(Number.plural),
+        action: sleep,
         tense: Tense.present,
         aspect: Aspect.perfectContinuous,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -104,11 +107,11 @@ void main() {
 
     test('Does Mary know?', () {
       final state = SentenceState(
-        subject: mary.toSubject(Number.singular),
-        verb: know,
+        agent: mary.toNounPhrase(Number.singular),
+        action: know,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
         voice: Voice.active,
@@ -119,11 +122,11 @@ void main() {
 
     test('Did the dog run?', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-        verb: run,
+        agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: run,
         tense: Tense.past,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
         voice: Voice.active,
@@ -134,11 +137,11 @@ void main() {
 
     test('Will John come tomorrow?', () {
       final state = SentenceState(
-        subject: john.toSubject(Number.singular),
-        verb: come,
+        agent: john.toNounPhrase(Number.singular),
+        action: come,
         tense: Tense.future,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
         voice: Voice.active,
@@ -150,11 +153,11 @@ void main() {
 
     test('That car does not work', () {
       final state = SentenceState(
-        subject: car.toSubject(Number.singular, determiner: thatDeterminer),
-        verb: work,
+        agent: car.toNounPhrase(Number.singular, determiner: thatDeterminer),
+        action: work,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -165,11 +168,11 @@ void main() {
 
     test('Our students did not study yesterday', () {
       final state = SentenceState(
-        subject: student.toSubject(Number.plural, determiner: ourDeterminer),
-        verb: study,
+        agent: student.toNounPhrase(Number.plural, determiner: ourDeterminer),
+        action: study,
         tense: Tense.past,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -184,11 +187,11 @@ void main() {
 
     test('He can drive', () {
       final state = SentenceState(
-        subject: he,
-        verb: drive,
+        agent: he,
+        action: drive,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.can,
+        modal: can,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -199,11 +202,11 @@ void main() {
 
     test('She should study', () {
       final state = SentenceState(
-        subject: she,
-        verb: study,
+        agent: she,
+        action: study,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.should,
+        modal: should,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -214,11 +217,11 @@ void main() {
 
     test('Some dogs must work', () {
       final state = SentenceState(
-        subject: dog.toSubject(Number.plural, determiner: someDeterminer),
-        verb: work,
+        agent: dog.toNounPhrase(Number.plural, determiner: someDeterminer),
+        action: work,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.must,
+        modal: must,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -229,11 +232,11 @@ void main() {
 
     test('Cook imperative', () {
       final state = SentenceState(
-        subject: you,
-        verb: cook,
+        agent: you,
+        action: cook,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.imperative,
         voice: Voice.active,
@@ -244,11 +247,11 @@ void main() {
 
     test('You run!', () {
       final state = SentenceState(
-        subject: you,
-        verb: run,
+        agent: you,
+        action: run,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.exclamation,
         voice: Voice.active,
@@ -259,11 +262,11 @@ void main() {
 
     test('Each child has learned', () {
       final state = SentenceState(
-        subject: child.toSubject(Number.singular, determiner: eachDeterminer),
-        verb: learn,
+        agent: child.toNounPhrase(Number.singular, determiner: eachDeterminer),
+        action: learn,
         tense: Tense.present,
         aspect: Aspect.perfect,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -274,11 +277,11 @@ void main() {
 
     test('The mouse has gone', () {
       final state = SentenceState(
-        subject: mouse.toSubject(Number.singular, determiner: theDeterminer),
-        verb: go,
+        agent: mouse.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: go,
         tense: Tense.present,
         aspect: Aspect.perfect,
-        modal: Modal.none,
+        modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
@@ -289,11 +292,11 @@ void main() {
 
     test('Any teacher can travel to work', () {
       final state = SentenceState(
-        subject: teacher.toSubject(Number.singular, determiner: anyDeterminer),
-        verb: travel,
+        agent: teacher.toNounPhrase(Number.singular, determiner: anyDeterminer),
+        action: travel,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.can,
+        modal: can,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,

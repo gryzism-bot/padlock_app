@@ -71,6 +71,13 @@ const engineer = Noun(
   pluralTranslations: {Language.pl: 'inżynierowie'},
 );
 
+const worker = Noun(
+  singular: 'worker',
+  plural: 'workers',
+  singularTranslations: {Language.pl: 'pracownik'},
+  pluralTranslations: {Language.pl: 'pracownicy'},
+);
+
 const programmer = Noun(
   singular: 'programmer',
   plural: 'programmers',

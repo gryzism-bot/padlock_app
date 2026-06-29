@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -13,7 +14,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -27,8 +27,8 @@ void main() {
     test('John has been working', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
         ),
@@ -40,8 +40,8 @@ void main() {
     test('The students have been studying', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
         ),
@@ -53,8 +53,8 @@ void main() {
     test('Mary had been working', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: work,
+          agent: mary.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
         ),
@@ -66,8 +66,8 @@ void main() {
     test('The teachers had been teaching', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(Number.plural, determiner: theDeterminer),
-          verb: teach,
+          agent: teacher.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: teach,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
         ),
@@ -79,11 +79,11 @@ void main() {
     test('John will have been working', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.future,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.will,
+          modal: will,
         ),
       );
 
@@ -93,8 +93,8 @@ void main() {
     test('John has not been working', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           polarity: Polarity.negative,
@@ -107,8 +107,8 @@ void main() {
     test('The students have not been studying', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           polarity: Polarity.negative,
@@ -121,8 +121,8 @@ void main() {
     test('Has John been working?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           sentenceForm: SentenceForm.question,
@@ -135,8 +135,8 @@ void main() {
     test('Have the students been studying?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           sentenceForm: SentenceForm.question,
@@ -149,8 +149,8 @@ void main() {
     test('John has been working!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           sentenceForm: SentenceForm.exclamation,
@@ -163,11 +163,11 @@ void main() {
     test('The teacher has been teaching at school', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
-          verb: teach,
+          action: teach,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           placePhrase: atSchool,
@@ -182,8 +182,8 @@ void main() {
     test('The house has been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
@@ -196,8 +196,8 @@ void main() {
     test('The houses had been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.plural, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
@@ -210,8 +210,8 @@ void main() {
     test('Has the house been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
@@ -225,8 +225,8 @@ void main() {
     test('The house has not been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
@@ -240,8 +240,8 @@ void main() {
     test('Has the house not been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
@@ -256,12 +256,12 @@ void main() {
     test('Should the bridge not have been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.should,
+          modal: should,
           polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
         ),
@@ -273,8 +273,8 @@ void main() {
     test('Mary has been finding the dog', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: findVerb,
+          agent: mary.toNounPhrase(Number.singular),
+          action: findVerb,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
         ),
@@ -286,8 +286,8 @@ void main() {
     test('Has Mary been finding the dog?', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: findVerb,
+          agent: mary.toNounPhrase(Number.singular),
+          action: findVerb,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           sentenceForm: SentenceForm.question,
@@ -300,8 +300,8 @@ void main() {
     test('The house has been being built by John', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
+          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: build,
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,

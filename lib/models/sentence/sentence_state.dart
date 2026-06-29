@@ -1,17 +1,21 @@
+import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
-import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 class SentenceState {
-  final Subject subject;
-  final Verb verb;
+  final NounPhrase? agent;
+  final Verb action;
+  final NounPhrase? object;
 
   final Voice voice;
 
@@ -25,30 +29,36 @@ class SentenceState {
 
   final TimePhrase? timePhrase;
   final PlacePhrase? placePhrase;
+  final FrequencyPhrase? frequencyPhrase;
+  final MannerPhrase? mannerPhrase;
 
   const SentenceState({
-    required this.subject,
-    required this.verb,
+    this.agent,
+    required this.action,
+    this.object,
 
     this.voice = Voice.active,
 
     required this.tense,
     required this.aspect,
 
-    this.modal = Modal.none,
+    this.modal = noModal,
     this.polarity = Polarity.positive,
 
     this.sentenceForm = SentenceForm.statement,
 
     this.timePhrase,
     this.placePhrase,
+    this.frequencyPhrase,
+    this.mannerPhrase,
   });
 
   @override
   String toString() {
     return '''
-Subject: ${subject.text}
-Verb: ${verb.infinitive}
+Agent: ${agent?.text}
+Action: ${action.infinitive}
+Object: ${object?.text}
 Tense: $tense
 Aspect: $aspect
 Modal: $modal
@@ -57,6 +67,7 @@ Form: $sentenceForm
 Voice: $voice
 Time Phrase: ${timePhrase?.text}
 Place Phrase: ${placePhrase?.text}
+Frequency Phrase: ${frequencyPhrase?.text}
 ''';
   }
 }

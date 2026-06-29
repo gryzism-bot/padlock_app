@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -15,7 +16,6 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -25,12 +25,12 @@ import 'package:padlock_app/data/verbs/essential.dart';
 void main() {
   final engine = GrammarEngine();
 
-    group('Exclamation', () {
+  group('Exclamation', () {
     test('John works!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: work,
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
           sentenceForm: SentenceForm.exclamation,
@@ -43,11 +43,8 @@ void main() {
     test('The dog is running!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(
-            Number.singular,
-            determiner: theDeterminer,
-          ),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
           sentenceForm: SentenceForm.exclamation,
@@ -60,8 +57,8 @@ void main() {
     test('Mary studied yesterday!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: study,
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,
@@ -75,11 +72,8 @@ void main() {
     test('These dogs have learned!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(
-            Number.plural,
-            determiner: theseDeterminer,
-          ),
-          verb: learn,
+          agent: dog.toNounPhrase(Number.plural, determiner: theseDeterminer),
+          action: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.exclamation,
@@ -90,34 +84,27 @@ void main() {
     });
 
     test('That house will be built!', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: house.toSubject(
-            Number.singular,
-            determiner: thatDeterminer,
-          ),
-          verb: build,
-          tense: Tense.future,
-          aspect: Aspect.simple,
-          voice: Voice.passive,
-          sentenceForm: SentenceForm.exclamation,
-        ),
+      final state = SentenceState(
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: thatDeterminer),
+        action: build,
+        tense: Tense.future,
+        aspect: Aspect.simple,
+        voice: Voice.passive,
+        sentenceForm: SentenceForm.exclamation,
       );
 
-      expect(sentence.text, 'That house will be built!');
+      expect(engine.generate(state).text, 'That house will be built by John!');
     });
 
     test('Our students must study!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(
-            Number.plural,
-            determiner: ourDeterminer,
-          ),
-          verb: study,
+          agent: student.toNounPhrase(Number.plural, determiner: ourDeterminer),
+          action: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.must,
+          modal: must,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -128,14 +115,14 @@ void main() {
     test('This teacher can travel!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: teacher.toSubject(
+          agent: teacher.toNounPhrase(
             Number.singular,
             determiner: thisDeterminer,
           ),
-          verb: travel,
+          action: travel,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.can,
+          modal: can,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -146,11 +133,11 @@ void main() {
     test('Every child has learned!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: child.toSubject(
+          agent: child.toNounPhrase(
             Number.singular,
             determiner: everyDeterminer,
           ),
-          verb: learn,
+          action: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.exclamation,
@@ -163,11 +150,11 @@ void main() {
     test('No student worked yesterday!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: student.toSubject(
+          agent: student.toNounPhrase(
             Number.singular,
             determiner: noDeterminer,
           ),
-          verb: work,
+          action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
           timePhrase: yesterday,
@@ -181,11 +168,8 @@ void main() {
     test('The dog did not run yesterday!', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(
-            Number.singular,
-            determiner: theDeterminer,
-          ),
-          verb: run,
+          agent: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: run,
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,

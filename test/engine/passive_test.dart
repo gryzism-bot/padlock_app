@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -16,222 +17,315 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 
 import 'package:padlock_app/data/verbs/work.dart';
 
-import 'package:padlock_app/data/phrases/time_phrases.dart';
-
 void main() {
   final engine = GrammarEngine();
 
-  group('Passive', () {
-    test('The house is built', () {
+  group('Passive voice', () {
+    test('Passive renders object as subject with determiner', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house is built.');
+      expect(engine.generate(state).text, 'The house is built by John.');
     });
 
-    test('The houses are built', () {
+    test('Passive renders plural object with determiner', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.plural, determiner: theDeterminer),
-        verb: build,
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.plural, determiner: theDeterminer),
+        action: build,
+        tense: Tense.past,
+        aspect: Aspect.simple,
         voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridges were built by the workers.',
+      );
+    });
+
+    test('Passive renders agent determiner', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
+        action: build,
+        tense: Tense.past,
+        aspect: Aspect.simple,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridge was built by the workers.',
+      );
+    });
+    test('The house is built by John', () {
+      final state = SentenceState(
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The houses are built.');
+      expect(engine.generate(state).text, 'The house is built by John.');
     });
 
-    test('The house was built yesterday', () {
+    test('The houses are built by John', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.plural),
+        action: build,
+        tense: Tense.present,
+        aspect: Aspect.simple,
         voice: Voice.passive,
+      );
+
+      expect(engine.generate(state).text, 'The houses are built by John.');
+    });
+
+    test('The bridge was built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.past,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-        timePhrase: yesterday,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house was built yesterday.');
+      expect(
+        engine.generate(state).text,
+        'The bridge was built by the workers.',
+      );
     });
 
-    test('The houses were built yesterday', () {
+    test('The bridges were built by the workers', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.plural, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.plural),
+        action: build,
         tense: Tense.past,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-        timePhrase: yesterday,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The houses were built yesterday.');
+      expect(
+        engine.generate(state).text,
+        'The bridges were built by the workers.',
+      );
     });
 
-    test('The house will be built', () {
+    test('The bridge will be built by the workers', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.future,
         aspect: Aspect.simple,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house will be built.');
-    });
-
-    test('The house has been built', () {
-      final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+      expect(
+        engine.generate(state).text,
+        'The bridge will be built by the workers.',
       );
-
-      expect(engine.generate(state).text, 'The house has been built.');
     });
 
-    test('The houses have been built', () {
+    test('The house is being built by John', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.plural, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
-        tense: Tense.present,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(engine.generate(state).text, 'The houses have been built.');
-    });
-
-    test('The house had been built', () {
-      final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
-        tense: Tense.past,
-        aspect: Aspect.perfect,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(engine.generate(state).text, 'The house had been built.');
-    });
-
-    test('The house is being built', () {
-      final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.present,
         aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house is being built.');
+      expect(engine.generate(state).text, 'The house is being built by John.');
     });
 
-    test('The houses are being built', () {
+    test('The bridge was being built by the workers', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.plural, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
-        tense: Tense.present,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
-      );
-
-      expect(engine.generate(state).text, 'The houses are being built.');
-    });
-
-    test('The house was being built', () {
-      final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.past,
         aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house was being built.');
-    });
-
-    test('The houses were being built', () {
-      final state = SentenceState(
-        subject: house.toSubject(Number.plural, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
-        tense: Tense.past,
-        aspect: Aspect.continuous,
-        modal: Modal.none,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+      expect(
+        engine.generate(state).text,
+        'The bridge was being built by the workers.',
       );
-
-      expect(engine.generate(state).text, 'The houses were being built.');
     });
 
-    test('Can the house be built?', () {
+    test('The house has been built by John', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.present,
+        aspect: Aspect.perfect,
+        voice: Voice.passive,
+      );
+
+      expect(engine.generate(state).text, 'The house has been built by John.');
+    });
+
+    test('The bridge had been built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.past,
+        aspect: Aspect.perfect,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridge had been built by the workers.',
+      );
+    });
+
+    test('The bridge will have been built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.future,
+        aspect: Aspect.perfect,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridge will have been built by the workers.',
+      );
+    });
+
+    test('The house has not been built by John', () {
+      final state = SentenceState(
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.present,
+        aspect: Aspect.perfect,
+        polarity: Polarity.negative,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The house has not been built by John.',
+      );
+    });
+
+    test('Was the house built by John?', () {
+      final state = SentenceState(
+        agent: john.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.past,
         aspect: Aspect.simple,
-        modal: Modal.can,
-        polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'Can the house be built?');
+      expect(engine.generate(state).text, 'Was the house built by John?');
     });
 
-    test('The house should be built', () {
+    test('Should the bridge be built by the workers?', () {
       final state = SentenceState(
-        subject: house.toSubject(Number.singular, determiner: theDeterminer),
-        verb: build,
-        voice: Voice.passive,
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
-        modal: Modal.should,
-        polarity: Polarity.positive,
-        sentenceForm: SentenceForm.statement,
+        modal: should,
+        sentenceForm: SentenceForm.question,
+        voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house should be built.');
+      expect(
+        engine.generate(state).text,
+        'Should the bridge be built by the workers.',
+      );
+    });
+
+    test('The bridge should be built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+        modal: should,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridge should be built by the workers.',
+      );
+    });
+
+    test('The bridge must have been built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: bridge.toNounPhrase(Number.singular),
+        action: build,
+        tense: Tense.present,
+        aspect: Aspect.perfect,
+        modal: must,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The bridge must have been built by the workers.',
+      );
+    });
+
+    test('The houses have been built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: house.toNounPhrase(Number.plural),
+        action: build,
+        tense: Tense.present,
+        aspect: Aspect.perfect,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The houses have been built by the workers.',
+      );
+    });
+
+    test('The houses were being built by the workers', () {
+      final state = SentenceState(
+        agent: worker.toNounPhrase(Number.plural),
+        object: house.toNounPhrase(Number.plural),
+        action: build,
+        tense: Tense.past,
+        aspect: Aspect.continuous,
+        voice: Voice.passive,
+      );
+
+      expect(
+        engine.generate(state).text,
+        'The houses were being built by the workers.',
+      );
     });
   });
 }

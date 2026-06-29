@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:padlock_app/data/modals.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
@@ -10,7 +11,7 @@ import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
-import 'package:padlock_app/models/grammar/subject/subject.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
@@ -25,11 +26,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Subject subject = he;
+  NounPhrase subject = he;
   Verb verb = work;
   Tense tense = Tense.past;
   Aspect aspect = Aspect.simple;
-  Modal modal = Modal.none;
+  Modal modal = noModal;
   Polarity polarity = Polarity.positive;
   SentenceForm sentenceForm = SentenceForm.statement;
   Voice voice = Voice.active;
@@ -40,8 +41,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final state = SentenceState(
-      subject: subject,
-      verb: verb,
+      agent: subject,
+      action: verb,
       tense: tense,
       aspect: aspect,
       modal: modal,

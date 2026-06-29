@@ -3,7 +3,8 @@ import 'package:padlock_app/models/language.dart';
 import 'number.dart';
 import 'person.dart';
 
-class Subject {
+//(Subject)
+class NounPhrase {
   final String text;
 
   final Person person;
@@ -13,7 +14,7 @@ class Subject {
 
   final Map<Language, String> translations;
 
-  const Subject({
+  const NounPhrase({
     required this.text,
     required this.person,
     required this.number,
