@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -20,13 +19,28 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
+import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
   final engine = GrammarEngine();
 
-  group('Questions', () {
-    test('Does John work?', () {
+  group('Sentence forms', () {
+    test('Statement', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: work,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          sentenceForm: SentenceForm.statement,
+        ),
+      );
+
+      expect(sentence.text, 'John works.');
+    });
+
+    test('Question', () {
       final sentence = engine.generate(
         SentenceState(
           subject: john.toSubject(Number.singular),
@@ -40,172 +54,65 @@ void main() {
       expect(sentence.text, 'Does John work?');
     });
 
-    test('Do students study?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: student.toSubject(Number.plural),
-          verb: study,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Do students study?');
-    });
-
-    test('Did Mary work yesterday?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.simple,
-          timePhrase: yesterday,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Did Mary work yesterday?');
-    });
-
-    test('Is the dog running?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
-          tense: Tense.present,
-          aspect: Aspect.continuous,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Is the dog running?');
-    });
-
-    test('Are the dogs running?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: dog.toSubject(Number.plural, determiner: theDeterminer),
-          verb: run,
-          tense: Tense.present,
-          aspect: Aspect.continuous,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Are the dogs running?');
-    });
-
-    test('Has John learned?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: john.toSubject(Number.singular),
-          verb: learn,
-          tense: Tense.present,
-          aspect: Aspect.perfect,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Has John learned?');
-    });
-
-    test('Have the students studied?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
-          tense: Tense.present,
-          aspect: Aspect.perfect,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Have the students studied?');
-    });
-
-    test('Will Mary travel tomorrow?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: mary.toSubject(Number.singular),
-          verb: travel,
-          tense: Tense.future,
-          aspect: Aspect.simple,
-          modal: Modal.will,
-          timePhrase: tomorrow,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Will Mary travel tomorrow?');
-    });
-
-    test('Can the teacher work?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: teacher.toSubject(
-            Number.singular,
-            determiner: theDeterminer,
-          ),
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-          modal: Modal.can,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Can the teacher work?');
-    });
-
-    test('Should the students study?', () {
-      final sentence = engine.generate(
-        SentenceState(
-          subject: student.toSubject(Number.plural, determiner: theDeterminer),
-          verb: study,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-          modal: Modal.should,
-          sentenceForm: SentenceForm.question,
-        ),
-      );
-
-      expect(sentence.text, 'Should the students study?');
-    });
-
-    test('Does John not work?', () {
+    test('Exclamation', () {
       final sentence = engine.generate(
         SentenceState(
           subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
+          sentenceForm: SentenceForm.exclamation,
         ),
       );
 
-      expect(sentence.text, 'Does John not work?');
+      expect(sentence.text, 'John works!');
     });
 
-    test('Did Mary not study yesterday?', () {
+    test('Imperative', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: you,
+          verb: work,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+
+      expect(sentence.text, 'Work.');
+    });
+
+    test('Negative statement', () {
       final sentence = engine.generate(
         SentenceState(
           subject: mary.toSubject(Number.singular),
           verb: study,
-          tense: Tense.past,
+          tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          sentenceForm: SentenceForm.statement,
+        ),
+      );
+
+      expect(sentence.text, 'Mary does not study.');
+    });
+
+    test('Negative question', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: study,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
         ),
       );
 
-      expect(sentence.text, 'Did Mary not study yesterday?');
+      expect(sentence.text, 'Does Mary not study?');
     });
 
-    test('Is the dog not running?', () {
+    test('Negative exclamation', () {
       final sentence = engine.generate(
         SentenceState(
           subject: dog.toSubject(Number.singular, determiner: theDeterminer),
@@ -213,30 +120,29 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.continuous,
           polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
+          sentenceForm: SentenceForm.exclamation,
         ),
       );
 
-      expect(sentence.text, 'Is the dog not running?');
+      expect(sentence.text, 'The dog is not running!');
     });
 
-    test('Can the dog not run?', () {
+    test('Passive statement', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
-          verb: run,
-          tense: Tense.present,
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.past,
           aspect: Aspect.simple,
-          modal: Modal.can,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
+          sentenceForm: SentenceForm.statement,
         ),
       );
 
-      expect(sentence.text, 'Can the dog not run?');
+      expect(sentence.text, 'The house was built.');
     });
 
-    test('Was the house built?', () {
+    test('Passive question', () {
       final sentence = engine.generate(
         SentenceState(
           subject: house.toSubject(Number.singular, determiner: theDeterminer),
@@ -251,27 +157,30 @@ void main() {
       expect(sentence.text, 'Was the house built?');
     });
 
-    test('Were the houses built?', () {
+    test('Passive exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.plural, determiner: theDeterminer),
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
           verb: build,
           voice: Voice.passive,
-          tense: Tense.past,
+          tense: Tense.future,
           aspect: Aspect.simple,
-          sentenceForm: SentenceForm.question,
+          modal: Modal.will,
+          sentenceForm: SentenceForm.exclamation,
         ),
       );
 
-      expect(sentence.text, 'Were the houses built?');
+      expect(sentence.text, 'The bridge will be built!');
     });
 
-    test('Can the house be built?', () {
+    test('Modal question', () {
       final sentence = engine.generate(
         SentenceState(
-          subject: house.toSubject(Number.singular, determiner: theDeterminer),
-          verb: build,
-          voice: Voice.passive,
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
           modal: Modal.can,
@@ -279,12 +188,74 @@ void main() {
         ),
       );
 
-      expect(sentence.text, 'Can the house be built?');
+      expect(sentence.text, 'Can the teacher teach?');
     });
 
-    // Expected to fail until unified buildSentence()
+    test('Modal exclamation', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: teach,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          modal: Modal.must,
+          sentenceForm: SentenceForm.exclamation,
+        ),
+      );
 
-    test('Was the house not built?', () {
+      expect(sentence.text, 'The teacher must teach!');
+    });
+
+    test('Plural question', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Do the students study?');
+    });
+
+    test('Perfect question', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: learn,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has John learned?');
+    });
+
+    // Future unified buildSentence()
+
+    test('Passive negative statement', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.statement,
+        ),
+      );
+
+      expect(sentence.text, 'The house was not built.');
+    });
+
+    test('Passive negative question', () {
       final sentence = engine.generate(
         SentenceState(
           subject: house.toSubject(Number.singular, determiner: theDeterminer),
@@ -300,7 +271,7 @@ void main() {
       expect(sentence.text, 'Was the house not built?');
     });
 
-    test('Should the bridge not be built?', () {
+    test('Passive modal negative question', () {
       final sentence = engine.generate(
         SentenceState(
           subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
@@ -317,7 +288,7 @@ void main() {
       expect(sentence.text, 'Should the bridge not be built?');
     });
 
-    test('Did Mary find the dog?', () {
+    test('Question with object', () {
       final sentence = engine.generate(
         SentenceState(
           subject: mary.toSubject(Number.singular),

@@ -1,6 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/education.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -11,268 +21,268 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('placeholder', () {
-    group('Continuous', () {
-      test('Present Continuous - statement', () {
-        final state = SentenceState(
-          subject: he,
+  group('Continuous tense', () {
+    test('John is working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is working.');
-      });
+      expect(sentence.text, 'John is working.');
+    });
 
-      test('Past Continuous - statement', () {
-        final state = SentenceState(
-          subject: they,
+    test('The dog is running', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
+          verb: run,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+        ),
+      );
+
+      expect(sentence.text, 'The dog is running.');
+    });
+
+    test('The students are studying', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+        ),
+      );
+
+      expect(sentence.text, 'The students are studying.');
+    });
+
+    test('Mary was working yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
           verb: work,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          timePhrase: yesterday,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They were working.');
-      });
+      expect(sentence.text, 'Mary was working yesterday.');
+    });
 
-      test('Future Continuous - statement', () {
-        final state = SentenceState(
-          subject: he,
+    test('The dogs were running', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.plural, determiner: theDeterminer),
+          verb: run,
+          tense: Tense.past,
+          aspect: Aspect.continuous,
+        ),
+      );
+
+      expect(sentence.text, 'The dogs were running.');
+    });
+
+    test('John will be working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.future,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          modal: Modal.will,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He will be working.');
-      });
+      expect(sentence.text, 'John will be working.');
+    });
 
-      test('Present Continuous - negative', () {
-        final state = SentenceState(
-          subject: he,
+    test('The teacher is teaching at school', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: teach,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+          placePhrase: atSchool,
+        ),
+      );
+
+      expect(sentence.text, 'The teacher is teaching at school.');
+    });
+
+    test('John is not working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
           polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is not working.');
-      });
+      expect(sentence.text, 'John is not working.');
+    });
 
-      test('Past Continuous - negative', () {
-        final state = SentenceState(
-          subject: they,
+    test('The students are not studying', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+          polarity: Polarity.negative,
+        ),
+      );
+
+      expect(sentence.text, 'The students are not studying.');
+    });
+
+    test('Is John working?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: work,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Is John working?');
+    });
+
+    test('Are the dogs running?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.plural, determiner: theDeterminer),
+          verb: run,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Are the dogs running?');
+    });
+
+    test('Was Mary working yesterday?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
           verb: work,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          timePhrase: yesterday,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They were not working.');
-      });
+      expect(sentence.text, 'Was Mary working yesterday?');
+    });
 
-      test('Future Continuous - negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will not be working.');
-      });
-
-      test('Present Continuous - question', () {
-        final state = SentenceState(
-          subject: he,
+    test('John is working!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Is he working?');
-      });
-
-      test('Past Continuous - question', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Were they working?');
-      });
-
-      test('Future Continuous - question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Will he be working?');
-      });
-
-      test('Present Continuous - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Is he not working?');
-      });
-
-      test('Past Continuous - negative question', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Were they not working?');
-      });
-
-      test('Future Continuous - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Will he not be working?');
-      });
-
-      test('Present Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is working!');
-      });
+      expect(sentence.text, 'John is working!');
+    });
 
-      test('Past Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('The bridge is being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+        ),
+      );
+
+      expect(sentence.text, 'The bridge is being built.');
+    });
+
+    test('The houses were being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.plural, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They were working!');
-      });
+      expect(sentence.text, 'The houses were being built.');
+    });
 
-      test('Future Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+    // Future buildSentence()
 
-        expect(grammarEngine.generate(state).text, 'He will be working!');
-      });
-
-      test('Present Continuous - plural subject', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('The bridge is not being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          polarity: Polarity.negative,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They are working.');
-      });
+      expect(sentence.text, 'The bridge is not being built.');
+    });
 
-      test('Present Continuous - irregular verb', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('Is the bridge not being built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is going.');
-      });
+      expect(sentence.text, 'Is the bridge not being built?');
+    });
+
+    test('Was the house being built by John?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.past,
+          aspect: Aspect.continuous,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Was the house being built by John?');
     });
   });
 }

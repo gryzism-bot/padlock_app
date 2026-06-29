@@ -10,26 +10,36 @@ import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 class SentenceState {
-  final Subject subject; // open
-  final Verb verb; // open
+  final Subject subject;
+  final Verb verb;
+
+  final Voice voice;
+
   final Tense tense;
   final Aspect aspect;
+
   final Modal modal;
   final Polarity polarity;
+
   final SentenceForm sentenceForm;
-  final Voice voice;
-  final TimePhrase? timePhrase; //open
-  final PlacePhrase? placePhrase; //open
+
+  final TimePhrase? timePhrase;
+  final PlacePhrase? placePhrase;
 
   const SentenceState({
     required this.subject,
     required this.verb,
+
+    this.voice = Voice.active,
+
     required this.tense,
     required this.aspect,
-    required this.modal,
-    required this.polarity,
-    required this.sentenceForm,
-    required this.voice,
+
+    this.modal = Modal.none,
+    this.polarity = Polarity.positive,
+
+    this.sentenceForm = SentenceForm.statement,
+
     this.timePhrase,
     this.placePhrase,
   });

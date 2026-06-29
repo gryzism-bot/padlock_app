@@ -29,6 +29,13 @@ const anna = Noun(
   pluralTranslations: {Language.pl: 'Anny'},
 );
 
+const choir = Noun(
+  singular: 'choir',
+  plural: 'choirs',
+  singularTranslations: {Language.pl: 'chór'},
+  pluralTranslations: {Language.pl: 'chóry'},
+);
+
 const teacher = Noun(
   singular: 'teacher',
   plural: 'teachers',

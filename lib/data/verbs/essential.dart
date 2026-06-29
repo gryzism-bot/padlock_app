@@ -28,6 +28,42 @@ const doVerb = Verb(
   translations: {Language.pl: 'robić'},
 );
 
+const findVerb = Verb(
+  infinitive: 'find',
+  presentThirdPerson: 'finds',
+  pastSimple: 'found',
+  pastParticiple: 'found',
+  ingForm: 'finding',
+  translations: {Language.pl: 'znaleźć'},
+);
+
+const sing = Verb(
+  infinitive: 'sing',
+  presentThirdPerson: 'sings',
+  pastSimple: 'sang',
+  pastParticiple: 'sung',
+  ingForm: 'singing',
+  translations: {Language.pl: 'śpiewać'},
+);
+
+const breakVerb = Verb(
+  infinitive: 'break',
+  presentThirdPerson: 'breaks',
+  pastSimple: 'broke',
+  pastParticiple: 'broken',
+  ingForm: 'breaking',
+  translations: {Language.pl: 'złamać'},
+);
+
+const begin = Verb(
+  infinitive: 'begin',
+  presentThirdPerson: 'begins',
+  pastSimple: 'began',
+  pastParticiple: 'begun',
+  ingForm: 'beginning',
+  translations: {Language.pl: 'zaczynać'},
+);
+
 const go = Verb(
   infinitive: 'go',
   presentThirdPerson: 'goes',

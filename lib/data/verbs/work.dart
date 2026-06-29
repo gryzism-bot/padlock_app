@@ -118,24 +118,6 @@ const lead = Verb(
   translations: {Language.pl: 'prowadzić'},
 );
 
-const teach = Verb(
-  infinitive: 'teach',
-  presentThirdPerson: 'teaches',
-  pastSimple: 'taught',
-  pastParticiple: 'taught',
-  ingForm: 'teaching',
-  translations: {Language.pl: 'uczyć'},
-);
-
-const study = Verb(
-  infinitive: 'study',
-  presentThirdPerson: 'studies',
-  pastSimple: 'studied',
-  pastParticiple: 'studied',
-  ingForm: 'studying',
-  translations: {Language.pl: 'studiować'},
-);
-
 const sell = Verb(
   infinitive: 'sell',
   presentThirdPerson: 'sells',

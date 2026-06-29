@@ -1,6 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/education.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -11,283 +20,294 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('placeholder', () {
-    group('Perfect', () {
-      test('Present Perfect - statement', () {
-        final state = SentenceState(
-          subject: he,
+  group('Perfect tense', () {
+    test('John has worked', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has worked.');
-      });
+      expect(sentence.text, 'John has worked.');
+    });
 
-      test('Past Perfect - statement', () {
-        final state = SentenceState(
-          subject: he,
+    test('Dogs have worked', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.plural),
           verb: work,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'Dogs have worked.');
+    });
+
+    test('Mary had studied yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: study,
           tense: Tense.past,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+          timePhrase: yesterday,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had worked.');
-      });
+      expect(sentence.text, 'Mary had studied yesterday.');
+    });
 
-      test('Future Perfect - statement', () {
-        final state = SentenceState(
-          subject: he,
+    test('The students had studied', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.past,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'The students had studied.');
+    });
+
+    test('John will have worked', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.future,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+          modal: Modal.will,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He will have worked.');
-      });
+      expect(sentence.text, 'John will have worked.');
+    });
 
-      test('Present Perfect - negative', () {
-        final state = SentenceState(
-          subject: he,
+    test('The dog has run', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
+          verb: run,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'The dog has run.');
+    });
+
+    test('John has not worked', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
           polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has not worked.');
-      });
+      expect(sentence.text, 'John has not worked.');
+    });
 
-      test('Past Perfect - negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
+    test('The students have not studied', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
           polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had not worked.');
-      });
+      expect(sentence.text, 'The students have not studied.');
+    });
 
-      test('Future Perfect - negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will not have worked.');
-      });
-
-      test('Present Perfect - question', () {
-        final state = SentenceState(
-          subject: he,
+    test('Has John worked?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Has he worked?');
-      });
+      expect(sentence.text, 'Has John worked?');
+    });
 
-      test('Past Perfect - question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
+    test('Have the students studied?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Had he worked?');
-      });
+      expect(sentence.text, 'Have the students studied?');
+    });
 
-      test('Future Perfect - question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Will he have worked?');
-      });
-
-      test('Present Perfect - negative question', () {
-        final state = SentenceState(
-          subject: he,
+    test('John has worked!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Has he not worked?');
-      });
-
-      test('Past Perfect - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Had he not worked?');
-      });
-
-      test('Future Perfect - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'Will he not have worked?');
-      });
-
-      test('Present Perfect - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has worked!');
-      });
+      expect(sentence.text, 'John has worked!');
+    });
 
-      test('Past Perfect - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He had worked!');
-      });
-
-      test('Future Perfect - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will have worked!');
-      });
-
-      test('Present Perfect - plural subject', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('The house has been built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They have worked.');
-      });
+      expect(sentence.text, 'The house has been built.');
+    });
 
-      test('Present Perfect - irregular verb', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.present,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He has gone.');
-      });
-
-      test('Past Perfect - irregular verb', () {
-        final state = SentenceState(
-          subject: they,
-          verb: go,
+    test('The houses had been built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.plural, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-        voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They had gone.');
-      });
+      expect(sentence.text, 'The houses had been built.');
+    });
+
+    test('Has the house been built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has the house been built?');
+    });
+
+    // Future buildSentence()
+
+    test('The house has not been built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          polarity: Polarity.negative,
+        ),
+      );
+
+      expect(sentence.text, 'The house has not been built.');
+    });
+
+    test('Has the house not been built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has the house not been built?');
+    });
+
+    test('Should the bridge not have been built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          modal: Modal.should,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Should the bridge not have been built?');
+    });
+
+    test('Mary has found the dog', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: findVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'Mary has found the dog.');
+    });
+
+    test('Has Mary found the dog?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: findVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has Mary found the dog?');
+    });
+
+    test('The house has been built by John', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'The house has been built by John.');
     });
   });
 }

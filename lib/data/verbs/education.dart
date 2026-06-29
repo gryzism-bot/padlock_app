@@ -1,15 +1,6 @@
 import 'package:padlock_app/models/language.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
-const learn = Verb(
-  infinitive: 'learn',
-  presentThirdPerson: 'learns',
-  pastSimple: 'learned',
-  pastParticiple: 'learned',
-  ingForm: 'learning',
-  translations: {Language.pl: 'uczyć się'},
-);
-
 const study = Verb(
   infinitive: 'study',
   presentThirdPerson: 'studies',

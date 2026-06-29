@@ -1,6 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/education.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -11,241 +20,181 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('placeholder', () {
-    group('Exclamations', () {
-      test('Present Simple exclamation', () {
-        final state = SentenceState(
-          subject: he,
+    group('Exclamation', () {
+    test('John works!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He works!');
-      });
+      expect(sentence.text, 'John works!');
+    });
 
-      test('Past Simple exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He worked!');
-      });
-
-      test('Future Simple exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will work!');
-      });
-
-      test('Present Continuous exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
+    test('The dog is running!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: run,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is working!');
-      });
+      expect(sentence.text, 'The dog is running!');
+    });
 
-      test('Past Continuous exclamation', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('Mary studied yesterday!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: study,
           tense: Tense.past,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
+          aspect: Aspect.simple,
+          timePhrase: yesterday,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They were working!');
-      });
+      expect(sentence.text, 'Mary studied yesterday!');
+    });
 
-      test('Future Continuous exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will be working!');
-      });
-
-      test('Present Perfect exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
+    test('These dogs have learned!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(
+            Number.plural,
+            determiner: theseDeterminer,
+          ),
+          verb: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has worked!');
-      });
+      expect(sentence.text, 'These dogs have learned!');
+    });
 
-      test('Past Perfect exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He had worked!');
-      });
-
-      test('Future Perfect exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
+    test('That house will be built!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(
+            Number.singular,
+            determiner: thatDeterminer,
+          ),
+          verb: build,
           tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
+          aspect: Aspect.simple,
+          voice: Voice.passive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He will have worked!');
-      });
+      expect(sentence.text, 'That house will be built!');
+    });
 
-      test('Present Perfect Continuous exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He has been working!');
-      });
-
-      test('Past Perfect Continuous exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He had been working!');
-      });
-
-      test('Future Perfect Continuous exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(
-          grammarEngine.generate(state).text,
-          'He will have been working!',
-        );
-      });
-
-      test('Present Simple exclamation - plural subject', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('Our students must study!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(
+            Number.plural,
+            determiner: ourDeterminer,
+          ),
+          verb: study,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
+          modal: Modal.must,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They work!');
-      });
+      expect(sentence.text, 'Our students must study!');
+    });
 
-      test('Present Perfect exclamation - irregular verb', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('This teacher can travel!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: thisDeterminer,
+          ),
+          verb: travel,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          modal: Modal.can,
+          sentenceForm: SentenceForm.exclamation,
+        ),
+      );
+
+      expect(sentence.text, 'This teacher can travel!');
+    });
+
+    test('Every child has learned!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: child.toSubject(
+            Number.singular,
+            determiner: everyDeterminer,
+          ),
+          verb: learn,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has gone!');
-      });
+      expect(sentence.text, 'Every child has learned!');
+    });
 
-      test('Present Perfect Continuous exclamation - irregular verb', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.present,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
+    test('No student worked yesterday!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(
+            Number.singular,
+            determiner: noDeterminer,
+          ),
+          verb: work,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          timePhrase: yesterday,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has been going!');
-      });
+      expect(sentence.text, 'No student worked yesterday!');
+    });
+
+    test('The dog did not run yesterday!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: run,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          polarity: Polarity.negative,
+          timePhrase: yesterday,
+          sentenceForm: SentenceForm.exclamation,
+        ),
+      );
+
+      expect(sentence.text, 'The dog did not run yesterday!');
     });
   });
 }

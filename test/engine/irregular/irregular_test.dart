@@ -1,311 +1,352 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
-import 'package:padlock_app/models/grammar/verb/polarity.dart';
-import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('placeholder', () {
-    group('Irregular verbs', () {
-      test('Go - Present Simple', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He goes.');
-      });
-
-      test('Go - Past Simple', () {
-        final state = SentenceState(
-          subject: he,
+  group('Irregular verbs', () {
+    test('John went home yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: go,
           tense: Tense.past,
           aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          placePhrase: atHome,
+          timePhrase: yesterday,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He went.');
-      });
+      expect(sentence.text, 'John went home yesterday.');
+    });
 
-      test('Go - Future Simple', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
+    test('Mary has eaten', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: eat,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'Mary has eaten.');
+    });
+
+    test('The dog ran', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: dog.toSubject(Number.singular, determiner: theDeterminer),
+          verb: run,
+          tense: Tense.past,
           aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He will go.');
-      });
+      expect(sentence.text, 'The dog ran.');
+    });
 
-      test('Go - Present Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('John has written', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: write,
           tense: Tense.present,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          aspect: Aspect.perfect,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He is going.');
-      });
+      expect(sentence.text, 'John has written.');
+    });
 
-      test('Go - Past Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('Mary drank yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: drink,
           tense: Tense.past,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          aspect: Aspect.simple,
+          timePhrase: yesterday,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He was going.');
-      });
+      expect(sentence.text, 'Mary drank yesterday.');
+    });
 
-      test('Go - Future Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will be going.');
-      });
-
-      test('Go - Present Perfect', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('John has driven', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: drive,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has gone.');
-      });
+      expect(sentence.text, 'John has driven.');
+    });
 
-      test('Go - Past Perfect', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('The teacher spoke', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: speak,
           tense: Tense.past,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          aspect: Aspect.simple,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had gone.');
-      });
+      expect(sentence.text, 'The teacher spoke.');
+    });
 
-      test('Go - Future Perfect', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
-          aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will have gone.');
-      });
-
-      test('Go - Present Perfect Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.present,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He has been going.');
-      });
-
-      test('Go - Past Perfect Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('Mary found the dog', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: findVerb,
           tense: Tense.past,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          aspect: Aspect.simple,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had been going.');
-      });
+      expect(sentence.text, 'Mary found the dog.');
+    });
 
-      test('Go - Future Perfect Continuous', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He will have been going.');
-      });
-
-      test('Go - Present Perfect question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('John has taken', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: take,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Has he gone?');
-      });
+      expect(sentence.text, 'John has taken.');
+    });
 
-      test('Go - Present Perfect negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    test('The child slept', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: child.toSubject(Number.singular),
+          verb: sleep,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence.text, 'Child slept.');
+    });
+
+    test('John knew', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: know,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence.text, 'John knew.');
+    });
+
+    test('Mary has bought', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: buy,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has not gone.');
-      });
+      expect(sentence.text, 'Mary has bought.');
+    });
 
-      test('Go - Future Perfect Continuous question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+    test('The house was built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Will he have been going?');
-      });
+      expect(sentence.text, 'The house was built.');
+    });
 
-      test('Go - Future Perfect Continuous negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+    test('John has done', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: doVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
 
-        expect(
-          grammarEngine.generate(state).text,
-          'He will not have been going.',
-        );
-      });
+      expect(sentence.text, 'John has done.');
+    });
 
-      test('Go - Present Simple plural', () {
-        final state = SentenceState(
-          subject: they,
-          verb: go,
+    test('Mary came yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: come,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          timePhrase: yesterday,
+        ),
+      );
+
+      expect(sentence.text, 'Mary came yesterday.');
+    });
+
+    test('The boy began', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: boy.toSubject(Number.singular),
+          verb: begin,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence.text, 'Boy began.');
+    });
+
+    test('The glass broke', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: glass.toSubject(Number.singular),
+          verb: breakVerb,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence.text, 'Glass broke.');
+    });
+
+    test('John can swim', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: swim,
+          modal: Modal.can,
           tense: Tense.present,
           aspect: Aspect.simple,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They go.');
-      });
+      expect(sentence.text, 'John can swim.');
+    });
 
-      test('Go - Present Continuous plural', () {
-        final state = SentenceState(
-          subject: they,
-          verb: go,
-          tense: Tense.present,
-          aspect: Aspect.continuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'They are going.');
-      });
-
-      test('Go - Present Perfect plural', () {
-        final state = SentenceState(
-          subject: they,
-          verb: go,
+    test('Mary has seen', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: see,
           tense: Tense.present,
           aspect: Aspect.perfect,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They have gone.');
-      });
+      expect(sentence.text, 'Mary has seen.');
+    });
+
+    test('The choir sang', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: choir.toSubject(Number.singular),
+          verb: sing,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence.text, 'Choir sang.');
+    });
+
+    test('John has been', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: be,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'John has been.');
+    });
+
+    test('Mary has had', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: have,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence.text, 'Mary has had.');
+    });
+
+    test('The cat got home', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: cat.toSubject(Number.singular),
+          verb: get,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          placePhrase: atHome,
+        ),
+      );
+
+      expect(sentence.text, 'Cat got home.');
+    });
+
+    test('John read yesterday', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
+          verb: read,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          timePhrase: yesterday,
+        ),
+      );
+
+      expect(sentence.text, 'John read yesterday.');
     });
   });
 }

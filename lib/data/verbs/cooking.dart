@@ -46,6 +46,24 @@ const grill = Verb(
   translations: {Language.pl: 'grillować'},
 );
 
+const eat = Verb(
+  infinitive: 'eat',
+  presentThirdPerson: 'eats',
+  pastSimple: 'ate',
+  pastParticiple: 'eaten',
+  ingForm: 'eating',
+  translations: {Language.pl: 'jeść'},
+);
+
+const drink = Verb(
+  infinitive: 'drink',
+  presentThirdPerson: 'drinks',
+  pastSimple: 'drank',
+  pastParticiple: 'drunk',
+  ingForm: 'drinking',
+  translations: {Language.pl: 'pić'},
+);
+
 const roast = Verb(
   infinitive: 'roast',
   presentThirdPerson: 'roasts',

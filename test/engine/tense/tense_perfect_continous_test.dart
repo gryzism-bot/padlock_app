@@ -1,6 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/education.dart';
+import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -11,298 +18,297 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
-import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
-  final grammarEngine = GrammarEngine();
+  final engine = GrammarEngine();
 
-  group('placeholder', () {
-    group('Perfect Continuous', () {
-      test('Present Perfect Continuous - statement', () {
-        final state = SentenceState(
-          subject: he,
+  group('Perfect Continuous tense', () {
+    test('John has been working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has been working.');
-      });
+      expect(sentence.text, 'John has been working.');
+    });
 
-      test('Past Perfect Continuous - statement', () {
-        final state = SentenceState(
-          subject: he,
+    test('The students have been studying', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+        ),
+      );
+
+      expect(sentence.text, 'The students have been studying.');
+    });
+
+    test('Mary had been working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
           verb: work,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had been working.');
-      });
+      expect(sentence.text, 'Mary had been working.');
+    });
 
-      test('Future Perfect Continuous - statement', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(
-          grammarEngine.generate(state).text,
-          'He will have been working.',
-        );
-      });
-
-      test('Present Perfect Continuous - negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.present,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He has not been working.');
-      });
-
-      test('Past Perfect Continuous - negative', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
+    test('The teachers had been teaching', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(Number.plural, determiner: theDeterminer),
+          verb: teach,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He had not been working.');
-      });
+      expect(sentence.text, 'The teachers had been teaching.');
+    });
 
-      test('Future Perfect Continuous - negative', () {
-        final state = SentenceState(
-          subject: he,
+    test('John will have been working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.future,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          modal: Modal.will,
+        ),
+      );
 
-        expect(
-          grammarEngine.generate(state).text,
-          'He will not have been working.',
-        );
-      });
+      expect(sentence.text, 'John will have been working.');
+    });
 
-      test('Present Perfect Continuous - question', () {
-        final state = SentenceState(
-          subject: he,
+    test('John has not been working', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+          polarity: Polarity.negative,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Has he been working?');
-      });
+      expect(sentence.text, 'John has not been working.');
+    });
 
-      test('Past Perfect Continuous - question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
+    test('The students have not been studying', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+          polarity: Polarity.negative,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Had he been working?');
-      });
+      expect(sentence.text, 'The students have not been studying.');
+    });
 
-      test('Future Perfect Continuous - question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(
-          grammarEngine.generate(state).text,
-          'Will he have been working?',
-        );
-      });
-
-      test('Present Perfect Continuous - negative question', () {
-        final state = SentenceState(
-          subject: he,
+    test('Has John been working?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Has he not been working?');
-      });
+      expect(sentence.text, 'Has John been working?');
+    });
 
-      test('Past Perfect Continuous - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
+    test('Have the students been studying?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: student.toSubject(Number.plural, determiner: theDeterminer),
+          verb: study,
+          tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
           sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'Had he not been working?');
-      });
+      expect(sentence.text, 'Have the students been studying?');
+    });
 
-      test('Future Perfect Continuous - negative question', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.negative,
-          sentenceForm: SentenceForm.question,
-          voice: Voice.active,
-        );
-
-        expect(
-          grammarEngine.generate(state).text,
-          'Will he not have been working?',
-        );
-      });
-
-      test('Present Perfect Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: he,
+    test('John has been working!', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: john.toSubject(Number.singular),
           verb: work,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
           sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has been working!');
-      });
+      expect(sentence.text, 'John has been working!');
+    });
 
-      test('Past Perfect Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.past,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(grammarEngine.generate(state).text, 'He had been working!');
-      });
-
-      test('Future Perfect Continuous - exclamation', () {
-        final state = SentenceState(
-          subject: he,
-          verb: work,
-          tense: Tense.future,
-          aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.exclamation,
-          voice: Voice.active,
-        );
-
-        expect(
-          grammarEngine.generate(state).text,
-          'He will have been working!',
-        );
-      });
-
-      test('Present Perfect Continuous - plural subject', () {
-        final state = SentenceState(
-          subject: they,
-          verb: work,
+    test('The teacher has been teaching at school', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: teacher.toSubject(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          verb: teach,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+          placePhrase: atSchool,
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They have been working.');
-      });
+      expect(sentence.text, 'The teacher has been teaching at school.');
+    });
 
-      test('Present Perfect Continuous - irregular verb', () {
-        final state = SentenceState(
-          subject: he,
-          verb: go,
+    // Future GrammarEngine
+
+    test('The house has been being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'He has been going.');
-      });
+      expect(sentence.text, 'The house has been being built.');
+    });
 
-      test('Past Perfect Continuous - irregular verb', () {
-        final state = SentenceState(
-          subject: they,
-          verb: go,
+    test('The houses had been being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.plural, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
           tense: Tense.past,
           aspect: Aspect.perfectContinuous,
-          modal: Modal.none,
-          polarity: Polarity.positive,
-          sentenceForm: SentenceForm.statement,
-          voice: Voice.active,
-        );
+        ),
+      );
 
-        expect(grammarEngine.generate(state).text, 'They had been going.');
-      });
+      expect(sentence.text, 'The houses had been being built.');
+    });
+
+    test('Has the house been being built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has the house been being built?');
+    });
+
+    test('The house has not been being built', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+          polarity: Polarity.negative,
+        ),
+      );
+
+      expect(sentence.text, 'The house has not been being built.');
+    });
+
+    test('Has the house not been being built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has the house not been being built?');
+    });
+
+    test('Should the bridge not have been being built?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: bridge.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+          modal: Modal.should,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Should the bridge not have been being built?');
+    });
+
+    test('Mary has been finding the dog', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: findVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+        ),
+      );
+
+      expect(sentence.text, 'Mary has been finding the dog.');
+    });
+
+    test('Has Mary been finding the dog?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: mary.toSubject(Number.singular),
+          verb: findVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+          sentenceForm: SentenceForm.question,
+        ),
+      );
+
+      expect(sentence.text, 'Has Mary been finding the dog?');
+    });
+
+    test('The house has been being built by John', () {
+      final sentence = engine.generate(
+        SentenceState(
+          subject: house.toSubject(Number.singular, determiner: theDeterminer),
+          verb: build,
+          voice: Voice.passive,
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+        ),
+      );
+
+      expect(sentence.text, 'The house has been being built by John.');
     });
   });
 }

@@ -182,7 +182,28 @@ class GrammarEngine {
 
       case Modal.will:
         builder.auxiliary = 'will';
-        builder.verb = builder.state.verb.infinitive;
+
+        switch (builder.state.aspect) {
+          case Aspect.simple:
+            builder.verb = builder.state.verb.infinitive;
+            break;
+
+          case Aspect.continuous:
+            builder.helper = 'be';
+            builder.verb = builder.state.verb.ingForm;
+            break;
+
+          case Aspect.perfect:
+            builder.helper = 'have';
+            builder.verb = builder.state.verb.pastParticiple;
+            break;
+
+          case Aspect.perfectContinuous:
+            builder.helper = 'have been';
+            builder.verb = builder.state.verb.ingForm;
+            break;
+        }
+
         break;
     }
   }

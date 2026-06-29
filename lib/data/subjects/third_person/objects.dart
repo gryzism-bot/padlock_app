@@ -22,6 +22,13 @@ const car = Noun(
   pluralTranslations: {Language.pl: 'samochody'},
 );
 
+const bridge = Noun(
+  singular: 'bridge',
+  plural: 'bridges',
+  singularTranslations: {Language.pl: 'most'},
+  pluralTranslations: {Language.pl: 'mosty'},
+);
+
 const bus = Noun(
   singular: 'bus',
   plural: 'buses',

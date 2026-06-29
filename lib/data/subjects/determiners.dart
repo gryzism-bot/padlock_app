@@ -87,3 +87,8 @@ const theirDeterminer = Determiner(
   text: 'their',
   translations: {Language.pl: 'ich'},
 );
+
+const manyDeterminer = Determiner(
+  text: 'many',
+  translations: {Language.pl: 'wiele'},
+);
