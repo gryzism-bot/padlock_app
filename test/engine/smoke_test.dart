@@ -39,7 +39,7 @@ void main() {
         voice: Voice.active,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
-        placePhrase: atHome,
+        placePhrase: home,
         timePhrase: today,
       );
 
@@ -56,7 +56,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: inThePark,
+        placePhrase:park,
         timePhrase: yesterday,
       );
 
@@ -78,7 +78,7 @@ void main() {
         modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
-        placePhrase: atSchool,
+        placePhrase: school,
         timePhrase: tomorrow,
         voice: Voice.active,
       );
@@ -99,7 +99,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: atHome,
+        placePhrase: home,
       );
 
       expect(engine.generate(state).text, 'Cats have been sleeping at home.');
@@ -300,7 +300,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: toWork,
+        placePhrase: workPhrase,
       );
 
       expect(engine.generate(state).text, 'Any teacher can travel to work.');

@@ -62,7 +62,7 @@ void main() {
           action: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
-          placePhrase: atSchool,
+          placePhrase: school,
         ),
       );
 

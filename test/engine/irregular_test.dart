@@ -33,7 +33,7 @@ void main() {
           action: go,
           tense: Tense.past,
           aspect: Aspect.simple,
-          placePhrase: atHome,
+          placePhrase: home,
           timePhrase: yesterday,
         ),
       );
@@ -329,7 +329,7 @@ void main() {
           object: john.toNounPhrase(Number.singular),
           tense: Tense.past,
           aspect: Aspect.simple,
-          placePhrase: atHome,
+          placePhrase: home,
         ),
       );
 

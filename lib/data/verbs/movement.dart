@@ -67,9 +67,10 @@ const ride = Verb(
 const travel = Verb(
   infinitive: 'travel',
   presentThirdPerson: 'travels',
-  pastSimple: 'traveled',
-  pastParticiple: 'traveled',
-  ingForm: 'traveling',
+  pastSimple: 'travelled',
+  pastParticiple: 'travelled',
+  ingForm: 'travelling',
+  isMotionVerb: true,
   translations: {Language.pl: 'podróżować'},
 );
 

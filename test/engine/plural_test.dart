@@ -271,7 +271,7 @@ void main() {
           action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          placePhrase: atSchool,
+          placePhrase: school,
         ),
       );
 

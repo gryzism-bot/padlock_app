@@ -4,9 +4,10 @@ import 'package:padlock_app/models/grammar/verb/verb.dart';
 const travel = Verb(
   infinitive: 'travel',
   presentThirdPerson: 'travels',
-  pastSimple: 'traveled',
-  pastParticiple: 'traveled',
-  ingForm: 'traveling',
+  pastSimple: 'travelled',
+  pastParticiple: 'travelled',
+  ingForm: 'travelling',
+  isMotionVerb: true,
   translations: {Language.pl: 'podróżować'},
 );
 
@@ -25,7 +26,8 @@ const arrive = Verb(
   pastSimple: 'arrived',
   pastParticiple: 'arrived',
   ingForm: 'arriving',
-  translations: {Language.pl: 'przyjeżdżać'},
+  isMotionVerb: true,
+  translations: {Language.pl: 'przybyć'},
 );
 
 const leave = Verb(
@@ -34,7 +36,8 @@ const leave = Verb(
   pastSimple: 'left',
   pastParticiple: 'left',
   ingForm: 'leaving',
-  translations: {Language.pl: 'opuszczać'},
+  isMotionVerb: true,
+  translations: {Language.pl: 'opuścić'},
 );
 
 const depart = Verb(
@@ -52,7 +55,8 @@ const returnVerb = Verb(
   pastSimple: 'returned',
   pastParticiple: 'returned',
   ingForm: 'returning',
-  translations: {Language.pl: 'wracać'},
+  isMotionVerb: true,
+  translations: {Language.pl: 'wrócić'},
 );
 
 const explore = Verb(

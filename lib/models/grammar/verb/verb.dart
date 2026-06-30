@@ -7,6 +7,9 @@ class Verb {
   final String pastParticiple;
   final String ingForm;
 
+  /// go, come, travel, arrive, leave...
+  final bool isMotionVerb;
+
   final Map<Language, String> translations;
 
   const Verb({
@@ -15,6 +18,7 @@ class Verb {
     required this.pastSimple,
     required this.pastParticiple,
     required this.ingForm,
+    this.isMotionVerb = false,
     required this.translations,
   });
 }

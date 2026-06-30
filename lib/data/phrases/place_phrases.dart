@@ -1,183 +1,156 @@
-import 'package:padlock_app/models/language.dart';
-import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
+import 'package:padlock_app/models/language.dart';
 
-const atHome = PlacePhrase(
-  text: 'at home',
+const home = PlacePhrase(
+  text: 'home',
+  locationPreposition: 'at',
+  destinationPreposition: '',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w domu'},
+  translations: {Language.pl: 'dom'},
 );
 
-const atSchool = PlacePhrase(
-  text: 'at school',
+const workPhrase = PlacePhrase(
+  text: 'work',
+  locationPreposition: 'at',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w szkole'},
+  translations: {Language.pl: 'praca'},
 );
 
-const atWork = PlacePhrase(
-  text: 'at work',
+const school = PlacePhrase(
+  text: 'school',
+  locationPreposition: 'at',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w pracy'},
+  translations: {Language.pl: 'szkoła'},
 );
 
-const atTheOffice = PlacePhrase(
-  text: 'at the office',
+const university = PlacePhrase(
+  text: 'university',
+  locationPreposition: 'at',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w biurze'},
+  translations: {Language.pl: 'uniwersytet'},
 );
 
-const atTheRestaurant = PlacePhrase(
-  text: 'at the restaurant',
+const office = PlacePhrase(
+  text: 'office',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w restauracji'},
+  translations: {Language.pl: 'biuro'},
 );
 
-const atTheAirport = PlacePhrase(
-  text: 'at the airport',
+const park = PlacePhrase(
+  text: 'the park',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na lotnisku'},
+  translations: {Language.pl: 'park'},
 );
 
-const atTheStation = PlacePhrase(
-  text: 'at the station',
+const garden = PlacePhrase(
+  text: 'the garden',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na dworcu'},
+  translations: {Language.pl: 'ogród'},
 );
 
-const inPoland = PlacePhrase(
-  text: 'in Poland',
+const kitchen = PlacePhrase(
+  text: 'the kitchen',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w Polsce'},
+  translations: {Language.pl: 'kuchnia'},
 );
 
-const inEngland = PlacePhrase(
-  text: 'in England',
+const bathroom = PlacePhrase(
+  text: 'the bathroom',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w Anglii'},
+  translations: {Language.pl: 'łazienka'},
 );
 
-const inGermany = PlacePhrase(
-  text: 'in Germany',
+const bedroom = PlacePhrase(
+  text: 'the bedroom',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w Niemczech'},
+  translations: {Language.pl: 'sypialnia'},
 );
 
-const inFrance = PlacePhrase(
-  text: 'in France',
+const livingRoom = PlacePhrase(
+  text: 'the living room',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'we Francji'},
+  translations: {Language.pl: 'salon'},
 );
 
-const inTheCity = PlacePhrase(
-  text: 'in the city',
+const restaurant = PlacePhrase(
+  text: 'the restaurant',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w mieście'},
+  translations: {Language.pl: 'restauracja'},
 );
 
-const inTheVillage = PlacePhrase(
-  text: 'in the village',
+const hospital = PlacePhrase(
+  text: 'the hospital',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na wsi'},
+  translations: {Language.pl: 'szpital'},
 );
 
-const inThePark = PlacePhrase(
-  text: 'in the park',
+const shop = PlacePhrase(
+  text: 'the shop',
+  locationPreposition: 'in',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w parku'},
+  translations: {Language.pl: 'sklep'},
 );
 
-const inTheGarden = PlacePhrase(
-  text: 'in the garden',
+const bridgePhrase = PlacePhrase(
+  text: 'the bridge',
+  locationPreposition: 'under',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w ogrodzie'},
+  translations: {Language.pl: 'most'},
 );
 
-const inTheKitchen = PlacePhrase(
-  text: 'in the kitchen',
+const table = PlacePhrase(
+  text: 'the table',
+  locationPreposition: 'under',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w kuchni'},
+  translations: {Language.pl: 'stół'},
 );
 
-const inTheBathroom = PlacePhrase(
-  text: 'in the bathroom',
+const bed = PlacePhrase(
+  text: 'the bed',
+  locationPreposition: 'under',
+  destinationPreposition: 'to',
+  sourcePreposition: 'from',
   position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w łazience'},
-);
-
-const inTheBedroom = PlacePhrase(
-  text: 'in the bedroom',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'w sypialni'},
-);
-
-const onTheTable = PlacePhrase(
-  text: 'on the table',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na stole'},
-);
-
-const onTheFloor = PlacePhrase(
-  text: 'on the floor',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na podłodze'},
-);
-
-const onTheStreet = PlacePhrase(
-  text: 'on the street',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'na ulicy'},
-);
-
-const nearTheHouse = PlacePhrase(
-  text: 'near the house',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'blisko domu'},
-);
-
-const behindTheHouse = PlacePhrase(
-  text: 'behind the house',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'za domem'},
-);
-
-const inFrontOfTheHouse = PlacePhrase(
-  text: 'in front of the house',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'przed domem'},
-);
-
-const nextToTheSchool = PlacePhrase(
-  text: 'next to the school',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'obok szkoły'},
-);
-
-const underTheTable = PlacePhrase(
-  text: 'under the table',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'pod stołem'},
-);
-
-const overTheBridge = PlacePhrase(
-  text: 'over the bridge',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'nad mostem'},
-);
-
-const byTheRiver = PlacePhrase(
-  text: 'by the river',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'nad rzeką'},
-);
-
-const toSchool = PlacePhrase(
-  text: 'to school',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'do szkoły'},
-);
-
-const toWork = PlacePhrase(
-  text: 'to work',
-  position: PhrasePosition.afterPredicate,
-  translations: {Language.pl: 'do pracy'},
+  translations: {Language.pl: 'łóżko'},
 );

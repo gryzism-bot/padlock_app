@@ -507,7 +507,15 @@ class GrammarEngine {
     }
 
     if (builder.state.placePhrase != null) {
-      builder.placePhrase = builder.state.placePhrase!.text;
+      final place = builder.state.placePhrase!;
+
+      if (builder.state.action.isMotionVerb) {
+        builder.placePhrase = place.destinationPreposition.isEmpty
+            ? place.text
+            : '${place.destinationPreposition} ${place.text}';
+      } else {
+        builder.placePhrase = '${place.locationPreposition} ${place.text}';
+      }
     }
 
     if (builder.state.frequencyPhrase != null) {
@@ -517,6 +525,12 @@ class GrammarEngine {
     if (builder.state.mannerPhrase != null) {
       builder.mannerPhrase = builder.state.mannerPhrase!.text;
     }
+    // print(builder.state.action.infinitive);
+    // print(builder.state.action.isMotionVerb);
+
+    // print(builder.state.placePhrase?.text);
+    // print(builder.state.placePhrase?.destinationPreposition);
+    // print(builder.state.placePhrase?.locationPreposition);
   }
 
   // -------------------------------------------------------

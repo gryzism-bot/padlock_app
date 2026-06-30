@@ -157,7 +157,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text, 'The dog can not run.');
+      expect(sentence.text, 'The dog cannot run.');
     });
 
     test('The house was not built', () {
@@ -226,7 +226,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          placePhrase: atSchool,
+          placePhrase: school,
         ),
       );
 

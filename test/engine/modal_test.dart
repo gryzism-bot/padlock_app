@@ -122,7 +122,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           modal: can,
-          placePhrase: atSchool,
+          placePhrase: school,
         ),
       );
 
