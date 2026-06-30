@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/education.dart';
@@ -182,7 +183,10 @@ void main() {
     test('The house has been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -196,7 +200,7 @@ void main() {
     test('The houses had been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -210,7 +214,10 @@ void main() {
     test('Has the house been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -225,7 +232,10 @@ void main() {
     test('The house has not been being built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -240,7 +250,10 @@ void main() {
     test('Has the house not been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -256,7 +269,10 @@ void main() {
     test('Should the bridge not have been being built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -275,6 +291,7 @@ void main() {
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
           action: findVerb,
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
         ),
@@ -288,6 +305,7 @@ void main() {
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
           action: findVerb,
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
           sentenceForm: SentenceForm.question,
@@ -300,8 +318,12 @@ void main() {
     test('The house has been being built by John', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
+          agent: john.toNounPhrase(Number.singular),
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,

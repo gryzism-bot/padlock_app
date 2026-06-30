@@ -179,7 +179,10 @@ void main() {
     test('The house has been built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -193,7 +196,7 @@ void main() {
     test('The houses had been built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -207,7 +210,10 @@ void main() {
     test('Has the house been built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -224,7 +230,10 @@ void main() {
     test('The house has not been built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -239,7 +248,10 @@ void main() {
     test('Has the house not been built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -255,7 +267,10 @@ void main() {
     test('Should the bridge not have been built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -274,6 +289,7 @@ void main() {
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
           action: findVerb,
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
@@ -287,6 +303,7 @@ void main() {
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
           action: findVerb,
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           tense: Tense.present,
           aspect: Aspect.perfect,
           sentenceForm: SentenceForm.question,
@@ -299,8 +316,12 @@ void main() {
     test('The house has been built by John', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
+          agent: john.toNounPhrase(Number.singular),
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.perfect,
