@@ -222,7 +222,7 @@ void main() {
     test('The house can be built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -237,7 +237,7 @@ void main() {
     test('Should the house be built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -253,7 +253,7 @@ void main() {
     test('The bridge must be built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(
+          object: bridge.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),

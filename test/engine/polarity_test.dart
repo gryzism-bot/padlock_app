@@ -163,7 +163,7 @@ void main() {
     test('The house was not built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -178,7 +178,7 @@ void main() {
     test('The houses were not built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -269,7 +269,7 @@ void main() {
     test('The bridge must not be built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(
+          object: bridge.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),

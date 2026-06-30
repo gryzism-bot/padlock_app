@@ -130,7 +130,10 @@ void main() {
     test('Passive statement', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -145,7 +148,10 @@ void main() {
     test('Passive question', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -160,7 +166,7 @@ void main() {
     test('Passive exclamation', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(
+          object: bridge.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
@@ -245,7 +251,10 @@ void main() {
     test('Passive negative statement', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -261,7 +270,10 @@ void main() {
     test('Passive negative question', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -277,7 +289,7 @@ void main() {
     test('Passive modal negative question', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(
+          object: bridge.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
@@ -298,6 +310,7 @@ void main() {
       final sentence = engine.generate(
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           action: findVerb,
           tense: Tense.past,
           aspect: Aspect.simple,

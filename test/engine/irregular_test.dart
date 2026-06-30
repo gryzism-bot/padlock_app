@@ -128,6 +128,7 @@ void main() {
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
           action: findVerb,
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           tense: Tense.past,
           aspect: Aspect.simple,
         ),
@@ -320,18 +321,19 @@ void main() {
       expect(sentence.text, 'Mary has had.');
     });
 
-    test('The cat got home', () {
+    test('Cat got John at home.', () {
       final sentence = engine.generate(
         SentenceState(
           agent: cat.toNounPhrase(Number.singular),
           action: get,
+          object: john.toNounPhrase(Number.singular),
           tense: Tense.past,
           aspect: Aspect.simple,
           placePhrase: atHome,
         ),
       );
 
-      expect(sentence.text, 'Cat got home.');
+      expect(sentence.text, 'Cat got John at home.');
     });
 
     test('John read yesterday', () {

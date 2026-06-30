@@ -83,7 +83,7 @@ void main() {
       expect(sentence.text, 'These dogs have learned!');
     });
 
-    test('That house will be built!', () {
+    test('That house will be built by John!', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
         object: house.toNounPhrase(Number.singular, determiner: thatDeterminer),

@@ -537,13 +537,17 @@ class GrammarEngine {
         parts.add(builder.verbChain.first);
       }
 
-      parts.add(_renderNounPhrase(builder.displaySubject));
+      if (builder.state.sentenceForm != SentenceForm.imperative) {
+        parts.add(_renderNounPhrase(builder.displaySubject));
+      }
 
       if (builder.verbChain.length > 1) {
         parts.addAll(builder.verbChain.skip(1));
       }
     } else {
-      parts.add(_renderNounPhrase(builder.displaySubject));
+      if (builder.state.sentenceForm != SentenceForm.imperative) {
+        parts.add(_renderNounPhrase(builder.displaySubject));
+      }
 
       parts.addAll(builder.verbChain);
     }
@@ -564,7 +568,11 @@ class GrammarEngine {
 
     _addBackPhrases(parts, builder);
 
-    return '${parts.join(' ').capitalizeFirst()}${builder.punctuation}';
+    String sentence = parts.join(' ');
+
+    sentence = sentence.replaceAll('can not', 'cannot');
+
+    return '${sentence.capitalizeFirst()}${builder.punctuation}';
   }
 
   void _addFrontPhrases(List<String> parts, _SentenceBuilder builder) {
@@ -587,12 +595,12 @@ class GrammarEngine {
   }
 
   void _addBackPhrases(List<String> parts, _SentenceBuilder builder) {
-    if (builder.state.timePhrase?.position == PhrasePosition.afterPredicate) {
-      _addPhrase(parts, builder.timePhrase);
-    }
-
     if (builder.state.placePhrase?.position == PhrasePosition.afterPredicate) {
       _addPhrase(parts, builder.placePhrase);
+    }
+
+    if (builder.state.timePhrase?.position == PhrasePosition.afterPredicate) {
+      _addPhrase(parts, builder.timePhrase);
     }
 
     if (builder.state.frequencyPhrase?.position ==

@@ -109,7 +109,7 @@ void main() {
     test('The houses were built', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -194,7 +194,7 @@ void main() {
     test('Were the houses built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,

@@ -239,7 +239,10 @@ void main() {
     test('Was the house built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -254,7 +257,7 @@ void main() {
     test('Were the houses built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.plural, determiner: theDeterminer),
+          object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -269,7 +272,10 @@ void main() {
     test('Can the house be built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.present,
@@ -287,7 +293,10 @@ void main() {
     test('Was the house not built?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,
@@ -300,14 +309,15 @@ void main() {
       expect(sentence.text, 'Was the house not built?');
     });
 
-    test('Should the bridge not be built?', () {
+    test('Should the bridge not be built by cats?', () {
       final sentence = engine.generate(
         SentenceState(
-          agent: bridge.toNounPhrase(
+          object: bridge.toNounPhrase(
             Number.singular,
             determiner: theDeterminer,
           ),
           action: build,
+          agent: cat.toNounPhrase(Number.plural),
           voice: Voice.passive,
           tense: Tense.present,
           aspect: Aspect.simple,
@@ -317,13 +327,14 @@ void main() {
         ),
       );
 
-      expect(sentence.text, 'Should the bridge not be built?');
+      expect(sentence.text, 'Should the bridge not be built by cats?');
     });
 
     test('Did Mary find the dog?', () {
       final sentence = engine.generate(
         SentenceState(
           agent: mary.toNounPhrase(Number.singular),
+          object: dog.toNounPhrase(Number.singular, determiner: theDeterminer),
           action: findVerb,
           tense: Tense.past,
           aspect: Aspect.simple,

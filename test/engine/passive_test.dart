@@ -44,10 +44,7 @@ void main() {
         voice: Voice.passive,
       );
 
-      expect(
-        engine.generate(state).text,
-        'The bridges were built by the workers.',
-      );
+      expect(engine.generate(state).text, 'The bridges were built by workers.');
     });
 
     test('Passive renders agent determiner', () {
@@ -65,23 +62,23 @@ void main() {
         'The bridge was built by the workers.',
       );
     });
-    test('The house is built by John', () {
+    test('A house is built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: aDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
         voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house is built by John.');
+      expect(engine.generate(state).text, 'A house is built by John.');
     });
 
     test('The houses are built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.plural),
+        object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -93,8 +90,8 @@ void main() {
 
     test('The bridge was built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -109,8 +106,8 @@ void main() {
 
     test('The bridges were built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.plural),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.plural, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -123,26 +120,23 @@ void main() {
       );
     });
 
-    test('The bridge will be built by the workers', () {
+    test('A bridge will be built by workers', () {
       final state = SentenceState(
         agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        object: bridge.toNounPhrase(Number.singular, determiner: aDeterminer),
         action: build,
         tense: Tense.future,
         aspect: Aspect.simple,
         voice: Voice.passive,
       );
 
-      expect(
-        engine.generate(state).text,
-        'The bridge will be built by the workers.',
-      );
+      expect(engine.generate(state).text, 'A bridge will be built by workers.');
     });
 
     test('The house is being built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.continuous,
@@ -154,8 +148,8 @@ void main() {
 
     test('The bridge was being built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.continuous,
@@ -171,7 +165,7 @@ void main() {
     test('The house has been built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -183,8 +177,8 @@ void main() {
 
     test('The bridge had been built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.perfect,
@@ -199,8 +193,8 @@ void main() {
 
     test('The bridge will have been built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.future,
         aspect: Aspect.perfect,
@@ -216,7 +210,7 @@ void main() {
     test('The house has not been built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -233,7 +227,7 @@ void main() {
     test('Was the house built by John?', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular),
+        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.simple,
@@ -244,7 +238,7 @@ void main() {
       expect(engine.generate(state).text, 'Was the house built by John?');
     });
 
-    test('Should the bridge be built by the workers?', () {
+    test('Should bridge be built by the workers?', () {
       final state = SentenceState(
         agent: worker.toNounPhrase(Number.plural),
         object: bridge.toNounPhrase(Number.singular),
@@ -258,14 +252,14 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'Should the bridge be built by the workers.',
+        'Should bridge be built by workers?',
       );
     });
 
-    test('The bridge should be built by the workers', () {
+    test('A bridge should be built by workers', () {
       final state = SentenceState(
         agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        object: bridge.toNounPhrase(Number.singular, determiner: aDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.simple,
@@ -275,14 +269,14 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'The bridge should be built by the workers.',
+        'A bridge should be built by workers.',
       );
     });
 
-    test('The bridge must have been built by the workers', () {
+    test('The bridge must have been built by workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: bridge.toNounPhrase(Number.singular),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -298,8 +292,8 @@ void main() {
 
     test('The houses have been built by the workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural),
-        object: house.toNounPhrase(Number.plural),
+        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+        object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
         action: build,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -312,10 +306,10 @@ void main() {
       );
     });
 
-    test('The houses were being built by the workers', () {
+    test('The houses were being built by workers', () {
       final state = SentenceState(
         agent: worker.toNounPhrase(Number.plural),
-        object: house.toNounPhrase(Number.plural),
+        object: house.toNounPhrase(Number.plural, determiner: theDeterminer),
         action: build,
         tense: Tense.past,
         aspect: Aspect.continuous,
@@ -324,7 +318,7 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'The houses were being built by the workers.',
+        'The houses were being built by workers.',
       );
     });
   });
