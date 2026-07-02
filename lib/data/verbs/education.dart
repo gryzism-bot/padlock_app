@@ -171,3 +171,25 @@ const research = Verb(
   ingForm: 'researching',
   translations: {Language.pl: 'prowadzić badania'},
 );
+
+List<Verb> educationVerbs = [
+  study,
+  teach,
+  read,
+  write,
+  spell,
+  count,
+  calculate,
+  solve,
+  answer,
+  ask,
+  explain,
+  understand,
+  remember,
+  forget,
+  practice,
+  repeat,
+  improve,
+  graduate,
+  research,
+];

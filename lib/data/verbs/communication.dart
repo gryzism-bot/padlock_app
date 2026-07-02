@@ -180,3 +180,26 @@ const introduce = Verb(
   ingForm: 'introducing',
   translations: {Language.pl: 'przedstawiać'},
 );
+
+List<Verb> communicationVerbs = [
+  speak,
+  talk,
+  tell,
+  ask,
+  answer,
+  call,
+  listen,
+  hear,
+  read,
+  write,
+  explain,
+  describe,
+  discuss,
+  agree,
+  disagree,
+  laugh,
+  smile,
+  shout,
+  whisper,
+  introduce,
+];

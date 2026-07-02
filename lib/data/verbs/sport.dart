@@ -7,9 +7,7 @@ const playFootball = Verb(
   pastSimple: 'played football',
   pastParticiple: 'played football',
   ingForm: 'playing football',
-  translations: {
-    Language.pl: 'grać w piłkę nożną',
-  },
+  translations: {Language.pl: 'grać w piłkę nożną'},
 );
 
 const playBasketball = Verb(
@@ -18,9 +16,7 @@ const playBasketball = Verb(
   pastSimple: 'played basketball',
   pastParticiple: 'played basketball',
   ingForm: 'playing basketball',
-  translations: {
-    Language.pl: 'grać w koszykówkę',
-  },
+  translations: {Language.pl: 'grać w koszykówkę'},
 );
 
 const playVolleyball = Verb(
@@ -29,9 +25,7 @@ const playVolleyball = Verb(
   pastSimple: 'played volleyball',
   pastParticiple: 'played volleyball',
   ingForm: 'playing volleyball',
-  translations: {
-    Language.pl: 'grać w siatkówkę',
-  },
+  translations: {Language.pl: 'grać w siatkówkę'},
 );
 
 const playTennis = Verb(
@@ -40,9 +34,7 @@ const playTennis = Verb(
   pastSimple: 'played tennis',
   pastParticiple: 'played tennis',
   ingForm: 'playing tennis',
-  translations: {
-    Language.pl: 'grać w tenisa',
-  },
+  translations: {Language.pl: 'grać w tenisa'},
 );
 
 const playGolf = Verb(
@@ -51,9 +43,7 @@ const playGolf = Verb(
   pastSimple: 'played golf',
   pastParticiple: 'played golf',
   ingForm: 'playing golf',
-  translations: {
-    Language.pl: 'grać w golfa',
-  },
+  translations: {Language.pl: 'grać w golfa'},
 );
 
 const train = Verb(
@@ -62,9 +52,7 @@ const train = Verb(
   pastSimple: 'trained',
   pastParticiple: 'trained',
   ingForm: 'training',
-  translations: {
-    Language.pl: 'trenować',
-  },
+  translations: {Language.pl: 'trenować'},
 );
 
 const exercise = Verb(
@@ -73,9 +61,7 @@ const exercise = Verb(
   pastSimple: 'exercised',
   pastParticiple: 'exercised',
   ingForm: 'exercising',
-  translations: {
-    Language.pl: 'ćwiczyć',
-  },
+  translations: {Language.pl: 'ćwiczyć'},
 );
 
 const lift = Verb(
@@ -84,9 +70,7 @@ const lift = Verb(
   pastSimple: 'lifted',
   pastParticiple: 'lifted',
   ingForm: 'lifting',
-  translations: {
-    Language.pl: 'podnosić ciężary',
-  },
+  translations: {Language.pl: 'podnosić ciężary'},
 );
 
 const throwVerb = Verb(
@@ -95,9 +79,7 @@ const throwVerb = Verb(
   pastSimple: 'threw',
   pastParticiple: 'thrown',
   ingForm: 'throwing',
-  translations: {
-    Language.pl: 'rzucać',
-  },
+  translations: {Language.pl: 'rzucać'},
 );
 
 const catchVerb = Verb(
@@ -106,9 +88,7 @@ const catchVerb = Verb(
   pastSimple: 'caught',
   pastParticiple: 'caught',
   ingForm: 'catching',
-  translations: {
-    Language.pl: 'łapać',
-  },
+  translations: {Language.pl: 'łapać'},
 );
 
 const kick = Verb(
@@ -117,9 +97,7 @@ const kick = Verb(
   pastSimple: 'kicked',
   pastParticiple: 'kicked',
   ingForm: 'kicking',
-  translations: {
-    Language.pl: 'kopać',
-  },
+  translations: {Language.pl: 'kopać'},
 );
 
 const hit = Verb(
@@ -128,9 +106,7 @@ const hit = Verb(
   pastSimple: 'hit',
   pastParticiple: 'hit',
   ingForm: 'hitting',
-  translations: {
-    Language.pl: 'uderzać',
-  },
+  translations: {Language.pl: 'uderzać'},
 );
 
 const score = Verb(
@@ -139,9 +115,7 @@ const score = Verb(
   pastSimple: 'scored',
   pastParticiple: 'scored',
   ingForm: 'scoring',
-  translations: {
-    Language.pl: 'zdobywać punkt',
-  },
+  translations: {Language.pl: 'zdobywać punkt'},
 );
 
 const win = Verb(
@@ -150,9 +124,7 @@ const win = Verb(
   pastSimple: 'won',
   pastParticiple: 'won',
   ingForm: 'winning',
-  translations: {
-    Language.pl: 'wygrywać',
-  },
+  translations: {Language.pl: 'wygrywać'},
 );
 
 const lose = Verb(
@@ -161,9 +133,7 @@ const lose = Verb(
   pastSimple: 'lost',
   pastParticiple: 'lost',
   ingForm: 'losing',
-  translations: {
-    Language.pl: 'przegrywać',
-  },
+  translations: {Language.pl: 'przegrywać'},
 );
 
 const compete = Verb(
@@ -172,9 +142,7 @@ const compete = Verb(
   pastSimple: 'competed',
   pastParticiple: 'competed',
   ingForm: 'competing',
-  translations: {
-    Language.pl: 'rywalizować',
-  },
+  translations: {Language.pl: 'rywalizować'},
 );
 
 const box = Verb(
@@ -183,9 +151,7 @@ const box = Verb(
   pastSimple: 'boxed',
   pastParticiple: 'boxed',
   ingForm: 'boxing',
-  translations: {
-    Language.pl: 'boksować',
-  },
+  translations: {Language.pl: 'boksować'},
 );
 
 const wrestle = Verb(
@@ -194,9 +160,7 @@ const wrestle = Verb(
   pastSimple: 'wrestled',
   pastParticiple: 'wrestled',
   ingForm: 'wrestling',
-  translations: {
-    Language.pl: 'zapasy',
-  },
+  translations: {Language.pl: 'zapasy'},
 );
 
 const surf = Verb(
@@ -205,9 +169,7 @@ const surf = Verb(
   pastSimple: 'surfed',
   pastParticiple: 'surfed',
   ingForm: 'surfing',
-  translations: {
-    Language.pl: 'surfować',
-  },
+  translations: {Language.pl: 'surfować'},
 );
 
 const cycle = Verb(
@@ -216,7 +178,28 @@ const cycle = Verb(
   pastSimple: 'cycled',
   pastParticiple: 'cycled',
   ingForm: 'cycling',
-  translations: {
-    Language.pl: 'jeździć na rowerze',
-  },
+  translations: {Language.pl: 'jeździć na rowerze'},
 );
+
+List<Verb> sportVerbs = [
+  playFootball,
+  playBasketball,
+  playVolleyball,
+  playTennis,
+  playGolf,
+  train,
+  exercise,
+  lift,
+  throwVerb,
+  catchVerb,
+  kick,
+  hit,
+  score,
+  win,
+  lose,
+  compete,
+  box,
+  wrestle,
+  surf,
+  cycle,
+];

@@ -181,3 +181,26 @@ const lie = Verb(
   ingForm: 'lying',
   translations: {Language.pl: 'leżeć'},
 );
+
+List<Verb> movementVerbs = [
+  walk,
+  run,
+  jump,
+  swim,
+  fly,
+  drive,
+  ride,
+  travel,
+  climb,
+  crawl,
+  dance,
+  hike,
+  sail,
+  skate,
+  ski,
+  dive,
+  fall,
+  stand,
+  sit,
+  lie,
+];

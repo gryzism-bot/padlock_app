@@ -35,3 +35,16 @@ const oughtTo = Modal(
 const need = Modal(text: 'need', translations: {Language.pl: 'potrzebować'});
 
 const dare = Modal(text: 'dare', translations: {Language.pl: 'odważyć się'});
+
+final List<Modal> modals = [
+  can,
+  could,
+  may,
+  might,
+  must,
+  shall,
+  should,
+  will,
+  would,
+  oughtTo,
+];

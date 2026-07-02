@@ -184,3 +184,26 @@ const cross = Verb(
   ingForm: 'crossing',
   translations: {Language.pl: 'przekraczać'},
 );
+
+List<Verb> travelVerbs = [
+  travel,
+  visit,
+  arrive,
+  leave,
+  depart,
+  returnVerb,
+  explore,
+  book,
+  pack,
+  unpack,
+  board,
+  land,
+  rent,
+  reserve,
+  navigate,
+  camp,
+  hike,
+  photograph,
+  stay,
+  cross,
+];

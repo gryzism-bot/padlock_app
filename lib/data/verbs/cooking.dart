@@ -198,3 +198,28 @@ const wash = Verb(
   ingForm: 'washing',
   translations: {Language.pl: 'myć'},
 );
+
+List<Verb> cookingVerbs = [
+  cook,
+  bake,
+  fry,
+  boil,
+  grill,
+  eat,
+  drink,
+  roast,
+  steam,
+  cut,
+  chop,
+  slice,
+  peel,
+  mix,
+  stir,
+  pour,
+  add,
+  serve,
+  taste,
+  freeze,
+  melt,
+  wash,
+];

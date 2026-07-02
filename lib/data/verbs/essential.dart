@@ -1,3 +1,11 @@
+import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart';
+import 'package:padlock_app/data/verbs/education.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/sport.dart';
+import 'package:padlock_app/data/verbs/travel.dart';
+import 'package:padlock_app/data/verbs/work.dart';
+
 import '../../models/grammar/verb/verb.dart';
 import '../../models/language.dart';
 
@@ -227,3 +235,42 @@ const sleep = Verb(
   ingForm: 'sleeping',
   translations: {Language.pl: 'spać'},
 );
+
+final List<Verb> essentialVerbs = [
+  be,
+  have,
+  doVerb,
+  findVerb,
+  sing,
+  breakVerb,
+  begin,
+  go,
+  come,
+  get,
+  make,
+  take,
+  give,
+  know,
+  think,
+  say,
+  see,
+  want,
+  need,
+  like,
+  love,
+  work,
+  play,
+  learn,
+  sleep,
+];
+
+final List<Verb> verbs = [
+  ...communicationVerbs,
+  ...cookingVerbs,
+  ...educationVerbs,
+  ...essentialVerbs,
+  ...movementVerbs,
+  ...sportVerbs,
+  ...travelVerbs,
+  ...workVerbs,
+];

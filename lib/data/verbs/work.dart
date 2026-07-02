@@ -162,3 +162,24 @@ const earn = Verb(
   ingForm: 'earning',
   translations: {Language.pl: 'zarabiać'},
 );
+
+List<Verb> workVerbs = [
+  build,
+  create,
+  design,
+  develop,
+  program,
+  testVerb,
+  debug,
+  fix,
+  repair,
+  clean,
+  organize,
+  manage,
+  lead,
+  sell,
+  buy,
+  deliver,
+  produce,
+  earn,
+];
