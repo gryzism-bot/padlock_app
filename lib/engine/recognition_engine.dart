@@ -1,11 +1,19 @@
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/frequency_phrases.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/subject/person.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -437,12 +445,86 @@ class RecognitionEngine {
   // -------------------------------------------------------
 
   void _recognizeParticipants(_RecognitionBuilder builder) {
-    // TODO
-    //
-    // Determine:
-    //
-    // agent
-    // object
+    if (builder.verbChainStart < 0 || builder.verbChainEnd < 0) {
+      return;
+    }
+
+    if (builder.voice == Voice.active) {
+      _recognizeActiveParticipants(builder);
+    } else {
+      _recognizePassiveParticipants(builder);
+    }
+
+    if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
+      builder.agent = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
+      );
+    }
+
+    if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
+      builder.object = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
+      );
+    }
+  }
+
+  void _recognizeActiveParticipants(_RecognitionBuilder builder) {
+    builder.agentStart = 0;
+    builder.agentEnd = builder.verbChainStart - 1;
+
+    if (builder.verbChainEnd < builder.tokens.length - 1) {
+      builder.objectStart = builder.verbChainEnd + 1;
+      builder.objectEnd = builder.tokens.length - 1;
+    }
+  }
+
+  void _recognizePassiveParticipants(_RecognitionBuilder builder) {
+    builder.objectStart = 0;
+
+    final byIndex = builder.tokens.indexWhere(
+      (token) => token.toLowerCase() == 'by',
+    );
+
+    if (byIndex >= 0) {
+      builder.objectEnd = builder.verbChainStart - 1;
+
+      builder.agentStart = byIndex + 1;
+      builder.agentEnd = builder.tokens.length - 1;
+    } else {
+      builder.objectEnd = builder.verbChainStart - 1;
+    }
+  }
+
+  NounPhrase _recognizeNounPhrase(List<String> tokens) {
+    Determiner? determiner;
+
+    final remaining = [...tokens];
+
+    if (remaining.isNotEmpty) {
+      determiner = _lookupDeterminer(remaining.first);
+
+      if (determiner != null) {
+        remaining.removeAt(0);
+      }
+    }
+
+    return NounPhrase(
+      text: remaining.join(' '),
+      person: Person.third,
+      number: Number.singular,
+      determiner: determiner,
+      translations: const {},
+    );
+  }
+
+  Determiner? _lookupDeterminer(String token) {
+    for (final determiner in allDeterminers) {
+      if (determiner.text == token.toLowerCase()) {
+        return determiner;
+      }
+    }
+
+    return null;
   }
 
   // -------------------------------------------------------
@@ -450,12 +532,85 @@ class RecognitionEngine {
   // -------------------------------------------------------
 
   void _recognizePhrases(_RecognitionBuilder builder) {
-    // TODO
-    //
-    // TimePhrase
-    // PlacePhrase
-    // FrequencyPhrase
-    // MannerPhrase
+    final phraseTokens = _remainingPhraseTokens(builder);
+
+    builder.timePhrase = _lookupTimePhrase(phraseTokens);
+
+    builder.placePhrase = _lookupPlacePhrase(phraseTokens);
+
+    builder.frequencyPhrase = _lookupFrequencyPhrase(phraseTokens);
+
+    builder.mannerPhrase = _lookupMannerPhrase(phraseTokens);
+  }
+
+  List<String> _remainingPhraseTokens(_RecognitionBuilder builder) {
+    final remaining = <String>[];
+
+    for (var i = builder.verbChainEnd + 1; i < builder.tokens.length; i++) {
+      if (i >= builder.objectStart &&
+          i <= builder.objectEnd &&
+          builder.objectStart >= 0) {
+        continue;
+      }
+
+      if (i >= builder.agentStart &&
+          i <= builder.agentEnd &&
+          builder.agentStart >= 0) {
+        continue;
+      }
+
+      remaining.add(builder.tokens[i]);
+    }
+
+    return remaining;
+  }
+
+  TimePhrase? _lookupTimePhrase(List<String> tokens) {
+    final text = tokens.join(' ').toLowerCase();
+
+    for (final phrase in timePhrases) {
+      if (text.contains(phrase.text.toLowerCase())) {
+        return phrase;
+      }
+    }
+
+    return null;
+  }
+
+  PlacePhrase? _lookupPlacePhrase(List<String> tokens) {
+    final text = tokens.join(' ').toLowerCase();
+
+    for (final phrase in placePhrases) {
+      if (text.contains(phrase.text.toLowerCase())) {
+        return phrase;
+      }
+    }
+
+    return null;
+  }
+
+  FrequencyPhrase? _lookupFrequencyPhrase(List<String> tokens) {
+    final text = tokens.join(' ').toLowerCase();
+
+    for (final phrase in frequencyPhrases) {
+      if (text.contains(phrase.text.toLowerCase())) {
+        return phrase;
+      }
+    }
+
+    return null;
+  }
+
+  MannerPhrase? _lookupMannerPhrase(List<String> tokens) {
+    final text = tokens.join(' ').toLowerCase();
+
+    for (final phrase in allMannerPhrases) {
+      if (text.contains(phrase.text.toLowerCase())) {
+        return phrase;
+      }
+    }
+
+    return null;
   }
 }
 

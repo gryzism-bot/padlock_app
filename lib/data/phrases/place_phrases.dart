@@ -154,3 +154,23 @@ const bed = PlacePhrase(
   position: PhrasePosition.afterPredicate,
   translations: {Language.pl: 'łóżko'},
 );
+
+List<PlacePhrase> placePhrases = [
+  home,
+  workPhrase,
+  school,
+  university,
+  office,
+  park,
+  garden,
+  kitchen,
+  bathroom,
+  bedroom,
+  livingRoom,
+  restaurant,
+  hospital,
+  shop,
+  bridgePhrase,
+  table,
+  bed,
+];

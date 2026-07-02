@@ -103,3 +103,23 @@ const fromTimeToTime = FrequencyPhrase(
   translations: {Language.pl: 'od czasu do czasu'},
   position: PhrasePosition.afterPredicate,
 );
+
+List<FrequencyPhrase> frequencyPhrases = [
+  always,
+  usually,
+  often,
+  sometimes,
+  occasionally,
+  rarely,
+  seldom,
+  hardlyEver,
+  never,
+  everyDay,
+  everyWeek,
+  everyMonth,
+  everyYear,
+  onceADay,
+  twiceADay,
+  threeTimesAWeek,
+  fromTimeToTime,
+];

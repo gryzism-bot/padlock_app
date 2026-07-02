@@ -92,3 +92,25 @@ const manyDeterminer = Determiner(
   text: 'many',
   translations: {Language.pl: 'wiele'},
 );
+
+List<Determiner> allDeterminers = [
+  aDeterminer,
+  anDeterminer,
+  theDeterminer,
+  thisDeterminer,
+  thatDeterminer,
+  theseDeterminer,
+  thoseDeterminer,
+  someDeterminer,
+  anyDeterminer,
+  eachDeterminer,
+  everyDeterminer,
+  noDeterminer,
+  myDeterminer,
+  yourDeterminer,
+  hisDeterminer,
+  herDeterminer,
+  ourDeterminer,
+  theirDeterminer,
+  manyDeterminer,
+];

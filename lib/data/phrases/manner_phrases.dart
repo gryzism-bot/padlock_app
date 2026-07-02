@@ -127,3 +127,27 @@ const onPurpose = MannerPhrase(
   translations: {Language.pl: 'celowo'},
   position: PhrasePosition.afterPredicate,
 );
+
+List<MannerPhrase> allMannerPhrases = [
+  quickly,
+  slowly,
+  carefully,
+  easily,
+  quietly,
+  loudly,
+  happily,
+  sadly,
+  angrily,
+  politely,
+  patiently,
+  well,
+  badly,
+  together,
+  alone,
+  byHand,
+  inSilence,
+  withCare,
+  withConfidence,
+  byAccident,
+  onPurpose,
+];
