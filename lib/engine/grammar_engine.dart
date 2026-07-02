@@ -63,6 +63,10 @@ class GrammarEngine {
       parts.add(nounPhrase.determiner!.text);
     }
 
+    if (nounPhrase.adjective != null) {
+      parts.add(nounPhrase.adjective!.text);
+    }
+
     parts.add(nounPhrase.text);
 
     return parts.join(' ');

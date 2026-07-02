@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -56,7 +57,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase:park,
+        placePhrase: park,
         timePhrase: yesterday,
       );
 
@@ -260,9 +261,13 @@ void main() {
       expect(engine.generate(state).text, 'You run!');
     });
 
-    test('Each child has learned', () {
+    test('Every new child has learned', () {
       final state = SentenceState(
-        agent: child.toNounPhrase(Number.singular, determiner: eachDeterminer),
+        agent: child.toNounPhrase(
+          Number.singular,
+          determiner: everyDeterminer,
+          adjective: newAdjective,
+        ),
         action: learn,
         tense: Tense.present,
         aspect: Aspect.perfect,
@@ -272,7 +277,7 @@ void main() {
         voice: Voice.active,
       );
 
-      expect(engine.generate(state).text, 'Each child has learned.');
+      expect(engine.generate(state).text, 'Every new child has learned.');
     });
 
     test('The mouse has gone', () {

@@ -401,15 +401,35 @@ class RecognitionEngine {
   // -------------------------------------------------------
 
   void _recognizeVoice(_RecognitionBuilder builder) {
-    // TODO
-    //
-    // Passive usually contains:
-    //
-    // be + past participle
-    //
-    // Optional:
-    //
-    // by + agent
+    if (builder.tokens.contains('by')) {
+      builder.voice = Voice.passive;
+      return;
+    }
+
+    if (builder.action == null) {
+      return;
+    }
+
+    final verbToken = builder.tokens[builder.verbChainEnd].toLowerCase();
+
+    if (verbToken == builder.action!.pastParticiple) {
+      for (var i = builder.verbChainStart; i < builder.verbChainEnd; i++) {
+        switch (builder.tokens[i].toLowerCase()) {
+          case 'be':
+          case 'am':
+          case 'is':
+          case 'are':
+          case 'was':
+          case 'were':
+          case 'been':
+          case 'being':
+            builder.voice = Voice.passive;
+            return;
+        }
+      }
+    }
+
+    builder.voice = Voice.active;
   }
 
   // -------------------------------------------------------

@@ -1,3 +1,4 @@
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/language.dart';
 import 'number.dart';
@@ -18,7 +19,11 @@ class Noun {
     required this.pluralTranslations,
   });
 
-  NounPhrase toNounPhrase(Number number, {Determiner? determiner}) {
+  NounPhrase toNounPhrase(
+    Number number, {
+    Determiner? determiner,
+    Adjective? adjective,
+  }) {
     return NounPhrase(
       text: number == Number.singular ? singular : plural,
 
@@ -26,6 +31,7 @@ class Noun {
       number: number,
 
       determiner: determiner,
+      adjective: adjective,
 
       translations: number == Number.singular
           ? singularTranslations

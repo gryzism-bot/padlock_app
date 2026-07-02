@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/adjectives/colors.dart';
+import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -133,23 +135,38 @@ void main() {
       expect(engine.generate(state).text, 'A bridge will be built by workers.');
     });
 
-    test('The house is being built by John', () {
+    test('The newhouse is being built by John', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),
-        object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+        object: house.toNounPhrase(
+          Number.singular,
+          determiner: theDeterminer,
+          adjective: newAdjective,
+        ),
         action: build,
         tense: Tense.present,
         aspect: Aspect.continuous,
         voice: Voice.passive,
       );
 
-      expect(engine.generate(state).text, 'The house is being built by John.');
+      expect(
+        engine.generate(state).text,
+        'The new house is being built by John.',
+      );
     });
 
-    test('The bridge was being built by the workers', () {
+    test('The red bridge was being built by the new workers', () {
       final state = SentenceState(
-        agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer),
-        object: bridge.toNounPhrase(Number.singular, determiner: theDeterminer),
+        agent: worker.toNounPhrase(
+          Number.plural,
+          determiner: theDeterminer,
+          adjective: newAdjective,
+        ),
+        object: bridge.toNounPhrase(
+          Number.singular,
+          determiner: theDeterminer,
+          adjective: red,
+        ),
         action: build,
         tense: Tense.past,
         aspect: Aspect.continuous,
@@ -158,7 +175,7 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'The bridge was being built by the workers.',
+        'The red bridge was being built by the new workers.',
       );
     });
 
@@ -250,10 +267,7 @@ void main() {
         voice: Voice.passive,
       );
 
-      expect(
-        engine.generate(state).text,
-        'Should bridge be built by workers?',
-      );
+      expect(engine.generate(state).text, 'Should bridge be built by workers?');
     });
 
     test('A bridge should be built by workers', () {

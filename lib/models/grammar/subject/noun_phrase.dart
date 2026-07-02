@@ -1,3 +1,4 @@
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/language.dart';
 import 'number.dart';
@@ -12,6 +13,8 @@ class NounPhrase {
 
   final Determiner? determiner;
 
+  final Adjective? adjective;
+
   final Map<Language, String> translations;
 
   const NounPhrase({
@@ -19,6 +22,7 @@ class NounPhrase {
     required this.person,
     required this.number,
     this.determiner,
+    this.adjective,
     required this.translations,
   });
 
