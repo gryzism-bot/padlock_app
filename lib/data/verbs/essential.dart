@@ -70,7 +70,7 @@ const go = Verb(
   pastSimple: 'went',
   pastParticiple: 'gone',
   ingForm: 'going',
-  isMotionVerb: true,
+  usesDestinationPlace: true,
   translations: {Language.pl: 'iść'},
 );
 
@@ -80,7 +80,7 @@ const come = Verb(
   pastSimple: 'came',
   pastParticiple: 'come',
   ingForm: 'coming',
-  isMotionVerb: true,
+  usesDestinationPlace: true,
   translations: {Language.pl: 'przyjść'},
 );
 

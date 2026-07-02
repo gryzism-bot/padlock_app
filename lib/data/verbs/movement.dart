@@ -70,7 +70,7 @@ const travel = Verb(
   pastSimple: 'travelled',
   pastParticiple: 'travelled',
   ingForm: 'travelling',
-  isMotionVerb: true,
+  usesDestinationPlace: true,
   translations: {Language.pl: 'podróżować'},
 );
 

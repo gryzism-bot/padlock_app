@@ -1,4 +1,5 @@
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -502,35 +503,21 @@ class GrammarEngine {
   // -------------------------------------------------------
 
   void _applyPhrases(_SentenceBuilder builder) {
-    if (builder.state.timePhrase != null) {
-      builder.timePhrase = builder.state.timePhrase!.text;
-    }
+    builder.timePhrase = builder.state.timePhrase?.render() ?? '';
 
     if (builder.state.placePhrase != null) {
-      final place = builder.state.placePhrase!;
+      final meaning = builder.state.action.usesDestinationPlace
+          ? PlaceMeaning.destination
+          : PlaceMeaning.location;
 
-      if (builder.state.action.isMotionVerb) {
-        builder.placePhrase = place.destinationPreposition.isEmpty
-            ? place.text
-            : '${place.destinationPreposition} ${place.text}';
-      } else {
-        builder.placePhrase = '${place.locationPreposition} ${place.text}';
-      }
+      builder.placePhrase = builder.state.placePhrase!.render(meaning);
+    } else {
+      builder.placePhrase = '';
     }
 
-    if (builder.state.frequencyPhrase != null) {
-      builder.frequencyPhrase = builder.state.frequencyPhrase!.text;
-    }
+    builder.frequencyPhrase = builder.state.frequencyPhrase?.render() ?? '';
 
-    if (builder.state.mannerPhrase != null) {
-      builder.mannerPhrase = builder.state.mannerPhrase!.text;
-    }
-    // print(builder.state.action.infinitive);
-    // print(builder.state.action.isMotionVerb);
-
-    // print(builder.state.placePhrase?.text);
-    // print(builder.state.placePhrase?.destinationPreposition);
-    // print(builder.state.placePhrase?.locationPreposition);
+    builder.mannerPhrase = builder.state.mannerPhrase?.render() ?? '';
   }
 
   // -------------------------------------------------------

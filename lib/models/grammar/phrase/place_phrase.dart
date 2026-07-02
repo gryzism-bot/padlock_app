@@ -1,11 +1,9 @@
+import 'package:padlock_app/models/grammar/phrase/phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/language.dart';
 
-import 'phrase_position.dart';
-
-class PlacePhrase {
+class PlacePhrase extends Phrase {
   final String text;
-
-  final PhrasePosition position;
 
   /// "at home", "in the park", "under the table"
   final String locationPreposition;
@@ -24,6 +22,24 @@ class PlacePhrase {
     this.locationPreposition = 'at',
     this.destinationPreposition = 'to',
     this.sourcePreposition = 'from',
-    this.position = PhrasePosition.afterPredicate,
+    super.position,
   });
+
+  @override
+  String render([PlaceMeaning meaning = PlaceMeaning.location]) {
+    switch (meaning) {
+      case PlaceMeaning.location:
+        return locationPreposition.isEmpty
+            ? text
+            : '$locationPreposition $text';
+
+      case PlaceMeaning.destination:
+        return destinationPreposition.isEmpty
+            ? text
+            : '$destinationPreposition $text';
+
+      case PlaceMeaning.source:
+        return sourcePreposition.isEmpty ? text : '$sourcePreposition $text';
+    }
+  }
 }

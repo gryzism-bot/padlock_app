@@ -1,17 +1,17 @@
+import 'package:padlock_app/models/grammar/phrase/phrase.dart';
 import 'package:padlock_app/models/language.dart';
 
-import 'phrase_position.dart';
-
-class FrequencyPhrase {
+class FrequencyPhrase extends Phrase {
   final String text;
-
-  final PhrasePosition position;
 
   final Map<Language, String> translations;
 
   const FrequencyPhrase({
     required this.text,
     required this.translations,
-    this.position = PhrasePosition.afterPredicate,
+    super.position,
   });
+
+  @override
+  String render() => text;
 }
