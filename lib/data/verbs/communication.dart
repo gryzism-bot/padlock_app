@@ -73,15 +73,6 @@ const hear = Verb(
   translations: {Language.pl: 'słyszeć'},
 );
 
-const read = Verb(
-  infinitive: 'read',
-  presentThirdPerson: 'reads',
-  pastSimple: 'read',
-  pastParticiple: 'read',
-  ingForm: 'reading',
-  translations: {Language.pl: 'czytać'},
-);
-
 const write = Verb(
   infinitive: 'write',
   presentThirdPerson: 'writes',
@@ -190,7 +181,6 @@ List<Verb> communicationVerbs = [
   call,
   listen,
   hear,
-  read,
   write,
   explain,
   describe,

@@ -7,6 +7,7 @@ const build = Verb(
   pastSimple: 'built',
   pastParticiple: 'built',
   ingForm: 'building',
+  takesObject: true,
   translations: {Language.pl: 'budować'},
 );
 
@@ -127,15 +128,6 @@ const sell = Verb(
   translations: {Language.pl: 'sprzedawać'},
 );
 
-const buy = Verb(
-  infinitive: 'buy',
-  presentThirdPerson: 'buys',
-  pastSimple: 'bought',
-  pastParticiple: 'bought',
-  ingForm: 'buying',
-  translations: {Language.pl: 'kupować'},
-);
-
 const deliver = Verb(
   infinitive: 'deliver',
   presentThirdPerson: 'delivers',
@@ -178,7 +170,6 @@ List<Verb> workVerbs = [
   manage,
   lead,
   sell,
-  buy,
   deliver,
   produce,
   earn,

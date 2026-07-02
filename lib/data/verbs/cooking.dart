@@ -52,6 +52,7 @@ const eat = Verb(
   pastSimple: 'ate',
   pastParticiple: 'eaten',
   ingForm: 'eating',
+  takesObject: true,
   translations: {Language.pl: 'jeść'},
 );
 

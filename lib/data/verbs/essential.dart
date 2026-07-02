@@ -42,6 +42,7 @@ const findVerb = Verb(
   pastSimple: 'found',
   pastParticiple: 'found',
   ingForm: 'finding',
+  takesObject: true,
   translations: {Language.pl: 'znaleźć'},
 );
 
@@ -61,6 +62,15 @@ const breakVerb = Verb(
   pastParticiple: 'broken',
   ingForm: 'breaking',
   translations: {Language.pl: 'złamać'},
+);
+
+const read = Verb(
+  infinitive: 'read',
+  presentThirdPerson: 'reads',
+  pastSimple: 'read',
+  pastParticiple: 'read',
+  ingForm: 'reading',
+  translations: {Language.pl: 'czytać'},
 );
 
 const begin = Verb(
@@ -107,6 +117,7 @@ const make = Verb(
   pastSimple: 'made',
   pastParticiple: 'made',
   ingForm: 'making',
+  takesObject: true,
   translations: {Language.pl: 'robić'},
 );
 
@@ -116,6 +127,7 @@ const take = Verb(
   pastSimple: 'took',
   pastParticiple: 'taken',
   ingForm: 'taking',
+  takesObject: true,
   translations: {Language.pl: 'brać'},
 );
 
@@ -125,6 +137,7 @@ const give = Verb(
   pastSimple: 'gave',
   pastParticiple: 'given',
   ingForm: 'giving',
+  takesObject: true,
   translations: {Language.pl: 'dać'},
 );
 
@@ -134,6 +147,7 @@ const know = Verb(
   pastSimple: 'knew',
   pastParticiple: 'known',
   ingForm: 'knowing',
+  takesObject: true,
   translations: {Language.pl: 'wiedzieć'},
 );
 
@@ -161,6 +175,7 @@ const see = Verb(
   pastSimple: 'saw',
   pastParticiple: 'seen',
   ingForm: 'seeing',
+  takesObject: true,
   translations: {Language.pl: 'widzieć'},
 );
 
@@ -170,6 +185,7 @@ const want = Verb(
   pastSimple: 'wanted',
   pastParticiple: 'wanted',
   ingForm: 'wanting',
+  takesObject: true,
   translations: {Language.pl: 'chcieć'},
 );
 
@@ -179,7 +195,28 @@ const need = Verb(
   pastSimple: 'needed',
   pastParticiple: 'needed',
   ingForm: 'needing',
+  takesObject: true,
   translations: {Language.pl: 'potrzebować'},
+);
+
+const find = Verb(
+  infinitive: 'find',
+  presentThirdPerson: 'finds',
+  pastSimple: 'found',
+  pastParticiple: 'found',
+  ingForm: 'finding',
+  takesObject: true,
+  translations: {Language.pl: 'znaleźć'},
+);
+
+const meet = Verb(
+  infinitive: 'meet',
+  presentThirdPerson: 'meets',
+  pastSimple: 'met',
+  pastParticiple: 'met',
+  ingForm: 'meeting',
+  takesObject: true,
+  translations: {Language.pl: 'spotykać'},
 );
 
 const like = Verb(
@@ -188,6 +225,7 @@ const like = Verb(
   pastSimple: 'liked',
   pastParticiple: 'liked',
   ingForm: 'liking',
+  takesObject: true,
   translations: {Language.pl: 'lubić'},
 );
 
@@ -197,6 +235,7 @@ const love = Verb(
   pastSimple: 'loved',
   pastParticiple: 'loved',
   ingForm: 'loving',
+  takesObject: true,
   translations: {Language.pl: 'kochać'},
 );
 
@@ -207,6 +246,56 @@ const work = Verb(
   pastParticiple: 'worked',
   ingForm: 'working',
   translations: {Language.pl: 'pracować'},
+);
+
+const buy = Verb(
+  infinitive: 'buy',
+  presentThirdPerson: 'buys',
+  pastSimple: 'bought',
+  pastParticiple: 'bought',
+  ingForm: 'buying',
+  takesObject: true,
+  translations: {Language.pl: 'kupować'},
+);
+
+const sell = Verb(
+  infinitive: 'sell',
+  presentThirdPerson: 'sells',
+  pastSimple: 'sold',
+  pastParticiple: 'sold',
+  ingForm: 'selling',
+  takesObject: true,
+  translations: {Language.pl: 'sprzedawać'},
+);
+
+const use = Verb(
+  infinitive: 'use',
+  presentThirdPerson: 'uses',
+  pastSimple: 'used',
+  pastParticiple: 'used',
+  ingForm: 'using',
+  takesObject: true,
+  translations: {Language.pl: 'używać'},
+);
+
+const watch = Verb(
+  infinitive: 'watch',
+  presentThirdPerson: 'watches',
+  pastSimple: 'watched',
+  pastParticiple: 'watched',
+  ingForm: 'watching',
+  takesObject: true,
+  translations: {Language.pl: 'oglądać'},
+);
+
+const lose = Verb(
+  infinitive: 'lose',
+  presentThirdPerson: 'loses',
+  pastSimple: 'lost',
+  pastParticiple: 'lost',
+  ingForm: 'losing',
+  takesObject: true,
+  translations: {Language.pl: 'zgubić'},
 );
 
 const play = Verb(
@@ -224,7 +313,28 @@ const learn = Verb(
   pastSimple: 'learned',
   pastParticiple: 'learned',
   ingForm: 'learning',
+  takesObject: true,
   translations: {Language.pl: 'uczyć się'},
+);
+
+const hate = Verb(
+  infinitive: 'hate',
+  presentThirdPerson: 'hates',
+  pastSimple: 'hated',
+  pastParticiple: 'hated',
+  ingForm: 'hating',
+  takesObject: true,
+  translations: {Language.pl: 'nienawidzić'},
+);
+
+const remember = Verb(
+  infinitive: 'remember',
+  presentThirdPerson: 'remembers',
+  pastSimple: 'remembered',
+  pastParticiple: 'remembered',
+  ingForm: 'remembering',
+  takesObject: true,
+  translations: {Language.pl: 'pamiętać'},
 );
 
 const sleep = Verb(
@@ -234,6 +344,36 @@ const sleep = Verb(
   pastParticiple: 'slept',
   ingForm: 'sleeping',
   translations: {Language.pl: 'spać'},
+);
+
+const open = Verb(
+  infinitive: 'open',
+  presentThirdPerson: 'opens',
+  pastSimple: 'opened',
+  pastParticiple: 'opened',
+  ingForm: 'opening',
+  takesObject: true,
+  translations: {Language.pl: 'otwierać'},
+);
+
+const close = Verb(
+  infinitive: 'close',
+  presentThirdPerson: 'closes',
+  pastSimple: 'closed',
+  pastParticiple: 'closed',
+  ingForm: 'closing',
+  takesObject: true,
+  translations: {Language.pl: 'zamykać'},
+);
+
+const help = Verb(
+  infinitive: 'help',
+  presentThirdPerson: 'helps',
+  pastSimple: 'helped',
+  pastParticiple: 'helped',
+  ingForm: 'helping',
+  takesObject: true,
+  translations: {Language.pl: 'pomagać'},
 );
 
 final List<Verb> essentialVerbs = [
@@ -262,6 +402,17 @@ final List<Verb> essentialVerbs = [
   play,
   learn,
   sleep,
+  remember,
+  hate,
+  meet,
+  use,
+  open,
+  close,
+  help,
+  buy,
+  sell,
+  read,
+  find,
 ];
 
 final List<Verb> verbs = [

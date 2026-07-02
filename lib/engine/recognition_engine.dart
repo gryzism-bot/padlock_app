@@ -472,6 +472,10 @@ class RecognitionEngine {
     builder.agentStart = 0;
     builder.agentEnd = builder.verbChainStart - 1;
 
+    if (builder.action?.takesObject != true) {
+      return;
+    }
+
     if (builder.verbChainEnd < builder.tokens.length - 1) {
       builder.objectStart = builder.verbChainEnd + 1;
       builder.objectEnd = builder.tokens.length - 1;

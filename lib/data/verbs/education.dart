@@ -16,6 +16,7 @@ const teach = Verb(
   pastSimple: 'taught',
   pastParticiple: 'taught',
   ingForm: 'teaching',
+  takesObject: true,
   translations: {Language.pl: 'uczyć'},
 );
 
