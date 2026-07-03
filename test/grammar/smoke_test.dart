@@ -40,8 +40,8 @@ void main() {
         voice: Voice.active,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
-        placePhrase: home,
-        timePhrase: today,
+        placePhrase: homePlacePhrase,
+        timePhrase: todayTimePhrase,
       );
 
       expect(engine.generate(state).text, 'John has worked at home today.');
@@ -57,8 +57,8 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: park,
-        timePhrase: yesterday,
+        placePhrase: parkPlacePhrase,
+        timePhrase: yesterdayTimePhrase,
       );
 
       expect(
@@ -79,8 +79,8 @@ void main() {
         modal: noModal,
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
-        placePhrase: school,
-        timePhrase: tomorrow,
+        placePhrase: schoolPlacePhrase,
+        timePhrase: tomorrowTimePhrase,
         voice: Voice.active,
       );
 
@@ -100,7 +100,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: home,
+        placePhrase: homePlacePhrase,
       );
 
       expect(engine.generate(state).text, 'Cats have been sleeping at home.');
@@ -146,7 +146,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.question,
         voice: Voice.active,
-        timePhrase: tomorrow,
+        timePhrase: tomorrowTimePhrase,
       );
 
       expect(engine.generate(state).text, 'Will John come tomorrow?');
@@ -177,7 +177,7 @@ void main() {
         polarity: Polarity.negative,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        timePhrase: yesterday,
+        timePhrase: yesterdayTimePhrase,
       );
 
       expect(
@@ -305,7 +305,7 @@ void main() {
         polarity: Polarity.positive,
         sentenceForm: SentenceForm.statement,
         voice: Voice.active,
-        placePhrase: workPhrase,
+        placePhrase: workPlacePhrase,
       );
 
       expect(engine.generate(state).text, 'Any teacher can travel to work.');

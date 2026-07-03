@@ -62,7 +62,7 @@ void main() {
           action: teach,
           tense: Tense.present,
           aspect: Aspect.simple,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 
@@ -76,7 +76,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -90,7 +90,7 @@ void main() {
           action: study,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -105,7 +105,7 @@ void main() {
           tense: Tense.future,
           aspect: Aspect.simple,
           modal: will,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
         ),
       );
 
@@ -148,7 +148,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -190,7 +190,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.question,
         ),
       );

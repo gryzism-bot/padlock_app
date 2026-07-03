@@ -61,7 +61,7 @@ void main() {
           action: study,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -157,7 +157,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.exclamation,
         ),
       );
@@ -173,7 +173,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.exclamation,
         ),
       );

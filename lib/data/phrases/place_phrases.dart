@@ -2,7 +2,7 @@ import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/language.dart';
 
-const home = PlacePhrase(
+const homePlacePhrase = PlacePhrase(
   text: 'home',
   locationPreposition: 'at',
   destinationPreposition: '',
@@ -11,7 +11,7 @@ const home = PlacePhrase(
   translations: {Language.pl: 'dom'},
 );
 
-const workPhrase = PlacePhrase(
+const workPlacePhrase = PlacePhrase(
   text: 'work',
   locationPreposition: 'at',
   destinationPreposition: 'to',
@@ -20,7 +20,7 @@ const workPhrase = PlacePhrase(
   translations: {Language.pl: 'praca'},
 );
 
-const school = PlacePhrase(
+const schoolPlacePhrase = PlacePhrase(
   text: 'school',
   locationPreposition: 'at',
   destinationPreposition: 'to',
@@ -29,7 +29,7 @@ const school = PlacePhrase(
   translations: {Language.pl: 'szkoła'},
 );
 
-const university = PlacePhrase(
+const universityPlacePhrase = PlacePhrase(
   text: 'university',
   locationPreposition: 'at',
   destinationPreposition: 'to',
@@ -38,7 +38,7 @@ const university = PlacePhrase(
   translations: {Language.pl: 'uniwersytet'},
 );
 
-const office = PlacePhrase(
+const officePlacePhrase = PlacePhrase(
   text: 'office',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -47,7 +47,7 @@ const office = PlacePhrase(
   translations: {Language.pl: 'biuro'},
 );
 
-const park = PlacePhrase(
+const parkPlacePhrase = PlacePhrase(
   text: 'the park',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -56,7 +56,7 @@ const park = PlacePhrase(
   translations: {Language.pl: 'park'},
 );
 
-const garden = PlacePhrase(
+const gardenPlacePhrase = PlacePhrase(
   text: 'the garden',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -65,7 +65,7 @@ const garden = PlacePhrase(
   translations: {Language.pl: 'ogród'},
 );
 
-const kitchen = PlacePhrase(
+const kitchenPlacePhrase = PlacePhrase(
   text: 'the kitchen',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -74,7 +74,7 @@ const kitchen = PlacePhrase(
   translations: {Language.pl: 'kuchnia'},
 );
 
-const bathroom = PlacePhrase(
+const bathroomPlacePhrase = PlacePhrase(
   text: 'the bathroom',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -83,7 +83,7 @@ const bathroom = PlacePhrase(
   translations: {Language.pl: 'łazienka'},
 );
 
-const bedroom = PlacePhrase(
+const bedroomPlacePhrase = PlacePhrase(
   text: 'the bedroom',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -92,7 +92,7 @@ const bedroom = PlacePhrase(
   translations: {Language.pl: 'sypialnia'},
 );
 
-const livingRoom = PlacePhrase(
+const livingRoomPlacePhrase = PlacePhrase(
   text: 'the living room',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -101,7 +101,7 @@ const livingRoom = PlacePhrase(
   translations: {Language.pl: 'salon'},
 );
 
-const restaurant = PlacePhrase(
+const restaurantPlacePhrase = PlacePhrase(
   text: 'the restaurant',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -110,7 +110,7 @@ const restaurant = PlacePhrase(
   translations: {Language.pl: 'restauracja'},
 );
 
-const hospital = PlacePhrase(
+const hospitalPlacePhrase = PlacePhrase(
   text: 'the hospital',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -119,7 +119,7 @@ const hospital = PlacePhrase(
   translations: {Language.pl: 'szpital'},
 );
 
-const shop = PlacePhrase(
+const shopPlacePhrase = PlacePhrase(
   text: 'the shop',
   locationPreposition: 'in',
   destinationPreposition: 'to',
@@ -128,7 +128,7 @@ const shop = PlacePhrase(
   translations: {Language.pl: 'sklep'},
 );
 
-const bridgePhrase = PlacePhrase(
+const bridgePlacePhrase = PlacePhrase(
   text: 'the bridge',
   locationPreposition: 'under',
   destinationPreposition: 'to',
@@ -137,7 +137,7 @@ const bridgePhrase = PlacePhrase(
   translations: {Language.pl: 'most'},
 );
 
-const table = PlacePhrase(
+const tablePlacePhrase = PlacePhrase(
   text: 'the table',
   locationPreposition: 'under',
   destinationPreposition: 'to',
@@ -146,7 +146,7 @@ const table = PlacePhrase(
   translations: {Language.pl: 'stół'},
 );
 
-const bed = PlacePhrase(
+const bedPlacePhrase = PlacePhrase(
   text: 'the bed',
   locationPreposition: 'under',
   destinationPreposition: 'to',
@@ -156,21 +156,21 @@ const bed = PlacePhrase(
 );
 
 List<PlacePhrase> placePhrases = [
-  home,
-  workPhrase,
-  school,
-  university,
-  office,
-  park,
-  garden,
-  kitchen,
-  bathroom,
-  bedroom,
-  livingRoom,
-  restaurant,
-  hospital,
-  shop,
-  bridgePhrase,
-  table,
-  bed,
+  homePlacePhrase,
+  workPlacePhrase,
+  schoolPlacePhrase,
+  universityPlacePhrase,
+  officePlacePhrase,
+  parkPlacePhrase,
+  gardenPlacePhrase,
+  kitchenPlacePhrase,
+  bathroomPlacePhrase,
+  bedroomPlacePhrase,
+  livingRoomPlacePhrase,
+  restaurantPlacePhrase,
+  hospitalPlacePhrase,
+  shopPlacePhrase,
+  bridgePlacePhrase,
+  tablePlacePhrase,
+  bedPlacePhrase,
 ];

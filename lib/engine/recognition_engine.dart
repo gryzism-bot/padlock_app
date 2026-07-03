@@ -3,6 +3,7 @@ import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
@@ -10,6 +11,7 @@ import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
@@ -36,9 +38,9 @@ class RecognitionEngine {
 
     _recognizeVoice(builder);
 
-    _recognizeParticipants(builder);
-
     _recognizePhrases(builder);
+
+    _recognizeParticipants(builder);
 
     return builder.state;
   }
@@ -118,12 +120,29 @@ class RecognitionEngine {
         builder.modal = modal;
         builder.verbChainStart = i;
 
-        var current = i + 1;
+        if (modal == will) {
+          builder.tense = Tense.future;
+        } else {
+          builder.tense = Tense.present;
+        }
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+        var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
+
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         if (current < builder.tokens.length &&
@@ -166,11 +185,22 @@ class RecognitionEngine {
         builder.verbChainStart = i;
 
         var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         if (current < builder.tokens.length) {
@@ -195,11 +225,22 @@ class RecognitionEngine {
         builder.verbChainStart = i;
 
         var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         if (current < builder.tokens.length) {
@@ -223,11 +264,22 @@ class RecognitionEngine {
         builder.verbChainStart = i;
 
         var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         builder.aspect = Aspect.perfect;
@@ -250,6 +302,8 @@ class RecognitionEngine {
             }
           }
         } else if (current < builder.tokens.length) {
+          // print(current);
+          // print(builder.tokens[current]);
           final verb = _lookupVerb(builder.tokens[current]);
 
           if (verb != null) {
@@ -257,7 +311,6 @@ class RecognitionEngine {
             builder.verbChainEnd = current;
           }
         }
-
         break;
       }
 
@@ -271,11 +324,22 @@ class RecognitionEngine {
         builder.verbChainStart = i;
 
         var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         if (current < builder.tokens.length &&
@@ -323,11 +387,22 @@ class RecognitionEngine {
         builder.verbChainStart = i;
 
         var current = i + 1;
+        if (builder.sentenceForm == SentenceForm.question && i == 0) {
+          builder.subjectStart = current;
 
-        if (current < builder.tokens.length &&
-            builder.tokens[current].toLowerCase() == 'not') {
-          builder.polarity = Polarity.negative;
-          current++;
+          while (current < builder.tokens.length) {
+            if (_lookupVerb(builder.tokens[current]) != null) {
+              break;
+            }
+
+            current++;
+          }
+        } else {
+          if (current < builder.tokens.length &&
+              builder.tokens[current].toLowerCase() == 'not') {
+            builder.polarity = Polarity.negative;
+            current++;
+          }
         }
 
         if (current < builder.tokens.length) {
@@ -456,12 +531,18 @@ class RecognitionEngine {
     }
 
     if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
+      print(builder.agentStart);
+      print(builder.agentEnd);
+      print(builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1));
       builder.agent = _recognizeNounPhrase(
         builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
       );
     }
 
     if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
+      print(builder.agentStart);
+      print(builder.agentEnd);
+      print(builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1));
       builder.object = _recognizeNounPhrase(
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );
@@ -469,8 +550,14 @@ class RecognitionEngine {
   }
 
   void _recognizeActiveParticipants(_RecognitionBuilder builder) {
-    builder.agentStart = 0;
-    builder.agentEnd = builder.verbChainStart - 1;
+    if (builder.sentenceForm == SentenceForm.question &&
+        builder.verbChainStart == 0) {
+      builder.agentStart = builder.subjectStart;
+      builder.agentEnd = builder.verbChainEnd - 1;
+    } else {
+      builder.agentStart = 0;
+      builder.agentEnd = builder.verbChainStart - 1;
+    }
 
     if (builder.action?.takesObject != true) {
       return;
@@ -478,7 +565,8 @@ class RecognitionEngine {
 
     if (builder.verbChainEnd < builder.tokens.length - 1) {
       builder.objectStart = builder.verbChainEnd + 1;
-      builder.objectEnd = builder.tokens.length - 1;
+      builder.objectEnd =
+          builder.tokens.length - 1 - _phraseTokenCount(builder);
     }
   }
 
@@ -493,14 +581,37 @@ class RecognitionEngine {
       builder.objectEnd = builder.verbChainStart - 1;
 
       builder.agentStart = byIndex + 1;
-      builder.agentEnd = builder.tokens.length - 1;
+      builder.agentEnd = builder.tokens.length - 1 - _phraseTokenCount(builder);
     } else {
       builder.objectEnd = builder.verbChainStart - 1;
     }
   }
 
+  int _phraseTokenCount(_RecognitionBuilder builder) {
+    var count = 0;
+
+    if (builder.timePhrase != null) {
+      count += builder.timePhrase!.text.split(' ').length;
+    }
+
+    if (builder.frequencyPhrase != null) {
+      count += builder.frequencyPhrase!.text.split(' ').length;
+    }
+
+    if (builder.placePhrase != null) {
+      count += builder.placePhrase!.render().split(' ').length;
+    }
+
+    if (builder.mannerPhrase != null) {
+      count += builder.mannerPhrase!.text.split(' ').length;
+    }
+
+    return count;
+  }
+
   NounPhrase _recognizeNounPhrase(List<String> tokens) {
     Determiner? determiner;
+    Adjective? adjective;
 
     final remaining = [...tokens];
 
@@ -512,13 +623,32 @@ class RecognitionEngine {
       }
     }
 
+    if (remaining.isNotEmpty) {
+      adjective = _lookupAdjective(remaining.first);
+
+      if (adjective != null) {
+        remaining.removeAt(0);
+      }
+    }
+
     return NounPhrase(
       text: remaining.join(' '),
       person: Person.third,
       number: Number.singular,
       determiner: determiner,
+      adjective: adjective,
       translations: const {},
     );
+  }
+
+  Adjective? _lookupAdjective(String token) {
+    for (final adjective in adjectives) {
+      if (adjective.text.toLowerCase() == token.toLowerCase()) {
+        return adjective;
+      }
+    }
+
+    return null;
   }
 
   Determiner? _lookupDeterminer(String token) {
@@ -573,7 +703,9 @@ class RecognitionEngine {
     final text = tokens.join(' ').toLowerCase();
 
     for (final phrase in timePhrases) {
-      if (text.contains(phrase.text.toLowerCase())) {
+      final remaining = ' ${text.toLowerCase()} ';
+
+      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
         return phrase;
       }
     }
@@ -585,7 +717,9 @@ class RecognitionEngine {
     final text = tokens.join(' ').toLowerCase();
 
     for (final phrase in placePhrases) {
-      if (text.contains(phrase.text.toLowerCase())) {
+      final remaining = ' ${text.toLowerCase()} ';
+
+      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
         return phrase;
       }
     }
@@ -597,7 +731,9 @@ class RecognitionEngine {
     final text = tokens.join(' ').toLowerCase();
 
     for (final phrase in frequencyPhrases) {
-      if (text.contains(phrase.text.toLowerCase())) {
+      final remaining = ' ${text.toLowerCase()} ';
+
+      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
         return phrase;
       }
     }
@@ -609,7 +745,9 @@ class RecognitionEngine {
     final text = tokens.join(' ').toLowerCase();
 
     for (final phrase in allMannerPhrases) {
-      if (text.contains(phrase.text.toLowerCase())) {
+      final remaining = ' ${text.toLowerCase()} ';
+
+      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
         return phrase;
       }
     }
@@ -641,6 +779,8 @@ class _RecognitionBuilder {
 
   int objectStart = -1;
   int objectEnd = -1;
+
+  int subjectStart = 0;
 
   // ----------------------------
   // Recognized grammar
@@ -690,9 +830,3 @@ class _RecognitionBuilder {
     mannerPhrase: mannerPhrase,
   );
 }
-
-int verbChainStart = -1;
-int verbChainEnd = -1;
-
-int subjectEnd = -1;
-int objectStart = -1;

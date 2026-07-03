@@ -2,152 +2,152 @@ import 'package:padlock_app/models/language.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 
-const quickly = MannerPhrase(
+const quicklyMannerPhrase = MannerPhrase(
   text: 'quickly',
   translations: {Language.pl: 'szybko'},
   position: PhrasePosition.afterPredicate,
 );
 
-const slowly = MannerPhrase(
+const slowlyMannerPhrase = MannerPhrase(
   text: 'slowly',
   translations: {Language.pl: 'powoli'},
   position: PhrasePosition.afterPredicate,
 );
 
-const carefully = MannerPhrase(
+const carefullyMannerPhrase = MannerPhrase(
   text: 'carefully',
   translations: {Language.pl: 'ostrożnie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const easily = MannerPhrase(
+const easilyMannerPhrase = MannerPhrase(
   text: 'easily',
   translations: {Language.pl: 'łatwo'},
   position: PhrasePosition.afterPredicate,
 );
 
-const quietly = MannerPhrase(
+const quietlyMannerPhrase = MannerPhrase(
   text: 'quietly',
   translations: {Language.pl: 'cicho'},
   position: PhrasePosition.afterPredicate,
 );
 
-const loudly = MannerPhrase(
+const loudlyMannerPhrase = MannerPhrase(
   text: 'loudly',
   translations: {Language.pl: 'głośno'},
   position: PhrasePosition.afterPredicate,
 );
 
-const happily = MannerPhrase(
+const happilyMannerPhrase = MannerPhrase(
   text: 'happily',
   translations: {Language.pl: 'wesoło'},
   position: PhrasePosition.afterPredicate,
 );
 
-const sadly = MannerPhrase(
+const sadlyMannerPhrase = MannerPhrase(
   text: 'sadly',
   translations: {Language.pl: 'smutno'},
   position: PhrasePosition.afterPredicate,
 );
 
-const angrily = MannerPhrase(
+const angrilyMannerPhrase = MannerPhrase(
   text: 'angrily',
   translations: {Language.pl: 'gniewnie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const politely = MannerPhrase(
+const politelyMannerPhrase = MannerPhrase(
   text: 'politely',
   translations: {Language.pl: 'uprzejmie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const patiently = MannerPhrase(
+const patientlyMannerPhrase = MannerPhrase(
   text: 'patiently',
   translations: {Language.pl: 'cierpliwie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const well = MannerPhrase(
+const wellMannerPhrase = MannerPhrase(
   text: 'well',
   translations: {Language.pl: 'dobrze'},
   position: PhrasePosition.afterPredicate,
 );
 
-const badly = MannerPhrase(
+const badlyMannerPhrase = MannerPhrase(
   text: 'badly',
   translations: {Language.pl: 'źle'},
   position: PhrasePosition.afterPredicate,
 );
 
-const together = MannerPhrase(
+const togetherMannerPhrase = MannerPhrase(
   text: 'together',
   translations: {Language.pl: 'razem'},
   position: PhrasePosition.afterPredicate,
 );
 
-const alone = MannerPhrase(
+const aloneMannerPhrase = MannerPhrase(
   text: 'alone',
   translations: {Language.pl: 'sam'},
   position: PhrasePosition.afterPredicate,
 );
 
-const byHand = MannerPhrase(
+const byHandMannerPhrase = MannerPhrase(
   text: 'by hand',
   translations: {Language.pl: 'ręcznie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const inSilence = MannerPhrase(
+const inSilenceMannerPhrase = MannerPhrase(
   text: 'in silence',
   translations: {Language.pl: 'w ciszy'},
   position: PhrasePosition.afterPredicate,
 );
 
-const withCare = MannerPhrase(
+const withCareMannerPhrase = MannerPhrase(
   text: 'with care',
   translations: {Language.pl: 'z należytą starannością'},
   position: PhrasePosition.afterPredicate,
 );
 
-const withConfidence = MannerPhrase(
+const withConfidenceMannerPhrase = MannerPhrase(
   text: 'with confidence',
   translations: {Language.pl: 'z pewnością siebie'},
   position: PhrasePosition.afterPredicate,
 );
 
-const byAccident = MannerPhrase(
+const byAccidentMannerPhrase = MannerPhrase(
   text: 'by accident',
   translations: {Language.pl: 'przypadkowo'},
   position: PhrasePosition.afterPredicate,
 );
 
-const onPurpose = MannerPhrase(
+const onPurposeMannerPhrase = MannerPhrase(
   text: 'on purpose',
   translations: {Language.pl: 'celowo'},
   position: PhrasePosition.afterPredicate,
 );
 
 List<MannerPhrase> allMannerPhrases = [
-  quickly,
-  slowly,
-  carefully,
-  easily,
-  quietly,
-  loudly,
-  happily,
-  sadly,
-  angrily,
-  politely,
-  patiently,
-  well,
-  badly,
-  together,
-  alone,
-  byHand,
-  inSilence,
-  withCare,
-  withConfidence,
-  byAccident,
-  onPurpose,
+  quicklyMannerPhrase,
+  slowlyMannerPhrase,
+  carefullyMannerPhrase,
+  easilyMannerPhrase,
+  quietlyMannerPhrase,
+  loudlyMannerPhrase,
+  happilyMannerPhrase,
+  sadlyMannerPhrase,
+  angrilyMannerPhrase,
+  politelyMannerPhrase,
+  patientlyMannerPhrase,
+  wellMannerPhrase,
+  badlyMannerPhrase,
+  togetherMannerPhrase,
+  aloneMannerPhrase,
+  byHandMannerPhrase,
+  inSilenceMannerPhrase,
+  withCareMannerPhrase,
+  withConfidenceMannerPhrase,
+  byAccidentMannerPhrase,
+  onPurposeMannerPhrase,
 ];

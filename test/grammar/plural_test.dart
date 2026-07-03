@@ -73,7 +73,7 @@ void main() {
           action: study,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -170,7 +170,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -271,7 +271,7 @@ void main() {
           action: work,
           tense: Tense.present,
           aspect: Aspect.simple,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 
@@ -285,7 +285,7 @@ void main() {
           action: run,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 

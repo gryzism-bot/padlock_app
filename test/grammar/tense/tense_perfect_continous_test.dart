@@ -171,7 +171,7 @@ void main() {
           action: teach,
           tense: Tense.present,
           aspect: Aspect.perfectContinuous,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 

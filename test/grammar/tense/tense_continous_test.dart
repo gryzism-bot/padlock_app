@@ -73,7 +73,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -117,7 +117,7 @@ void main() {
           action: teach,
           tense: Tense.present,
           aspect: Aspect.continuous,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 
@@ -187,7 +187,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.continuous,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.question,
         ),
       );

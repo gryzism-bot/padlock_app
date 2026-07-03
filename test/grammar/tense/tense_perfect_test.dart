@@ -59,7 +59,7 @@ void main() {
           action: study,
           tense: Tense.past,
           aspect: Aspect.perfect,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 

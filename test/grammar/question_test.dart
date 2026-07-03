@@ -61,7 +61,7 @@ void main() {
           action: work,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -133,7 +133,7 @@ void main() {
           tense: Tense.future,
           aspect: Aspect.simple,
           modal: will,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
           sentenceForm: SentenceForm.question,
         ),
       );
@@ -197,7 +197,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
           sentenceForm: SentenceForm.question,
         ),
       );

@@ -122,7 +122,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           modal: can,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 
@@ -137,7 +137,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           modal: should,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
         ),
       );
 
@@ -276,7 +276,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           modal: may,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
         ),
       );
 
@@ -309,7 +309,7 @@ void main() {
           tense: Tense.future,
           aspect: Aspect.simple,
           modal: will,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
         ),
       );
 

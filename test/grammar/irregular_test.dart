@@ -33,8 +33,8 @@ void main() {
           action: go,
           tense: Tense.past,
           aspect: Aspect.simple,
-          placePhrase: home,
-          timePhrase: yesterday,
+          placePhrase: homePlacePhrase,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -87,7 +87,7 @@ void main() {
           action: drink,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -222,7 +222,7 @@ void main() {
           action: come,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -329,7 +329,7 @@ void main() {
           object: john.toNounPhrase(Number.singular),
           tense: Tense.past,
           aspect: Aspect.simple,
-          placePhrase: home,
+          placePhrase: homePlacePhrase,
         ),
       );
 
@@ -343,7 +343,7 @@ void main() {
           action: read,
           tense: Tense.past,
           aspect: Aspect.simple,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 

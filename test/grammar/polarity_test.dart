@@ -48,7 +48,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -120,7 +120,7 @@ void main() {
           aspect: Aspect.simple,
           polarity: Polarity.negative,
           modal: will,
-          timePhrase: tomorrow,
+          timePhrase: tomorrowTimePhrase,
         ),
       );
 
@@ -226,7 +226,7 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          placePhrase: school,
+          placePhrase: schoolPlacePhrase,
         ),
       );
 
@@ -241,7 +241,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.simple,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
@@ -321,7 +321,7 @@ void main() {
           tense: Tense.past,
           aspect: Aspect.continuous,
           polarity: Polarity.negative,
-          timePhrase: yesterday,
+          timePhrase: yesterdayTimePhrase,
         ),
       );
 
