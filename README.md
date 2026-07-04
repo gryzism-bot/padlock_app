@@ -26,9 +26,9 @@ quick run flutter test
 # ARKITEKCZURALLY
 check poster grammar engine as water treatment system png
 
-#Grammar Engine renders a frame. Recognition Engine reconstructs a frame from sentence. Configuration Engine governs the movie.
+# Grammar Engine renders a frame. Recognition Engine reconstructs a frame from sentence. Configuration Engine governs the movie.
 
-#UI shaves what Configuration Engine knows
+# UI shaves what Configuration Engine knows
 
 Grammar Engine renders sentence from SentenceState object that has agent, object, tense, verb, polarity, aspect, phrases etc filled with data objects based on model classes
 
