@@ -8,9 +8,11 @@ It's a padlock to learn English
 
 install VS Code, git
 
-clone this repository with git installed: git clone https github com yada yada, an icon on the top right of code preview I think
+clone this repository with git installed: git clone https github com yada yada, a green <CODE> button on the top right of code preview I think
 
-open directory with cloned repository with VS Code
+or download zip and
+
+open directory with cloned or unzipped repository with VS Code
 
 install Flutter plugin in VS Code
 
