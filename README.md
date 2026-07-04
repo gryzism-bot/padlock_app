@@ -8,7 +8,7 @@ It's a padlock to learn English
 
 install VS Code, git
 
-clone this repository with git installed: git clone https github com yada yada, a green <CODE> button on the top right of files preview
+clone this repository with git installed: git clone https github com yada yada, a green CODE button on the top right of files preview
 
 or download zip and
 
