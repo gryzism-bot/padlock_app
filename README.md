@@ -1,8 +1,8 @@
-## padlock_app
+# padlock_app
 
 A new Flutter project.
 
-## Getting Started
+# Getting Started
 
 It's a padlock to learn English
 
@@ -23,10 +23,11 @@ it runs home_screen.dart because that's what main.dart's function points to as "
 
 quick run flutter test
 
-## ARKITEKCZURALLY
+# ARKITEKCZURALLY
 check poster grammar engine as water treatment system png
 
 #Grammar Engine renders a frame. Recognition Engine reconstructs a frame from sentence. Configuration Engine governs the movie.
+
 #UI shaves what Configuration Engine knows
 
 Grammar Engine renders sentence from SentenceState object that has agent, object, tense, verb, polarity, aspect, phrases etc filled with data objects based on model classes
@@ -41,35 +42,55 @@ it contains logic like "if modal can chosen, verb can't be can too", or "if pass
 it prevents HomeScreen from becoming GrammarEngine's generate parameter filler which can damage it's performance with hundreds of data consts with tens of translations
 
 ##All Side Quests First Driven Development, Most Mindless and Least Influential Tasks First
+
 Features are added before abstractions
+
 A side quest is complete when it changes your understanding of the main quest.
+
 An engine is to be implemented when existing ones no longer answer new questions
 
-## UI
+
+# UI
 
 UI is Configuration Engine shaven to 2-3 closest possible moves, because of wheel nature and perspective
+
 in lid on mode it shows wheels that manipulate Grammar Engine and shows SentenceState
+
 in lid off mode it shows how Grammar Engine works, shows lid on's wheels as SentenceState's fields of subject, verb, tense, aspect, modal, polarity, voice, etc
+
 in lid off mode it has autocomplete guided "input" that gives Recognition Engine a sentence to parse SentenceState
 
+
 Configuration Engine provides time, Grammar Engine provides rules, developer can provide space for minigames, Grammar Engine so abstract it could become a boss fight
+
 or a platform game
+
 or an origami
+
 or a freeskate line
+
 or a maze
+
 
 #UI has a button to show crude translations and it has to be held to function, no translation on/off, only hold
 
 #UI has a toggle to like drone's auto or manual or off mode: 
+
 🟢 Assisted
+
 Configuration Engine repairs everything automatically - turns wheels when necessary
 
 🟡 Guided
+
 Configuration Engine blocks impossible moves and explains why.
 
 🔴 Manual
+
 Configuration Engine blocks impossible moves but gives no explanation.
+
 ☠ Explorer
+
 Configuration Engine OFF.
+
 Grammar and Recognition receive whatever monstrosity the user creates.
 
