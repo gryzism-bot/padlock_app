@@ -157,8 +157,18 @@ class RecognitionEngine {
           }
         } else if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'be') {
-          builder.aspect = Aspect.continuous;
           current++;
+
+          builder.aspect = Aspect.simple;
+
+          if (current < builder.tokens.length) {
+            final verb = _lookupVerb(builder.tokens[current]);
+
+            if (verb != null &&
+                builder.tokens[current].toLowerCase() == verb.ingForm) {
+              builder.aspect = Aspect.continuous;
+            }
+          }
         } else {
           builder.aspect = Aspect.simple;
         }
@@ -211,7 +221,6 @@ class RecognitionEngine {
             builder.verbChainEnd = current;
           }
         }
-
         break;
       }
 
@@ -243,6 +252,10 @@ class RecognitionEngine {
           }
         }
 
+        if (current > 0 && builder.tokens[current - 1].toLowerCase() == 'not') {
+          builder.polarity = Polarity.negative;
+        }
+
         if (current < builder.tokens.length) {
           final verb = _lookupVerb(builder.tokens[current]);
 
@@ -251,7 +264,6 @@ class RecognitionEngine {
             builder.verbChainEnd = current;
           }
         }
-
         break;
       }
 
@@ -367,7 +379,6 @@ class RecognitionEngine {
             builder.verbChainEnd = current;
           }
         }
-
         break;
       }
 
@@ -420,7 +431,6 @@ class RecognitionEngine {
             builder.verbChainEnd = current;
           }
         }
-
         break;
       }
 
@@ -445,7 +455,6 @@ class RecognitionEngine {
           builder.tense = Tense.past;
           builder.aspect = Aspect.simple;
         }
-
         break;
       }
     }
@@ -477,6 +486,25 @@ class RecognitionEngine {
     }
 
     return null;
+  }
+
+  int _participantEnd(_RecognitionBuilder builder) {
+    var end = builder.verbChainEnd - 1;
+
+    while (end >= 0) {
+      switch (builder.tokens[end].toLowerCase()) {
+        case 'not':
+        case 'be':
+        case 'been':
+        case 'being':
+          end--;
+          continue;
+      }
+
+      break;
+    }
+
+    return end;
   }
 
   // -------------------------------------------------------
@@ -531,18 +559,12 @@ class RecognitionEngine {
     }
 
     if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
-      print(builder.agentStart);
-      print(builder.agentEnd);
-      print(builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1));
       builder.agent = _recognizeNounPhrase(
         builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
       );
     }
 
     if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
-      print(builder.agentStart);
-      print(builder.agentEnd);
-      print(builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1));
       builder.object = _recognizeNounPhrase(
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );
@@ -553,7 +575,7 @@ class RecognitionEngine {
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.agentStart = builder.subjectStart;
-      builder.agentEnd = builder.verbChainEnd - 1;
+      builder.agentEnd = _participantEnd(builder);
     } else {
       builder.agentStart = 0;
       builder.agentEnd = builder.verbChainStart - 1;
@@ -571,19 +593,22 @@ class RecognitionEngine {
   }
 
   void _recognizePassiveParticipants(_RecognitionBuilder builder) {
-    builder.objectStart = 0;
-
     final byIndex = builder.tokens.indexWhere(
       (token) => token.toLowerCase() == 'by',
     );
 
-    if (byIndex >= 0) {
+    if (builder.sentenceForm == SentenceForm.question &&
+        builder.verbChainStart == 0) {
+      builder.objectStart = builder.subjectStart;
+      builder.objectEnd = _participantEnd(builder);
+    } else {
+      builder.objectStart = 0;
       builder.objectEnd = builder.verbChainStart - 1;
+    }
 
+    if (byIndex >= 0) {
       builder.agentStart = byIndex + 1;
       builder.agentEnd = builder.tokens.length - 1 - _phraseTokenCount(builder);
-    } else {
-      builder.objectEnd = builder.verbChainStart - 1;
     }
   }
 
@@ -781,6 +806,7 @@ class _RecognitionBuilder {
   int objectEnd = -1;
 
   int subjectStart = 0;
+  int subjectEnd = -1;
 
   // ----------------------------
   // Recognized grammar
