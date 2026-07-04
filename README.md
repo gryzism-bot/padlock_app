@@ -20,7 +20,7 @@ check if Flutter is installed with flutter -v, it shouldn't return red text with
 
 start app in Chrome from main repo directory with flutter run -d chrome
 
-it runs home_screen.dart because that's what main.dart's function points to as "home"
+it runs home_screen.dart because that's what main.dart's main function points to as "home"
 
 
 quick run flutter test
