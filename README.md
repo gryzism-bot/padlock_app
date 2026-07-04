@@ -38,7 +38,7 @@ Configuration Engine knows current position on a graph and possible moves on tha
 it contains logic like "if modal can chosen, verb can't be can too", or "if passive voice chosen, subject splits to agent and object", 
 "if modal will chosen, verb be stays be"(not sure, maybe it's because of tense future, but you better get the idea) etc
 
-## Configuration Engine prevents UI's HomeScreen to import Grammar Engine's generate(SentenceState: (subject, tense, aspect, modal, verb, polarity, voice, etc.)) and grammar logic implementation
+## Configuration Engine prevents UI's HomeScreen from importing Grammar Engine's generate(SentenceState: (subject, tense, aspect, modal, verb, polarity, voice, etc.)) and grammar logic implementation
 it prevents HomeScreen from becoming GrammarEngine's generate parameter filler which can damage it's performance with hundreds of data consts with tens of translations
 
 ## All Side Quests First Driven Development, Most Mindless and Least Influential Tasks First
