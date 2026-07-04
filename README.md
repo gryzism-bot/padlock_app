@@ -32,7 +32,7 @@ check poster grammar engine as water treatment system png
 
 Grammar Engine renders sentence from SentenceState object that has agent, object, tense, verb, polarity, aspect, phrases etc filled with data objects based on model classes
 
-Recognition Engine started as a test tool for Grammar Engine to make it work backwards and it does the opposite: parses SentenceState from a sentence, which on UI will be limited to autocomplete narrowing in subject/verb/modal/phrase lists
+Recognition Engine started as a test tool for Grammar Engine to make it work backwards and it does the opposite: parses SentenceState from a sentence, which on UI will be limited to autocomplete narrowing in subject/verb/modal/phrase input list
 
 Configuration Engine knows current position on a graph and possible moves on that graph of grammar trees, based on fields in data models, 
 it contains logic like "if modal can chosen, verb can't be can too", or "if passive voice chosen, subject splits to agent and object", 
