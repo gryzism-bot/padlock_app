@@ -92,5 +92,5 @@ Configuration Engine blocks impossible moves but gives no explanation.
 
 Configuration Engine OFF.
 
-Grammar and Recognition receive whatever monstrosity the user creates.
+Grammar and Recognition receive whatever monstrosity the user creates. User may set "John can can at home".
 
