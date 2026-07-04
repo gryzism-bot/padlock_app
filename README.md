@@ -7,12 +7,19 @@ A new Flutter project.
 It's a padlock to learn English
 
 install VS Code, git
+
 clone this repository with git installed: git clone https github com yada yada, an icon on the top right of code preview I think
+
 open directory with cloned repository with VS Code
+
 install Flutter plugin in VS Code
+
 check if Flutter is installed with flutter -v, it shouldn't return red text with flutter not recognized, I think flutter plugin installs it, it also provides autocomplete
+
 start app in Chrome from main repo directory with flutter run -d chrome
+
 it runs home_screen.dart because that's what main.dart's function points to as "home"
+
 
 quick run flutter test
 
