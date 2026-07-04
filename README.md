@@ -58,7 +58,7 @@ in lid on mode it shows wheels that manipulate Grammar Engine and shows Sentence
 
 in lid off mode it shows how Grammar Engine works, shows lid on's wheels as SentenceState's fields of subject, verb, tense, aspect, modal, polarity, voice, etc
 
-in lid off mode it has autocomplete guided "input" that gives Recognition Engine a sentence to parse SentenceState
+in lid on mode it has autocomplete guided "input" that gives Recognition Engine a sentence to parse SentenceState
 
 
 Configuration Engine provides time, Grammar Engine provides rules, developer can provide space for minigames, Grammar Engine so abstract it could become a boss fight
