@@ -41,7 +41,7 @@ it contains logic like "if modal can chosen, verb can't be can too", or "if pass
 ## Configuration Engine prevents UI's HomeScreen from importing Grammar Engine's generate(SentenceState: (subject, tense, aspect, modal, verb, polarity, voice, etc.)) and grammar logic implementation
 it prevents HomeScreen from becoming GrammarEngine's generate parameter filler which can damage it's performance with hundreds of data consts with tens of translations
 
-## All Side Quests First Driven Development, Most Mindless and Least Influential Tasks First
+## All Side Quests First Driven Development
 
 Features are added before abstractions
 
