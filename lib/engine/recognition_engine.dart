@@ -6,6 +6,8 @@ import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/engine/logger/engine_logger.dart';
+import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
@@ -25,6 +27,10 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 class RecognitionEngine {
+  final EngineLogger logger;
+
+  RecognitionEngine({this.logger = const EngineLogger()});
+
   SentenceState recognize(String sentence) {
     final builder = _RecognitionBuilder(sentence);
 
@@ -41,6 +47,20 @@ class RecognitionEngine {
     _recognizePhrases(builder);
 
     _recognizeParticipants(builder);
+
+    _recognizeUnknownTokens(builder);
+
+    logger.logRecognition(
+      RecognitionDiagnostics(
+        sentence: sentence,
+        tokens: builder.tokens,
+        verbChainStart: builder.verbChainStart,
+        verbChainEnd: builder.verbChainEnd,
+        state: builder.state,
+
+        unknownTokens: builder.unknownTokens,
+      ),
+    );
 
     return builder.state;
   }
@@ -779,6 +799,16 @@ class RecognitionEngine {
 
     return null;
   }
+
+  void _recognizeUnknownTokens(_RecognitionBuilder builder) {
+    for (final token in builder.tokens) {
+      if (_lookupVerb(token) != null) {
+        continue;
+      }
+
+      builder.unknownTokens.add(token);
+    }
+  }
 }
 
 class _RecognitionBuilder {
@@ -839,6 +869,8 @@ class _RecognitionBuilder {
   MannerPhrase? mannerPhrase;
 
   _RecognitionBuilder(this.sentence);
+
+  final List<String> unknownTokens = [];
 
   SentenceState get state => SentenceState(
     action: action!,

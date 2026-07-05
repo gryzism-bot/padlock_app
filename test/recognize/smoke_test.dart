@@ -832,4 +832,261 @@ void main() {
       expect(state.mannerPhrase, isNull);
     });
   });
+
+  test('The young worker is working at home', () {
+    final state = engine.recognize('The young worker is working at home.');
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: young,
+    );
+
+    expect(state.object, isNull);
+
+    expect(state.action, work);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.continuous);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, homePlacePhrase);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The old worker was building a bridge', () {
+    final state = engine.recognize('The old worker was building a bridge.');
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: old,
+    );
+
+    expectObject(state, text: 'bridge', determiner: aDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.continuous);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('Was the old worker building a bridge?', () {
+    final state = engine.recognize('Was the old worker building a bridge?');
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: old,
+    );
+
+    expectObject(state, text: 'bridge', determiner: aDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.continuous);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.question);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The old worker had built a bridge', () {
+    final state = engine.recognize('The old worker had built a bridge.');
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: old,
+    );
+
+    expectObject(state, text: 'bridge', determiner: aDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.perfect);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('Had the old worker built a bridge?', () {
+    final state = engine.recognize('Had the old worker built a bridge?');
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: old,
+    );
+
+    expectObject(state, text: 'bridge', determiner: aDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.perfect);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.question);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The old worker had been building a bridge', () {
+    final state = engine.recognize(
+      'The old worker had been building a bridge.',
+    );
+
+    expectAgent(
+      state,
+      text: 'worker',
+      determiner: theDeterminer,
+      adjective: old,
+    );
+
+    expectObject(state, text: 'bridge', determiner: aDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.active);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.perfectContinuous);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The bridge was not built', () {
+    final state = engine.recognize('The bridge was not built.');
+
+    expect(state.agent, isNull);
+
+    expectObject(state, text: 'bridge', determiner: theDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.passive);
+
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.simple);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.negative);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The bridge has not been built', () {
+    final state = engine.recognize('The bridge has not been built.');
+
+    expect(state.agent, isNull);
+
+    expectObject(state, text: 'bridge', determiner: theDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.passive);
+
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.perfect);
+
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.negative);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
+
+  test('The bridge will not be built', () {
+    final state = engine.recognize('The bridge will not be built.');
+
+    expect(state.agent, isNull);
+
+    expectObject(state, text: 'bridge', determiner: theDeterminer);
+
+    expect(state.action, build);
+
+    expect(state.voice, Voice.passive);
+
+    expect(state.tense, Tense.future);
+    expect(state.aspect, Aspect.simple);
+
+    expect(state.modal, will);
+    expect(state.polarity, Polarity.negative);
+
+    expect(state.sentenceForm, SentenceForm.statement);
+
+    expect(state.placePhrase, isNull);
+    expect(state.timePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
 }

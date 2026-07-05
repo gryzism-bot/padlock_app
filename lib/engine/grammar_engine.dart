@@ -1,3 +1,5 @@
+import 'package:padlock_app/engine/logger/engine_logger.dart';
+import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -10,6 +12,10 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 
 class GrammarEngine {
+  final EngineLogger logger;
+
+  GrammarEngine({EngineLogger? logger})
+    : logger = logger ?? const EngineLogger();
   Sentence generate(SentenceState state) {
     final builder = _SentenceBuilder(state);
 
@@ -21,6 +27,8 @@ class GrammarEngine {
     _applyPhrases(builder);
 
     final text = _buildSentence(builder);
+
+    logger.logGrammar(GrammarDiagnostics(state: state, sentence: text));
 
     return Sentence(text: text, state: state);
   }
