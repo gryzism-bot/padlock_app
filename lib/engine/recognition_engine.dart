@@ -12,6 +12,7 @@ import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
+import 'package:padlock_app/models/grammar/preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
@@ -44,11 +45,17 @@ class RecognitionEngine {
 
     _recognizeVoice(builder);
 
+    _recognizeParticipantBoundaries(builder);
+
     _recognizePhrases(builder);
 
-    _recognizeParticipants(builder);
+    _trimParticipantBoundaries(builder);
+
+    _buildParticipants(builder);
 
     _recognizeUnknownTokens(builder);
+
+    print(builder.unknownTokens);
 
     logger.logRecognition(
       RecognitionDiagnostics(
@@ -156,6 +163,12 @@ class RecognitionEngine {
             }
 
             current++;
+          }
+          for (var j = builder.subjectStart; j < current; j++) {
+            if (builder.tokens[j].toLowerCase() == 'not') {
+              builder.polarity = Polarity.negative;
+              break;
+            }
           }
         } else {
           if (current < builder.tokens.length &&
@@ -306,6 +319,12 @@ class RecognitionEngine {
 
             current++;
           }
+          for (var j = builder.subjectStart; j < current; j++) {
+            if (builder.tokens[j].toLowerCase() == 'not') {
+              builder.polarity = Polarity.negative;
+              break;
+            }
+          }
         } else {
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'not') {
@@ -365,6 +384,12 @@ class RecognitionEngine {
             }
 
             current++;
+          }
+          for (var j = builder.subjectStart; j < current; j++) {
+            if (builder.tokens[j].toLowerCase() == 'not') {
+              builder.polarity = Polarity.negative;
+              break;
+            }
           }
         } else {
           if (current < builder.tokens.length &&
@@ -567,7 +592,7 @@ class RecognitionEngine {
   // PARTICIPANTS
   // -------------------------------------------------------
 
-  void _recognizeParticipants(_RecognitionBuilder builder) {
+  void _recognizeParticipantBoundaries(_RecognitionBuilder builder) {
     if (builder.verbChainStart < 0 || builder.verbChainEnd < 0) {
       return;
     }
@@ -576,18 +601,6 @@ class RecognitionEngine {
       _recognizeActiveParticipants(builder);
     } else {
       _recognizePassiveParticipants(builder);
-    }
-
-    if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
-      builder.agent = _recognizeNounPhrase(
-        builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
-      );
-    }
-
-    if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
-      builder.object = _recognizeNounPhrase(
-        builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
-      );
     }
   }
 
@@ -607,8 +620,7 @@ class RecognitionEngine {
 
     if (builder.verbChainEnd < builder.tokens.length - 1) {
       builder.objectStart = builder.verbChainEnd + 1;
-      builder.objectEnd =
-          builder.tokens.length - 1 - _phraseTokenCount(builder);
+      builder.objectEnd = builder.tokens.length - 1;
     }
   }
 
@@ -628,30 +640,45 @@ class RecognitionEngine {
 
     if (byIndex >= 0) {
       builder.agentStart = byIndex + 1;
-      builder.agentEnd = builder.tokens.length - 1 - _phraseTokenCount(builder);
+      builder.agentEnd = builder.tokens.length - 1;
     }
   }
 
-  int _phraseTokenCount(_RecognitionBuilder builder) {
-    var count = 0;
+  void _trimParticipantBoundaries(_RecognitionBuilder builder) {
+    final starts = <int>[
+      builder.timePhraseStart,
+      builder.placePhraseStart,
+      builder.frequencyPhraseStart,
+      builder.mannerPhraseStart,
+    ]..removeWhere((e) => e < 0);
 
-    if (builder.timePhrase != null) {
-      count += builder.timePhrase!.text.split(' ').length;
+    if (starts.isEmpty) {
+      return;
     }
 
-    if (builder.frequencyPhrase != null) {
-      count += builder.frequencyPhrase!.text.split(' ').length;
+    final firstPhraseStart = starts.reduce((a, b) => a < b ? a : b);
+
+    if (builder.objectStart >= 0 && builder.objectEnd >= firstPhraseStart) {
+      builder.objectEnd = firstPhraseStart - 1;
     }
 
-    if (builder.placePhrase != null) {
-      count += builder.placePhrase!.render().split(' ').length;
+    if (builder.agentStart >= 0 && builder.agentEnd >= firstPhraseStart) {
+      builder.agentEnd = firstPhraseStart - 1;
+    }
+  }
+
+  void _buildParticipants(_RecognitionBuilder builder) {
+    if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
+      builder.agent = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
+      );
     }
 
-    if (builder.mannerPhrase != null) {
-      count += builder.mannerPhrase!.text.split(' ').length;
+    if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
+      builder.object = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
+      );
     }
-
-    return count;
   }
 
   NounPhrase _recognizeNounPhrase(List<String> tokens) {
@@ -713,98 +740,165 @@ class RecognitionEngine {
   void _recognizePhrases(_RecognitionBuilder builder) {
     final phraseTokens = _remainingPhraseTokens(builder);
 
-    builder.timePhrase = _lookupTimePhrase(phraseTokens);
-
-    builder.placePhrase = _lookupPlacePhrase(phraseTokens);
-
-    builder.frequencyPhrase = _lookupFrequencyPhrase(phraseTokens);
-
-    builder.mannerPhrase = _lookupMannerPhrase(phraseTokens);
+    _recognizeTimePhrase(builder, phraseTokens);
+    _recognizePlacePhrase(builder, phraseTokens);
+    _recognizeFrequencyPhrase(builder, phraseTokens);
+    _recognizeMannerPhrase(builder, phraseTokens);
   }
 
   List<String> _remainingPhraseTokens(_RecognitionBuilder builder) {
     final remaining = <String>[];
 
     for (var i = builder.verbChainEnd + 1; i < builder.tokens.length; i++) {
-      if (i >= builder.objectStart &&
-          i <= builder.objectEnd &&
-          builder.objectStart >= 0) {
-        continue;
-      }
-
-      if (i >= builder.agentStart &&
-          i <= builder.agentEnd &&
-          builder.agentStart >= 0) {
-        continue;
-      }
-
       remaining.add(builder.tokens[i]);
     }
 
     return remaining;
   }
 
-  TimePhrase? _lookupTimePhrase(List<String> tokens) {
-    final text = tokens.join(' ').toLowerCase();
-
+  void _recognizeTimePhrase(_RecognitionBuilder builder, List<String> tokens) {
     for (final phrase in timePhrases) {
-      final remaining = ' ${text.toLowerCase()} ';
+      final phraseText = phrase.text.toLowerCase();
 
-      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
-        return phrase;
+      final wordsBefore = _phraseWordIndex(tokens, phraseText);
+
+      if (wordsBefore < 0) {
+        continue;
       }
-    }
 
-    return null;
+      builder.timePhrase = phrase;
+
+      builder.timePhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+
+      builder.timePhraseEnd =
+          builder.timePhraseStart + phrase.text.split(' ').length - 1;
+      return;
+    }
   }
 
-  PlacePhrase? _lookupPlacePhrase(List<String> tokens) {
-    final text = tokens.join(' ').toLowerCase();
-
+  void _recognizePlacePhrase(_RecognitionBuilder builder, List<String> tokens) {
     for (final phrase in placePhrases) {
-      final remaining = ' ${text.toLowerCase()} ';
+      for (final preposition in phrase.prepositions.values) {
+        final wordsBefore = _placePhraseWordIndex(tokens, phrase, preposition);
 
-      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
-        return phrase;
+        if (wordsBefore < 0) {
+          continue;
+        }
+
+        builder.placePhrase = phrase;
+
+        final phraseLength =
+            (preposition != null ? 1 : 0) +
+            (phrase.takesArticle ? 1 : 0) +
+            phrase.noun.split(' ').length;
+
+        builder.placePhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+
+        builder.placePhraseEnd = builder.placePhraseStart + phraseLength - 1;
+
+        return;
+      }
+    }
+  }
+
+  int _placePhraseWordIndex(
+    List<String> tokens,
+    PlacePhrase phrase,
+    Preposition? preposition,
+  ) {
+    final expected = <String>[];
+
+    if (preposition != null) {
+      expected.add(preposition.text);
+    }
+
+    if (phrase.takesArticle) {
+      expected.add('the');
+    }
+
+    expected.addAll(phrase.noun.toLowerCase().split(' '));
+
+    return _phraseWordIndex(tokens, expected.join(' '));
+  }
+
+  int _phraseWordIndex(List<String> tokens, String phraseText) {
+    final phraseWords = phraseText.toLowerCase().split(' ');
+
+    for (var i = 0; i <= tokens.length - phraseWords.length; i++) {
+      var matches = true;
+
+      for (var j = 0; j < phraseWords.length; j++) {
+        if (tokens[i + j].toLowerCase() != phraseWords[j]) {
+          matches = false;
+          break;
+        }
+      }
+
+      if (matches) {
+        return i;
       }
     }
 
-    return null;
+    return -1;
   }
 
-  FrequencyPhrase? _lookupFrequencyPhrase(List<String> tokens) {
-    final text = tokens.join(' ').toLowerCase();
-
+  void _recognizeFrequencyPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
     for (final phrase in frequencyPhrases) {
-      final remaining = ' ${text.toLowerCase()} ';
+      final phraseText = phrase.text.toLowerCase();
 
-      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
-        return phrase;
+      final wordsBefore = _phraseWordIndex(tokens, phraseText);
+
+      if (wordsBefore < 0) {
+        continue;
       }
-    }
 
-    return null;
+      builder.frequencyPhrase = phrase;
+
+      builder.frequencyPhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+
+      builder.frequencyPhraseEnd =
+          builder.frequencyPhraseStart + phrase.text.split(' ').length - 1;
+
+      return;
+    }
   }
 
-  MannerPhrase? _lookupMannerPhrase(List<String> tokens) {
-    final text = tokens.join(' ').toLowerCase();
+  void _recognizeMannerPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    for (final phrase in mannerPhrases) {
+      final phraseText = phrase.text.toLowerCase();
 
-    for (final phrase in allMannerPhrases) {
-      final remaining = ' ${text.toLowerCase()} ';
+      final wordsBefore = _phraseWordIndex(tokens, phraseText);
 
-      if (remaining.contains(' ${phrase.text.toLowerCase()} ')) {
-        return phrase;
+      if (wordsBefore < 0) {
+        continue;
       }
-    }
 
-    return null;
+      builder.mannerPhrase = phrase;
+
+      builder.mannerPhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+
+      builder.mannerPhraseEnd =
+          builder.mannerPhraseStart + phrase.text.split(' ').length - 1;
+
+      return;
+    }
   }
 
   void _recognizeUnknownTokens(_RecognitionBuilder builder) {
     for (final token in builder.tokens) {
-      if (_lookupVerb(token) != null) {
-        continue;
-      }
+      if (_lookupVerb(token) != null) continue;
+
+      if (_lookupModal(token) != null) continue;
+
+      if (_lookupDeterminer(token) != null) continue;
+
+      if (_lookupAdjective(token) != null) continue;
 
       builder.unknownTokens.add(token);
     }
@@ -861,12 +955,20 @@ class _RecognitionBuilder {
   NounPhrase? object;
 
   TimePhrase? timePhrase;
+  int timePhraseStart = -1;
+  int timePhraseEnd = -1;
 
   PlacePhrase? placePhrase;
+  int placePhraseStart = -1;
+  int placePhraseEnd = -1;
 
   FrequencyPhrase? frequencyPhrase;
+  int frequencyPhraseStart = -1;
+  int frequencyPhraseEnd = -1;
 
   MannerPhrase? mannerPhrase;
+  int mannerPhraseStart = -1;
+  int mannerPhraseEnd = -1;
 
   _RecognitionBuilder(this.sentence);
 

@@ -1,0 +1,26 @@
+import '../models/grammar/preposition.dart';
+
+const at = Preposition('at');
+const inPreposition = Preposition('in');
+const on = Preposition('on');
+const under = Preposition('under');
+const over = Preposition('over');
+const behind = Preposition('behind');
+const inFrontOf = Preposition('in front of');
+const near = Preposition('near');
+const beside = Preposition('beside');
+const nextTo = Preposition('next to');
+const between = Preposition('between');
+const by = Preposition('by');
+const inside = Preposition('inside');
+const outside = Preposition('outside');
+const to = Preposition('to');
+const from = Preposition('from');
+const into = Preposition('into');
+const onto = Preposition('onto');
+const outOf = Preposition('out of');
+const off = Preposition('off');
+const through = Preposition('through');
+const across = Preposition('across');
+const along = Preposition('along');
+const around = Preposition('around');

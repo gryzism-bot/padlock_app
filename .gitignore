@@ -55,3 +55,4 @@ android/local.properties
 # macOS
 .DS_Store
 test/engine/test_placeholder.dart
+failures.txt

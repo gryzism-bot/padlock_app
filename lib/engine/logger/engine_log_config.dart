@@ -18,6 +18,6 @@ class EngineLogConfig {
     this.participants = false,
     this.phrases = false,
     this.sentenceState = false,
-    this.unknownTokens = false,
+    this.unknownTokens = true,
   });
 }

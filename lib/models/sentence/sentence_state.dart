@@ -66,7 +66,7 @@ Polarity: $polarity
 Form: $sentenceForm
 Voice: $voice
 Time Phrase: ${timePhrase?.text}
-Place Phrase: ${placePhrase?.text}
+Place Phrase: ${placePhrase?.noun}
 Frequency Phrase: ${frequencyPhrase?.text}
 ''';
   }

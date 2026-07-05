@@ -128,7 +128,7 @@ const onPurposeMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
-List<MannerPhrase> allMannerPhrases = [
+List<MannerPhrase> mannerPhrases = [
   quicklyMannerPhrase,
   slowlyMannerPhrase,
   carefullyMannerPhrase,

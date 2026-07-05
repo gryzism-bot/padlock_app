@@ -313,7 +313,8 @@ const learn = Verb(
   pastSimple: 'learned',
   pastParticiple: 'learned',
   ingForm: 'learning',
-  takesObject: true,
+  takesObject: false,
+  //TODO: to be true after implementing learn English in Grammar Engine
   translations: {Language.pl: 'uczyć się'},
 );
 

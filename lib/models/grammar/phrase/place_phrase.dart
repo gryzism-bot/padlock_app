@@ -1,45 +1,42 @@
 import 'package:padlock_app/models/grammar/phrase/phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/preposition.dart';
 import 'package:padlock_app/models/language.dart';
 
 class PlacePhrase extends Phrase {
-  final String text;
+  final String noun;
 
-  /// "at home", "in the park", "under the table"
-  final String locationPreposition;
+  final bool takesArticle;
 
-  /// "go home", "travel to work", "walk to the park"
-  final String destinationPreposition;
-
-  /// "from home", "from work", "from the park"
-  final String sourcePreposition;
+  final Map<PlaceMeaning, Preposition?> prepositions;
 
   final Map<Language, String> translations;
 
   const PlacePhrase({
-    required this.text,
+    required this.noun,
+    required this.prepositions,
     required this.translations,
-    this.locationPreposition = 'at',
-    this.destinationPreposition = 'to',
-    this.sourcePreposition = 'from',
+    this.takesArticle = true,
     super.position,
   });
 
   @override
   String render([PlaceMeaning meaning = PlaceMeaning.location]) {
-    switch (meaning) {
-      case PlaceMeaning.location:
-        return locationPreposition.isEmpty
-            ? text
-            : '$locationPreposition $text';
+    final preposition = prepositions[meaning];
 
-      case PlaceMeaning.destination:
-        return destinationPreposition.isEmpty
-            ? text
-            : '$destinationPreposition $text';
+    final buffer = StringBuffer();
 
-      case PlaceMeaning.source:
-        return sourcePreposition.isEmpty ? text : '$sourcePreposition $text';
+    if (preposition != null) {
+      buffer.write(preposition.text);
+      buffer.write(' ');
     }
+
+    if (takesArticle) {
+      buffer.write('the ');
+    }
+
+    buffer.write(noun);
+
+    return buffer.toString();
   }
 }
