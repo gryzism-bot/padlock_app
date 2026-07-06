@@ -55,7 +55,7 @@ class RecognitionEngine {
 
     _recognizeUnknownTokens(builder);
 
-    print(builder.unknownTokens);
+    print('Unknown tokens: ${builder.unknownTokens}');
 
     logger.logRecognition(
       RecognitionDiagnostics(

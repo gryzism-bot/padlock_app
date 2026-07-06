@@ -67,7 +67,7 @@ An engine is to be implemented when existing ones no longer answer new questions
 
 # UI
 
-UI is Configuration Engine shaven to 2-3 closest possible moves, because of wheel nature and perspective
+UI is Configuration Engine shaven to 2-3 closest possible moves, because of wheel nature and perspective, you see these wheels just like you'd have a rollerblade in front of you facing you, you see an oval rectangle but you know it's a wheel facing you, there is no clockwise/counterclockwise, it's up down, left right
 
 in lid on mode it shows wheels that manipulate Grammar Engine and shows SentenceState
 
@@ -110,4 +110,3 @@ Configuration Engine blocks impossible moves but gives no explanation.
 Configuration Engine OFF.
 
 Grammar and Recognition receive whatever monstrosity the user creates. User may set "John can can at home".
-
