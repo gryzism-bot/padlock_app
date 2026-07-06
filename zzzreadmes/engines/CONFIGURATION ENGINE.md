@@ -1,540 +1,645 @@
 # Configuration Engine
 
-Configuration Engine governs movement through the space of valid SentenceState configurations.
+Configuration Engine governs movement through the space of valid sentence configurations.
 
-Unlike Grammar Engine or Recognition Engine, it never processes English text.
+Unlike Grammar Engine and Recognition Engine, it never processes English text.
 
-Instead, it accepts physical interactions originating from the user interface and transforms them into valid grammatical state transitions.
+Instead, it accepts a physical interaction performed by the learner, transforms the current grammatical configuration into another valid grammatical configuration, and finally prepares everything required by the user interface to render that new state.
 
-Grammar Engine later expresses those states as English.
+Grammar Engine later converts the resulting `SentenceState` into English.
 
-Recognition Engine later reconstructs those states from English.
+Recognition Engine later reconstructs the same `SentenceState` from English.
 
-Configuration Engine exists entirely before language appears.
+Configuration Engine exists entirely between the learner and grammar.
 
-## applyMove()
+It is therefore an **interaction engine**, not a language engine.
 
-applyMove() is the public entry point of Configuration Engine.
+---
 
-It receives the current SentenceState together with a single physical interaction represented by ConfigurationMove.
+# Pipeline
+
+```text
+ConfigurationMove
+
+        │
+
+        ▼
+
+_applyMove()
+
+        │
+
+        ▼
+
+_resolveConstraints()
+
+        │
+
+        ▼
+
+_buildSentenceState()
+
+        │
+
+        ▼
+
+_buildViewports()
+
+        │
+
+        ▼
+
+_buildToggleStates()
+
+        │
+
+        ▼
+
+_collectMessages()
+
+        │
+
+        ▼
+
+_collectHighlights()
+
+        │
+
+        ▼
+
+_buildConfigurationState()
+
+        │
+
+        ▼
+
+ConfigurationState
+```
+
+Grammar Engine transforms
+
+```text
+SentenceState
+
+↓
+
+English
+```
+
+Recognition Engine transforms
+
+```text
+English
+
+↓
+
+SentenceState
+```
+
+Configuration Engine transforms
+
+```text
+ConfigurationMove
+
+↓
+
+ConfigurationState
+```
+
+---
+
+# ConfigurationMove
+
+ConfigurationMove represents one physical interaction performed by the learner.
 
 Examples include
 
-rotating the verb wheel
-rotating the aspect wheel
-toggling voice
-selecting a place
-completing a minigame interaction
+- rotating the verb wheel
+- rotating the subject wheel
+- rotating the tense wheel
+- rotating the aspect wheel
+- toggling passive voice
+- toggling polarity
+- selecting a phrase
+- completing a minigame interaction
 
-The function never modifies the existing configuration directly.
+A ConfigurationMove is **not grammar**.
 
-Instead it creates a candidate configuration and gradually transforms it into the nearest valid grammatical configuration.
+It represents only what the learner physically attempted to do.
 
-Implementation-wise applyMove() contains almost no grammar.
+---
 
-Its responsibility is orchestration.
+# applyMove()
 
-Like the other engines, grammatical behaviour belongs to dedicated pipeline stages.
+`applyMove()` is the public entry point of Configuration Engine.
 
-## _applyMove()
+It receives
 
-The first stage applies only the user's requested interaction.
+- current ConfigurationState
+- one ConfigurationMove
 
-Produces the first candidate configuration.
+and returns a completely new ConfigurationState.
 
-No grammar corrections happen yet.
+Implementation-wise `applyMove()` should contain almost no grammar.
 
-If the learner rotates the verb wheel
+Like the public entry points of Grammar Engine and Recognition Engine, its responsibility is orchestration.
+
+Every grammatical concern belongs to dedicated pipeline stages.
+
+---
+
+# _applyMove()
+
+This stage applies only the learner's requested interaction.
+
+Nothing else.
+
+Example
+
+```text
+Rotate Verb Wheel
+
+↓
 
 work
 
 ↓
 
 travel
+```
 
-only the verb changes.
+At this point
 
-Every dependent grammatical inconsistency is intentionally preserved for the moment.
+- objects are not removed
+- passive voice is not disabled
+- places are not corrected
 
-The resulting configuration is usually incomplete or even impossible.
+The configuration is intentionally allowed to become temporarily inconsistent.
 
-Implementation-wise this stage performs exactly one user action.
+Implementation-wise this function performs exactly one physical interaction.
 
 Nothing more.
 
-## _resolveConstraints()
+---
+
+# _resolveConstraints()
 
 This is the heart of Configuration Engine.
 
-Its responsibility is not generating English.
-
 Its responsibility is restoring grammatical consistency.
 
-Resolves every grammatical dependency created by the requested move.
-
-Every grammar rule acts as an independent constraint.
-
-Continues until the configuration becomes stable.
+Every grammar rule behaves as an independent interlock.
 
 Examples include
 
-intransitive verbs remove objects
-passive voice requires an object
-destination verbs require destination places
-unsupported aspects fall back to valid ones
-modal verbs constrain verb forms
+- verbs removing impossible objects
+- passive voice requiring transitive verbs
+- destination verbs selecting destination places
+- unsupported aspects simplifying automatically
+- modal verbs constraining predicate construction
 
-Rather than executing one large algorithm, this stage repeatedly applies small grammatical corrections until the configuration becomes stable.
+Conceptually this behaves like an industrial valve system.
 
-Conceptually this behaves like an industrial interlock system.
+One visible interaction may automatically produce many hidden corrections before the configuration becomes stable.
 
-Changing one component may automatically affect many others.
+Implementation-wise grammar rules should remain small and grouped by grammatical concept rather than by wheel or UI component.
 
-## _resolveVerbConstraints()
+---
 
-Resolves constraints originating from the selected lexical verb.
+# _buildSentenceState()
 
-Examples include
+Once every constraint has been resolved, Configuration Engine produces the canonical SentenceState.
 
-object requirements
-passive availability
-supported aspects
-supported voices
-place usage
-phrase availability
+SentenceState remains the common language shared by
 
-Implementation-wise this stage centralises every rule that depends primarily upon verb properties.
+- Grammar Engine
+- Recognition Engine
+- Configuration Engine
 
-As the grammar grows, most newly introduced verb features should naturally appear here.
+Implementation-wise this stage performs almost no reasoning.
 
-## _resolveAspectConstraints()
+Its responsibility is constructing the abstract grammatical representation understood by the remaining engines.
 
-Ensures the selected grammatical aspect remains compatible with the current configuration.
+---
 
-Examples include
+# _buildViewports()
 
-unsupported aspects
-auxiliary requirements
-interaction with modality
-interaction with voice
+This stage prepares every wheel visible to the learner.
 
-Implementation-wise this stage never generates auxiliaries.
+Configuration Engine knows the complete grammar space.
 
-It only validates abstract grammar.
+The learner never sees it.
 
-Grammar Engine later renders those decisions.
+Instead, every wheel receives only a small visible neighbourhood.
 
-## _resolveVoiceConstraints()
+Example
 
-Maintains consistency between active and passive voice.
+```text
+learn
 
-Examples include
+travel
 
-participant swapping
-passive availability
-object requirements
-passive agent handling
+WORK
 
-Implementation-wise participant movement belongs here rather than inside Grammar Engine.
+build
 
-Grammar Engine simply renders whichever participants Configuration Engine provides.
+eat
+```
 
-## _resolveModalConstraints()
+Although hundreds of verbs may exist internally, the UI receives only the five currently visible labels.
 
-Maintains consistency between modal verbs and the remaining grammatical state.
+Implementation-wise this stage prevents grammar logic from leaking into Flutter widgets.
 
-Examples include
+The UI never computes neighbouring values.
 
-supported aspects
-future tense interaction
-infinitive verb forms
-auxiliary availability
+Configuration Engine already knows them.
 
-Grammar Engine later converts these abstract decisions into English.
+---
 
-## _resolveParticipantConstraints()
+# _buildToggleStates()
 
-Maintains valid relationships between grammatical participants.
+Constructs every visible toggle.
 
 Examples include
 
-missing subjects
-missing objects
-duplicated participants
-impossible passive constructions
+- Voice
+- Polarity
+- Sentence Form
 
-Implementation-wise this stage never renders noun phrases.
+Every toggle reports
 
-It only guarantees a valid grammatical configuration.
+- current value
+- enabled state
+- optional explanation
 
-## _resolvePhraseConstraints()
+The user interface therefore never asks
 
-Maintains phrase consistency.
+> Can this toggle be pressed?
 
-Examples include
+It simply renders the answer already prepared by Configuration Engine.
 
-place requirements
-destination versus location
-unsupported phrase meanings
-phrase compatibility with selected verbs
+---
 
-Implementation-wise this stage operates entirely upon abstract phrase models.
+# _collectMessages()
 
-Grammar Engine later converts them into English.
-
-``` not in MPV
-## _explainCorrections()
-
-Generates explanations for every automatic correction performed during constraint resolution.
+Collects explanations produced during constraint resolution.
 
 Examples include
 
-Passive Voice disabled.
+```text
+Travel cannot be passive.
 
-Travel does not accept an object.
+Object removed automatically.
 
 Destination selected automatically.
-
-Perfect Continuous simplified.
-
-This stage powers Guided Mode.
-
-Grammar rules become educational explanations.
-
 ```
 
-## _collectChanges()
+Different application modes decide whether these explanations are displayed.
 
-Records every automatic modification performed during constraint resolution.
+The engine always produces them.
 
-Examples include
+---
 
-Object removed
+# _collectHighlights()
 
-↓
-
-Passive disabled
-
-↓
-
-Destination selected
-
-These changes become available to the user interface.
-
-Different interaction modes may choose to display or ignore them.
-
-```
-
-_collectAnimations()
-
-Produces semantic animation events rather than graphical animations.
+Determines which grammatical concepts changed during the interaction.
 
 Examples include
 
-Verb wheel rotated
-
-Object disappeared
-
-Voice toggle switched
-
-Place wheel advanced
-
-The UI decides how to animate them.
-
-Configuration Engine merely describes what changed.
-
-_collectHighlights()
-
-Marks sentence components affected by the move.
-
-Examples include
-
-verb
-
-↓
-
-object
-
-↓
-
-place
-
-The UI may highlight corresponding wheels or sentence fragments.
-
-This stage enables learners to observe which grammatical concepts interact.
-
-_collectAvailableMoves()
-
-Discovers every valid interaction from the current configuration.
-
-Examples include
-
-Rotate Verb
-
-✓
-
-Rotate Aspect
-
-✓
-
-Passive
-
-✗
-
-Rotate Time
-
-✓
-
-Guided Mode can use this information to enable or disable controls dynamically.
-
-_collectReachableStates()
-
-Determines neighbouring configurations.
-
-Unlike Grammar Engine or Recognition Engine, Configuration Engine naturally defines a graph.
-
-Every valid interaction represents one edge.
-
-This stage exposes the graph surrounding the current configuration without explicitly storing it.
-
-_generateHints()
-
-Produces educational hints.
-
-Examples include
-
-Try changing Aspect next.
-
-Passive Voice becomes available
-after selecting another verb.
-
-Travel usually requires a destination.
-
-Hints should emerge from the current configuration rather than being predefined lessons.
-
-_generateChallenges()
-
-Produces small learning objectives.
-
-Examples include
-
-Build a passive sentence.
-
-Ask a question.
-
-Use Future Perfect.
-
-Remove the object.
-
-Travel somewhere.
-
-The same engine that validates grammar becomes capable of generating exercises.
-
-_evaluateObjective()
-
-Checks whether a learner has achieved a requested configuration.
-
-Examples include
-
-Passive reached.
-
-Question reached.
-
-Present Perfect reached.
-
-Minigames and lessons can therefore reuse Configuration Engine instead of implementing their own validation logic.
-
-_recordHistory()
-
-Stores every successful interaction.
-
-Examples include
-
+```text
 Verb
 
 ↓
 
-Aspect
-
-↓
-
-Voice
+Object
 
 ↓
 
 Place
+```
 
-History enables
+The UI may highlight
 
-undo
-replay
-lesson reconstruction
-learner analytics
-_suggestUndo()
+- wheels
+- sentence fragments
+- grammar explanations
 
-Determines how to return to the previous stable configuration.
+Configuration Engine itself remains presentation independent.
 
-Undo becomes another valid interaction rather than reversing arbitrary field mutations.
+---
 
-_generateGuidedPath()
+# _buildConfigurationState()
 
-Produces a shortest sequence of valid interactions between two configurations.
+Produces the final interaction snapshot.
 
-Instead of
+Unlike SentenceState, ConfigurationState represents everything required by the interface.
 
-Sentence A
+Typical contents include
 
-↓
+- SentenceState
+- wheel viewports
+- toggle states
+- explanation messages
+- highlighted grammar concepts
 
-Sentence B
+Every UI consumes the same ConfigurationState.
 
-Configuration Engine may discover
+Only the amount of exposed information differs.
 
-Rotate Verb
+---
 
-↓
+# UI Shaving
 
-Toggle Voice
+Configuration Engine always knows significantly more than the user interface.
 
-↓
+The user interface never computes grammar.
 
-Rotate Aspect
+Instead it receives a deliberately reduced view of the complete interaction state.
 
-↓
+This relationship is described as
 
-Rotate Time
+> UI shaves what Configuration Engine knows.
 
-This stage naturally supports Guided Mode.
+Example
 
-_generateAssistedPath()
+```text
+Configuration Engine
 
-When the learner requests an impossible move, Assisted Mode may automatically discover the nearest reachable configuration.
+██████████████████████████████
 
-Instead of rejecting the interaction, Configuration Engine navigates toward the closest valid state.
+██████████████████████████████
 
-_evaluateProgress()
+██████████████████████████████
 
-Measures how much of the configuration space the learner has explored.
+██████████████████████████████
+
+██████████████████████████████
+
+               │
+
+               ▼
+
+        ConfigurationState
+
+               │
+
+               ▼
+
+        Wheel Viewports
+
+               │
+
+               ▼
+
+               UI
+```
+
+The UI therefore becomes a collection of windows into a much richer configuration space.
+
+Different interfaces simply shave different parts of Configuration Engine.
 
 Examples include
 
-Present
+- Padlock Mode
+- Assisted Mode
+- Guided Mode
+- Lid Off Mode
+- Minigames
 
-✓
+None of them contain grammar logic.
 
-Past
+---
 
-✓
+# ConfigurationState
 
-Passive
+ConfigurationState represents the entire interaction state visible to the learner.
 
-✓
+Unlike SentenceState, which describes grammar, ConfigurationState describes interaction.
 
-Perfect Continuous
+Typical structure
 
-✗
+```text
+ConfigurationState
 
-Progress emerges from explored configurations rather than completed lessons.
-
-_serializeConfiguration()
-
-Produces a portable description of the current configuration.
-
-Future features may include
-
-sharing
-saving
-bookmarks
-reproducible lessons
-
+├── SentenceState
+│
+├── Subject Wheel
+├── Verb Wheel
+├── Aspect Wheel
+├── Tense Wheel
+├── Modal Wheel
+├── Place Wheel
+├── Time Wheel
+├── Frequency Wheel
+├── Manner Wheel
+│
+├── Voice Toggle
+├── Polarity Toggle
+├── Sentence Form Toggle
+│
+├── Messages
+│
+├── Highlights
+│
+└── Future animation events
 ```
 
-## _buildResult()
+The UI should require little more than ConfigurationState to render itself.
 
-Produces the final ConfigurationResult.
+---
 
-Rather than returning only the new SentenceState, Configuration Engine also returns information describing how the state changed.
+# Pipeline Philosophy
 
-Typical result information includes
+Grammar Engine gradually enriches grammar until it becomes English.
 
-previous configuration
-resulting configuration
-originating user interaction
-automatic changes
-explanatory messages
+Recognition Engine gradually removes English until only grammar remains.
 
-This allows the same engine to support multiple interaction models without duplicating grammar logic.
+Configuration Engine gradually transforms one grammatical configuration into another while preserving grammatical consistency.
 
-## Configuration Philosophy
+Grammar Engine transforms language.
 
-Configuration Engine does not construct sentences.
+Recognition Engine reconstructs language.
 
-It does not recognise sentences.
+Configuration Engine governs interaction.
 
-It governs movement between sentences.
+---
 
-Every interaction begins with one physical move.
+# Future Pipeline
 
-Every pipeline stage gradually restores grammatical consistency until the configuration reaches another stable state.
+Future versions of Configuration Engine should extend the interaction pipeline without changing its architecture.
 
-Unlike Grammar Engine, which enriches grammar into language, or Recognition Engine, which removes language into grammar, Configuration Engine transforms one grammatical configuration into another.
+Every future feature should become another pipeline stage rather than introducing grammar logic into the user interface.
 
-SentenceState
-        │
-        ▼
-applyMove()
+Possible future stages include
 
-        │
-        ▼
+```text
+ConfigurationMove
+
+↓
+
 _applyMove()
 
-        │
-        ▼
-_resolveVerbConstraints()
+↓
 
-        │
-        ▼
-_resolveAspectConstraints()
+_resolveConstraints()
 
-        │
-        ▼
-_resolveVoiceConstraints()
+↓
 
-        │
-        ▼
-_resolveModalConstraints()
+_buildSentenceState()
 
-        │
-        ▼
-_resolveParticipantConstraints()
+↓
 
-        │
-        ▼
-_resolvePhraseConstraints()
+_buildViewports()
 
-        │
-        ▼
-_collectChanges()
+↓
 
-        │
-        ▼
-_buildResult()
+_buildToggleStates()
 
-        │
-        ▼
-SentenceState
+↓
 
+_collectMessages()
 
-## Pipeline Philosophy
+↓
 
-Configuration Engine deliberately separates interaction from grammar.
+_collectHighlights()
 
-The user never edits a SentenceState directly.
+↓
 
-Instead, every wheel rotation, toggle, button press or minigame interaction proposes a change.
+_collectAnimations()
 
-The engine accepts that proposal, evaluates every grammatical dependency and allows the entire configuration to settle into the nearest valid state before exposing it to the user interface.
+↓
 
-The UI therefore never contains grammar logic.
+_collectAvailableMoves()
 
-It simply presents a collection of windows into the much richer configuration maintained by Configuration Engine. Different interfaces—Padlock, Assisted Mode, Guided Mode, Lid Off or future minigames—observe exactly the same engine, differing only in how they visualize or constrain its behaviour.
+↓
+
+_generateHints()
+
+↓
+
+_generateChallenges()
+
+↓
+
+_evaluateObjective()
+
+↓
+
+_recordHistory()
+
+↓
+
+_suggestUndo()
+
+↓
+
+_buildConfigurationState()
+
+↓
+
+ConfigurationState
+```
+
+---
+
+# Future Pipeline Components
+
+## _collectAnimations()
+
+Produces semantic animation events rather than Flutter animations.
+
+Examples
+
+- wheel rotated
+- toggle switched
+- object disappeared
+- phrase appeared
+
+The UI decides how those events are rendered.
+
+---
+
+## _collectAvailableMoves()
+
+Discovers interactions currently reachable from this configuration.
+
+Useful for Assisted and Guided modes.
+
+Examples include
+
+- next verb
+- previous aspect
+- available voice
+- available modal
+
+---
+
+## _generateHints()
+
+Produces educational hints based upon the current configuration.
+
+Examples
+
+- Try Passive Voice next.
+- Future Perfect is now available.
+- Travel usually requires a destination.
+
+---
+
+## _generateChallenges()
+
+Produces learning objectives dynamically from the current configuration.
+
+Examples
+
+- Build a passive sentence.
+- Ask a question.
+- Remove the object.
+- Use Present Perfect.
+
+---
+
+## _evaluateObjective()
+
+Determines whether the learner has achieved a requested grammatical configuration.
+
+Allows lessons and minigames to reuse Configuration Engine instead of implementing independent validation.
+
+---
+
+## _recordHistory()
+
+Stores the sequence of successful ConfigurationMoves.
+
+History enables
+
+- replay
+- undo
+- learner analytics
+- lesson reconstruction
+
+---
+
+## _suggestUndo()
+
+Computes the previous stable interaction state.
+
+Undo therefore becomes another valid interaction rather than reversing arbitrary field mutations.
+
+---
+
+# Long-term Philosophy
+
+Configuration Engine should remain the single source of truth for interaction.
+
+Grammar Engine and Recognition Engine understand language.
+
+Configuration Engine understands movement.
+
+The learner never edits grammar directly.
+
+The learner moves through grammar.
+
+Every wheel, toggle and future minigame becomes another window into the same Configuration Engine.
+
+Every UI is therefore only another way of shaving the same underlying interaction model.
