@@ -14,7 +14,7 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
-import 'helpers.dart';
+import '../helpers.dart';
 
 void main() {
   final engine = RecognitionEngine();

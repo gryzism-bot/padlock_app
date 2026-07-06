@@ -503,6 +503,11 @@ class RecognitionEngine {
         break;
       }
     }
+    print(builder.verbChainStart);
+    print(builder.verbChainEnd);
+
+    print(builder.subjectStart);
+    print(builder.subjectEnd);
   }
 
   Verb? _lookupVerb(String token) {
@@ -542,6 +547,9 @@ class RecognitionEngine {
         case 'be':
         case 'been':
         case 'being':
+        case 'have':
+        case 'has':
+        case 'had':
           end--;
           continue;
       }
@@ -669,12 +677,18 @@ class RecognitionEngine {
 
   void _buildParticipants(_RecognitionBuilder builder) {
     if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
+      print(
+        'Agent: ${builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1)}',
+      );
       builder.agent = _recognizeNounPhrase(
         builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
       );
     }
 
     if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
+      print(
+        'Object: ${builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1)}',
+      );
       builder.object = _recognizeNounPhrase(
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -331,6 +332,26 @@ void main() {
       );
 
       expect(sentence.text, 'The house has been being built by John.');
+    });
+
+    test('Had the new bridge been being built by the old workers?', () {
+      final sentence = engine.generate(
+        SentenceState(
+          object: bridge.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+            adjective: newAdjective,
+          ),
+          action: build,
+          agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer, adjective: old),
+          voice: Voice.passive,
+          tense: Tense.past,
+          sentenceForm: SentenceForm.question,
+          aspect: Aspect.perfectContinuous,
+        ),
+      );
+
+      expect(sentence.text, 'Had the new bridge been being built by the old workers?');
     });
   });
 }
