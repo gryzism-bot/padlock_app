@@ -29,7 +29,7 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 void main() {
   final engine = GrammarEngine();
 
-  group('Smoke', () {
+  group('420 Smoke test', () {
     test('John has worked at home today', () {
       final state = SentenceState(
         agent: john.toNounPhrase(Number.singular),

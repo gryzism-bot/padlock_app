@@ -3,6 +3,8 @@ import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/subject/person.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -65,6 +67,10 @@ class GrammarEngine {
   // -------------------------------------------------------
 
   String _renderNounPhrase(NounPhrase nounPhrase) {
+    return _renderNounPhraseWithText(nounPhrase, nounPhrase.text);
+  }
+
+  String _renderNounPhraseWithText(NounPhrase nounPhrase, String text) {
     final parts = <String>[];
 
     if (nounPhrase.determiner != null) {
@@ -75,7 +81,7 @@ class GrammarEngine {
       parts.add(nounPhrase.adjective!.text);
     }
 
-    parts.add(nounPhrase.text);
+    parts.add(text);
 
     return parts.join(' ');
   }
@@ -108,9 +114,7 @@ class GrammarEngine {
                 builder.verbChain.add(builder.state.action.infinitive);
               }
             } else if (builder.state.voice == Voice.passive) {
-              builder.verbChain.add(
-                builder.displaySubject.takesThirdPersonVerb ? 'is' : 'are',
-              );
+              builder.verbChain.add(_presentBe(builder.displaySubject));
 
               if (builder.state.polarity == Polarity.negative) {
                 builder.verbChain.add('not');
@@ -149,9 +153,7 @@ class GrammarEngine {
 
               builder.verbChain.add('be');
             } else {
-              builder.verbChain.add(
-                builder.displaySubject.takesThirdPersonVerb ? 'is' : 'are',
-              );
+              builder.verbChain.add(_presentBe(builder.displaySubject));
 
               if (builder.state.polarity == Polarity.negative) {
                 builder.verbChain.add('not');
@@ -254,9 +256,7 @@ class GrammarEngine {
                 builder.verbChain.add(builder.state.action.infinitive);
               }
             } else if (builder.state.voice == Voice.passive) {
-              builder.verbChain.add(
-                builder.displaySubject.isPlural ? 'were' : 'was',
-              );
+              builder.verbChain.add(_pastBe(builder.displaySubject));
 
               if (builder.state.polarity == Polarity.negative) {
                 builder.verbChain.add('not');
@@ -288,9 +288,7 @@ class GrammarEngine {
 
               builder.verbChain.add('be');
             } else {
-              builder.verbChain.add(
-                builder.displaySubject.isPlural ? 'were' : 'was',
-              );
+              builder.verbChain.add(_pastBe(builder.displaySubject));
 
               if (builder.state.polarity == Polarity.negative) {
                 builder.verbChain.add('not');
@@ -486,6 +484,39 @@ class GrammarEngine {
     }
   }
 
+  String _presentBe(NounPhrase subject) {
+    if (subject.person == Person.first && subject.number == Number.singular) {
+      return 'am';
+    }
+
+    if (subject.person == Person.third && subject.number == Number.singular) {
+      return 'is';
+    }
+
+    return 'are';
+  }
+
+  String _pastBe(NounPhrase subject) {
+    if (subject.number == Number.plural) {
+      return 'were';
+    }
+
+    return 'was';
+  }
+
+  String _renderObjectCase(NounPhrase nounPhrase) {
+    final objectText = switch (nounPhrase.text.toLowerCase()) {
+      'i' => 'me',
+      'he' => 'him',
+      'she' => 'her',
+      'we' => 'us',
+      'they' => 'them',
+      _ => nounPhrase.text,
+    };
+
+    return _renderNounPhraseWithText(nounPhrase, objectText);
+  }
+
   void _applySentenceForm(_SentenceBuilder builder) {
     switch (builder.state.sentenceForm) {
       case SentenceForm.statement:
@@ -568,13 +599,13 @@ class GrammarEngine {
     // ---------- OBJECT ----------
 
     if (builder.displayObject != null) {
-      parts.add(_renderNounPhrase(builder.displayObject!));
+      parts.add(_renderObjectCase(builder.displayObject!));
     }
 
     // ---------- PASSIVE AGENT ----------
 
     if (builder.displayAgent != null) {
-      parts.add('by ${_renderNounPhrase(builder.displayAgent!)}');
+      parts.add('by ${_renderObjectCase(builder.displayAgent!)}');
     }
 
     // ---------- BACK PHRASES ----------

@@ -55,8 +55,6 @@ class RecognitionEngine {
 
     _recognizeUnknownTokens(builder);
 
-    print('Unknown tokens: ${builder.unknownTokens}');
-
     logger.logRecognition(
       RecognitionDiagnostics(
         sentence: sentence,
@@ -187,6 +185,7 @@ class RecognitionEngine {
               builder.tokens[current].toLowerCase() == 'been') {
             builder.aspect = Aspect.perfectContinuous;
             current++;
+            _recognizeVerbAfterBeen(builder, current);
           }
         } else if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'be') {
@@ -206,7 +205,7 @@ class RecognitionEngine {
           builder.aspect = Aspect.simple;
         }
 
-        if (current < builder.tokens.length) {
+        if (builder.action == null && current < builder.tokens.length) {
           final verb = _lookupVerb(builder.tokens[current]);
 
           if (verb != null) {
@@ -338,20 +337,7 @@ class RecognitionEngine {
         if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'been') {
           current++;
-
-          if (current < builder.tokens.length) {
-            final verb = _lookupVerb(builder.tokens[current]);
-
-            if (verb != null) {
-              builder.action = verb;
-
-              if (builder.tokens[current].toLowerCase() == verb.ingForm) {
-                builder.aspect = Aspect.perfectContinuous;
-              }
-
-              builder.verbChainEnd = current;
-            }
-          }
+          _recognizeVerbAfterBeen(builder, current);
         } else if (current < builder.tokens.length) {
           // print(current);
           // print(builder.tokens[current]);
@@ -402,20 +388,7 @@ class RecognitionEngine {
         if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'been') {
           current++;
-
-          if (current < builder.tokens.length) {
-            final verb = _lookupVerb(builder.tokens[current]);
-
-            if (verb != null) {
-              builder.action = verb;
-
-              if (builder.tokens[current].toLowerCase() == verb.ingForm) {
-                builder.aspect = Aspect.perfectContinuous;
-              }
-
-              builder.verbChainEnd = current;
-            }
-          }
+          _recognizeVerbAfterBeen(builder, current);
         } else if (current < builder.tokens.length) {
           final verb = _lookupVerb(builder.tokens[current]);
 
@@ -503,16 +476,46 @@ class RecognitionEngine {
         break;
       }
     }
-    print(builder.verbChainStart);
-    print(builder.verbChainEnd);
+  }
 
-    print(builder.subjectStart);
-    print(builder.subjectEnd);
+  void _recognizeVerbAfterBeen(_RecognitionBuilder builder, int current) {
+    if (current >= builder.tokens.length) {
+      return;
+    }
+
+    if (builder.tokens[current].toLowerCase() == 'being' &&
+        current + 1 < builder.tokens.length) {
+      final passiveVerb = _lookupVerb(builder.tokens[current + 1]);
+
+      if (passiveVerb != null &&
+          builder.tokens[current + 1].toLowerCase() ==
+              passiveVerb.pastParticiple) {
+        builder.action = passiveVerb;
+        builder.aspect = Aspect.perfectContinuous;
+        builder.verbChainEnd = current + 1;
+      }
+
+      return;
+    }
+
+    final verb = _lookupVerb(builder.tokens[current]);
+
+    if (verb != null) {
+      builder.action = verb;
+
+      if (builder.tokens[current].toLowerCase() == verb.ingForm) {
+        builder.aspect = Aspect.perfectContinuous;
+      }
+
+      builder.verbChainEnd = current;
+    }
   }
 
   Verb? _lookupVerb(String token) {
+    final normalized = token.toLowerCase();
+
     for (final verb in verbs) {
-      if (_findVerb(verb, token)) {
+      if (_findVerb(verb, normalized)) {
         return verb;
       }
     }
@@ -529,8 +532,10 @@ class RecognitionEngine {
   }
 
   Modal? _lookupModal(String token) {
+    final normalized = token.toLowerCase();
+
     for (final modal in modals) {
-      if (token == modal.text) {
+      if (normalized == modal.text) {
         return modal;
       }
     }
@@ -677,18 +682,12 @@ class RecognitionEngine {
 
   void _buildParticipants(_RecognitionBuilder builder) {
     if (builder.agentStart >= 0 && builder.agentEnd >= builder.agentStart) {
-      print(
-        'Agent: ${builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1)}',
-      );
       builder.agent = _recognizeNounPhrase(
         builder.tokens.sublist(builder.agentStart, builder.agentEnd + 1),
       );
     }
 
     if (builder.objectStart >= 0 && builder.objectEnd >= builder.objectStart) {
-      print(
-        'Object: ${builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1)}',
-      );
       builder.object = _recognizeNounPhrase(
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );
@@ -717,14 +716,38 @@ class RecognitionEngine {
       }
     }
 
+    final text = remaining.join(' ').toLowerCase();
+
     return NounPhrase(
-      text: remaining.join(' '),
-      person: Person.third,
-      number: Number.singular,
+      text: _recognizedNounText(text),
+      person: _recognizedPerson(text),
+      number: _recognizedNumber(text),
       determiner: determiner,
       adjective: adjective,
       translations: const {},
     );
+  }
+
+  String _recognizedNounText(String text) {
+    return switch (text) {
+      'i' => 'I',
+      _ => text,
+    };
+  }
+
+  Person _recognizedPerson(String text) {
+    return switch (text) {
+      'i' || 'me' || 'we' || 'us' => Person.first,
+      'you' => Person.second,
+      _ => Person.third,
+    };
+  }
+
+  Number _recognizedNumber(String text) {
+    return switch (text) {
+      'we' || 'us' || 'they' || 'them' => Number.plural,
+      _ => Number.singular,
+    };
   }
 
   Adjective? _lookupAdjective(String token) {
