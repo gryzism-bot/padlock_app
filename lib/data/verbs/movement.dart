@@ -52,6 +52,7 @@ const drive = Verb(
   pastSimple: 'drove',
   pastParticiple: 'driven',
   ingForm: 'driving',
+  takesObject: true,
   translations: {Language.pl: 'prowadzić'},
 );
 
@@ -61,6 +62,7 @@ const ride = Verb(
   pastSimple: 'rode',
   pastParticiple: 'ridden',
   ingForm: 'riding',
+  takesObject: true,
   translations: {Language.pl: 'jeździć'},
 );
 

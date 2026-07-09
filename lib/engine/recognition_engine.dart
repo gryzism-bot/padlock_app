@@ -473,7 +473,11 @@ class RecognitionEngine {
         builder.verbChainEnd = i;
 
         if (token == verb.infinitive) {
-          builder.tense = Tense.present;
+          builder.tense =
+              token == verb.pastSimple &&
+                  _hasThirdPersonSingularSubjectBefore(builder, i)
+              ? Tense.past
+              : Tense.present;
           builder.aspect = Aspect.simple;
         } else if (token == verb.presentThirdPerson) {
           builder.tense = Tense.present;
@@ -581,6 +585,51 @@ class RecognitionEngine {
           'are' ||
           'was' ||
           'were' => true,
+          _ => false,
+        };
+  }
+
+  bool _hasThirdPersonSingularSubjectBefore(
+    _RecognitionBuilder builder,
+    int verbIndex,
+  ) {
+    if (verbIndex <= 0) {
+      return false;
+    }
+
+    final subjectTokens = builder.tokens.sublist(0, verbIndex);
+    final first = subjectTokens.first.toLowerCase();
+    final last = subjectTokens.last.toLowerCase();
+
+    if (first == 'he' || first == 'she' || first == 'it') {
+      return true;
+    }
+
+    if (subjectTokens.length == 1) {
+      final original = subjectTokens.single;
+      return original.isNotEmpty && original[0].toUpperCase() == original[0];
+    }
+
+    if (first == 'a' ||
+        first == 'an' ||
+        first == 'this' ||
+        first == 'that' ||
+        first == 'each' ||
+        first == 'every') {
+      return true;
+    }
+
+    if (first == 'the') {
+      return !_looksPluralNounText(last);
+    }
+
+    return false;
+  }
+
+  bool _looksPluralNounText(String text) {
+    return text.endsWith('s') ||
+        switch (text) {
+          'children' || 'men' || 'women' || 'mice' || 'sheep' || 'fish' => true,
           _ => false,
         };
   }

@@ -70,6 +70,7 @@ const lift = Verb(
   pastSimple: 'lifted',
   pastParticiple: 'lifted',
   ingForm: 'lifting',
+  takesObject: true,
   translations: {Language.pl: 'podnosić ciężary'},
 );
 
@@ -79,6 +80,7 @@ const throwVerb = Verb(
   pastSimple: 'threw',
   pastParticiple: 'thrown',
   ingForm: 'throwing',
+  takesObject: true,
   translations: {Language.pl: 'rzucać'},
 );
 
@@ -88,6 +90,7 @@ const catchVerb = Verb(
   pastSimple: 'caught',
   pastParticiple: 'caught',
   ingForm: 'catching',
+  takesObject: true,
   translations: {Language.pl: 'łapać'},
 );
 
@@ -97,6 +100,7 @@ const kick = Verb(
   pastSimple: 'kicked',
   pastParticiple: 'kicked',
   ingForm: 'kicking',
+  takesObject: true,
   translations: {Language.pl: 'kopać'},
 );
 
@@ -106,6 +110,7 @@ const hit = Verb(
   pastSimple: 'hit',
   pastParticiple: 'hit',
   ingForm: 'hitting',
+  takesObject: true,
   translations: {Language.pl: 'uderzać'},
 );
 

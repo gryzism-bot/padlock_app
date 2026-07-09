@@ -8,6 +8,8 @@ import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart' hide read;
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/sport.dart' as sport;
+import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -176,5 +178,180 @@ void main() {
       },
       skip: 'READ present/past homograph needs phrase-aware tense inference',
     );
+
+    test('Broader irregular data recognizes past simple forms', () {
+      final cases = [
+        (
+          sentence: 'Mary left yesterday.',
+          action: travel_data.leave,
+          agent: 'mary',
+          agentDeterminer: null,
+          object: null,
+        ),
+        (
+          sentence: 'The manager led.',
+          action: lead,
+          agent: 'manager',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'John threw the ball.',
+          action: sport.throwVerb,
+          agent: 'john',
+          agentDeterminer: null,
+          object: 'ball',
+        ),
+        (
+          sentence: 'Mary caught the ball.',
+          action: sport.catchVerb,
+          agent: 'mary',
+          agentDeterminer: null,
+          object: 'ball',
+        ),
+        (
+          sentence: 'John hit the ball.',
+          action: sport.hit,
+          agent: 'john',
+          agentDeterminer: null,
+          object: 'ball',
+        ),
+        (
+          sentence: 'John won.',
+          action: sport.win,
+          agent: 'john',
+          agentDeterminer: null,
+          object: null,
+        ),
+        (
+          sentence: 'The glass froze.',
+          action: freeze,
+          agent: 'glass',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'The bird flew.',
+          action: fly,
+          agent: 'bird',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'John drove the car.',
+          action: drive,
+          agent: 'john',
+          agentDeterminer: null,
+          object: 'car',
+        ),
+        (
+          sentence: 'Mary rode the bicycle.',
+          action: ride,
+          agent: 'mary',
+          agentDeterminer: null,
+          object: 'bicycle',
+        ),
+        (
+          sentence: 'The child fell.',
+          action: fall,
+          agent: 'child',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'The teacher stood.',
+          action: stand,
+          agent: 'teacher',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'The teacher sat.',
+          action: sit,
+          agent: 'teacher',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+        (
+          sentence: 'The cat lay.',
+          action: lie,
+          agent: 'cat',
+          agentDeterminer: theDeterminer,
+          object: null,
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = engine.recognize(entry.sentence);
+
+        expectAgent(
+          state,
+          text: entry.agent,
+          determiner: entry.agentDeterminer,
+        );
+        if (entry.object != null) {
+          expectObject(state, text: entry.object!, determiner: theDeterminer);
+        } else {
+          expect(state.object, isNull);
+        }
+        expect(state.action, entry.action);
+        expect(state.tense, Tense.past);
+        expect(state.aspect, Aspect.simple);
+      }
+    });
+
+    test('Broader irregular data recognizes past participles', () {
+      final cases = [
+        (
+          sentence: 'John has thrown.',
+          action: sport.throwVerb,
+          agent: 'john',
+          agentDeterminer: null,
+        ),
+        (
+          sentence: 'John has swum.',
+          action: swim,
+          agent: 'john',
+          agentDeterminer: null,
+        ),
+        (
+          sentence: 'The bird has flown.',
+          action: fly,
+          agent: 'bird',
+          agentDeterminer: theDeterminer,
+        ),
+        (
+          sentence: 'Mary has ridden.',
+          action: ride,
+          agent: 'mary',
+          agentDeterminer: null,
+        ),
+        (
+          sentence: 'The child has fallen.',
+          action: fall,
+          agent: 'child',
+          agentDeterminer: theDeterminer,
+        ),
+        (
+          sentence: 'The cat has lain.',
+          action: lie,
+          agent: 'cat',
+          agentDeterminer: theDeterminer,
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = engine.recognize(entry.sentence);
+
+        expectAgent(
+          state,
+          text: entry.agent,
+          determiner: entry.agentDeterminer,
+        );
+        expect(state.action, entry.action);
+        expect(state.tense, Tense.present);
+        expect(state.aspect, Aspect.perfect);
+      }
+    });
   });
 }

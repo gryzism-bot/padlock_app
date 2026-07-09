@@ -9,6 +9,8 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/sport.dart' as sport;
+import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -348,6 +350,162 @@ void main() {
       );
 
       expect(sentence.text, 'John read yesterday.');
+    });
+
+    test('Broader irregular data renders past simple forms', () {
+      final cases = {
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: travel_data.leave,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+          timePhrase: yesterdayTimePhrase,
+        ): 'Mary left yesterday.',
+        SentenceState(
+          agent: manager.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: lead,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The manager led.',
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: sport.throwVerb,
+          object: ball.toNounPhrase(Number.singular, determiner: theDeterminer),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'John threw the ball.',
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: sport.catchVerb,
+          object: ball.toNounPhrase(Number.singular, determiner: theDeterminer),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'Mary caught the ball.',
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: sport.hit,
+          object: ball.toNounPhrase(Number.singular, determiner: theDeterminer),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'John hit the ball.',
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: sport.win,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'John won.',
+        SentenceState(
+          agent: glass.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: freeze,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The glass froze.',
+        SentenceState(
+          agent: bird.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: fly,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The bird flew.',
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: drive,
+          object: car.toNounPhrase(Number.singular, determiner: theDeterminer),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'John drove the car.',
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: ride,
+          object: bicycle.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'Mary rode the bicycle.',
+        SentenceState(
+          agent: child.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: fall,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The child fell.',
+        SentenceState(
+          agent: teacher.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: stand,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The teacher stood.',
+        SentenceState(
+          agent: teacher.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: sit,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The teacher sat.',
+        SentenceState(
+          agent: cat.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: lie,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The cat lay.',
+      };
+
+      for (final entry in cases.entries) {
+        expect(engine.generate(entry.key).text, entry.value);
+      }
+    });
+
+    test('Broader irregular data renders past participles', () {
+      final cases = {
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: sport.throwVerb,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'John has thrown.',
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: swim,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'John has swum.',
+        SentenceState(
+          agent: bird.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: fly,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'The bird has flown.',
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: ride,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'Mary has ridden.',
+        SentenceState(
+          agent: child.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: fall,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'The child has fallen.',
+        SentenceState(
+          agent: cat.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: lie,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'The cat has lain.',
+      };
+
+      for (final entry in cases.entries) {
+        expect(engine.generate(entry.key).text, entry.value);
+      }
     });
   });
 }

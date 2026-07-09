@@ -113,6 +113,27 @@ const newspaper = Noun(
   pluralTranslations: {Language.pl: 'gazety'},
 );
 
+const letter = Noun(
+  singular: 'letter',
+  plural: 'letters',
+  singularTranslations: {Language.pl: 'list'},
+  pluralTranslations: {Language.pl: 'listy'},
+);
+
+const story = Noun(
+  singular: 'story',
+  plural: 'stories',
+  singularTranslations: {Language.pl: 'historia'},
+  pluralTranslations: {Language.pl: 'historie'},
+);
+
+const gift = Noun(
+  singular: 'gift',
+  plural: 'gifts',
+  singularTranslations: {Language.pl: 'prezent'},
+  pluralTranslations: {Language.pl: 'prezenty'},
+);
+
 const magazine = Noun(
   singular: 'magazine',
   plural: 'magazines',
@@ -195,6 +216,13 @@ const glass = Noun(
   plural: 'glasses',
   singularTranslations: {Language.pl: 'szklanka'},
   pluralTranslations: {Language.pl: 'szklanki'},
+);
+
+const ball = Noun(
+  singular: 'ball',
+  plural: 'balls',
+  singularTranslations: {Language.pl: 'pilka'},
+  pluralTranslations: {Language.pl: 'pilki'},
 );
 
 const plate = Noun(
