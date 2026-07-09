@@ -1,5 +1,6 @@
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -46,18 +47,37 @@ class GrammarEngine {
 
         builder.displaySubject = builder.state.agent!;
         builder.displayObject = builder.state.object;
+        builder.displayRecipient = builder.state.recipient;
         builder.displayAgent = null;
         break;
 
       case Voice.passive:
-        assert(
-          builder.state.object != null,
-          'Passive voice requires an object.',
-        );
+        final passiveFocus = builder.state.passiveFocus ?? PassiveFocus.object;
 
-        builder.displaySubject = builder.state.object!;
-        builder.displayObject = null;
-        builder.displayAgent = builder.state.agent;
+        switch (passiveFocus) {
+          case PassiveFocus.object:
+            assert(
+              builder.state.object != null,
+              'Passive object focus requires an object.',
+            );
+
+            builder.displaySubject = builder.state.object!;
+            builder.displayObject = null;
+            builder.displayRecipient = builder.state.recipient;
+            builder.displayAgent = builder.state.agent;
+            break;
+
+          case PassiveFocus.recipient:
+            assert(
+              builder.state.recipient != null,
+              'Passive recipient focus requires a recipient.',
+            );
+
+            builder.displaySubject = builder.state.recipient!;
+            builder.displayObject = builder.state.object;
+            builder.displayRecipient = null;
+            builder.displayAgent = builder.state.agent;
+        }
         break;
     }
   }
@@ -596,6 +616,16 @@ class GrammarEngine {
       parts.addAll(builder.verbChain);
     }
 
+    // ---------- RECIPIENT ----------
+
+    if (builder.displayRecipient != null) {
+      if (builder.state.voice == Voice.passive) {
+        parts.add('to ${_renderObjectCase(builder.displayRecipient!)}');
+      } else {
+        parts.add(_renderObjectCase(builder.displayRecipient!));
+      }
+    }
+
     // ---------- OBJECT ----------
 
     if (builder.displayObject != null) {
@@ -669,6 +699,7 @@ class _SentenceBuilder {
 
   late NounPhrase displaySubject;
   NounPhrase? displayObject;
+  NounPhrase? displayRecipient;
   NounPhrase? displayAgent;
 
   bool invertSubjectAndAuxiliary = false;

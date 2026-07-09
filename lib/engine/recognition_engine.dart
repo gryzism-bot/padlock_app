@@ -8,6 +8,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
@@ -462,6 +463,11 @@ class RecognitionEngine {
       final verb = _lookupVerb(token);
 
       if (verb != null) {
+        if (_looksLikeNounPhraseToken(builder, i) ||
+            _shouldYieldToLaterPredicate(builder, i)) {
+          continue;
+        }
+
         builder.action = verb;
         builder.verbChainStart = i;
         builder.verbChainEnd = i;
@@ -534,6 +540,51 @@ class RecognitionEngine {
         token == verb.ingForm;
   }
 
+  bool _looksLikeNounPhraseToken(_RecognitionBuilder builder, int index) {
+    if (index == 0) {
+      return false;
+    }
+
+    final previous = builder.tokens[index - 1].toLowerCase();
+
+    return _lookupDeterminer(previous) != null ||
+        _lookupAdjective(previous) != null;
+  }
+
+  bool _shouldYieldToLaterPredicate(_RecognitionBuilder builder, int index) {
+    if (index != 0) {
+      return false;
+    }
+
+    for (var i = index + 1; i < builder.tokens.length; i++) {
+      if (_startsAuxiliaryPredicate(builder.tokens[i])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool _startsAuxiliaryPredicate(String token) {
+    final normalized = token.toLowerCase();
+
+    return _lookupModal(normalized) != null ||
+        switch (normalized) {
+          'do' ||
+          'does' ||
+          'did' ||
+          'have' ||
+          'has' ||
+          'had' ||
+          'am' ||
+          'is' ||
+          'are' ||
+          'was' ||
+          'were' => true,
+          _ => false,
+        };
+  }
+
   void _recognizePolarityBetween(
     _RecognitionBuilder builder,
     int start,
@@ -586,11 +637,6 @@ class RecognitionEngine {
   // -------------------------------------------------------
 
   void _recognizeVoice(_RecognitionBuilder builder) {
-    if (builder.tokens.contains('by')) {
-      builder.voice = Voice.passive;
-      return;
-    }
-
     if (builder.action == null) {
       return;
     }
@@ -648,15 +694,63 @@ class RecognitionEngine {
     }
 
     if (builder.verbChainEnd < builder.tokens.length - 1) {
+      if (builder.action?.takesRecipient == true) {
+        _recognizeActiveRecipientAndObject(builder);
+        return;
+      }
+
       builder.objectStart = builder.verbChainEnd + 1;
       builder.objectEnd = builder.tokens.length - 1;
     }
+  }
+
+  void _recognizeActiveRecipientAndObject(_RecognitionBuilder builder) {
+    final participantStart = builder.verbChainEnd + 1;
+    final recipientEnd = _nounPhraseEnd(builder, participantStart);
+    final objectStart = recipientEnd + 1;
+
+    if (recipientEnd < participantStart ||
+        objectStart > builder.tokens.length - 1) {
+      builder.objectStart = participantStart;
+      builder.objectEnd = builder.tokens.length - 1;
+      return;
+    }
+
+    builder.recipientStart = participantStart;
+    builder.recipientEnd = recipientEnd;
+    builder.objectStart = objectStart;
+    builder.objectEnd = builder.tokens.length - 1;
+  }
+
+  int _nounPhraseEnd(_RecognitionBuilder builder, int start) {
+    if (start >= builder.tokens.length) {
+      return -1;
+    }
+
+    var current = start;
+
+    if (_lookupDeterminer(builder.tokens[current]) != null &&
+        current + 1 < builder.tokens.length) {
+      current++;
+    }
+
+    if (_lookupAdjective(builder.tokens[current]) != null &&
+        current + 1 < builder.tokens.length) {
+      current++;
+    }
+
+    return current;
   }
 
   void _recognizePassiveParticipants(_RecognitionBuilder builder) {
     final byIndex = builder.tokens.indexWhere(
       (token) => token.toLowerCase() == 'by',
     );
+
+    if (builder.action?.takesRecipient == true) {
+      _recognizePassiveRecipientFrame(builder, byIndex);
+      return;
+    }
 
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
@@ -670,6 +764,62 @@ class RecognitionEngine {
     if (byIndex >= 0) {
       builder.agentStart = byIndex + 1;
       builder.agentEnd = builder.tokens.length - 1;
+    }
+  }
+
+  void _recognizePassiveRecipientFrame(
+    _RecognitionBuilder builder,
+    int byIndex,
+  ) {
+    final toIndex = builder.tokens.indexWhere(
+      (token) => token.toLowerCase() == 'to',
+      builder.verbChainEnd + 1,
+    );
+
+    if (toIndex >= 0 && (byIndex < 0 || toIndex < byIndex)) {
+      builder.passiveFocus = PassiveFocus.object;
+      _recognizePassiveObjectSubject(builder);
+      builder.recipientStart = toIndex + 1;
+      builder.recipientEnd = byIndex >= 0
+          ? byIndex - 1
+          : builder.tokens.length - 1;
+    } else {
+      builder.passiveFocus = PassiveFocus.recipient;
+      _recognizePassiveRecipientSubject(builder);
+
+      if (builder.verbChainEnd < builder.tokens.length - 1) {
+        builder.objectStart = builder.verbChainEnd + 1;
+        builder.objectEnd = byIndex >= 0
+            ? byIndex - 1
+            : builder.tokens.length - 1;
+      }
+    }
+
+    if (byIndex >= 0) {
+      builder.agentStart = byIndex + 1;
+      builder.agentEnd = builder.tokens.length - 1;
+    }
+  }
+
+  void _recognizePassiveObjectSubject(_RecognitionBuilder builder) {
+    if (builder.sentenceForm == SentenceForm.question &&
+        builder.verbChainStart == 0) {
+      builder.objectStart = builder.subjectStart;
+      builder.objectEnd = _participantEnd(builder);
+    } else {
+      builder.objectStart = 0;
+      builder.objectEnd = builder.verbChainStart - 1;
+    }
+  }
+
+  void _recognizePassiveRecipientSubject(_RecognitionBuilder builder) {
+    if (builder.sentenceForm == SentenceForm.question &&
+        builder.verbChainStart == 0) {
+      builder.recipientStart = builder.subjectStart;
+      builder.recipientEnd = _participantEnd(builder);
+    } else {
+      builder.recipientStart = 0;
+      builder.recipientEnd = builder.verbChainStart - 1;
     }
   }
 
@@ -691,6 +841,11 @@ class RecognitionEngine {
       builder.objectEnd = firstPhraseStart - 1;
     }
 
+    if (builder.recipientStart >= 0 &&
+        builder.recipientEnd >= firstPhraseStart) {
+      builder.recipientEnd = firstPhraseStart - 1;
+    }
+
     if (builder.agentStart >= 0 && builder.agentEnd >= firstPhraseStart) {
       builder.agentEnd = firstPhraseStart - 1;
     }
@@ -708,6 +863,16 @@ class RecognitionEngine {
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );
     }
+
+    if (builder.recipientStart >= 0 &&
+        builder.recipientEnd >= builder.recipientStart) {
+      builder.recipient = _recognizeNounPhrase(
+        builder.tokens.sublist(
+          builder.recipientStart,
+          builder.recipientEnd + 1,
+        ),
+      );
+    }
   }
 
   NounPhrase _recognizeNounPhrase(List<String> tokens) {
@@ -716,7 +881,7 @@ class RecognitionEngine {
 
     final remaining = [...tokens];
 
-    if (remaining.isNotEmpty) {
+    if (remaining.length > 1) {
       determiner = _lookupDeterminer(remaining.first);
 
       if (determiner != null) {
@@ -982,6 +1147,9 @@ class _RecognitionBuilder {
   int objectStart = -1;
   int objectEnd = -1;
 
+  int recipientStart = -1;
+  int recipientEnd = -1;
+
   int subjectStart = 0;
   int subjectEnd = -1;
 
@@ -992,6 +1160,7 @@ class _RecognitionBuilder {
   SentenceForm sentenceForm = SentenceForm.statement;
 
   Voice voice = Voice.active;
+  PassiveFocus? passiveFocus;
 
   Tense tense = Tense.present;
 
@@ -1006,6 +1175,7 @@ class _RecognitionBuilder {
   NounPhrase? agent;
 
   NounPhrase? object;
+  NounPhrase? recipient;
 
   TimePhrase? timePhrase;
   int timePhraseStart = -1;
@@ -1031,7 +1201,11 @@ class _RecognitionBuilder {
     action: action!,
     agent: agent,
     object: object,
+    recipient: recipient,
     voice: voice,
+    passiveFocus: voice == Voice.passive
+        ? passiveFocus ?? PassiveFocus.object
+        : null,
     tense: tense,
     aspect: aspect,
     modal: modal,

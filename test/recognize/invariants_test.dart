@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/phrases/frequency_phrases.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
@@ -8,6 +9,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -55,6 +57,7 @@ void main() {
       final state = engine.recognize('The bridge was built by them.');
 
       expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
       expectObject(state, text: 'bridge', determiner: theDeterminer);
       expectAgent(state, text: 'them');
       expect(state.action, build);
@@ -64,6 +67,7 @@ void main() {
       final state = engine.recognize('The new bridge was built.');
 
       expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
       expect(state.agent, isNull);
       expectObject(
         state,
@@ -71,6 +75,95 @@ void main() {
         determiner: theDeterminer,
         adjective: newAdjective,
       );
+    });
+
+    test('Bare noun homograph yields to later passive predicate', () {
+      final state = engine.recognize('Book was given to Mary by John.');
+
+      expectObject(state, text: 'book');
+      expectRecipient(state, text: 'mary');
+      expectAgent(state, text: 'john');
+      expect(state.action, give);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test('Plural noun homograph yields to later passive predicate', () {
+      final state = engine.recognize('Trains were built by them.');
+
+      expectObject(state, text: 'trains');
+      expectAgent(state, text: 'them');
+      expect(state.action, build);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test('By manner phrase does not imply passive voice', () {
+      final state = engine.recognize('John worked by hand.');
+
+      expectAgent(state, text: 'john');
+      expect(state.action, work);
+      expect(state.voice, Voice.active);
+      expect(state.agent!.text, isNot('hand'));
+      expect(state.mannerPhrase, byHandMannerPhrase);
+    });
+
+    test('Recipient slot is recognized in active give frame', () {
+      final state = engine.recognize('John gave Mary a book.');
+
+      expectAgent(state, text: 'john');
+      expectRecipient(state, text: 'mary');
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expect(state.action, give);
+      expect(state.voice, Voice.active);
+      expect(state.passiveFocus, isNull);
+    });
+
+    test('Recipient slot can be followed by object without determiner', () {
+      final state = engine.recognize('John gave Mary books.');
+
+      expectAgent(state, text: 'john');
+      expectRecipient(state, text: 'mary');
+      expectObject(state, text: 'books');
+      expect(state.action, give);
+      expect(state.voice, Voice.active);
+    });
+
+    test('Recipient boundary can include its own determiner and adjective', () {
+      final state = engine.recognize('John gave the old teacher books.');
+
+      expectAgent(state, text: 'john');
+      expectRecipient(
+        state,
+        text: 'teacher',
+        determiner: theDeterminer,
+        adjective: old,
+      );
+      expectObject(state, text: 'books');
+      expect(state.action, give);
+      expect(state.voice, Voice.active);
+    });
+
+    test('Passive object focus recognizes recipient as to phrase', () {
+      final state = engine.recognize('A book was given to Mary by John.');
+
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectRecipient(state, text: 'mary');
+      expectAgent(state, text: 'john');
+      expect(state.action, give);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test('Passive recipient focus recognizes object after verb chain', () {
+      final state = engine.recognize('Mary was given a book by John.');
+
+      expectRecipient(state, text: 'mary');
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectAgent(state, text: 'john');
+      expect(state.action, give);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.recipient);
     });
 
     test('Question subject excludes the leading auxiliary', () {

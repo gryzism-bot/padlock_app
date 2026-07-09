@@ -1,0 +1,1 @@
+enum PassiveFocus { object, recipient }

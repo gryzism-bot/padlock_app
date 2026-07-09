@@ -14,6 +14,7 @@ import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -103,6 +104,7 @@ void main() {
             ),
             action: build,
             voice: Voice.passive,
+            passiveFocus: PassiveFocus.object,
             tense: Tense.past,
             aspect: Aspect.perfectContinuous,
             sentenceForm: SentenceForm.question,
@@ -130,6 +132,16 @@ void main() {
             polarity: Polarity.negative,
             sentenceForm: SentenceForm.question,
           ),
+          SentenceState(
+            agent: he,
+            recipient: she,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: give,
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.recipient,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
         ];
 
         for (final state in states) {
@@ -146,6 +158,9 @@ void main() {
         'Had the new bridge been being built by the old workers?',
         'The beautiful chef will not have been working at home.',
         'Should bridge not be built?',
+        'He gave her a book.',
+        'A book was given to her by him.',
+        'She was given a book by him.',
       ];
 
       for (final sentence in sentences) {

@@ -8,6 +8,7 @@ class Verb {
   final String ingForm;
   //only for Recognition Engine
   final bool takesObject;
+  final bool takesRecipient;
 
   /// go, come, travel, arrive, leave...
   final bool usesDestinationPlace;
@@ -22,6 +23,7 @@ class Verb {
     required this.ingForm,
     this.usesDestinationPlace = false,
     this.takesObject = false,
+    this.takesRecipient = false,
     required this.translations,
   });
 }

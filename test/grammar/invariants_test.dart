@@ -5,6 +5,7 @@ import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -16,6 +17,7 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
 
 import 'package:padlock_app/data/verbs/essential.dart';
 
@@ -138,6 +140,82 @@ void main() {
 
       expect(sentence.text, isNot('It was built by they.'));
       expect(sentence.text, 'It was built by them.');
+    });
+
+    test('Passive object focus renders object as displayed subject', () {
+      final implicitFocus = render(
+        SentenceState(
+          object: bridge.toNounPhrase(Number.singular),
+          agent: he,
+          action: build,
+          voice: Voice.passive,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      final explicitFocus = render(
+        SentenceState(
+          object: bridge.toNounPhrase(Number.singular),
+          agent: he,
+          action: build,
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(implicitFocus, 'Bridge was built by him.');
+      expect(explicitFocus, implicitFocus);
+    });
+
+    test('Recipient slot renders active and passive give frames', () {
+      expect(
+        render(
+          SentenceState(
+            agent: john.toNounPhrase(Number.singular),
+            recipient: mary.toNounPhrase(Number.singular),
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: give,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'John gave Mary a book.',
+      );
+
+      expect(
+        render(
+          SentenceState(
+            agent: john.toNounPhrase(Number.singular),
+            recipient: mary.toNounPhrase(Number.singular),
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: give,
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.object,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'A book was given to Mary by John.',
+      );
+
+      expect(
+        render(
+          SentenceState(
+            agent: john.toNounPhrase(Number.singular),
+            recipient: mary.toNounPhrase(Number.singular),
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: give,
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.recipient,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'Mary was given a book by John.',
+      );
     });
 
     test('Passive does not conjugate lexical verb', () {

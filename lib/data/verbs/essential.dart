@@ -139,6 +139,7 @@ const give = Verb(
   pastParticiple: 'given',
   ingForm: 'giving',
   takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'dać'},
 );
 

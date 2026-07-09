@@ -29,3 +29,15 @@ void expectObject(
   expect(state.object!.determiner, determiner);
   expect(state.object!.adjective, adjective);
 }
+
+void expectRecipient(
+  SentenceState state, {
+  required String text,
+  Determiner? determiner,
+  Adjective? adjective,
+}) {
+  expect(state.recipient, isNotNull);
+  expect(state.recipient!.text, text);
+  expect(state.recipient!.determiner, determiner);
+  expect(state.recipient!.adjective, adjective);
+}
