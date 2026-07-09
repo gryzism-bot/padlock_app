@@ -21,26 +21,6 @@ const teach = Verb(
   translations: {Language.pl: 'uczyć'},
 );
 
-const read = Verb(
-  infinitive: 'read',
-  presentThirdPerson: 'reads',
-  pastSimple: 'read',
-  pastParticiple: 'read',
-  ingForm: 'reading',
-  translations: {Language.pl: 'czytać'},
-);
-
-const write = Verb(
-  infinitive: 'write',
-  presentThirdPerson: 'writes',
-  pastSimple: 'wrote',
-  pastParticiple: 'written',
-  ingForm: 'writing',
-  takesObject: true,
-  takesRecipient: true,
-  translations: {Language.pl: 'pisać'},
-);
-
 const spell = Verb(
   infinitive: 'spell',
   presentThirdPerson: 'spells',
@@ -77,33 +57,6 @@ const solve = Verb(
   translations: {Language.pl: 'rozwiązywać'},
 );
 
-const answer = Verb(
-  infinitive: 'answer',
-  presentThirdPerson: 'answers',
-  pastSimple: 'answered',
-  pastParticiple: 'answered',
-  ingForm: 'answering',
-  translations: {Language.pl: 'odpowiadać'},
-);
-
-const ask = Verb(
-  infinitive: 'ask',
-  presentThirdPerson: 'asks',
-  pastSimple: 'asked',
-  pastParticiple: 'asked',
-  ingForm: 'asking',
-  translations: {Language.pl: 'pytać'},
-);
-
-const explain = Verb(
-  infinitive: 'explain',
-  presentThirdPerson: 'explains',
-  pastSimple: 'explained',
-  pastParticiple: 'explained',
-  ingForm: 'explaining',
-  translations: {Language.pl: 'wyjaśniać'},
-);
-
 const understand = Verb(
   infinitive: 'understand',
   presentThirdPerson: 'understands',
@@ -111,15 +64,6 @@ const understand = Verb(
   pastParticiple: 'understood',
   ingForm: 'understanding',
   translations: {Language.pl: 'rozumieć'},
-);
-
-const remember = Verb(
-  infinitive: 'remember',
-  presentThirdPerson: 'remembers',
-  pastSimple: 'remembered',
-  pastParticiple: 'remembered',
-  ingForm: 'remembering',
-  translations: {Language.pl: 'pamiętać'},
 );
 
 const forget = Verb(
@@ -179,17 +123,11 @@ const research = Verb(
 List<Verb> educationVerbs = [
   study,
   teach,
-  read,
-  write,
   spell,
   count,
   calculate,
   solve,
-  answer,
-  ask,
-  explain,
   understand,
-  remember,
   forget,
   practice,
   repeat,

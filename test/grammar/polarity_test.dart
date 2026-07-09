@@ -8,6 +8,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/travel.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -163,7 +164,10 @@ void main() {
     test('The house was not built', () {
       final sentence = engine.generate(
         SentenceState(
-          object: house.toNounPhrase(Number.singular, determiner: theDeterminer),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
           action: build,
           voice: Voice.passive,
           tense: Tense.past,

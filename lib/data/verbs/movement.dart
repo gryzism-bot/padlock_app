@@ -66,16 +66,6 @@ const ride = Verb(
   translations: {Language.pl: 'jeździć'},
 );
 
-const travel = Verb(
-  infinitive: 'travel',
-  presentThirdPerson: 'travels',
-  pastSimple: 'travelled',
-  pastParticiple: 'travelled',
-  ingForm: 'travelling',
-  usesDestinationPlace: true,
-  translations: {Language.pl: 'podróżować'},
-);
-
 const climb = Verb(
   infinitive: 'climb',
   presentThirdPerson: 'climbs',
@@ -101,15 +91,6 @@ const dance = Verb(
   pastParticiple: 'danced',
   ingForm: 'dancing',
   translations: {Language.pl: 'tańczyć'},
-);
-
-const hike = Verb(
-  infinitive: 'hike',
-  presentThirdPerson: 'hikes',
-  pastSimple: 'hiked',
-  pastParticiple: 'hiked',
-  ingForm: 'hiking',
-  translations: {Language.pl: 'wędrować'},
 );
 
 const sail = Verb(
@@ -192,11 +173,9 @@ List<Verb> movementVerbs = [
   fly,
   drive,
   ride,
-  travel,
   climb,
   crawl,
   dance,
-  hike,
   sail,
   skate,
   ski,

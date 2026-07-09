@@ -132,15 +132,6 @@ const win = Verb(
   translations: {Language.pl: 'wygrywać'},
 );
 
-const lose = Verb(
-  infinitive: 'lose',
-  presentThirdPerson: 'loses',
-  pastSimple: 'lost',
-  pastParticiple: 'lost',
-  ingForm: 'losing',
-  translations: {Language.pl: 'przegrywać'},
-);
-
 const compete = Verb(
   infinitive: 'compete',
   presentThirdPerson: 'competes',
@@ -201,7 +192,6 @@ List<Verb> sportVerbs = [
   hit,
   score,
   win,
-  lose,
   compete,
   box,
   wrestle,

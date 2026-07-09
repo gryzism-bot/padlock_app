@@ -2,9 +2,9 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
-import 'package:padlock_app/data/verbs/sport.dart';
+import 'package:padlock_app/data/verbs/sport.dart' hide lose;
 import 'package:padlock_app/data/verbs/travel.dart';
-import 'package:padlock_app/data/verbs/work.dart';
+import 'package:padlock_app/data/verbs/work.dart' hide sell;
 
 import '../../models/grammar/verb/verb.dart';
 import '../../models/language.dart';
@@ -199,16 +199,6 @@ const need = Verb(
   ingForm: 'needing',
   takesObject: true,
   translations: {Language.pl: 'potrzebować'},
-);
-
-const find = Verb(
-  infinitive: 'find',
-  presentThirdPerson: 'finds',
-  pastSimple: 'found',
-  pastParticiple: 'found',
-  ingForm: 'finding',
-  takesObject: true,
-  translations: {Language.pl: 'znaleźć'},
 );
 
 const meet = Verb(
@@ -416,7 +406,6 @@ final List<Verb> essentialVerbs = [
   buy,
   sell,
   read,
-  find,
 ];
 
 final List<Verb> verbs = [

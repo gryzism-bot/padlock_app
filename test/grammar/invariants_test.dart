@@ -228,13 +228,25 @@ void main() {
         communication.tell,
         communication.write,
         education.teach,
-        education.write,
       ];
 
       for (final verb in ditransitiveVerbs) {
         expect(verb.takesObject, isTrue, reason: verb.infinitive);
         expect(verb.takesRecipient, isTrue, reason: verb.infinitive);
       }
+    });
+
+    test('Engine verb list has one canonical entry per infinitive', () {
+      final seen = <String>{};
+      final duplicates = <String>[];
+
+      for (final verb in verbs) {
+        if (!seen.add(verb.infinitive)) {
+          duplicates.add(verb.infinitive);
+        }
+      }
+
+      expect(duplicates, isEmpty);
     });
 
     test('Expanded ditransitive data renders active recipient frame', () {

@@ -119,15 +119,6 @@ const lead = Verb(
   translations: {Language.pl: 'prowadzić'},
 );
 
-const sell = Verb(
-  infinitive: 'sell',
-  presentThirdPerson: 'sells',
-  pastSimple: 'sold',
-  pastParticiple: 'sold',
-  ingForm: 'selling',
-  translations: {Language.pl: 'sprzedawać'},
-);
-
 const deliver = Verb(
   infinitive: 'deliver',
   presentThirdPerson: 'delivers',
@@ -169,7 +160,6 @@ List<Verb> workVerbs = [
   organize,
   manage,
   lead,
-  sell,
   deliver,
   produce,
   earn,
