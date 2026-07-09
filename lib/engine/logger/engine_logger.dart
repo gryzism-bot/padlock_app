@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'engine_log_config.dart';
@@ -15,28 +16,51 @@ class EngineLogger {
     }
 
     if (config.tokens) {
-      developer.log('Sentence: ${diagnostics.sentence}', name: 'Recognition');
+      _log('Recognition', 'Sentence: ${diagnostics.sentence}');
 
-      developer.log('Tokens: ${diagnostics.tokens}', name: 'Recognition');
+      _log('Recognition', 'Tokens: ${diagnostics.tokens}');
     }
 
     if (config.verbChain) {
-      developer.log(
+      _log(
+        'Recognition',
         'Verb chain: ${diagnostics.verbChainStart} -> ${diagnostics.verbChainEnd}',
-        name: 'Recognition',
       );
     }
 
     if (config.sentenceState) {
-      developer.log(diagnostics.state.toString(), name: 'Recognition');
+      _log('Recognition', diagnostics.state.toString());
     }
 
     if (config.unknownTokens) {
-      developer.log(
-        'Unknown tokens: ${diagnostics.unknownTokens}',
-        name: 'Recognition',
-      );
+      _log('Recognition', 'Unknown tokens: ${diagnostics.unknownTokens}');
     }
+  }
+
+  void logRecognitionPhase(String phase, String snapshot) {
+    if (!config.recognition || !config.phases) {
+      return;
+    }
+
+    _log('Recognition', '[$phase]\n$snapshot');
+  }
+
+  void logRecognitionFailure(
+    String phase,
+    Object error,
+    StackTrace stackTrace,
+    String snapshot,
+  ) {
+    if (!config.recognition || !config.failures) {
+      return;
+    }
+
+    _log(
+      'Recognition',
+      'Failed during $phase\n$snapshot',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   void logGrammar(GrammarDiagnostics diagnostics) {
@@ -44,10 +68,59 @@ class EngineLogger {
       return;
     }
 
-    developer.log('Sentence: ${diagnostics.sentence}', name: 'Grammar');
+    _log('Grammar', 'Sentence: ${diagnostics.sentence}');
 
     if (config.sentenceState) {
-      developer.log(diagnostics.state.toString(), name: 'Grammar');
+      _log('Grammar', diagnostics.state.toString());
     }
+  }
+
+  void logGrammarPhase(String phase, String snapshot) {
+    if (!config.grammar || !config.phases) {
+      return;
+    }
+
+    _log('Grammar', '[$phase]\n$snapshot');
+  }
+
+  void logGrammarFailure(
+    String phase,
+    Object error,
+    StackTrace stackTrace,
+    String snapshot,
+  ) {
+    if (!config.grammar || !config.failures) {
+      return;
+    }
+
+    _log(
+      'Grammar',
+      'Failed during $phase\n$snapshot',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
+
+  void _log(
+    String name,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
+    if (config.consoleOutput) {
+      Zone.current.print('[$name] $message');
+
+      if (error != null) {
+        Zone.current.print('[$name] Error: $error');
+      }
+
+      if (stackTrace != null) {
+        Zone.current.print('[$name] $stackTrace');
+      }
+
+      return;
+    }
+
+    developer.log(message, name: name, error: error, stackTrace: stackTrace);
   }
 }

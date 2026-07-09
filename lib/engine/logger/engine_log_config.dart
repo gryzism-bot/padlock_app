@@ -7,6 +7,9 @@ class EngineLogConfig {
   final bool participants;
   final bool phrases;
   final bool sentenceState;
+  final bool phases;
+  final bool failures;
+  final bool consoleOutput;
 
   final bool unknownTokens;
 
@@ -18,6 +21,9 @@ class EngineLogConfig {
     this.participants = false,
     this.phrases = false,
     this.sentenceState = false,
+    this.phases = false,
+    this.failures = true,
+    this.consoleOutput = false,
     this.unknownTokens = true,
   });
 }

@@ -21,19 +21,45 @@ class GrammarEngine {
     : logger = logger ?? const EngineLogger();
   Sentence generate(SentenceState state) {
     final builder = _SentenceBuilder(state);
+    var phase = 'start';
 
-    _applyVoice(builder);
-    _applyVerbChain(builder);
+    try {
+      phase = 'voice';
+      _applyVoice(builder);
+      _logGrammarPhase(builder, phase);
 
-    _applySentenceForm(builder);
+      phase = 'verb chain';
+      _applyVerbChain(builder);
+      _logGrammarPhase(builder, phase);
 
-    _applyPhrases(builder);
+      phase = 'sentence form';
+      _applySentenceForm(builder);
+      _logGrammarPhase(builder, phase);
 
-    final text = _buildSentence(builder);
+      phase = 'phrases';
+      _applyPhrases(builder);
+      _logGrammarPhase(builder, phase);
 
-    logger.logGrammar(GrammarDiagnostics(state: state, sentence: text));
+      phase = 'render';
+      final text = _buildSentence(builder);
+      logger.logGrammarPhase('render', builder.debugSnapshot(sentence: text));
 
-    return Sentence(text: text, state: state);
+      logger.logGrammar(GrammarDiagnostics(state: state, sentence: text));
+
+      return Sentence(text: text, state: state);
+    } catch (error, stackTrace) {
+      logger.logGrammarFailure(
+        phase,
+        error,
+        stackTrace,
+        builder.debugSnapshot(),
+      );
+      rethrow;
+    }
+  }
+
+  void _logGrammarPhase(_SentenceBuilder builder, String phase) {
+    logger.logGrammarPhase(phase, builder.debugSnapshot());
   }
 
   // -------------------------------------------------------
@@ -714,6 +740,29 @@ class _SentenceBuilder {
   String mannerPhrase = '';
 
   _SentenceBuilder(this.state);
+
+  String debugSnapshot({String? sentence}) {
+    return [
+      if (sentence != null) 'sentence: $sentence',
+      'state: ${state.summary}',
+      'displaySubject: ${displaySubjectOrNull?.text}',
+      'displayObject: ${displayObject?.text}',
+      'displayRecipient: ${displayRecipient?.text}',
+      'displayAgent: ${displayAgent?.text}',
+      'verbChain: ${verbChain.join(' ')}',
+      'invertSubjectAndAuxiliary: $invertSubjectAndAuxiliary',
+      'punctuation: $punctuation',
+      'phrases: time="$timePhrase", place="$placePhrase", frequency="$frequencyPhrase", manner="$mannerPhrase"',
+    ].join('\n');
+  }
+
+  NounPhrase? get displaySubjectOrNull {
+    try {
+      return displaySubject;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 extension SentenceFormatting on String {

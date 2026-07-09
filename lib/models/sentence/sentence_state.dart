@@ -58,6 +58,26 @@ class SentenceState {
     this.mannerPhrase,
   });
 
+  String get summary {
+    return [
+      'agent=${agent?.text}',
+      'action=${action.infinitive}',
+      'object=${object?.text}',
+      'recipient=${recipient?.text}',
+      'voice=$voice',
+      'passiveFocus=$passiveFocus',
+      'tense=$tense',
+      'aspect=$aspect',
+      'modal=${modal.text}',
+      'polarity=$polarity',
+      'form=$sentenceForm',
+      'time=${timePhrase?.text}',
+      'place=${placePhrase?.noun}',
+      'frequency=${frequencyPhrase?.text}',
+      'manner=${mannerPhrase?.text}',
+    ].join(', ');
+  }
+
   @override
   String toString() {
     return '''

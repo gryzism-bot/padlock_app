@@ -35,40 +35,78 @@ class RecognitionEngine {
 
   SentenceState recognize(String sentence) {
     final builder = _RecognitionBuilder(sentence);
+    var phase = 'start';
 
-    _normalize(builder);
+    try {
+      phase = 'normalize';
+      _normalize(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _tokenize(builder);
+      phase = 'tokenize';
+      _tokenize(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizeSentenceForm(builder);
+      phase = 'sentence form';
+      _recognizeSentenceForm(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizeVerbChain(builder);
+      phase = 'verb chain';
+      _recognizeVerbChain(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizeVoice(builder);
+      phase = 'voice';
+      _recognizeVoice(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizeParticipantBoundaries(builder);
+      phase = 'participant boundaries';
+      _recognizeParticipantBoundaries(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizePhrases(builder);
+      phase = 'phrases';
+      _recognizePhrases(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _trimParticipantBoundaries(builder);
+      phase = 'trim participant boundaries';
+      _trimParticipantBoundaries(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _buildParticipants(builder);
+      phase = 'participants';
+      _buildParticipants(builder);
+      _logRecognitionPhase(builder, phase);
 
-    _recognizeUnknownTokens(builder);
+      phase = 'unknown tokens';
+      _recognizeUnknownTokens(builder);
+      _logRecognitionPhase(builder, phase);
 
-    logger.logRecognition(
-      RecognitionDiagnostics(
-        sentence: sentence,
-        tokens: builder.tokens,
-        verbChainStart: builder.verbChainStart,
-        verbChainEnd: builder.verbChainEnd,
-        state: builder.state,
+      phase = 'state';
+      final state = builder.state;
 
-        unknownTokens: builder.unknownTokens,
-      ),
-    );
+      logger.logRecognition(
+        RecognitionDiagnostics(
+          sentence: sentence,
+          tokens: builder.tokens,
+          verbChainStart: builder.verbChainStart,
+          verbChainEnd: builder.verbChainEnd,
+          state: state,
 
-    return builder.state;
+          unknownTokens: builder.unknownTokens,
+        ),
+      );
+
+      return state;
+    } catch (error, stackTrace) {
+      logger.logRecognitionFailure(
+        phase,
+        error,
+        stackTrace,
+        builder.debugSnapshot(),
+      );
+      rethrow;
+    }
+  }
+
+  void _logRecognitionPhase(_RecognitionBuilder builder, String phase) {
+    logger.logRecognitionPhase(phase, builder.debugSnapshot());
   }
 
   // -------------------------------------------------------
@@ -1300,4 +1338,36 @@ class _RecognitionBuilder {
     frequencyPhrase: frequencyPhrase,
     mannerPhrase: mannerPhrase,
   );
+
+  String debugSnapshot() {
+    return [
+      'sentence: $sentence',
+      'normalized: $normalizedSentence',
+      'tokens: $tokens',
+      'sentenceForm: $sentenceForm',
+      'verbChain: $verbChainStart -> $verbChainEnd (${_tokensBetween(verbChainStart, verbChainEnd)})',
+      'subject: $subjectStart -> $subjectEnd (${_tokensBetween(subjectStart, subjectEnd)})',
+      'agent: $agentStart -> $agentEnd (${_tokensBetween(agentStart, agentEnd)}) = ${agent?.text}',
+      'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
+      'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',
+      'action: ${action?.infinitive}',
+      'tense/aspect: $tense / $aspect',
+      'voice: $voice',
+      'passiveFocus: $passiveFocus',
+      'modal: $modal',
+      'polarity: $polarity',
+      'phrases: time=${timePhrase?.text} [$timePhraseStart,$timePhraseEnd], place=${placePhrase?.noun} [$placePhraseStart,$placePhraseEnd], frequency=${frequencyPhrase?.text} [$frequencyPhraseStart,$frequencyPhraseEnd], manner=${mannerPhrase?.text} [$mannerPhraseStart,$mannerPhraseEnd]',
+      'unknownTokens: $unknownTokens',
+      if (action != null) 'state: ${state.summary}',
+    ].join('\n');
+  }
+
+  String _tokensBetween(int start, int end) {
+    if (start < 0 || end < start || start >= tokens.length) {
+      return '';
+    }
+
+    final safeEnd = end >= tokens.length ? tokens.length - 1 : end;
+    return tokens.sublist(start, safeEnd + 1).join(' ');
+  }
 }

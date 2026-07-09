@@ -2,9 +2,9 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
-import 'package:padlock_app/data/verbs/sport.dart' hide lose;
+import 'package:padlock_app/data/verbs/sport.dart';
 import 'package:padlock_app/data/verbs/travel.dart';
-import 'package:padlock_app/data/verbs/work.dart' hide sell;
+import 'package:padlock_app/data/verbs/work.dart';
 
 import '../../models/grammar/verb/verb.dart';
 import '../../models/language.dart';
