@@ -778,6 +778,10 @@ class RecognitionEngine {
 
     var current = start;
 
+    if (_startsStandalonePronounPhrase(builder, current)) {
+      return current;
+    }
+
     if (_lookupDeterminer(builder.tokens[current]) != null &&
         current + 1 < builder.tokens.length) {
       current++;
@@ -789,6 +793,31 @@ class RecognitionEngine {
     }
 
     return current;
+  }
+
+  bool _startsStandalonePronounPhrase(_RecognitionBuilder builder, int index) {
+    final token = builder.tokens[index].toLowerCase();
+
+    if (token == 'i' ||
+        token == 'you' ||
+        token == 'he' ||
+        token == 'she' ||
+        token == 'it' ||
+        token == 'we' ||
+        token == 'they' ||
+        token == 'me' ||
+        token == 'him' ||
+        token == 'us' ||
+        token == 'them') {
+      return true;
+    }
+
+    if (token == 'her') {
+      return index == builder.tokens.length - 1 ||
+          _lookupDeterminer(builder.tokens[index + 1]) != null;
+    }
+
+    return false;
   }
 
   void _recognizePassiveParticipants(_RecognitionBuilder builder) {

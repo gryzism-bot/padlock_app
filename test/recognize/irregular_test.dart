@@ -10,10 +10,11 @@ import 'package:padlock_app/data/verbs/essential.dart' hide read;
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
-import 'package:padlock_app/data/verbs/work.dart';
+import 'package:padlock_app/data/verbs/work.dart' hide sell;
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 import 'helpers.dart';
@@ -353,5 +354,143 @@ void main() {
         expect(state.aspect, Aspect.perfect);
       }
     });
+
+    test('Irregular verb recognizes every tense and aspect cell', () {
+      final cases = [
+        (sentence: 'John writes.', tense: Tense.present, aspect: Aspect.simple),
+        (sentence: 'John wrote.', tense: Tense.past, aspect: Aspect.simple),
+        (
+          sentence: 'John will write.',
+          tense: Tense.future,
+          aspect: Aspect.simple,
+        ),
+        (
+          sentence: 'John is writing.',
+          tense: Tense.present,
+          aspect: Aspect.continuous,
+        ),
+        (
+          sentence: 'John was writing.',
+          tense: Tense.past,
+          aspect: Aspect.continuous,
+        ),
+        (
+          sentence: 'John will be writing.',
+          tense: Tense.future,
+          aspect: Aspect.continuous,
+        ),
+        (
+          sentence: 'John has written.',
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+        (
+          sentence: 'John had written.',
+          tense: Tense.past,
+          aspect: Aspect.perfect,
+        ),
+        (
+          sentence: 'John will have written.',
+          tense: Tense.future,
+          aspect: Aspect.perfect,
+        ),
+        (
+          sentence: 'John has been writing.',
+          tense: Tense.present,
+          aspect: Aspect.perfectContinuous,
+        ),
+        (
+          sentence: 'John had been writing.',
+          tense: Tense.past,
+          aspect: Aspect.perfectContinuous,
+        ),
+        (
+          sentence: 'John will have been writing.',
+          tense: Tense.future,
+          aspect: Aspect.perfectContinuous,
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = engine.recognize(entry.sentence);
+
+        expectAgent(state, text: 'john');
+        expect(state.action, write);
+        expect(state.tense, entry.tense);
+        expect(state.aspect, entry.aspect);
+      }
+    });
+
+    test(
+      'Popular irregular verbs recognize through every tense and aspect',
+      () {
+        final verbs = [
+          go,
+          come,
+          eat,
+          drink,
+          run,
+          swim,
+          fly,
+          see,
+          take,
+          give,
+          buy,
+          speak,
+          fall,
+          stand,
+          sit,
+          begin,
+          breakVerb,
+          know,
+          make,
+          get,
+          sleep,
+          meet,
+          sell,
+          sport.throwVerb,
+          sport.catchVerb,
+          sport.win,
+          travel_data.leave,
+          drive,
+          ride,
+          teach,
+        ];
+
+        for (final verb in verbs) {
+          for (final tense in Tense.values) {
+            for (final aspect in Aspect.values) {
+              final sentence = _expectedActiveSentence(verb, tense, aspect);
+              final state = engine.recognize(sentence);
+
+              expectAgent(state, text: 'john');
+              expect(state.action, verb, reason: sentence);
+              expect(state.tense, tense, reason: sentence);
+              expect(state.aspect, aspect, reason: sentence);
+            }
+          }
+        }
+      },
+    );
   });
+}
+
+String _expectedActiveSentence(Verb verb, Tense tense, Aspect aspect) {
+  final chain = switch ((tense, aspect)) {
+    (Tense.present, Aspect.simple) => verb.presentThirdPerson,
+    (Tense.past, Aspect.simple) => verb.pastSimple,
+    (Tense.future, Aspect.simple) => 'will ${verb.infinitive}',
+    (Tense.present, Aspect.continuous) => 'is ${verb.ingForm}',
+    (Tense.past, Aspect.continuous) => 'was ${verb.ingForm}',
+    (Tense.future, Aspect.continuous) => 'will be ${verb.ingForm}',
+    (Tense.present, Aspect.perfect) => 'has ${verb.pastParticiple}',
+    (Tense.past, Aspect.perfect) => 'had ${verb.pastParticiple}',
+    (Tense.future, Aspect.perfect) => 'will have ${verb.pastParticiple}',
+    (Tense.present, Aspect.perfectContinuous) => 'has been ${verb.ingForm}',
+    (Tense.past, Aspect.perfectContinuous) => 'had been ${verb.ingForm}',
+    (Tense.future, Aspect.perfectContinuous) =>
+      'will have been ${verb.ingForm}',
+  };
+
+  return 'John $chain.';
 }

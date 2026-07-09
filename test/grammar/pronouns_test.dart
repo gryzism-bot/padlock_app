@@ -1,9 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
+import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -393,6 +397,119 @@ void main() {
       );
 
       expect(sentence.text, 'Will we work?');
+    });
+
+    test('Object pronouns render in object case', () {
+      final cases = {
+        i: 'He saw me.',
+        you: 'He saw you.',
+        he: 'She saw him.',
+        she: 'He saw her.',
+        it: 'He saw it.',
+        we: 'He saw us.',
+        they: 'He saw them.',
+      };
+
+      for (final entry in cases.entries) {
+        final agent = entry.key == he ? she : he;
+        final sentence = engine.generate(
+          SentenceState(
+            agent: agent,
+            action: see,
+            object: entry.key,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence.text, entry.value);
+      }
+    });
+
+    test('Passive agents render pronouns in object case', () {
+      final cases = {
+        i: 'It was built by me.',
+        you: 'It was built by you.',
+        he: 'It was built by him.',
+        she: 'It was built by her.',
+        it: 'It was built by it.',
+        we: 'It was built by us.',
+        they: 'It was built by them.',
+      };
+
+      for (final entry in cases.entries) {
+        final sentence = engine.generate(
+          SentenceState(
+            object: it,
+            agent: entry.key,
+            action: build,
+            voice: Voice.passive,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence.text, entry.value);
+      }
+    });
+
+    test('Recipient pronouns render in object case', () {
+      final cases = {
+        i: 'He gave me a book.',
+        you: 'He gave you a book.',
+        he: 'She gave him a book.',
+        she: 'He gave her a book.',
+        it: 'He gave it a book.',
+        we: 'He gave us a book.',
+        they: 'He gave them a book.',
+      };
+
+      for (final entry in cases.entries) {
+        final agent = entry.key == he ? she : he;
+        final sentence = engine.generate(
+          SentenceState(
+            agent: agent,
+            action: give,
+            recipient: entry.key,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence.text, entry.value);
+      }
+    });
+
+    test('Passive ditransitive pronouns keep case by focus', () {
+      final objectFocus = engine.generate(
+        SentenceState(
+          agent: he,
+          action: give,
+          recipient: i,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      final recipientFocus = engine.generate(
+        SentenceState(
+          agent: he,
+          action: give,
+          recipient: i,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.recipient,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(objectFocus.text, 'A book was given to me by him.');
+      expect(recipientFocus.text, 'I was given a book by him.');
     });
   });
 }

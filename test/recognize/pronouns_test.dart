@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
+import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -546,5 +548,90 @@ void main() {
 
     expect(state.tense, Tense.past);
     expect(state.aspect, Aspect.perfectContinuous);
+  });
+
+  test('Object pronouns recognize object case', () {
+    final cases = [
+      (sentence: 'He saw me.', agent: 'he', object: 'me'),
+      (sentence: 'He saw you.', agent: 'he', object: 'you'),
+      (sentence: 'She saw him.', agent: 'she', object: 'him'),
+      (sentence: 'He saw her.', agent: 'he', object: 'her'),
+      (sentence: 'He saw it.', agent: 'he', object: 'it'),
+      (sentence: 'He saw us.', agent: 'he', object: 'us'),
+      (sentence: 'He saw them.', agent: 'he', object: 'them'),
+    ];
+
+    for (final entry in cases) {
+      final state = engine.recognize(entry.sentence);
+
+      expectAgent(state, text: entry.agent);
+      expectObject(state, text: entry.object);
+      expect(state.action, see);
+      expect(state.tense, Tense.past);
+      expect(state.aspect, Aspect.simple);
+    }
+  });
+
+  test('Passive agents recognize object-case pronouns', () {
+    final cases = [
+      (sentence: 'It was built by me.', agent: 'me'),
+      (sentence: 'It was built by you.', agent: 'you'),
+      (sentence: 'It was built by him.', agent: 'him'),
+      (sentence: 'It was built by her.', agent: 'her'),
+      (sentence: 'It was built by it.', agent: 'it'),
+      (sentence: 'It was built by us.', agent: 'us'),
+      (sentence: 'It was built by them.', agent: 'them'),
+    ];
+
+    for (final entry in cases) {
+      final state = engine.recognize(entry.sentence);
+
+      expectObject(state, text: 'it');
+      expectAgent(state, text: entry.agent);
+      expect(state.action, build);
+      expect(state.voice, Voice.passive);
+      expect(state.tense, Tense.past);
+      expect(state.aspect, Aspect.simple);
+    }
+  });
+
+  test('Recipient pronouns recognize object case', () {
+    final cases = [
+      (sentence: 'He gave me a book.', agent: 'he', recipient: 'me'),
+      (sentence: 'He gave you a book.', agent: 'he', recipient: 'you'),
+      (sentence: 'She gave him a book.', agent: 'she', recipient: 'him'),
+      (sentence: 'He gave her a book.', agent: 'he', recipient: 'her'),
+      (sentence: 'He gave it a book.', agent: 'he', recipient: 'it'),
+      (sentence: 'He gave us a book.', agent: 'he', recipient: 'us'),
+      (sentence: 'He gave them a book.', agent: 'he', recipient: 'them'),
+    ];
+
+    for (final entry in cases) {
+      final state = engine.recognize(entry.sentence);
+
+      expectAgent(state, text: entry.agent);
+      expectRecipient(state, text: entry.recipient);
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expect(state.action, give);
+      expect(state.tense, Tense.past);
+      expect(state.aspect, Aspect.simple);
+    }
+  });
+
+  test('Passive ditransitive pronouns recognize focus and case', () {
+    final objectFocus = engine.recognize('A book was given to me by him.');
+    final recipientFocus = engine.recognize('I was given a book by him.');
+
+    expectObject(objectFocus, text: 'book', determiner: aDeterminer);
+    expectRecipient(objectFocus, text: 'me');
+    expectAgent(objectFocus, text: 'him');
+    expect(objectFocus.voice, Voice.passive);
+    expect(objectFocus.passiveFocus, PassiveFocus.object);
+
+    expectRecipient(recipientFocus, text: 'I');
+    expectObject(recipientFocus, text: 'book', determiner: aDeterminer);
+    expectAgent(recipientFocus, text: 'him');
+    expect(recipientFocus.voice, Voice.passive);
+    expect(recipientFocus.passiveFocus, PassiveFocus.recipient);
   });
 }
