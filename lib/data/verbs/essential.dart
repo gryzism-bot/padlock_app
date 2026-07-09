@@ -257,6 +257,7 @@ const buy = Verb(
   pastParticiple: 'bought',
   ingForm: 'buying',
   takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'kupować'},
 );
 

@@ -17,6 +17,7 @@ const teach = Verb(
   pastParticiple: 'taught',
   ingForm: 'teaching',
   takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'uczyć'},
 );
 
@@ -35,6 +36,8 @@ const write = Verb(
   pastSimple: 'wrote',
   pastParticiple: 'written',
   ingForm: 'writing',
+  takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'pisać'},
 );
 

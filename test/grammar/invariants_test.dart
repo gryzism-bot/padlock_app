@@ -20,6 +20,8 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 
+import 'package:padlock_app/data/verbs/communication.dart' as communication;
+import 'package:padlock_app/data/verbs/education.dart' as education;
 import 'package:padlock_app/data/verbs/essential.dart';
 
 void main() {
@@ -217,6 +219,37 @@ void main() {
         ),
         'Mary was given a book by John.',
       );
+    });
+
+    test('Core ditransitive verbs unlock the recipient slot in data', () {
+      final ditransitiveVerbs = [
+        give,
+        buy,
+        communication.tell,
+        communication.write,
+        education.teach,
+        education.write,
+      ];
+
+      for (final verb in ditransitiveVerbs) {
+        expect(verb.takesObject, isTrue, reason: verb.infinitive);
+        expect(verb.takesRecipient, isTrue, reason: verb.infinitive);
+      }
+    });
+
+    test('Expanded ditransitive data renders active recipient frame', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          recipient: mary.toNounPhrase(Number.singular),
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          action: buy,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John bought Mary a book.');
     });
 
     test('Noun phrases render ordered multiple adjectives', () {

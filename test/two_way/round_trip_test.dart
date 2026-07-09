@@ -159,6 +159,7 @@ void main() {
         'The beautiful chef will not have been working at home.',
         'Should bridge not be built?',
         'He gave her a book.',
+        'He bought her a book.',
         'A book was given to her by him.',
         'She was given a book by him.',
       ];

@@ -25,6 +25,8 @@ const tell = Verb(
   pastSimple: 'told',
   pastParticiple: 'told',
   ingForm: 'telling',
+  takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'powiedzieć'},
 );
 
@@ -79,6 +81,8 @@ const write = Verb(
   pastSimple: 'wrote',
   pastParticiple: 'written',
   ingForm: 'writing',
+  takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'pisać'},
 );
 

@@ -119,6 +119,17 @@ void main() {
       expect(state.passiveFocus, isNull);
     });
 
+    test('Expanded ditransitive data recognizes active recipient frame', () {
+      final state = engine.recognize('John bought Mary a book.');
+
+      expectAgent(state, text: 'john');
+      expectRecipient(state, text: 'mary');
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expect(state.action, buy);
+      expect(state.voice, Voice.active);
+      expect(state.passiveFocus, isNull);
+    });
+
     test('Recipient slot can be followed by object without determiner', () {
       final state = engine.recognize('John gave Mary books.');
 
