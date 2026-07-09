@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 
@@ -215,6 +216,31 @@ void main() {
           ),
         ),
         'Mary was given a book by John.',
+      );
+    });
+
+    test('Noun phrases render ordered multiple adjectives', () {
+      final sentence = render(
+        SentenceState(
+          agent: woman.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+            adjectives: [beautiful, young],
+          ),
+          object: house.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+            adjectives: [newAdjective, beautiful],
+          ),
+          action: build,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(
+        sentence,
+        'The beautiful young woman built a new beautiful house.',
       );
     });
 

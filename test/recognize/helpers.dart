@@ -11,11 +11,15 @@ void expectAgent(
   required String text,
   Determiner? determiner,
   Adjective? adjective,
+  List<Adjective>? adjectives,
 }) {
   expect(state.agent, isNotNull);
   expect(state.agent!.text, text);
   expect(state.agent!.determiner, determiner);
   expect(state.agent!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.agent!.adjectiveList, adjectives);
+  }
 }
 
 void expectObject(
@@ -23,11 +27,15 @@ void expectObject(
   required String text,
   Determiner? determiner,
   Adjective? adjective,
+  List<Adjective>? adjectives,
 }) {
   expect(state.object, isNotNull);
   expect(state.object!.text, text);
   expect(state.object!.determiner, determiner);
   expect(state.object!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.object!.adjectiveList, adjectives);
+  }
 }
 
 void expectRecipient(
@@ -35,9 +43,13 @@ void expectRecipient(
   required String text,
   Determiner? determiner,
   Adjective? adjective,
+  List<Adjective>? adjectives,
 }) {
   expect(state.recipient, isNotNull);
   expect(state.recipient!.text, text);
   expect(state.recipient!.determiner, determiner);
   expect(state.recipient!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.recipient!.adjectiveList, adjectives);
+  }
 }

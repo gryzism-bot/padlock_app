@@ -18,44 +18,41 @@ void main() {
   final engine = RecognitionEngine();
 
   group('Future features - skipped', () {});
-  test(
-    'The beautiful young woman built a new house yesterday',
-    () {
-      final state = engine.recognize(
-        'The beautiful young woman built a new house yesterday.',
-      );
+  test('The beautiful young woman built a new house yesterday', () {
+    final state = engine.recognize(
+      'The beautiful young woman built a new house yesterday.',
+    );
 
-      expectAgent(
-        state,
-        text: 'woman',
-        determiner: theDeterminer,
-        adjective: beautiful,
-      );
+    expectAgent(
+      state,
+      text: 'woman',
+      determiner: theDeterminer,
+      adjective: beautiful,
+      adjectives: [beautiful, young],
+    );
 
-      expectObject(
-        state,
-        text: 'house',
-        determiner: aDeterminer,
-        adjective: newAdjective,
-      );
+    expectObject(
+      state,
+      text: 'house',
+      determiner: aDeterminer,
+      adjective: newAdjective,
+    );
 
-      expect(state.action, build);
+    expect(state.action, build);
 
-      expect(state.voice, Voice.active);
+    expect(state.voice, Voice.active);
 
-      expect(state.tense, Tense.past);
-      expect(state.aspect, Aspect.simple);
+    expect(state.tense, Tense.past);
+    expect(state.aspect, Aspect.simple);
 
-      expect(state.modal, noModal);
-      expect(state.polarity, Polarity.positive);
+    expect(state.modal, noModal);
+    expect(state.polarity, Polarity.positive);
 
-      expect(state.sentenceForm, SentenceForm.statement);
+    expect(state.sentenceForm, SentenceForm.statement);
 
-      expect(state.timePhrase, yesterdayTimePhrase);
-      expect(state.placePhrase, isNull);
-      expect(state.frequencyPhrase, isNull);
-      expect(state.mannerPhrase, isNull);
-    },
-    skip: 'Multiple adjectives not implemented yet',
-  );
+    expect(state.timePhrase, yesterdayTimePhrase);
+    expect(state.placePhrase, isNull);
+    expect(state.frequencyPhrase, isNull);
+    expect(state.mannerPhrase, isNull);
+  });
 }

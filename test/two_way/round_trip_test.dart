@@ -168,14 +168,10 @@ void main() {
       }
     });
 
-    test(
-      'multiple adjectives are outside the two-way contract for now',
-      () {
-        expectSentenceRoundTrip(
-          'The beautiful young woman built a new house yesterday.',
-        );
-      },
-      skip: 'Multiple adjectives not implemented yet',
-    );
+    test('multiple adjectives stay inside the two-way contract', () {
+      expectSentenceRoundTrip(
+        'The beautiful young woman built a new house yesterday.',
+      );
+    });
   });
 }

@@ -734,7 +734,7 @@ class RecognitionEngine {
       current++;
     }
 
-    if (_lookupAdjective(builder.tokens[current]) != null &&
+    while (_lookupAdjective(builder.tokens[current]) != null &&
         current + 1 < builder.tokens.length) {
       current++;
     }
@@ -877,7 +877,7 @@ class RecognitionEngine {
 
   NounPhrase _recognizeNounPhrase(List<String> tokens) {
     Determiner? determiner;
-    Adjective? adjective;
+    final recognizedAdjectives = <Adjective>[];
 
     final remaining = [...tokens];
 
@@ -889,12 +889,15 @@ class RecognitionEngine {
       }
     }
 
-    if (remaining.isNotEmpty) {
-      adjective = _lookupAdjective(remaining.first);
+    while (remaining.isNotEmpty) {
+      final adjective = _lookupAdjective(remaining.first);
 
-      if (adjective != null) {
-        remaining.removeAt(0);
+      if (adjective == null) {
+        break;
       }
+
+      recognizedAdjectives.add(adjective);
+      remaining.removeAt(0);
     }
 
     final text = remaining.join(' ').toLowerCase();
@@ -904,7 +907,10 @@ class RecognitionEngine {
       person: _recognizedPerson(text),
       number: _recognizedNumber(text),
       determiner: determiner,
-      adjective: adjective,
+      adjective: recognizedAdjectives.isNotEmpty
+          ? recognizedAdjectives.first
+          : null,
+      adjectives: recognizedAdjectives,
       translations: const {},
     );
   }

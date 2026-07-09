@@ -97,8 +97,8 @@ class GrammarEngine {
       parts.add(nounPhrase.determiner!.text);
     }
 
-    if (nounPhrase.adjective != null) {
-      parts.add(nounPhrase.adjective!.text);
+    for (final adjective in nounPhrase.adjectiveList) {
+      parts.add(adjective.text);
     }
 
     parts.add(text);

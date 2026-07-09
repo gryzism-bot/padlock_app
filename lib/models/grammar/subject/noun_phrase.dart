@@ -14,6 +14,7 @@ class NounPhrase {
   final Determiner? determiner;
 
   final Adjective? adjective;
+  final List<Adjective> adjectives;
 
   final Map<Language, String> translations;
 
@@ -23,8 +24,21 @@ class NounPhrase {
     required this.number,
     this.determiner,
     this.adjective,
+    this.adjectives = const [],
     required this.translations,
   });
+
+  List<Adjective> get adjectiveList {
+    if (adjectives.isNotEmpty) {
+      return adjectives;
+    }
+
+    if (adjective != null) {
+      return [adjective!];
+    }
+
+    return const [];
+  }
 
   bool get isPlural => number == Number.plural;
 

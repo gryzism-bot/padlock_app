@@ -23,6 +23,7 @@ class Noun {
     Number number, {
     Determiner? determiner,
     Adjective? adjective,
+    List<Adjective> adjectives = const [],
   }) {
     return NounPhrase(
       text: number == Number.singular ? singular : plural,
@@ -31,7 +32,8 @@ class Noun {
       number: number,
 
       determiner: determiner,
-      adjective: adjective,
+      adjective: adjective ?? (adjectives.isNotEmpty ? adjectives.first : null),
+      adjectives: adjectives,
 
       translations: number == Number.singular
           ? singularTranslations
