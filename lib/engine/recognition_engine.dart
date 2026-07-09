@@ -237,6 +237,7 @@ class RecognitionEngine {
 
             current++;
           }
+          _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'not') {
@@ -276,6 +277,7 @@ class RecognitionEngine {
 
             current++;
           }
+          _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'not') {
@@ -426,6 +428,7 @@ class RecognitionEngine {
 
             current++;
           }
+          _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'not') {
@@ -529,6 +532,19 @@ class RecognitionEngine {
         token == verb.pastSimple ||
         token == verb.pastParticiple ||
         token == verb.ingForm;
+  }
+
+  void _recognizePolarityBetween(
+    _RecognitionBuilder builder,
+    int start,
+    int end,
+  ) {
+    for (var i = start; i < end; i++) {
+      if (builder.tokens[i].toLowerCase() == 'not') {
+        builder.polarity = Polarity.negative;
+        return;
+      }
+    }
   }
 
   Modal? _lookupModal(String token) {

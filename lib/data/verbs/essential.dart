@@ -108,6 +108,7 @@ const get = Verb(
   pastSimple: 'got',
   pastParticiple: 'got',
   ingForm: 'getting',
+  takesObject: true,
   translations: {Language.pl: 'dostać'},
 );
 
