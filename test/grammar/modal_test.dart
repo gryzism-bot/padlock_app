@@ -21,6 +21,7 @@ import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/language.dart';
 
 import 'package:padlock_app/data/verbs/essential.dart';
 
@@ -96,6 +97,58 @@ void main() {
       );
 
       expect(sentence.text, 'John might travel.');
+    });
+
+    test('John could work', () {
+      final sentence = engine.generate(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          modal: could,
+        ),
+      );
+
+      expect(sentence.text, 'John could work.');
+    });
+
+    test('Mary would study', () {
+      final sentence = engine.generate(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: study,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          modal: would,
+        ),
+      );
+
+      expect(sentence.text, 'Mary would study.');
+    });
+
+    test('John could have worked', () {
+      final sentence = engine.generate(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+          modal: could,
+        ),
+      );
+
+      expect(sentence.text, 'John could have worked.');
+    });
+
+    test('Modal wheel entries carry Polish translations', () {
+      for (final modal in modals) {
+        expect(
+          modal.translations[Language.pl],
+          isNotEmpty,
+          reason: '${modal.text} should have a Polish translation.',
+        );
+      }
     });
 
     test('Mary will work', () {

@@ -1151,7 +1151,17 @@ final _recipients = [
   child.toNounPhrase(Number.singular, determiner: theDeterminer),
 ];
 
-const _modalSamples = [noModal, can, should, must];
+const _modalSamples = [
+  noModal,
+  can,
+  could,
+  may,
+  might,
+  must,
+  shall,
+  should,
+  would,
+];
 
 const _sentenceForms = [
   SentenceForm.statement,

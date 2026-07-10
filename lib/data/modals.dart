@@ -47,4 +47,5 @@ final List<Modal> modals = [
   will,
   would,
   oughtTo,
+  need,
 ];

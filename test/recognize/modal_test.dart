@@ -225,6 +225,50 @@ void main() {
     expect(state.mannerPhrase, isNull);
   });
 
+  test('John could travel', () {
+    final state = engine.recognize('John could travel.');
+
+    expectAgent(state, text: 'john');
+    expect(state.action, travel);
+    expect(state.modal, could);
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.simple);
+    expect(state.sentenceForm, SentenceForm.statement);
+  });
+
+  test('Mary would travel', () {
+    final state = engine.recognize('Mary would travel.');
+
+    expectAgent(state, text: 'mary');
+    expect(state.action, travel);
+    expect(state.modal, would);
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.simple);
+    expect(state.sentenceForm, SentenceForm.statement);
+  });
+
+  test('John could have travelled', () {
+    final state = engine.recognize('John could have travelled.');
+
+    expectAgent(state, text: 'john');
+    expect(state.action, travel);
+    expect(state.modal, could);
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.perfect);
+    expect(state.sentenceForm, SentenceForm.statement);
+  });
+
+  test('Might Mary travel?', () {
+    final state = engine.recognize('Might Mary travel?');
+
+    expectAgent(state, text: 'mary');
+    expect(state.action, travel);
+    expect(state.modal, might);
+    expect(state.tense, Tense.present);
+    expect(state.aspect, Aspect.simple);
+    expect(state.sentenceForm, SentenceForm.question);
+  });
+
   test('The old car will be built tomorrow', () {
     final state = engine.recognize('The old car will be built tomorrow.');
 

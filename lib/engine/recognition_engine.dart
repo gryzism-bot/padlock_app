@@ -9,7 +9,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart' show you;
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
-import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/essential.dart' hide need;
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -190,7 +190,7 @@ class RecognitionEngine {
 
       final modal = _lookupModal(token);
 
-      if (modal != null) {
+      if (modal != null && _isModalUse(builder, i, modal)) {
         builder.modal = modal;
         builder.verbChainStart = i;
         if (token == 'cannot') {
@@ -993,6 +993,41 @@ class RecognitionEngine {
     }
 
     return null;
+  }
+
+  bool _isModalUse(_RecognitionBuilder builder, int index, Modal modal) {
+    if (modal != need) {
+      return true;
+    }
+
+    if (builder.sentenceForm == SentenceForm.question && index == 0) {
+      for (
+        var current = index + 1;
+        current < builder.tokens.length;
+        current++
+      ) {
+        if (_isPredicateLexicalVerb(builder, current)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    var current = index + 1;
+    if (current < builder.tokens.length &&
+        builder.tokens[current].toLowerCase() == 'not') {
+      current++;
+    }
+
+    if (current >= builder.tokens.length) {
+      return false;
+    }
+
+    final token = builder.tokens[current].toLowerCase();
+    return token == 'have' ||
+        token == 'be' ||
+        _isPredicateLexicalVerb(builder, current);
   }
 
   int _participantEnd(_RecognitionBuilder builder) {
