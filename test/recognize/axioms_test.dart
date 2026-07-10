@@ -6,8 +6,10 @@ import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/sport.dart' as sport;
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -62,6 +64,17 @@ void main() {
       expectObject(state, text: 'it');
       expect(state.modal, should);
       expect(state.action, build);
+      expect(state.tense, Tense.present);
+      expect(state.aspect, Aspect.simple);
+    });
+
+    test('CANNOT reconstructs can plus negative polarity', () {
+      final state = engine.recognize('John cannot play football.');
+
+      expectAgent(state, text: 'John');
+      expect(state.modal, can);
+      expect(state.polarity, Polarity.negative);
+      expect(state.action, sport.playFootball);
       expect(state.tense, Tense.present);
       expect(state.aspect, Aspect.simple);
     });
@@ -135,6 +148,24 @@ void main() {
       expect(state.sentenceForm, SentenceForm.question);
     });
 
+    test('BEEN plus past participle reconstructs passive perfect', () {
+      final state = engine.recognize(
+        'The new bridge will have been built by John.',
+      );
+
+      expectObject(
+        state,
+        text: 'bridge',
+        determiner: theDeterminer,
+        adjective: newAdjective,
+      );
+      expectAgent(state, text: 'John');
+      expect(state.action, build);
+      expect(state.voice, Voice.passive);
+      expect(state.tense, Tense.future);
+      expect(state.aspect, Aspect.perfect);
+    });
+
     test('NOT reconstructs negative polarity', () {
       final state = engine.recognize('He does not work.');
 
@@ -161,6 +192,14 @@ void main() {
       expect(state.placePhrase, schoolPlacePhrase);
       expect(state.timePhrase, yesterdayTimePhrase);
       expect(state.frequencyPhrase, everyDayFrequencyPhrase);
+    });
+
+    test('Fronted frequency phrase stays outside the subject', () {
+      final state = engine.recognize('Always you speak.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, speak);
+      expect(state.frequencyPhrase, alwaysFrequencyPhrase);
     });
   });
 }

@@ -7,6 +7,7 @@ import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/sport.dart' as sport;
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -38,6 +39,24 @@ void main() {
       expect(state.action, work);
       expect(state.action, isNot(have));
       expect(state.aspect, Aspect.perfect);
+    });
+
+    test('Lexical HAVE can stand as the one predicate', () {
+      final state = engine.recognize('John has.');
+
+      expectAgent(state, text: 'John');
+      expect(state.action, have);
+      expect(state.aspect, Aspect.simple);
+      expect(state.tense, Tense.present);
+    });
+
+    test('Lexical DO can stand as the one predicate', () {
+      final state = engine.recognize('Mary does.');
+
+      expectAgent(state, text: 'Mary');
+      expect(state.action, doVerb);
+      expect(state.aspect, Aspect.simple);
+      expect(state.tense, Tense.present);
     });
 
     test(
@@ -96,6 +115,14 @@ void main() {
       expect(state.action, build);
       expect(state.voice, Voice.passive);
       expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test('Known proper nouns reconstruct their canonical data casing', () {
+      final state = engine.recognize('John gave Mary a book.');
+
+      expect(state.agent!.text, 'John');
+      expect(state.recipient!.text, 'Mary');
+      expect(state.action, give);
     });
 
     test('By manner phrase does not imply passive voice', () {
@@ -191,6 +218,20 @@ void main() {
       expect(state.action, build);
     });
 
+    test('Question subject excludes the multi-word predicate head', () {
+      final state = engine.recognize('Do the old workers play football?');
+
+      expectAgent(
+        state,
+        text: 'workers',
+        determiner: theDeterminer,
+        adjective: old,
+      );
+      expect(state.agent!.text, isNot('workers play'));
+      expect(state.action, sport.playFootball);
+      expect(state.sentenceForm, SentenceForm.question);
+    });
+
     test('Phrase tokens are not swallowed into active object', () {
       final state = engine.recognize(
         'The beautiful teacher does not work at school every day.',
@@ -252,6 +293,18 @@ void main() {
       expect(state.polarity, Polarity.negative);
       expect(state.sentenceForm, SentenceForm.question);
     });
+
+    test(
+      'Negative question excludes NOT from multi-word predicate subject',
+      () {
+        final state = engine.recognize('Can Mary not play football?');
+
+        expectAgent(state, text: 'Mary');
+        expect(state.action, sport.playFootball);
+        expect(state.polarity, Polarity.negative);
+        expect(state.sentenceForm, SentenceForm.question);
+      },
+    );
 
     test('Passive question object excludes helper stack', () {
       final state = engine.recognize('Was the new bridge built by them?');

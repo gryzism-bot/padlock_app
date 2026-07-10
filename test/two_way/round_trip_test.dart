@@ -162,6 +162,10 @@ void main() {
         'He bought her a book.',
         'A book was given to her by him.',
         'She was given a book by him.',
+        'John cannot play football.',
+        'Do the old workers play football?',
+        'The new bridge will have been built by John.',
+        'Always you speak.',
       ];
 
       for (final sentence in sentences) {
