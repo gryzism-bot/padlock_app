@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
+import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -150,6 +151,27 @@ void main() {
 
       expect(wasBlocked(state), isFalse);
       expect(render(state), 'He builds an engineer.');
+    });
+
+    test('checks noun phrase article sound against the first spoken word', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(engineer.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseAdjectives(NounPhraseTarget.object, [big]),
+      );
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He builds a big engineer.');
     });
 
     test('blocks place phrase that repeats the verb word', () {

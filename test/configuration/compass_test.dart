@@ -10,6 +10,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -228,9 +229,11 @@ void main() {
       );
 
       expect(suggestions.map((suggestion) => suggestion.label), [
+        'no passive focus',
         'object',
         'recipient',
       ]);
+      expect(suggestions.first.isSelected, isTrue);
     });
 
     test('offers lexical be as the doorway to complement suggestions', () {
@@ -306,10 +309,10 @@ void main() {
       );
 
       expect(suggestions.map((suggestion) => suggestion.label), [
-        'doctor',
-        'engineer',
-        'student',
-        'teacher',
+        'a doctor',
+        'a student',
+        'a teacher',
+        'an engineer',
       ]);
 
       state = lock.applyMove(state, const SetAgent(they));
@@ -393,7 +396,10 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), ['object']);
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'no passive focus',
+        'object',
+      ]);
 
       state = lock.applyMove(
         state,
@@ -406,6 +412,7 @@ void main() {
       );
 
       expect(suggestions.map((suggestion) => suggestion.label), [
+        'no passive focus',
         'object',
         'recipient',
       ]);
@@ -414,6 +421,12 @@ void main() {
         PassiveFocus.recipient,
       );
       expect(render(suggestions.last.preview), 'Mary is given book by him.');
+
+      final exitSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'no passive focus',
+      );
+      expect(exitSuggestion.preview.sentenceState.passiveFocus, isNull);
+      expect(render(exitSuggestion.preview), 'Book is given to Mary by him.');
     });
 
     test('offers active voice as an exit from passive recipient focus', () {
@@ -526,7 +539,7 @@ void main() {
         ConfigurationCompassSlot.object,
         limit: 0,
       );
-      expect(objectSuggestions.first.label, 'book');
+      expect(objectSuggestions.first.label, 'a book');
       expect(objectSuggestions.first.isSelected, isTrue);
       expect(render(objectSuggestions.first.preview), 'He builds a book.');
 
@@ -546,6 +559,157 @@ void main() {
       );
       expect(adjectiveSuggestions.first.label, 'no adjective');
       expect(adjectiveSuggestions.first.isSelected, isTrue);
+    });
+
+    test(
+      'noun suggestions carry compatible modifiers from the current slot',
+      () {
+        final modifierCompass = ConfigurationCompass(
+          actions: [work_data.build],
+          objects: [
+            book.toNounPhrase(Number.singular),
+            bridge.toNounPhrase(Number.singular),
+            engineer.toNounPhrase(Number.singular),
+            book.toNounPhrase(Number.plural),
+          ],
+          nounAdjectives: [big],
+          determiners: [aDeterminer, anDeterminer, manyDeterminer],
+        );
+
+        var state = ConfigurationState.initial();
+        state = lock.applyMove(state, const SetAction(work_data.build));
+        state = lock.applyMove(
+          state,
+          SetObject(book.toNounPhrase(Number.singular)),
+        );
+        state = lock.applyMove(
+          state,
+          const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
+        );
+        state = lock.applyMove(
+          state,
+          const SetNounPhraseAdjectives(NounPhraseTarget.object, [big]),
+        );
+
+        var suggestions = modifierCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+
+        final bridgeSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'a big bridge',
+        );
+        expect(render(bridgeSuggestion.preview), 'He builds a big bridge.');
+
+        final engineerSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'a big engineer',
+        );
+        expect(render(engineerSuggestion.preview), 'He builds a big engineer.');
+
+        state = lock.applyMove(
+          state,
+          const SetNounPhraseAdjectives(NounPhraseTarget.object, []),
+        );
+        suggestions = modifierCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+
+        final plainEngineerSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'an engineer',
+        );
+        expect(
+          render(plainEngineerSuggestion.preview),
+          'He builds an engineer.',
+        );
+
+        state = lock.applyMove(
+          state,
+          SetObject(book.toNounPhrase(Number.plural)),
+        );
+        state = lock.applyMove(
+          state,
+          const SetNounPhraseDeterminer(
+            NounPhraseTarget.object,
+            manyDeterminer,
+          ),
+        );
+        state = lock.applyMove(
+          state,
+          const SetNounPhraseAdjectives(NounPhraseTarget.object, [big]),
+        );
+        suggestions = modifierCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+
+        final pluralBookSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'many big books',
+        );
+        expect(
+          render(pluralBookSuggestion.preview),
+          'He builds many big books.',
+        );
+      },
+    );
+
+    test('does not carry narrow object choices into incompatible verbs', () {
+      final semanticCompass = ConfigurationCompass(
+        actions: [give, drive, use],
+        objects: [
+          house.toNounPhrase(Number.singular),
+          car.toNounPhrase(Number.singular),
+        ],
+      );
+
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(give));
+      state = lock.applyMove(
+        state,
+        SetObject(house.toNounPhrase(Number.singular)),
+      );
+
+      var suggestions = semanticCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'give',
+        'use',
+      ]);
+
+      state = lock.applyMove(
+        state,
+        SetObject(car.toNounPhrase(Number.singular)),
+      );
+
+      suggestions = semanticCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        contains('drive'),
+      );
+
+      state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(drive),
+      );
+      suggestions = semanticCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.object,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), ['car']);
     });
 
     test('place suggestions use location meaning for ordinary verbs', () {

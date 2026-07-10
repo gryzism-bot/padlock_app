@@ -86,16 +86,46 @@ it filters candidates through Configuration Engine.
 - Compass should expose at least one practical exit from special frames.
 - Compass keeps current choices visible and highlighted, but selection alone
   does not move a choice to the front of the list.
+- Selected choices use a clear border/text treatment instead of a pale filled
+  background, so active controls read like chips from the same family.
 - Compass suggestion buttons render as sentence previews. The changed words are
   highlighted inside the sentence instead of shown as `option -> sentence`.
 - The debug UI can switch Compass suggestion display between sentence preview,
   embedded change highlight, and compact word-only labels.
+- Embedded change highlights expand to the changed word, not just the shortest
+  changed character range. A debug chip should show `drives` or `buys` as the
+  meaningful changed unit instead of a fragment like `dri`.
+- The sentence header can stay committed-only, or it can preview the candidate
+  sentence while a user hovers over a suggestion chip. This lets compact word
+  chips still answer what they would bring to the whole sentence.
+- The sentence header is sticky and centered so the current or hovered
+  sentence remains visible while the option rails scroll underneath it.
+- Option rails can expose more than the first few suggestions and become
+  vertically scrollable when a slot has many candidates.
 
 ### Predicate Paths
 
 - Object suggestions are hidden until the selected verb can take objects.
+- Object suggestions are independent from subject person: `I see a book`,
+  `you build bridges`, and `they need a computer` are all ordinary paths.
+  Object availability belongs to the verb frame, and object number remains an
+  object-noun choice.
+- The object rail should expose noun number as a switch, not as duplicated
+  side-by-side noun chips. `book/books` is one object idea viewed through the
+  singular or plural object plane. If an object is already selected, the switch
+  changes that object between singular and plural rather than only filtering
+  the visible list.
+- Noun suggestions preserve compatible noun-phrase modifiers from the current
+  slot. If the user has `a book`, nearby object suggestions should preview and
+  label choices such as `a bridge`; incompatible articles are dropped instead
+  of producing invalid phrases.
+- Compass should not carry a selected object into a narrower verb when the
+  object no longer makes sense, such as `house` carried into `drive`. This is a
+  Guided Mode suggestion law, not a Grammar Engine rendering law.
 - Passive voice is hidden until an object frame exists.
 - Passive focus is hidden until passive voice is selected.
+- Passive focus exposes `no passive focus` as the null/default exit from an
+  explicit passive focus choice.
 - Recipient focus is hidden until the full ditransitive passive frame exists.
 - Active voice is a practical exit from passive recipient focus.
 - Lexical `be` is the doorway to noun and adjective complement suggestions.
@@ -132,8 +162,27 @@ These prove the live UI stays in the tested state-space.
 
 - The app launches into a renderable initial state.
 - A visible Compass suggestion changes the rendered sentence.
-- A blocked manual probe shows a lock message and keeps the sentence valid.
 - A user can enter lexical `be` and exit back to a normal verb.
+- A user can keep suggestion chips word-sized while the header previews the
+  hovered candidate sentence without committing it.
+- The top control deck uses screen width before vertical scrolling: subject,
+  tense/aspect, modal, voice, polarity, and form controls are separate columns
+  on wide layouts.
+- Tense and aspect are hard-left abstract controls.
+- Subject controls mirror the agreement grid in two rows: singular
+  `I`/`you` plus third-person `he`/`she`/`it`, and plural `we`/`you` plus
+  third-person `they`. The third-person part of each row can expand into nearby
+  noun subjects such as `cat` and `cats` without mixing all forms into one flat
+  row.
+- Modal controls live as a compact word-only 3x3-ish dial in the top deck.
+- Voice is its own active/passive control.
+- Polarity is its own positive/negative vertical control.
+- Form is its own vertical statement/question/exclamation/imperative control.
+- Voice and modal controls live in the top deck; the lower Compass rails do not
+  repeat them.
+- Debug display controls live near reset/random in the app bar while the main
+  surface stays sentence-state focused. Reset/random stay padded away from the
+  Flutter debug banner.
 - The random sentence control builds from Compass suggestions so shuffled
   states remain renderable Guided Mode states.
 

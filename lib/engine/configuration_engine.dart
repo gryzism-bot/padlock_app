@@ -370,7 +370,11 @@ class ConfigurationEngine {
       );
     }
 
-    if (determiner.text == 'a' && _startsWithVowelLetter(phrase.text)) {
+    final firstSpokenWord = phrase.adjectiveList.isEmpty
+        ? phrase.text
+        : phrase.adjectiveList.first.text;
+
+    if (determiner.text == 'a' && _startsWithVowelLetter(firstSpokenWord)) {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "a" requires a consonant sound.',
@@ -378,7 +382,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (determiner.text == 'an' && !_startsWithVowelLetter(phrase.text)) {
+    if (determiner.text == 'an' && !_startsWithVowelLetter(firstSpokenWord)) {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "an" requires a vowel sound.',

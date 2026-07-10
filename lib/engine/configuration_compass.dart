@@ -143,23 +143,43 @@ class ConfigurationCompass {
     final sentence = state.sentenceState;
 
     return switch (slot) {
-      ConfigurationCompassSlot.action => actions.map(
-        (action) => _CompassCandidate(
-          SetAction(action),
-          action.infinitive,
-          _actionPriority(sentence.action, action),
-          isSelected: action == sentence.action,
-        ),
-      ),
-      ConfigurationCompassSlot.object => objects.map((object) {
-        final isSelected = _sameNounChoice(object, sentence.object);
-        return _CompassCandidate(
-          SetObject(isSelected ? sentence.object : object),
-          object.text,
-          100,
-          isSelected: isSelected,
-        );
-      }),
+      ConfigurationCompassSlot.action =>
+        actions
+            .where(
+              (action) =>
+                  action == sentence.action ||
+                  _objectFitsAction(sentence.object, action),
+            )
+            .map(
+              (action) => _CompassCandidate(
+                SetAction(action),
+                action.infinitive,
+                _actionPriority(sentence.action, action),
+                isSelected: action == sentence.action,
+              ),
+            ),
+      ConfigurationCompassSlot.object =>
+        objects
+            .where(
+              (object) =>
+                  _sameNounChoice(object, sentence.object) ||
+                  _objectFitsAction(object, sentence.action),
+            )
+            .map((object) {
+              final isSelected = _sameNounChoice(object, sentence.object);
+              final nextObject = isSelected
+                  ? sentence.object
+                  : _carryCompatibleNounPhrase(
+                      from: sentence.object,
+                      to: object,
+                    );
+              return _CompassCandidate(
+                SetObject(nextObject),
+                nextObject == null ? object.text : _nounPhraseLabel(nextObject),
+                100,
+                isSelected: isSelected,
+              );
+            }),
       ConfigurationCompassSlot.objectDeterminer => _determinerCandidates(
         sentence.object,
         NounPhraseTarget.object,
@@ -170,9 +190,17 @@ class ConfigurationCompass {
       ),
       ConfigurationCompassSlot.recipient => recipients.map((recipient) {
         final isSelected = _sameNounChoice(recipient, sentence.recipient);
+        final nextRecipient = isSelected
+            ? sentence.recipient
+            : _carryCompatibleNounPhrase(
+                from: sentence.recipient,
+                to: recipient,
+              );
         return _CompassCandidate(
-          SetRecipient(isSelected ? sentence.recipient : recipient),
-          recipient.text,
+          SetRecipient(nextRecipient),
+          nextRecipient == null
+              ? recipient.text
+              : _nounPhraseLabel(nextRecipient),
           100,
           isSelected: isSelected,
         );
@@ -192,9 +220,17 @@ class ConfigurationCompass {
                   complement,
                   sentence.complement,
                 );
+                final nextComplement = isSelected
+                    ? sentence.complement
+                    : _carryCompatibleNounPhrase(
+                        from: sentence.complement,
+                        to: complement,
+                      );
                 return _CompassCandidate(
-                  SetComplement(isSelected ? sentence.complement : complement),
-                  complement.text,
+                  SetComplement(nextComplement),
+                  nextComplement == null
+                      ? complement.text
+                      : _nounPhraseLabel(nextComplement),
                   100,
                   isSelected: isSelected,
                 );
@@ -227,14 +263,25 @@ class ConfigurationCompass {
           isSelected: voice == sentence.voice,
         ),
       ),
-      ConfigurationCompassSlot.passiveFocus => PassiveFocus.values.map(
-        (focus) => _CompassCandidate(
-          SetPassiveFocus(focus),
-          focus.name,
-          focus == PassiveFocus.object ? 100 : 90,
-          isSelected: focus == sentence.passiveFocus,
-        ),
-      ),
+      ConfigurationCompassSlot.passiveFocus =>
+        sentence.voice == Voice.passive
+            ? [
+                _CompassCandidate(
+                  const SetPassiveFocus(null),
+                  'no passive focus',
+                  sentence.passiveFocus == null ? 110 : 105,
+                  isSelected: sentence.passiveFocus == null,
+                ),
+                ...PassiveFocus.values.map(
+                  (focus) => _CompassCandidate(
+                    SetPassiveFocus(focus),
+                    focus.name,
+                    focus == PassiveFocus.object ? 100 : 90,
+                    isSelected: focus == sentence.passiveFocus,
+                  ),
+                ),
+              ]
+            : const <_CompassCandidate>[],
       ConfigurationCompassSlot.modal => modals.map(
         (modal) => _CompassCandidate(
           SetModal(modal),
@@ -480,13 +527,127 @@ bool _sameNounChoice(NounPhrase candidate, NounPhrase? current) {
       candidate.number == current.number;
 }
 
+bool _objectFitsAction(NounPhrase? object, Verb action) {
+  if (object == null) {
+    return true;
+  }
+
+  final noun = object.text.toLowerCase();
+
+  return switch (action.infinitive) {
+    'drive' => _vehicleObjects.contains(noun),
+    'ride' => _rideableObjects.contains(noun),
+    _ => true,
+  };
+}
+
+String _nounPhraseLabel(NounPhrase phrase) {
+  return [
+    if (phrase.determiner != null) phrase.determiner!.text,
+    ...phrase.adjectiveList.map((adjective) => adjective.text),
+    phrase.text,
+  ].join(' ');
+}
+
+NounPhrase _carryCompatibleNounPhrase({
+  required NounPhrase? from,
+  required NounPhrase to,
+}) {
+  if (from == null) {
+    return to;
+  }
+
+  final adjectives = from.adjectiveList;
+
+  return to.copyWith(
+    determiner: _compatibleDeterminer(from.determiner, to, adjectives),
+    adjective: adjectives.isEmpty ? null : adjectives.first,
+    adjectives: adjectives,
+  );
+}
+
+Determiner? _compatibleDeterminer(
+  Determiner? determiner,
+  NounPhrase phrase,
+  List<Adjective> adjectives,
+) {
+  if (determiner == null) {
+    return null;
+  }
+
+  final text = determiner.text;
+  if (phrase.isPlural &&
+      const {'a', 'an', 'this', 'that', 'each', 'every'}.contains(text)) {
+    return null;
+  }
+
+  if (!phrase.isPlural && const {'these', 'those', 'many'}.contains(text)) {
+    return null;
+  }
+
+  final firstSpokenWord = adjectives.isEmpty
+      ? phrase.text
+      : adjectives.first.text;
+  if (text == 'a' && _startsWithVowelLetter(firstSpokenWord)) {
+    return anDeterminer;
+  }
+
+  if (text == 'an' && !_startsWithVowelLetter(firstSpokenWord)) {
+    return aDeterminer;
+  }
+
+  return determiner;
+}
+
+bool _startsWithVowelLetter(String text) {
+  if (text.isEmpty) {
+    return false;
+  }
+
+  return 'aeiou'.contains(text[0].toLowerCase());
+}
+
+const _vehicleObjects = {'car', 'cars', 'bus', 'buses', 'train', 'trains'};
+
+const _rideableObjects = {
+  'bicycle',
+  'bicycles',
+  'horse',
+  'horses',
+  ..._vehicleObjects,
+};
+
 final _defaultObjects = [
   book.toNounPhrase(Number.singular),
+  book.toNounPhrase(Number.plural),
   bridge.toNounPhrase(Number.singular),
+  bridge.toNounPhrase(Number.plural),
   house.toNounPhrase(Number.singular),
+  house.toNounPhrase(Number.plural),
   car.toNounPhrase(Number.singular),
+  car.toNounPhrase(Number.plural),
   computer.toNounPhrase(Number.singular),
+  computer.toNounPhrase(Number.plural),
   phone.toNounPhrase(Number.singular),
+  phone.toNounPhrase(Number.plural),
+  letter.toNounPhrase(Number.singular),
+  letter.toNounPhrase(Number.plural),
+  gift.toNounPhrase(Number.singular),
+  gift.toNounPhrase(Number.plural),
+  key.toNounPhrase(Number.singular),
+  key.toNounPhrase(Number.plural),
+  door.toNounPhrase(Number.singular),
+  door.toNounPhrase(Number.plural),
+  table.toNounPhrase(Number.singular),
+  table.toNounPhrase(Number.plural),
+  chair.toNounPhrase(Number.singular),
+  chair.toNounPhrase(Number.plural),
+  window.toNounPhrase(Number.singular),
+  window.toNounPhrase(Number.plural),
+  bottle.toNounPhrase(Number.singular),
+  bottle.toNounPhrase(Number.plural),
+  ball.toNounPhrase(Number.singular),
+  ball.toNounPhrase(Number.plural),
 ];
 
 final _defaultRecipients = [
