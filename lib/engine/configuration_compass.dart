@@ -100,9 +100,18 @@ class ConfigurationCompass {
     ConfigurationCompassSlot slot, {
     int limit = 3,
   }) {
+    final candidates = _candidatesFor(state, slot).toList()
+      ..sort((left, right) {
+        final priority = right.priority.compareTo(left.priority);
+        if (priority != 0) {
+          return priority;
+        }
+
+        return left.label.compareTo(right.label);
+      });
     final suggestions = <ConfigurationSuggestion>[];
 
-    for (final candidate in _candidatesFor(state, slot)) {
+    for (final candidate in candidates) {
       final preview = lock.applyMove(state, candidate.move);
       if (_wasBlocked(preview)) {
         continue;
@@ -118,22 +127,13 @@ class ConfigurationCompass {
           preview: preview,
         ),
       );
-    }
 
-    suggestions.sort((left, right) {
-      final priority = right.priority.compareTo(left.priority);
-      if (priority != 0) {
-        return priority;
+      if (limit > 0 && suggestions.length >= limit) {
+        break;
       }
-
-      return left.label.compareTo(right.label);
-    });
-
-    if (limit <= 0 || suggestions.length <= limit) {
-      return suggestions;
     }
 
-    return suggestions.take(limit).toList();
+    return suggestions;
   }
 
   Iterable<_CompassCandidate> _candidatesFor(

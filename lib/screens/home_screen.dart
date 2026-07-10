@@ -38,7 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late ConfigurationState configuration;
   SuggestionDisplayMode? suggestionDisplayMode;
   HeaderPreviewMode? headerPreviewMode;
-  ConfigurationState? hoveredConfiguration;
+  final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
+    null,
+  );
   Number objectNumber = Number.singular;
 
   @override
@@ -53,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (move case SetObject(:final object?)) {
         objectNumber = object.number;
       }
-      hoveredConfiguration = null;
+      hoveredConfiguration.value = null;
     });
   }
 
@@ -61,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       configuration = ConfigurationState.initial();
       objectNumber = Number.singular;
-      hoveredConfiguration = null;
+      hoveredConfiguration.value = null;
     });
   }
 
@@ -87,8 +89,16 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       configuration = state;
       objectNumber = state.sentenceState.object?.number ?? Number.singular;
-      hoveredConfiguration = null;
+      hoveredConfiguration.value = null;
     });
+  }
+
+  void _setHoveredConfiguration(ConfigurationState? preview) {
+    if (hoveredConfiguration.value == preview) {
+      return;
+    }
+
+    hoveredConfiguration.value = preview;
   }
 
   List<ConfigurationSuggestion> _suggestionsForSlot(
@@ -117,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _changeObjectNumber(ConfigurationCompass compass, Number number) {
     setState(() {
       objectNumber = number;
-      hoveredConfiguration = null;
+      hoveredConfiguration.value = null;
 
       final object = configuration.sentenceState.object;
       if (object == null || object.number == number) {
@@ -137,15 +147,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void dispose() {
+    hoveredConfiguration.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final displayMode = suggestionDisplayMode ?? SuggestionDisplayMode.change;
     final previewMode = headerPreviewMode ?? HeaderPreviewMode.clicked;
-    final headerConfiguration =
-        previewMode == HeaderPreviewMode.hover && hoveredConfiguration != null
-        ? hoveredConfiguration!
-        : configuration;
     final sentence = grammar.generate(configuration.sentenceState);
-    final headerSentence = grammar.generate(headerConfiguration.sentenceState);
 
     return Scaffold(
       appBar: AppBar(
@@ -156,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPreviewModeChanged: (mode) {
               setState(() {
                 headerPreviewMode = mode;
-                hoveredConfiguration = null;
+                hoveredConfiguration.value = null;
               });
             },
             displayMode: displayMode,
@@ -211,11 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     configuration: configuration,
                     onMove: _move,
                     onPreviewChanged: previewMode == HeaderPreviewMode.hover
-                        ? (preview) {
-                            setState(() {
-                              hoveredConfiguration = preview;
-                            });
-                          }
+                        ? _setHoveredConfiguration
                         : null,
                   ),
                   const SizedBox(height: 8),
@@ -242,11 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       grammar: grammar,
                       onMove: _move,
                       onPreviewChanged: previewMode == HeaderPreviewMode.hover
-                          ? (preview) {
-                              setState(() {
-                                hoveredConfiguration = preview;
-                              });
-                            }
+                          ? _setHoveredConfiguration
                           : null,
                     ),
                     const SizedBox(height: 8),
@@ -258,11 +261,24 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 0,
               left: 0,
               right: 0,
-              child: _StickySentenceHeader(
-                child: _SentencePanel(
-                  sentence: headerSentence.text,
-                  summary: headerConfiguration.sentenceState.summary,
-                ),
+              child: ValueListenableBuilder<ConfigurationState?>(
+                valueListenable: hoveredConfiguration,
+                builder: (context, hovered, child) {
+                  final headerConfiguration =
+                      previewMode == HeaderPreviewMode.hover && hovered != null
+                      ? hovered
+                      : configuration;
+                  final headerSentence = grammar.generate(
+                    headerConfiguration.sentenceState,
+                  );
+
+                  return _StickySentenceHeader(
+                    child: _SentencePanel(
+                      sentence: headerSentence.text,
+                      summary: headerConfiguration.sentenceState.summary,
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -1255,7 +1271,6 @@ class _SuggestionButton extends StatelessWidget {
 
     return MouseRegion(
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
-      onHover: (_) => onPreviewChanged?.call(suggestion.preview),
       onExit: (_) => onPreviewChanged?.call(null),
       child: Tooltip(
         message: suggestion.isSelected ? 'Current: $preview' : preview,
