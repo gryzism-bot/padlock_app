@@ -208,7 +208,12 @@ class ConfigurationEngine {
   SentenceState _applyMove(SentenceState state, ConfigurationMove move) {
     return switch (move) {
       SetAgent(:final agent) => _copy(state, agent: agent),
-      SetAction(:final action) => _copy(state, action: action),
+      SetAction(:final action) => _copy(
+        state,
+        action: action,
+        complement: action == be ? state.complement : null,
+        adjectiveComplement: action == be ? state.adjectiveComplement : null,
+      ),
       SetObject(:final object) => _copy(state, object: object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetComplement(:final complement) => _copy(
@@ -243,7 +248,11 @@ class ConfigurationEngine {
         voice: Voice.active,
         passiveFocus: null,
       ),
-      SetVoice(:final voice) => _copy(state, voice: voice),
+      SetVoice(:final voice) => _copy(
+        state,
+        voice: voice,
+        passiveFocus: voice == Voice.active ? null : state.passiveFocus,
+      ),
       SetPassiveFocus(:final passiveFocus) => _copy(
         state,
         passiveFocus: passiveFocus,
@@ -308,18 +317,68 @@ class ConfigurationEngine {
         const ConfigurationMessage.blocked('Lexical be requires a complement.'),
       );
     }
+
+    if (state.agent != null &&
+        state.complement != null &&
+        state.agent!.isPlural != state.complement!.isPlural) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be noun complement must match agent number.',
+        ),
+      );
+    }
+
+    if (state.object != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take an object.',
+        ),
+      );
+    }
+
+    if (state.recipient != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take a recipient.',
+        ),
+      );
+    }
+
+    if (state.passiveFocus != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take passive focus.',
+        ),
+      );
+    }
   }
 
   void _validatePredicateFrame(
     SentenceState state,
     List<ConfigurationMessage> blockers,
   ) {
+    if (state.complement != null || state.adjectiveComplement != null) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${state.action.infinitive} does not take a complement.',
+        ),
+      );
+    }
+
     switch (state.voice) {
       case Voice.active:
         if (state.agent == null) {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Active voice requires an agent.',
+            ),
+          );
+        }
+
+        if (state.passiveFocus != null) {
+          blockers.add(
+            const ConfigurationMessage.blocked(
+              'Passive focus belongs to passive voice.',
             ),
           );
         }
@@ -348,13 +407,6 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.complement != null || state.adjectiveComplement != null) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take a complement.',
-            ),
-          );
-        }
         break;
 
       case Voice.passive:
@@ -445,6 +497,12 @@ class ConfigurationEngine {
     if (state.tense != Tense.present || state.aspect != Aspect.simple) {
       blockers.add(
         const ConfigurationMessage.blocked('Imperatives use present simple.'),
+      );
+    }
+
+    if (state.voice != Voice.active) {
+      blockers.add(
+        const ConfigurationMessage.blocked('Imperatives use active voice.'),
       );
     }
   }

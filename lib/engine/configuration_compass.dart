@@ -207,6 +207,14 @@ class _CompassCandidate {
 }
 
 int _actionPriority(Verb current, Verb candidate) {
+  if (current == be && candidate == work) {
+    return 120;
+  }
+
+  if (current == be) {
+    return 100;
+  }
+
   if (candidate == be) {
     return 70;
   }
@@ -291,9 +299,13 @@ final _defaultRecipients = [
 
 final _defaultComplements = [
   doctor.toNounPhrase(Number.singular, determiner: aDeterminer),
+  doctor.toNounPhrase(Number.plural),
   teacher.toNounPhrase(Number.singular, determiner: aDeterminer),
+  teacher.toNounPhrase(Number.plural),
   student.toNounPhrase(Number.singular, determiner: aDeterminer),
+  student.toNounPhrase(Number.plural),
   engineer.toNounPhrase(Number.singular, determiner: anDeterminer),
+  engineer.toNounPhrase(Number.plural),
 ];
 
 final _coreModals = [

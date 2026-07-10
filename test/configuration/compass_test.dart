@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
+import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -92,6 +93,41 @@ void main() {
       expect(render(suggestions.single.preview), 'Bridge is built by him.');
     });
 
+    test('hides passive focus until passive voice is selected', () {
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(give));
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = lock.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(
+        compass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.passiveFocus,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetVoice(Voice.passive));
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.passiveFocus,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'object',
+        'recipient',
+      ]);
+    });
+
     test('enters lexical be through complement suggestions', () {
       final suggestions = compass.suggestionsFor(
         ConfigurationState.initial(),
@@ -106,6 +142,88 @@ void main() {
       expect(suggestions.first.preview.sentenceState.action, be);
       expect(render(suggestions.first.preview), 'He is happy.');
     });
+
+    test('noun complement suggestions follow agent number', () {
+      var state = ConfigurationState.initial();
+
+      var suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.complement,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'doctor',
+        'engineer',
+        'student',
+        'teacher',
+      ]);
+
+      state = lock.applyMove(state, const SetAgent(they));
+      suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.complement,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'doctors',
+        'engineers',
+        'students',
+        'teachers',
+      ]);
+      expect(render(suggestions.last.preview), 'They are teachers.');
+    });
+
+    test('offers normal verbs as exits from lexical be', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetLexicalBeAdjectiveComplement(happy),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        contains('work'),
+      );
+
+      final workSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'work',
+      );
+
+      expect(workSuggestion.preview.sentenceState.action, work);
+      expect(workSuggestion.preview.sentenceState.adjectiveComplement, isNull);
+      expect(wasBlocked(workSuggestion.preview), isFalse);
+      expect(render(workSuggestion.preview), 'He works.');
+    });
+
+    test(
+      'hides incompatible object recipient and passive focus for lexical be',
+      () {
+        final state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetLexicalBeAdjectiveComplement(happy),
+        );
+
+        expect(
+          compass.suggestionsFor(state, ConfigurationCompassSlot.object),
+          isEmpty,
+        );
+        expect(
+          compass.suggestionsFor(state, ConfigurationCompassSlot.recipient),
+          isEmpty,
+        );
+        expect(
+          compass.suggestionsFor(state, ConfigurationCompassSlot.passiveFocus),
+          isEmpty,
+        );
+      },
+    );
 
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();
@@ -143,6 +261,38 @@ void main() {
         PassiveFocus.recipient,
       );
       expect(render(suggestions.last.preview), 'Mary is given book by him.');
+    });
+
+    test('offers active voice as an exit from passive recipient focus', () {
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(give));
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = lock.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+      state = lock.applyMove(state, const SetVoice(Voice.passive));
+      state = lock.applyMove(
+        state,
+        const SetPassiveFocus(PassiveFocus.recipient),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.voice,
+        limit: 0,
+      );
+      final activeSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'active',
+      );
+
+      expect(activeSuggestion.preview.sentenceState.voice, Voice.active);
+      expect(activeSuggestion.preview.sentenceState.passiveFocus, isNull);
+      expect(wasBlocked(activeSuggestion.preview), isFalse);
+      expect(render(activeSuggestion.preview), 'He gives Mary book.');
     });
 
     test('modal suggestions honor tense frames', () {

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -184,6 +185,29 @@ void main() {
       );
     });
 
+    test('blocks passive focus while voice is active', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(bridge.toNounPhrase(Number.singular)),
+      );
+
+      final previous = state;
+      state = engine.applyMove(
+        state,
+        const SetPassiveFocus(PassiveFocus.object),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Passive focus belongs to passive voice.',
+      );
+    });
+
     test('blocks recipient focus on non-ditransitive passive', () {
       var state = ConfigurationState.initial();
 
@@ -255,6 +279,31 @@ void main() {
       expect(wasBlocked(state), isFalse);
     });
 
+    test('exits passive voice by clearing passive focus', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(give));
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetVoice(Voice.passive));
+      state = engine.applyMove(
+        state,
+        const SetPassiveFocus(PassiveFocus.recipient),
+      );
+      state = engine.applyMove(state, const SetVoice(Voice.active));
+
+      expect(state.sentenceState.voice, Voice.active);
+      expect(state.sentenceState.passiveFocus, isNull);
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He gives Mary book.');
+    });
+
     test('blocks lexical be until a complement frame exists', () {
       final previous = ConfigurationState.initial();
       final state = engine.applyMove(previous, const SetAction(be));
@@ -296,6 +345,26 @@ void main() {
       expect(render(state), 'He is a doctor.');
     });
 
+    test('blocks lexical be noun complement number mismatch', () {
+      var state = engine.applyMove(
+        ConfigurationState.initial(),
+        SetLexicalBeComplement(
+          doctor.toNounPhrase(Number.singular, determiner: aDeterminer),
+        ),
+      );
+
+      final previous = state;
+      state = engine.applyMove(state, const SetAgent(they));
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Lexical be noun complement must match agent number.',
+      );
+      expect(render(state), 'He is a doctor.');
+    });
+
     test('lexical be frame move clears incompatible passive/object slots', () {
       var state = ConfigurationState.initial();
 
@@ -334,6 +403,68 @@ void main() {
       expect(render(state), 'He can be happy.');
     });
 
+    test('lexical be blocks object recipient and passive focus slots', () {
+      final state = engine.applyMove(
+        ConfigurationState.initial(),
+        SetLexicalBeComplement(
+          doctor.toNounPhrase(Number.singular, determiner: aDeterminer),
+        ),
+      );
+
+      var blocked = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'Lexical be does not take an object.',
+      );
+
+      blocked = engine.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'Lexical be does not take a recipient.',
+      );
+
+      blocked = engine.applyMove(
+        state,
+        const SetPassiveFocus(PassiveFocus.object),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'Lexical be does not take passive focus.',
+      );
+    });
+
+    test('exits lexical be by clearing complement slots on verb change', () {
+      var state = engine.applyMove(
+        ConfigurationState.initial(),
+        SetLexicalBeComplement(
+          doctor.toNounPhrase(Number.singular, determiner: aDeterminer),
+        ),
+      );
+
+      state = engine.applyMove(state, const SetAction(work));
+
+      expect(state.sentenceState.action, work);
+      expect(state.sentenceState.complement, isNull);
+      expect(state.sentenceState.adjectiveComplement, isNull);
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He works.');
+    });
+
     test('blocks lexical be in passive voice', () {
       var state = ConfigurationState.initial();
 
@@ -365,6 +496,24 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'work does not take a complement.');
+    });
+
+    test('blocks complements on passive non-be verbs', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(bridge.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetVoice(Voice.passive));
+
+      final previous = state;
+      state = engine.applyMove(state, const SetAdjectiveComplement(happy));
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(state.messages.single.text, 'build does not take a complement.');
     });
 
     test('blocks modal and tense combinations outside their frame', () {
@@ -436,6 +585,27 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'Imperatives cannot take a modal.');
+    });
+
+    test('blocks passive imperative frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(bridge.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetVoice(Voice.passive));
+
+      final previous = state;
+      state = engine.applyMove(
+        state,
+        const SetSentenceForm(SentenceForm.imperative),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(state.messages.single.text, 'Imperatives use active voice.');
     });
 
     test('blocks non-simple imperative frame', () {
