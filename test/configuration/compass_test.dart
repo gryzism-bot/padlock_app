@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
@@ -179,10 +180,15 @@ void main() {
       );
 
       expect(suggestions.map((suggestion) => suggestion.label), [
-        'active',
         'passive',
+        'active',
       ]);
-      expect(suggestions.first.isSelected, isTrue);
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'active')
+            .isSelected,
+        isTrue,
+      );
 
       final passiveSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'passive',
@@ -234,8 +240,12 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.first.label, 'work');
-      expect(suggestions.first.isSelected, isTrue);
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'work')
+            .isSelected,
+        isTrue,
+      );
 
       final beSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'be',
@@ -271,6 +281,16 @@ void main() {
         'tired',
       ]);
       expect(render(suggestions.first.preview), 'He is happy.');
+    });
+
+    test('default verb dial keeps go visible as a movement doorway', () {
+      final suggestions = ConfigurationCompass().suggestionsFor(
+        ConfigurationState.initial(),
+        ConfigurationCompassSlot.action,
+        limit: 6,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), contains('go'));
     });
 
     test('noun complement suggestions follow agent number', () {
@@ -436,11 +456,11 @@ void main() {
       );
 
       expect(presentSuggestions.map((suggestion) => suggestion.label), [
-        'no modal',
         'can',
         'should',
+        'no modal',
       ]);
-      expect(presentSuggestions.first.isSelected, isTrue);
+      expect(presentSuggestions.last.isSelected, isTrue);
 
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetTense(Tense.future));
@@ -452,11 +472,11 @@ void main() {
       );
 
       expect(futureSuggestions.map((suggestion) => suggestion.label), [
-        'no modal',
         'will',
+        'no modal',
       ]);
-      expect(futureSuggestions.first.isSelected, isTrue);
-      expect(render(futureSuggestions.last.preview), 'He will work.');
+      expect(futureSuggestions.last.isSelected, isTrue);
+      expect(render(futureSuggestions.first.preview), 'He will work.');
     });
 
     test('modal suggestions expose no modal as the exit', () {
@@ -494,23 +514,31 @@ void main() {
       final actionSuggestions = compass.suggestionsFor(
         state,
         ConfigurationCompassSlot.action,
+        limit: 0,
       );
-      expect(actionSuggestions.first.label, 'build');
-      expect(actionSuggestions.first.isSelected, isTrue);
+      final buildSuggestion = actionSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'build',
+      );
+      expect(buildSuggestion.isSelected, isTrue);
 
       final objectSuggestions = compass.suggestionsFor(
         state,
         ConfigurationCompassSlot.object,
+        limit: 0,
       );
       expect(objectSuggestions.first.label, 'book');
       expect(objectSuggestions.first.isSelected, isTrue);
+      expect(render(objectSuggestions.first.preview), 'He builds a book.');
 
       final determinerSuggestions = compass.suggestionsFor(
         state,
         ConfigurationCompassSlot.objectDeterminer,
+        limit: 0,
       );
-      expect(determinerSuggestions.first.label, 'a');
-      expect(determinerSuggestions.first.isSelected, isTrue);
+      final selectedDeterminer = determinerSuggestions.singleWhere(
+        (suggestion) => suggestion.isSelected,
+      );
+      expect(selectedDeterminer.label, 'a');
 
       final adjectiveSuggestions = compass.suggestionsFor(
         state,
@@ -527,8 +555,39 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.first.label, 'school');
-      expect(render(suggestions.first.preview), 'He works at school.');
+      expect(suggestions.first.label, 'no place');
+      expect(suggestions.first.isSelected, isTrue);
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        isNot(contains('work')),
+      );
+
+      final schoolSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'school',
+      );
+      expect(render(schoolSuggestion.preview), 'He works at school.');
+
+      final stateWithPlace = schoolSuggestion.preview;
+      final exitSuggestions = compass.suggestionsFor(
+        stateWithPlace,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+
+      expect(
+        exitSuggestions
+            .singleWhere((suggestion) => suggestion.label == 'school')
+            .isSelected,
+        isTrue,
+      );
+      expect(
+        render(
+          exitSuggestions
+              .singleWhere((suggestion) => suggestion.label == 'no place')
+              .preview,
+        ),
+        'He works.',
+      );
     });
 
     test('place suggestions use destination meaning for movement verbs', () {
@@ -561,7 +620,8 @@ void main() {
         ConfigurationCompassSlot.timePhrase,
       );
 
-      expect(suggestions.first.label, 'today');
+      expect(suggestions.first.label, 'no time');
+      expect(suggestions.first.isSelected, isTrue);
 
       state = lock.applyMove(state, const SetAspect(Aspect.continuous));
       suggestions = compass.suggestionsFor(
@@ -569,7 +629,10 @@ void main() {
         ConfigurationCompassSlot.timePhrase,
       );
 
-      expect(suggestions.first.label, 'now');
+      expect(
+        suggestions.singleWhere((suggestion) => suggestion.label == 'now'),
+        isNotNull,
+      );
 
       state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetTense(Tense.past));
@@ -578,7 +641,12 @@ void main() {
         ConfigurationCompassSlot.timePhrase,
       );
 
-      expect(suggestions.first.label, 'yesterday');
+      expect(
+        suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'yesterday',
+        ),
+        isNotNull,
+      );
 
       state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetTense(Tense.future));
@@ -587,7 +655,32 @@ void main() {
         ConfigurationCompassSlot.timePhrase,
       );
 
-      expect(suggestions.first.label, 'tomorrow');
+      expect(
+        suggestions.singleWhere((suggestion) => suggestion.label == 'tomorrow'),
+        isNotNull,
+      );
+
+      state = lock.applyMove(state, const SetTimePhrase(tomorrowTimePhrase));
+      suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.timePhrase,
+        limit: 0,
+      );
+
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'tomorrow')
+            .isSelected,
+        isTrue,
+      );
+      expect(
+        render(
+          suggestions
+              .singleWhere((suggestion) => suggestion.label == 'no time')
+              .preview,
+        ),
+        'He will work.',
+      );
     });
 
     test('never returns a move blocked by guided mode', () {

@@ -225,21 +225,22 @@ class ConfigurationEngine {
   SentenceState _applyMove(SentenceState state, ConfigurationMove move) {
     return switch (move) {
       SetAgent(:final agent) => _copy(state, agent: agent),
-      SetAction(:final action) => action == be
-          ? _copy(
-              state,
-              action: action,
-              object: null,
-              recipient: null,
-              voice: Voice.active,
-              passiveFocus: null,
-            )
-          : _copy(
-              state,
-              action: action,
-              complement: null,
-              adjectiveComplement: null,
-            ),
+      SetAction(:final action) =>
+        action == be
+            ? _copy(
+                state,
+                action: action,
+                object: null,
+                recipient: null,
+                voice: Voice.active,
+                passiveFocus: null,
+              )
+            : _copy(
+                state,
+                action: action,
+                complement: null,
+                adjectiveComplement: null,
+              ),
       SetObject(:final object) => _copy(state, object: object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetComplement(:final complement) => _copy(
@@ -338,6 +339,7 @@ class ConfigurationEngine {
 
     _validateModalFrame(state, blockers);
     _validateImperativeFrame(state, blockers);
+    _validatePhraseFrame(state, blockers);
 
     return blockers;
   }
@@ -590,6 +592,24 @@ class ConfigurationEngine {
     }
   }
 
+  void _validatePhraseFrame(
+    SentenceState state,
+    List<ConfigurationMessage> blockers,
+  ) {
+    final place = state.placePhrase;
+    if (place == null) {
+      return;
+    }
+
+    if (place.noun.toLowerCase() == state.action.infinitive.toLowerCase()) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          'Place phrase cannot repeat the verb word "${place.noun}".',
+        ),
+      );
+    }
+  }
+
   List<ConfigurationMessage> _collectMessages(
     SentenceState previous,
     SentenceState current,
@@ -678,38 +698,31 @@ class ConfigurationEngine {
     NounPhrase Function(NounPhrase phrase) transform,
   ) {
     return switch (target) {
-      NounPhraseTarget.agent => state.agent == null
-          ? state
-          : _copy(state, agent: transform(state.agent!)),
-      NounPhraseTarget.object => state.object == null
-          ? state
-          : _copy(state, object: transform(state.object!)),
-      NounPhraseTarget.recipient => state.recipient == null
-          ? state
-          : _copy(state, recipient: transform(state.recipient!)),
-      NounPhraseTarget.complement => state.complement == null
-          ? state
-          : _copy(state, complement: transform(state.complement!)),
+      NounPhraseTarget.agent =>
+        state.agent == null
+            ? state
+            : _copy(state, agent: transform(state.agent!)),
+      NounPhraseTarget.object =>
+        state.object == null
+            ? state
+            : _copy(state, object: transform(state.object!)),
+      NounPhraseTarget.recipient =>
+        state.recipient == null
+            ? state
+            : _copy(state, recipient: transform(state.recipient!)),
+      NounPhraseTarget.complement =>
+        state.complement == null
+            ? state
+            : _copy(state, complement: transform(state.complement!)),
     };
   }
 }
 
 const _unchanged = Object();
 
-const _singularDeterminers = {
-  'a',
-  'an',
-  'this',
-  'that',
-  'each',
-  'every',
-};
+const _singularDeterminers = {'a', 'an', 'this', 'that', 'each', 'every'};
 
-const _pluralDeterminers = {
-  'these',
-  'those',
-  'many',
-};
+const _pluralDeterminers = {'these', 'those', 'many'};
 
 bool _startsWithVowelLetter(String text) {
   if (text.isEmpty) {

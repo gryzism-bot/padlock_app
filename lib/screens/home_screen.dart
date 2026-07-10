@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
@@ -8,6 +10,8 @@ import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+
+enum SuggestionDisplayMode { sentence, change, word }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final GrammarEngine grammar = GrammarEngine();
 
   late ConfigurationState configuration;
+  SuggestionDisplayMode? suggestionDisplayMode;
 
   @override
   void initState() {
@@ -40,9 +45,35 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _shuffle() {
+    final compass = ConfigurationCompass();
+    final random = Random();
+    var state = ConfigurationState.initial();
+
+    for (var step = 0; step < 8; step++) {
+      final suggestions = [
+        for (final slot in ConfigurationCompassSlot.values)
+          ...compass
+              .suggestionsFor(state, slot, limit: 0)
+              .where((suggestion) => !suggestion.isSelected),
+      ];
+
+      if (suggestions.isEmpty) {
+        break;
+      }
+
+      state = suggestions[random.nextInt(suggestions.length)].preview;
+    }
+
+    setState(() {
+      configuration = state;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final compass = ConfigurationCompass();
+    final displayMode = suggestionDisplayMode ?? SuggestionDisplayMode.change;
     final sentence = grammar.generate(configuration.sentenceState);
 
     return Scaffold(
@@ -53,6 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
             tooltip: 'Reset',
             onPressed: _reset,
             icon: const Icon(Icons.restart_alt),
+          ),
+          IconButton(
+            tooltip: 'Random sentence',
+            onPressed: _shuffle,
+            icon: const Icon(Icons.shuffle),
           ),
         ],
       ),
@@ -69,6 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
               _GuidedMessages(messages: configuration.messages),
               const SizedBox(height: 16),
+              _DisplayModeSection(
+                value: displayMode,
+                onChanged: (mode) {
+                  setState(() {
+                    suggestionDisplayMode = mode;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
               _ManualSection(onMove: _move),
               const SizedBox(height: 16),
               for (final slot in ConfigurationCompassSlot.values) ...[
@@ -76,6 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: _slotTitle(slot),
                   currentValue: _currentValue(slot, configuration),
                   unlockHint: _unlockHint(slot, configuration),
+                  currentSentence: sentence.text,
+                  displayMode: displayMode,
                   suggestions: compass.suggestionsFor(
                     configuration,
                     slot,
@@ -114,7 +161,11 @@ class _SentencePanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(sentence, style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              sentence,
+              key: const Key('rendered-sentence'),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 12),
             Text(summary, style: Theme.of(context).textTheme.bodySmall),
           ],
@@ -195,10 +246,44 @@ class _ManualSection extends StatelessWidget {
   }
 }
 
+class _DisplayModeSection extends StatelessWidget {
+  final SuggestionDisplayMode value;
+  final ValueChanged<SuggestionDisplayMode> onChanged;
+
+  const _DisplayModeSection({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<SuggestionDisplayMode>(
+      segments: const [
+        ButtonSegment(
+          value: SuggestionDisplayMode.sentence,
+          label: Text('Sentence'),
+          icon: Icon(Icons.subject),
+        ),
+        ButtonSegment(
+          value: SuggestionDisplayMode.change,
+          label: Text('Change'),
+          icon: Icon(Icons.highlight),
+        ),
+        ButtonSegment(
+          value: SuggestionDisplayMode.word,
+          label: Text('Word'),
+          icon: Icon(Icons.short_text),
+        ),
+      ],
+      selected: {value},
+      onSelectionChanged: (selection) => onChanged(selection.single),
+    );
+  }
+}
+
 class _CompassSlotSection extends StatelessWidget {
   final String title;
   final String currentValue;
   final String unlockHint;
+  final String currentSentence;
+  final SuggestionDisplayMode displayMode;
   final List<ConfigurationSuggestion> suggestions;
   final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
@@ -207,6 +292,8 @@ class _CompassSlotSection extends StatelessWidget {
     required this.title,
     required this.currentValue,
     required this.unlockHint,
+    required this.currentSentence,
+    required this.displayMode,
     required this.suggestions,
     required this.grammar,
     required this.onMove,
@@ -228,6 +315,8 @@ class _CompassSlotSection extends StatelessWidget {
               for (final suggestion in suggestions)
                 _SuggestionButton(
                   suggestion: suggestion,
+                  currentSentence: currentSentence,
+                  displayMode: displayMode,
                   preview: grammar
                       .generate(suggestion.preview.sentenceState)
                       .text,
@@ -277,11 +366,15 @@ class _SectionFrame extends StatelessWidget {
 
 class _SuggestionButton extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
+  final String currentSentence;
+  final SuggestionDisplayMode displayMode;
   final String preview;
   final VoidCallback onPressed;
 
   const _SuggestionButton({
     required this.suggestion,
+    required this.currentSentence,
+    required this.displayMode,
     required this.preview,
     required this.onPressed,
   });
@@ -289,9 +382,6 @@ class _SuggestionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final label = suggestion.isSelected
-        ? '${suggestion.label} (current)'
-        : '${suggestion.label} -> $preview';
 
     return Tooltip(
       message: suggestion.isSelected ? 'Current: $preview' : preview,
@@ -304,10 +394,98 @@ class _SuggestionButton extends StatelessWidget {
               )
             : null,
         onPressed: onPressed,
-        child: Text(label),
+        child: Text.rich(
+          _suggestionSpan(
+            currentSentence: currentSentence,
+            preview: preview,
+            suggestion: suggestion,
+            displayMode: displayMode,
+            colors: colors,
+          ),
+        ),
       ),
     );
   }
+}
+
+TextSpan _suggestionSpan({
+  required String currentSentence,
+  required String preview,
+  required ConfigurationSuggestion suggestion,
+  required SuggestionDisplayMode displayMode,
+  required ColorScheme colors,
+}) {
+  final baseStyle = TextStyle(
+    color: suggestion.isSelected ? colors.onPrimaryContainer : colors.onSurface,
+  );
+
+  if (displayMode == SuggestionDisplayMode.word) {
+    return TextSpan(
+      text: suggestion.label,
+      style: baseStyle.copyWith(
+        fontWeight: suggestion.isSelected ? FontWeight.w700 : FontWeight.w500,
+      ),
+    );
+  }
+
+  if (displayMode == SuggestionDisplayMode.sentence) {
+    return TextSpan(text: preview, style: baseStyle);
+  }
+
+  if (suggestion.isSelected || currentSentence == preview) {
+    return TextSpan(text: preview, style: baseStyle);
+  }
+
+  final change = _changedRange(currentSentence, preview);
+  final highlightStyle = TextStyle(
+    color: colors.onTertiaryContainer,
+    backgroundColor: colors.tertiaryContainer,
+    fontWeight: FontWeight.w800,
+  );
+
+  if (change.start == change.end) {
+    return TextSpan(
+      style: baseStyle,
+      children: [
+        TextSpan(text: preview),
+        TextSpan(text: '  ', style: baseStyle),
+        TextSpan(text: suggestion.label, style: highlightStyle),
+      ],
+    );
+  }
+
+  return TextSpan(
+    style: baseStyle,
+    children: [
+      TextSpan(text: preview.substring(0, change.start)),
+      TextSpan(
+        text: preview.substring(change.start, change.end),
+        style: highlightStyle,
+      ),
+      TextSpan(text: preview.substring(change.end)),
+    ],
+  );
+}
+
+({int start, int end}) _changedRange(String current, String preview) {
+  var start = 0;
+  while (start < current.length &&
+      start < preview.length &&
+      current.codeUnitAt(start) == preview.codeUnitAt(start)) {
+    start++;
+  }
+
+  var currentEnd = current.length;
+  var previewEnd = preview.length;
+  while (currentEnd > start &&
+      previewEnd > start &&
+      current.codeUnitAt(currentEnd - 1) ==
+          preview.codeUnitAt(previewEnd - 1)) {
+    currentEnd--;
+    previewEnd--;
+  }
+
+  return (start: start, end: previewEnd);
 }
 
 class _MoveButton extends StatelessWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
@@ -97,10 +98,7 @@ void main() {
       final previous = state;
       state = engine.applyMove(
         state,
-        const SetNounPhraseDeterminer(
-          NounPhraseTarget.object,
-          aDeterminer,
-        ),
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
       );
 
       expect(state.sentenceState, same(previous.sentenceState));
@@ -112,10 +110,7 @@ void main() {
 
       state = engine.applyMove(
         previous,
-        const SetNounPhraseDeterminer(
-          NounPhraseTarget.object,
-          manyDeterminer,
-        ),
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, manyDeterminer),
       );
 
       expect(wasBlocked(state), isFalse);
@@ -134,10 +129,7 @@ void main() {
       final previous = state;
       state = engine.applyMove(
         state,
-        const SetNounPhraseDeterminer(
-          NounPhraseTarget.object,
-          anDeterminer,
-        ),
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, anDeterminer),
       );
 
       expect(state.sentenceState, same(previous.sentenceState));
@@ -153,14 +145,26 @@ void main() {
       );
       state = engine.applyMove(
         state,
-        const SetNounPhraseDeterminer(
-          NounPhraseTarget.object,
-          anDeterminer,
-        ),
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, anDeterminer),
       );
 
       expect(wasBlocked(state), isFalse);
       expect(render(state), 'He builds an engineer.');
+    });
+
+    test('blocks place phrase that repeats the verb word', () {
+      final previous = ConfigurationState.initial();
+      final state = engine.applyMove(
+        previous,
+        const SetPlacePhrase(workPlacePhrase),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Place phrase cannot repeat the verb word "work".',
+      );
     });
 
     test('blocks moving to an intransitive verb while object is present', () {

@@ -121,10 +121,6 @@ class ConfigurationCompass {
     }
 
     suggestions.sort((left, right) {
-      if (left.isSelected != right.isSelected) {
-        return left.isSelected ? -1 : 1;
-      }
-
       final priority = right.priority.compareTo(left.priority);
       if (priority != 0) {
         return priority;
@@ -151,20 +147,19 @@ class ConfigurationCompass {
         (action) => _CompassCandidate(
           SetAction(action),
           action.infinitive,
-          action == sentence.action
-              ? 0
-              : _actionPriority(sentence.action, action),
+          _actionPriority(sentence.action, action),
           isSelected: action == sentence.action,
         ),
       ),
-      ConfigurationCompassSlot.object => objects.map(
-        (object) => _CompassCandidate(
-          SetObject(object),
+      ConfigurationCompassSlot.object => objects.map((object) {
+        final isSelected = _sameNounChoice(object, sentence.object);
+        return _CompassCandidate(
+          SetObject(isSelected ? sentence.object : object),
           object.text,
-          _sameNounChoice(object, sentence.object) ? 0 : 100,
-          isSelected: _sameNounChoice(object, sentence.object),
-        ),
-      ),
+          100,
+          isSelected: isSelected,
+        );
+      }),
       ConfigurationCompassSlot.objectDeterminer => _determinerCandidates(
         sentence.object,
         NounPhraseTarget.object,
@@ -173,14 +168,15 @@ class ConfigurationCompass {
         sentence.object,
         NounPhraseTarget.object,
       ),
-      ConfigurationCompassSlot.recipient => recipients.map(
-        (recipient) => _CompassCandidate(
-          SetRecipient(recipient),
+      ConfigurationCompassSlot.recipient => recipients.map((recipient) {
+        final isSelected = _sameNounChoice(recipient, sentence.recipient);
+        return _CompassCandidate(
+          SetRecipient(isSelected ? sentence.recipient : recipient),
           recipient.text,
-          _sameNounChoice(recipient, sentence.recipient) ? 0 : 100,
-          isSelected: _sameNounChoice(recipient, sentence.recipient),
-        ),
-      ),
+          100,
+          isSelected: isSelected,
+        );
+      }),
       ConfigurationCompassSlot.recipientDeterminer => _determinerCandidates(
         sentence.recipient,
         NounPhraseTarget.recipient,
@@ -191,14 +187,18 @@ class ConfigurationCompass {
       ),
       ConfigurationCompassSlot.complement =>
         sentence.action == be
-            ? complements.map(
-                (complement) => _CompassCandidate(
-                  SetComplement(complement),
+            ? complements.map((complement) {
+                final isSelected = _sameNounChoice(
+                  complement,
+                  sentence.complement,
+                );
+                return _CompassCandidate(
+                  SetComplement(isSelected ? sentence.complement : complement),
                   complement.text,
-                  _sameNounChoice(complement, sentence.complement) ? 0 : 100,
-                  isSelected: _sameNounChoice(complement, sentence.complement),
-                ),
-              )
+                  100,
+                  isSelected: isSelected,
+                );
+              })
             : const <_CompassCandidate>[],
       ConfigurationCompassSlot.complementDeterminer => _determinerCandidates(
         sentence.complement,
@@ -214,7 +214,7 @@ class ConfigurationCompass {
                 (adjective) => _CompassCandidate(
                   SetAdjectiveComplement(adjective),
                   adjective.text,
-                  adjective == sentence.adjectiveComplement ? 0 : 100,
+                  100,
                   isSelected: adjective == sentence.adjectiveComplement,
                 ),
               )
@@ -223,11 +223,7 @@ class ConfigurationCompass {
         (voice) => _CompassCandidate(
           SetVoice(voice),
           voice.name,
-          voice == sentence.voice
-              ? 0
-              : voice == Voice.passive
-              ? 100
-              : 90,
+          voice == Voice.passive ? 100 : 90,
           isSelected: voice == sentence.voice,
         ),
       ),
@@ -235,11 +231,7 @@ class ConfigurationCompass {
         (focus) => _CompassCandidate(
           SetPassiveFocus(focus),
           focus.name,
-          focus == sentence.passiveFocus
-              ? 0
-              : focus == PassiveFocus.object
-              ? 100
-              : 90,
+          focus == PassiveFocus.object ? 100 : 90,
           isSelected: focus == sentence.passiveFocus,
         ),
       ),
@@ -247,32 +239,42 @@ class ConfigurationCompass {
         (modal) => _CompassCandidate(
           SetModal(modal),
           modal.isNone ? 'no modal' : modal.text,
-          modal == sentence.modal
-              ? 0
-              : _modalPriority(sentence.tense, sentence.modal, modal),
+          _modalPriority(sentence.tense, sentence.modal, modal),
           isSelected: modal == sentence.modal,
         ),
       ),
-      ConfigurationCompassSlot.placePhrase => places.map(
-        (place) => _CompassCandidate(
-          SetPlacePhrase(place),
-          place.noun,
-          place == sentence.placePhrase
-              ? 0
-              : _placePriority(sentence.action, place),
-          isSelected: place == sentence.placePhrase,
+      ConfigurationCompassSlot.placePhrase => [
+        _CompassCandidate(
+          const SetPlacePhrase(null),
+          'no place',
+          sentence.placePhrase == null ? 130 : 120,
+          isSelected: sentence.placePhrase == null,
         ),
-      ),
-      ConfigurationCompassSlot.timePhrase => times.map(
-        (time) => _CompassCandidate(
-          SetTimePhrase(time),
-          time.text,
-          time == sentence.timePhrase
-              ? 0
-              : _timePriority(sentence.tense, sentence.aspect, time),
-          isSelected: time == sentence.timePhrase,
+        ...places.map(
+          (place) => _CompassCandidate(
+            SetPlacePhrase(place),
+            place.noun,
+            _placePriority(sentence.action, place),
+            isSelected: place == sentence.placePhrase,
+          ),
         ),
-      ),
+      ],
+      ConfigurationCompassSlot.timePhrase => [
+        _CompassCandidate(
+          const SetTimePhrase(null),
+          'no time',
+          sentence.timePhrase == null ? 130 : 120,
+          isSelected: sentence.timePhrase == null,
+        ),
+        ...times.map(
+          (time) => _CompassCandidate(
+            SetTimePhrase(time),
+            time.text,
+            _timePriority(sentence.tense, sentence.aspect, time),
+            isSelected: time == sentence.timePhrase,
+          ),
+        ),
+      ],
     };
   }
 
@@ -288,16 +290,14 @@ class ConfigurationCompass {
       _CompassCandidate(
         SetNounPhraseDeterminer(target, null),
         'no determiner',
-        phrase.determiner == null ? 0 : 115,
+        115,
         isSelected: phrase.determiner == null,
       ),
       ...determiners.map(
         (determiner) => _CompassCandidate(
           SetNounPhraseDeterminer(target, determiner),
           determiner.text,
-          determiner == phrase.determiner
-              ? 0
-              : _determinerPriority(phrase, determiner),
+          _determinerPriority(phrase, determiner),
           isSelected: determiner == phrase.determiner,
         ),
       ),
@@ -318,14 +318,14 @@ class ConfigurationCompass {
       _CompassCandidate(
         SetNounPhraseAdjectives(target, const []),
         'no adjective',
-        current.isEmpty ? 0 : 115,
+        115,
         isSelected: current.isEmpty,
       ),
       ...current.map(
         (adjective) => _CompassCandidate(
           SetNounPhraseAdjectives(target, current),
           adjective.text,
-          0,
+          100,
           isSelected: true,
         ),
       ),
@@ -367,6 +367,10 @@ int _actionPriority(Verb current, Verb candidate) {
 
   if (candidate == be) {
     return 105;
+  }
+
+  if (candidate == go) {
+    return 104;
   }
 
   if (candidate.takesRecipient) {

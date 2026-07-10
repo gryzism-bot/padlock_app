@@ -46,6 +46,7 @@ unchanged.
   `a`, `an`, `this`, `that`, `each`, and `every` require singular nouns;
   `these`, `those`, and `many` require plural nouns.
 - `a` and `an` must match the noun's starting sound for current app data.
+- Place phrases cannot repeat the selected verb word, such as `work at work`.
 - Lexical `be` requires an agent.
 - Lexical `be` can be selected as a bare verb frame before a complement is
   chosen.
@@ -83,6 +84,12 @@ it filters candidates through Configuration Engine.
 - Every Compass suggestion must render without throwing.
 - Compass must hide slots whose moves the lock blocks.
 - Compass should expose at least one practical exit from special frames.
+- Compass keeps current choices visible and highlighted, but selection alone
+  does not move a choice to the front of the list.
+- Compass suggestion buttons render as sentence previews. The changed words are
+  highlighted inside the sentence instead of shown as `option -> sentence`.
+- The debug UI can switch Compass suggestion display between sentence preview,
+  embedded change highlight, and compact word-only labels.
 
 ### Predicate Paths
 
@@ -94,6 +101,8 @@ it filters candidates through Configuration Engine.
 - Lexical `be` is the doorway to noun and adjective complement suggestions.
 - Noun and adjective complement suggestions are hidden until lexical `be` is
   selected.
+- `go` stays visible as a high-priority movement doorway in the default verb
+  dial.
 - Noun-bearing slots expose determiner and adjective suggestions after the noun
   exists.
 - Normal verbs, especially `work`, are visible exits from lexical `be`.
@@ -107,11 +116,15 @@ it filters candidates through Configuration Engine.
 - When a modal is selected, `no modal` is a high-priority exit.
 - Place phrase suggestions are available as location phrases for ordinary
   verbs.
+- Place phrase suggestions include `no place` as an exit when a place phrase is
+  active.
 - Destination verbs such as `go`, `come`, `travel`, `arrive`, `leave`, and
   `return` prioritize place suggestions and render them as destinations.
 - Time phrase ranking prefers tense/aspect-friendly phrases:
   `today` for simple present, `now` for continuous, `yesterday` for past,
   `tomorrow` for future.
+- Time phrase suggestions include `no time` as an exit when a time phrase is
+  active.
 
 ## Widget And Integration Laws
 
@@ -121,6 +134,8 @@ These prove the live UI stays in the tested state-space.
 - A visible Compass suggestion changes the rendered sentence.
 - A blocked manual probe shows a lock message and keeps the sentence valid.
 - A user can enter lexical `be` and exit back to a normal verb.
+- The random sentence control builds from Compass suggestions so shuffled
+  states remain renderable Guided Mode states.
 
 ## Open Law Candidates
 
