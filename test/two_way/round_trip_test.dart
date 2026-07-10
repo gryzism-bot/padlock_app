@@ -166,6 +166,12 @@ void main() {
         'Do the old workers play football?',
         'The new bridge will have been built by John.',
         'Always you speak.',
+        'John is a doctor.',
+        'Mary was happy.',
+        'Is the young doctor happy?',
+        'John will be a teacher.',
+        'John has been happy.',
+        'Mary is being happy.',
       ];
 
       for (final sentence in sentences) {

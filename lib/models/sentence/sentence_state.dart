@@ -7,6 +7,7 @@ import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
@@ -18,6 +19,8 @@ class SentenceState {
   final Verb action;
   final NounPhrase? object;
   final NounPhrase? recipient;
+  final NounPhrase? complement;
+  final Adjective? adjectiveComplement;
 
   final Voice voice;
   final PassiveFocus? passiveFocus;
@@ -40,6 +43,8 @@ class SentenceState {
     required this.action,
     this.object,
     this.recipient,
+    this.complement,
+    this.adjectiveComplement,
 
     this.voice = Voice.active,
     this.passiveFocus,
@@ -64,6 +69,8 @@ class SentenceState {
       'action=${action.infinitive}',
       'object=${object?.text}',
       'recipient=${recipient?.text}',
+      'complement=${complement?.text}',
+      'adjectiveComplement=${adjectiveComplement?.text}',
       'voice=$voice',
       'passiveFocus=$passiveFocus',
       'tense=$tense',
@@ -85,6 +92,8 @@ Agent: ${agent?.text}
 Action: ${action.infinitive}
 Object: ${object?.text}
 Recipient: ${recipient?.text}
+Complement: ${complement?.text}
+Adjective Complement: ${adjectiveComplement?.text}
 Tense: $tense
 Aspect: $aspect
 Modal: $modal

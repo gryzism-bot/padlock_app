@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
-import 'package:padlock_app/data/verbs/work.dart';
+import 'package:padlock_app/data/verbs/work.dart' hide clean;
 
 import 'package:padlock_app/engine/grammar_engine.dart';
 
@@ -69,6 +70,51 @@ void main() {
 
       expect(sentence.text, isNot('They is working.'));
       expect(sentence.text, 'They are working.');
+    });
+
+    test('Lexical BE renders noun complement', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: be,
+          complement: doctor.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John is a doctor.');
+    });
+
+    test('Lexical BE renders adjective complement', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: be,
+          adjectiveComplement: happy,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary was happy.');
+    });
+
+    test('Second person past lexical BE uses "were"', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: be,
+          adjectiveComplement: clean,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You were clean.');
     });
 
     test('Third person singular uses "has"', () {

@@ -232,8 +232,12 @@ class RecognitionEngine {
 
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'been') {
+            final beenIndex = current;
             current++;
             _recognizeVerbAfterBeen(builder, current);
+            if (builder.action == null && current < builder.tokens.length) {
+              _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
+            }
           } else if (current < builder.tokens.length) {
             final match = _lookupVerbAt(builder.tokens, current);
 
@@ -250,8 +254,12 @@ class RecognitionEngine {
           }
         } else if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'be') {
+          final beIndex = current;
           current++;
           _recognizeVerbAfterBe(builder, current);
+          if (builder.action == null) {
+            _recognizeLexicalBeAfterBe(builder, beIndex, current);
+          }
         } else {
           builder.aspect = Aspect.simple;
         }
@@ -402,8 +410,12 @@ class RecognitionEngine {
 
         if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'been') {
+          final beenIndex = current;
           current++;
           _recognizeVerbAfterBeen(builder, current);
+          if (builder.action == null && current < builder.tokens.length) {
+            _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
+          }
         } else if (current < builder.tokens.length) {
           // print(current);
           // print(builder.tokens[current]);
@@ -460,8 +472,12 @@ class RecognitionEngine {
 
         if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'been') {
+          final beenIndex = current;
           current++;
           _recognizeVerbAfterBeen(builder, current);
+          if (builder.action == null && current < builder.tokens.length) {
+            _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
+          }
         } else if (current < builder.tokens.length) {
           final match = _lookupVerbAt(builder.tokens, current);
 
@@ -516,6 +532,14 @@ class RecognitionEngine {
         }
 
         _recognizeVerbAfterBe(builder, current);
+        if (builder.action == null) {
+          if (builder.sentenceForm == SentenceForm.question && i == 0) {
+            builder.subjectEnd = _nounPhraseEnd(builder, builder.subjectStart);
+            _recognizeLexicalBeAfterBe(builder, i, builder.subjectEnd + 1);
+          } else {
+            _recognizeLexicalBeAfterBe(builder, i, current);
+          }
+        }
         break;
       }
 
@@ -587,13 +611,17 @@ class RecognitionEngine {
     final verb = match?.verb;
 
     if (verb != null) {
-      builder.action = verb;
-
       if (_matchesVerbFormAt(builder.tokens, current, verb.ingForm)) {
+        builder.action = verb;
         builder.aspect = Aspect.perfectContinuous;
+        builder.verbChainEnd = match!.end;
+        return;
       }
 
-      builder.verbChainEnd = match!.end;
+      if (_matchesVerbFormAt(builder.tokens, current, verb.pastParticiple)) {
+        builder.action = verb;
+        builder.verbChainEnd = match!.end;
+      }
     }
   }
 
@@ -630,13 +658,102 @@ class RecognitionEngine {
       return;
     }
 
-    builder.action = verb;
-
     if (_matchesVerbFormAt(builder.tokens, current, verb.ingForm)) {
+      builder.action = verb;
       builder.aspect = Aspect.continuous;
+      builder.verbChainEnd = match!.end;
+      return;
     }
 
-    builder.verbChainEnd = match!.end;
+    if (_matchesVerbFormAt(builder.tokens, current, verb.pastParticiple)) {
+      builder.action = verb;
+      builder.verbChainEnd = match!.end;
+    }
+  }
+
+  void _recognizeLexicalBeAfterBe(
+    _RecognitionBuilder builder,
+    int beIndex,
+    int complementStart,
+  ) {
+    final start = _skipNot(builder, complementStart);
+
+    if (start < builder.tokens.length &&
+        builder.tokens[start].toLowerCase() == 'being') {
+      _recognizeLexicalBeComplement(
+        builder,
+        beIndex,
+        start + 1,
+        aspect: Aspect.continuous,
+        verbChainEnd: start,
+      );
+      return;
+    }
+
+    _recognizeLexicalBeComplement(
+      builder,
+      beIndex,
+      start,
+      aspect: Aspect.simple,
+      verbChainEnd: beIndex,
+    );
+  }
+
+  void _recognizeLexicalBeAfterBeen(
+    _RecognitionBuilder builder,
+    int beenIndex,
+    int complementStart,
+  ) {
+    final start = _skipNot(builder, complementStart);
+
+    if (start < builder.tokens.length &&
+        builder.tokens[start].toLowerCase() == 'being') {
+      _recognizeLexicalBeComplement(
+        builder,
+        beenIndex,
+        start + 1,
+        aspect: Aspect.perfectContinuous,
+        verbChainEnd: start,
+      );
+      return;
+    }
+
+    _recognizeLexicalBeComplement(
+      builder,
+      beenIndex,
+      start,
+      aspect: Aspect.perfect,
+      verbChainEnd: beenIndex,
+    );
+  }
+
+  int _skipNot(_RecognitionBuilder builder, int index) {
+    if (index < builder.tokens.length &&
+        builder.tokens[index].toLowerCase() == 'not') {
+      return index + 1;
+    }
+
+    return index;
+  }
+
+  void _recognizeLexicalBeComplement(
+    _RecognitionBuilder builder,
+    int beIndex,
+    int complementStart, {
+    required Aspect aspect,
+    required int verbChainEnd,
+  }) {
+    builder.action = be;
+    builder.aspect = aspect;
+    builder.verbChainEnd = verbChainEnd;
+    builder.complementStart = complementStart;
+
+    if (builder.complementStart < builder.tokens.length &&
+        builder.tokens[builder.complementStart].toLowerCase() == 'not') {
+      builder.complementStart++;
+    }
+
+    builder.complementEnd = builder.tokens.length - 1;
   }
 
   Verb? _lookupVerb(String token) {
@@ -1137,6 +1254,11 @@ class RecognitionEngine {
     if (builder.agentStart >= 0 && builder.agentEnd >= firstPhraseStart) {
       builder.agentEnd = firstPhraseStart - 1;
     }
+
+    if (builder.complementStart >= 0 &&
+        builder.complementEnd >= firstPhraseStart) {
+      builder.complementEnd = firstPhraseStart - 1;
+    }
   }
 
   void _trimFrontPhrases(_RecognitionBuilder builder) {
@@ -1164,6 +1286,11 @@ class RecognitionEngine {
         builder.recipientStart <= frontPhraseEnd) {
       builder.recipientStart = frontPhraseEnd + 1;
     }
+
+    if (builder.complementStart >= 0 &&
+        builder.complementStart <= frontPhraseEnd) {
+      builder.complementStart = frontPhraseEnd + 1;
+    }
   }
 
   void _buildParticipants(_RecognitionBuilder builder) {
@@ -1187,6 +1314,22 @@ class RecognitionEngine {
           builder.recipientEnd + 1,
         ),
       );
+    }
+
+    if (builder.complementStart >= 0 &&
+        builder.complementEnd >= builder.complementStart) {
+      final complementTokens = builder.tokens.sublist(
+        builder.complementStart,
+        builder.complementEnd + 1,
+      );
+
+      if (complementTokens.length == 1) {
+        builder.adjectiveComplement = _lookupAdjective(complementTokens.single);
+      }
+
+      if (builder.adjectiveComplement == null) {
+        builder.complement = _recognizeNounPhrase(complementTokens);
+      }
     }
   }
 
@@ -1511,6 +1654,9 @@ class _RecognitionBuilder {
   int recipientStart = -1;
   int recipientEnd = -1;
 
+  int complementStart = -1;
+  int complementEnd = -1;
+
   int subjectStart = 0;
   int subjectEnd = -1;
 
@@ -1537,6 +1683,8 @@ class _RecognitionBuilder {
 
   NounPhrase? object;
   NounPhrase? recipient;
+  NounPhrase? complement;
+  Adjective? adjectiveComplement;
 
   TimePhrase? timePhrase;
   int timePhraseStart = -1;
@@ -1563,6 +1711,8 @@ class _RecognitionBuilder {
     agent: agent,
     object: object,
     recipient: recipient,
+    complement: complement,
+    adjectiveComplement: adjectiveComplement,
     voice: voice,
     passiveFocus: voice == Voice.passive
         ? passiveFocus ?? PassiveFocus.object
@@ -1589,6 +1739,7 @@ class _RecognitionBuilder {
       'agent: $agentStart -> $agentEnd (${_tokensBetween(agentStart, agentEnd)}) = ${agent?.text}',
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',
+      'complement: $complementStart -> $complementEnd (${_tokensBetween(complementStart, complementEnd)}) = ${complement?.text ?? adjectiveComplement?.text}',
       'action: ${action?.infinitive}',
       'tense/aspect: $tense / $aspect',
       'voice: $voice',

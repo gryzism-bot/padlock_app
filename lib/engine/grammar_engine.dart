@@ -3,6 +3,7 @@ import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
@@ -67,6 +68,27 @@ class GrammarEngine {
   // -------------------------------------------------------
 
   void _applyVoice(_SentenceBuilder builder) {
+    if (builder.state.action.infinitive == 'be') {
+      assert(builder.state.agent != null, 'Lexical be requires an agent.');
+      assert(
+        builder.state.voice == Voice.active,
+        'Lexical be is active-only in this predicate frame.',
+      );
+      assert(
+        builder.state.complement != null ||
+            builder.state.adjectiveComplement != null,
+        'Lexical be requires a complement.',
+      );
+
+      builder.displaySubject = builder.state.agent!;
+      builder.displayObject = null;
+      builder.displayRecipient = null;
+      builder.displayAgent = null;
+      builder.displayComplement = builder.state.complement;
+      builder.displayAdjectiveComplement = builder.state.adjectiveComplement;
+      return;
+    }
+
     switch (builder.state.voice) {
       case Voice.active:
         assert(builder.state.agent != null, 'Active voice requires an agent.');
@@ -137,6 +159,11 @@ class GrammarEngine {
   // -------------------------------------------------------
 
   void _applyVerbChain(_SentenceBuilder builder) {
+    if (builder.state.action.infinitive == 'be') {
+      _applyLexicalBeVerbChain(builder);
+      return;
+    }
+
     switch (builder.state.tense) {
       // -------------------------------------------------------
       // PRESENT
@@ -530,6 +557,105 @@ class GrammarEngine {
     }
   }
 
+  void _applyLexicalBeVerbChain(_SentenceBuilder builder) {
+    if (!builder.state.modal.isNone) {
+      builder.verbChain.add(builder.state.modal.text);
+
+      if (builder.state.polarity == Polarity.negative) {
+        builder.verbChain.add('not');
+      }
+
+      switch (builder.state.aspect) {
+        case Aspect.simple:
+          builder.verbChain.add('be');
+          break;
+        case Aspect.continuous:
+          builder.verbChain
+            ..add('be')
+            ..add('being');
+          break;
+        case Aspect.perfect:
+          builder.verbChain
+            ..add('have')
+            ..add('been');
+          break;
+        case Aspect.perfectContinuous:
+          builder.verbChain
+            ..add('have')
+            ..add('been')
+            ..add('being');
+          break;
+      }
+      return;
+    }
+
+    switch (builder.state.tense) {
+      case Tense.present:
+        switch (builder.state.aspect) {
+          case Aspect.simple:
+            builder.verbChain.add(_presentBe(builder.displaySubject));
+            break;
+          case Aspect.continuous:
+            builder.verbChain.add(_presentBe(builder.displaySubject));
+            break;
+          case Aspect.perfect:
+          case Aspect.perfectContinuous:
+            builder.verbChain.add(
+              builder.displaySubject.takesThirdPersonVerb ? 'has' : 'have',
+            );
+            break;
+        }
+        break;
+      case Tense.past:
+        switch (builder.state.aspect) {
+          case Aspect.simple:
+          case Aspect.continuous:
+            builder.verbChain.add(_pastBe(builder.displaySubject));
+            break;
+          case Aspect.perfect:
+          case Aspect.perfectContinuous:
+            builder.verbChain.add('had');
+            break;
+        }
+        break;
+      case Tense.future:
+        builder.verbChain.add('will');
+        break;
+    }
+
+    if (builder.state.polarity == Polarity.negative) {
+      builder.verbChain.add('not');
+    }
+
+    switch (builder.state.aspect) {
+      case Aspect.simple:
+        if (builder.state.tense == Tense.future) {
+          builder.verbChain.add('be');
+        }
+        break;
+      case Aspect.continuous:
+        if (builder.state.tense == Tense.future) {
+          builder.verbChain.add('be');
+        }
+        builder.verbChain.add('being');
+        break;
+      case Aspect.perfect:
+        if (builder.state.tense == Tense.future) {
+          builder.verbChain.add('have');
+        }
+        builder.verbChain.add('been');
+        break;
+      case Aspect.perfectContinuous:
+        if (builder.state.tense == Tense.future) {
+          builder.verbChain.add('have');
+        }
+        builder.verbChain
+          ..add('been')
+          ..add('being');
+        break;
+    }
+  }
+
   String _presentBe(NounPhrase subject) {
     if (subject.person == Person.first && subject.number == Number.singular) {
       return 'am';
@@ -543,6 +669,10 @@ class GrammarEngine {
   }
 
   String _pastBe(NounPhrase subject) {
+    if (subject.person == Person.second) {
+      return 'were';
+    }
+
     if (subject.number == Number.plural) {
       return 'were';
     }
@@ -658,6 +788,16 @@ class GrammarEngine {
       parts.add(_renderObjectCase(builder.displayObject!));
     }
 
+    // ---------- COMPLEMENT ----------
+
+    if (builder.displayComplement != null) {
+      parts.add(_renderNounPhrase(builder.displayComplement!));
+    }
+
+    if (builder.displayAdjectiveComplement != null) {
+      parts.add(builder.displayAdjectiveComplement!.text);
+    }
+
     // ---------- PASSIVE AGENT ----------
 
     if (builder.displayAgent != null) {
@@ -727,6 +867,8 @@ class _SentenceBuilder {
   NounPhrase? displayObject;
   NounPhrase? displayRecipient;
   NounPhrase? displayAgent;
+  NounPhrase? displayComplement;
+  Adjective? displayAdjectiveComplement;
 
   bool invertSubjectAndAuxiliary = false;
 
@@ -749,6 +891,8 @@ class _SentenceBuilder {
       'displayObject: ${displayObject?.text}',
       'displayRecipient: ${displayRecipient?.text}',
       'displayAgent: ${displayAgent?.text}',
+      'displayComplement: ${displayComplement?.text}',
+      'displayAdjectiveComplement: ${displayAdjectiveComplement?.text}',
       'verbChain: ${verbChain.join(' ')}',
       'invertSubjectAndAuxiliary: $invertSubjectAndAuxiliary',
       'punctuation: $punctuation',

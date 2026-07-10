@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -299,17 +300,18 @@ void main() {
       expect(sentence.text, 'Choir sang.');
     });
 
-    test('John has been', () {
+    test('John has been happy', () {
       final sentence = engine.generate(
         SentenceState(
           agent: john.toNounPhrase(Number.singular),
           action: be,
+          adjectiveComplement: happy,
           tense: Tense.present,
           aspect: Aspect.perfect,
         ),
       );
 
-      expect(sentence.text, 'John has been.');
+      expect(sentence.text, 'John has been happy.');
     });
 
     test('Mary has had', () {

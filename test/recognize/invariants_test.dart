@@ -4,11 +4,12 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport;
-import 'package:padlock_app/data/verbs/work.dart';
+import 'package:padlock_app/data/verbs/work.dart' hide clean;
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -57,6 +58,60 @@ void main() {
       expect(state.action, doVerb);
       expect(state.aspect, Aspect.simple);
       expect(state.tense, Tense.present);
+    });
+
+    test('Lexical BE recognizes noun complement', () {
+      final state = engine.recognize('John is a doctor.');
+
+      expectAgent(state, text: 'John');
+      expect(state.action, be);
+      expectComplement(state, text: 'doctor', determiner: aDeterminer);
+      expect(state.aspect, Aspect.simple);
+      expect(state.tense, Tense.present);
+    });
+
+    test('Lexical BE recognizes adjective complement', () {
+      final state = engine.recognize('Mary was happy.');
+
+      expectAgent(state, text: 'Mary');
+      expect(state.action, be);
+      expect(state.adjectiveComplement, happy);
+      expect(state.aspect, Aspect.simple);
+      expect(state.tense, Tense.past);
+    });
+
+    test('Lexical BE lets adjective homographs beat verb after BE', () {
+      final state = engine.recognize('I am clean.');
+
+      expectAgent(state, text: 'I');
+      expect(state.action, be);
+      expect(state.adjectiveComplement, clean);
+      expect(state.aspect, Aspect.simple);
+      expect(state.tense, Tense.present);
+    });
+
+    test('Lexical BE recognizes perfect adjective complement', () {
+      final state = engine.recognize('John has been happy.');
+
+      expectAgent(state, text: 'John');
+      expect(state.action, be);
+      expect(state.adjectiveComplement, happy);
+      expect(state.aspect, Aspect.perfect);
+      expect(state.tense, Tense.present);
+    });
+
+    test('Lexical BE question keeps subject out of complement', () {
+      final state = engine.recognize('Is the young doctor happy?');
+
+      expectAgent(
+        state,
+        text: 'doctor',
+        determiner: theDeterminer,
+        adjective: young,
+      );
+      expect(state.action, be);
+      expect(state.adjectiveComplement, happy);
+      expect(state.sentenceForm, SentenceForm.question);
     });
 
     test(

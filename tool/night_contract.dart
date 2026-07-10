@@ -8,6 +8,7 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
@@ -404,11 +405,8 @@ class _NightContractRunner {
 
     for (final verb in verbs) {
       if (verb.infinitive == 'be') {
-        yield _Candidate.skip(
-          id: '${cyclePrefix}known-gap:lexical-be',
-          bucket: 'known-gap',
-          skipReason: 'lexical be is not implemented as a regular predicate',
-        );
+        yield* _lexicalBeCandidates(index, cyclePrefix);
+        index += 1000;
         continue;
       }
 
@@ -511,6 +509,68 @@ class _NightContractRunner {
 
       yield* _phraseCandidates(verb, index, cyclePrefix);
       index += 1000;
+    }
+  }
+
+  Iterable<_Candidate> _lexicalBeCandidates(
+    int index,
+    String cyclePrefix,
+  ) sync* {
+    for (final modal in _modalSamples) {
+      for (final tense in Tense.values) {
+        if (!modal.isNone && tense != Tense.present) {
+          yield _Candidate.skip(
+            id: '${cyclePrefix}configuration-interlock:be:${modal.text}:$tense',
+            bucket: 'configuration-interlock',
+            skipReason: 'modal samples are constrained to present tense',
+          );
+          continue;
+        }
+
+        for (final aspect in Aspect.values) {
+          for (final polarity in Polarity.values) {
+            for (final form in _sentenceForms) {
+              final agent = _agents[index % _agents.length];
+              final complement = _complements[index % _complements.length];
+
+              yield _Candidate(
+                id: '${cyclePrefix}lexical-be:noun:$index',
+                bucket: 'lexical-be',
+                state: SentenceState(
+                  agent: agent,
+                  action: be,
+                  complement: complement,
+                  tense: tense,
+                  aspect: aspect,
+                  modal: modal,
+                  polarity: polarity,
+                  sentenceForm: form,
+                ),
+              );
+              index++;
+
+              final adjectiveComplement =
+                  _adjectiveComplements[index % _adjectiveComplements.length];
+
+              yield _Candidate(
+                id: '${cyclePrefix}lexical-be:adjective:$index',
+                bucket: 'lexical-be',
+                state: SentenceState(
+                  agent: agent,
+                  action: be,
+                  adjectiveComplement: adjectiveComplement,
+                  tense: tense,
+                  aspect: aspect,
+                  modal: modal,
+                  polarity: polarity,
+                  sentenceForm: form,
+                ),
+              );
+              index++;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -910,6 +970,8 @@ String _stateFingerprint(SentenceState state, {bool includeTense = true}) {
     'action=${state.action.infinitive}',
     'object=${_nounFingerprint(state.object, objectRole)}',
     'recipient=${_nounFingerprint(state.recipient, recipientRole)}',
+    'complement=${_nounFingerprint(state.complement, _NounFingerprintRole.subject)}',
+    'adjectiveComplement=${state.adjectiveComplement?.text}',
     'voice=${state.voice}',
     'passiveFocus=${state.passiveFocus}',
     if (includeTense) 'tense=${state.tense}',
@@ -998,6 +1060,15 @@ final _objects = [
   letter.toNounPhrase(Number.singular, determiner: theDeterminer),
   gift.toNounPhrase(Number.singular, determiner: aDeterminer),
 ];
+
+final _complements = [
+  doctor.toNounPhrase(Number.singular, determiner: aDeterminer),
+  teacher.toNounPhrase(Number.singular, determiner: theDeterminer),
+  worker.toNounPhrase(Number.plural, determiner: theDeterminer),
+  friend.toNounPhrase(Number.singular, determiner: aDeterminer),
+];
+
+const _adjectiveComplements = [happy, old, young, beautiful, strong, clean];
 
 final _recipients = [
   i,
