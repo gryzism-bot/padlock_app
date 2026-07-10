@@ -5,18 +5,23 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
+import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
@@ -183,6 +188,9 @@ class RecognitionEngine {
       if (modal != null) {
         builder.modal = modal;
         builder.verbChainStart = i;
+        if (token == 'cannot') {
+          builder.polarity = Polarity.negative;
+        }
 
         if (modal == will) {
           builder.tense = Tense.future;
@@ -195,12 +203,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           for (var j = builder.subjectStart; j < current; j++) {
             if (builder.tokens[j].toLowerCase() == 'not') {
               builder.polarity = Polarity.negative;
@@ -217,39 +226,42 @@ class RecognitionEngine {
 
         if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'have') {
+          final haveIndex = current;
           builder.aspect = Aspect.perfect;
           current++;
 
           if (current < builder.tokens.length &&
               builder.tokens[current].toLowerCase() == 'been') {
-            builder.aspect = Aspect.perfectContinuous;
             current++;
             _recognizeVerbAfterBeen(builder, current);
+          } else if (current < builder.tokens.length) {
+            final match = _lookupVerbAt(builder.tokens, current);
+
+            if (match != null) {
+              builder.action = match.verb;
+              builder.verbChainEnd = match.end;
+            }
+          }
+
+          if (builder.action == null) {
+            builder.action = have;
+            builder.aspect = Aspect.simple;
+            builder.verbChainEnd = haveIndex;
           }
         } else if (current < builder.tokens.length &&
             builder.tokens[current].toLowerCase() == 'be') {
           current++;
-
-          builder.aspect = Aspect.simple;
-
-          if (current < builder.tokens.length) {
-            final verb = _lookupVerb(builder.tokens[current]);
-
-            if (verb != null &&
-                builder.tokens[current].toLowerCase() == verb.ingForm) {
-              builder.aspect = Aspect.continuous;
-            }
-          }
+          _recognizeVerbAfterBe(builder, current);
         } else {
           builder.aspect = Aspect.simple;
         }
 
         if (builder.action == null && current < builder.tokens.length) {
-          final verb = _lookupVerb(builder.tokens[current]);
+          final match = _lookupVerbAt(builder.tokens, current);
 
-          if (verb != null) {
-            builder.action = verb;
-            builder.verbChainEnd = current;
+          if (match != null) {
+            builder.action = match.verb;
+            builder.verbChainEnd = match.end;
           }
         }
 
@@ -270,12 +282,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
@@ -286,12 +299,17 @@ class RecognitionEngine {
         }
 
         if (current < builder.tokens.length) {
-          final verb = _lookupVerb(builder.tokens[current]);
+          final match = _lookupVerbAt(builder.tokens, current);
 
-          if (verb != null) {
-            builder.action = verb;
-            builder.verbChainEnd = current;
+          if (match != null) {
+            builder.action = match.verb;
+            builder.verbChainEnd = match.end;
           }
+        }
+
+        if (builder.action == null) {
+          builder.action = doVerb;
+          builder.verbChainEnd = i;
         }
         break;
       }
@@ -310,12 +328,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
@@ -330,12 +349,17 @@ class RecognitionEngine {
         }
 
         if (current < builder.tokens.length) {
-          final verb = _lookupVerb(builder.tokens[current]);
+          final match = _lookupVerbAt(builder.tokens, current);
 
-          if (verb != null) {
-            builder.action = verb;
-            builder.verbChainEnd = current;
+          if (match != null) {
+            builder.action = match.verb;
+            builder.verbChainEnd = match.end;
           }
+        }
+
+        if (builder.action == null) {
+          builder.action = doVerb;
+          builder.verbChainEnd = i;
         }
         break;
       }
@@ -353,12 +377,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           for (var j = builder.subjectStart; j < current; j++) {
             if (builder.tokens[j].toLowerCase() == 'not') {
               builder.polarity = Polarity.negative;
@@ -382,12 +407,18 @@ class RecognitionEngine {
         } else if (current < builder.tokens.length) {
           // print(current);
           // print(builder.tokens[current]);
-          final verb = _lookupVerb(builder.tokens[current]);
+          final match = _lookupVerbAt(builder.tokens, current);
 
-          if (verb != null) {
-            builder.action = verb;
-            builder.verbChainEnd = current;
+          if (match != null) {
+            builder.action = match.verb;
+            builder.verbChainEnd = match.end;
           }
+        }
+
+        if (builder.action == null) {
+          builder.action = have;
+          builder.aspect = Aspect.simple;
+          builder.verbChainEnd = i;
         }
         break;
       }
@@ -406,12 +437,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           for (var j = builder.subjectStart; j < current; j++) {
             if (builder.tokens[j].toLowerCase() == 'not') {
               builder.polarity = Polarity.negative;
@@ -431,12 +463,18 @@ class RecognitionEngine {
           current++;
           _recognizeVerbAfterBeen(builder, current);
         } else if (current < builder.tokens.length) {
-          final verb = _lookupVerb(builder.tokens[current]);
+          final match = _lookupVerbAt(builder.tokens, current);
 
-          if (verb != null) {
-            builder.action = verb;
-            builder.verbChainEnd = current;
+          if (match != null) {
+            builder.action = match.verb;
+            builder.verbChainEnd = match.end;
           }
+        }
+
+        if (builder.action == null) {
+          builder.action = have;
+          builder.aspect = Aspect.simple;
+          builder.verbChainEnd = i;
         }
         break;
       }
@@ -461,12 +499,13 @@ class RecognitionEngine {
           builder.subjectStart = current;
 
           while (current < builder.tokens.length) {
-            if (_lookupVerb(builder.tokens[current]) != null) {
+            if (_isPredicateLexicalVerb(builder, current)) {
               break;
             }
 
             current++;
           }
+          builder.subjectEnd = _subjectEndBeforePredicate(builder, current);
           _recognizePolarityBetween(builder, builder.subjectStart, current);
         } else {
           if (current < builder.tokens.length &&
@@ -476,21 +515,7 @@ class RecognitionEngine {
           }
         }
 
-        if (current < builder.tokens.length) {
-          final verb = _lookupVerb(builder.tokens[current]);
-
-          if (verb != null) {
-            builder.action = verb;
-
-            if (builder.tokens[current].toLowerCase() == verb.ingForm) {
-              builder.aspect = Aspect.continuous;
-            } else {
-              builder.aspect = Aspect.simple;
-            }
-
-            builder.verbChainEnd = current;
-          }
-        }
+        _recognizeVerbAfterBe(builder, current);
         break;
       }
 
@@ -498,7 +523,8 @@ class RecognitionEngine {
       // SIMPLE PRESENT / PAST
       // -------------------------------------------------------
 
-      final verb = _lookupVerb(token);
+      final match = _lookupVerbAt(builder.tokens, i);
+      final verb = match?.verb;
 
       if (verb != null) {
         if (_looksLikeNounPhraseToken(builder, i) ||
@@ -508,19 +534,23 @@ class RecognitionEngine {
 
         builder.action = verb;
         builder.verbChainStart = i;
-        builder.verbChainEnd = i;
+        builder.verbChainEnd = match!.end;
 
-        if (token == verb.infinitive) {
+        if (_matchesVerbFormAt(builder.tokens, i, verb.infinitive)) {
           builder.tense =
-              token == verb.pastSimple &&
+              _matchesVerbFormAt(builder.tokens, i, verb.pastSimple) &&
                   _hasThirdPersonSingularSubjectBefore(builder, i)
               ? Tense.past
               : Tense.present;
           builder.aspect = Aspect.simple;
-        } else if (token == verb.presentThirdPerson) {
+        } else if (_matchesVerbFormAt(
+          builder.tokens,
+          i,
+          verb.presentThirdPerson,
+        )) {
           builder.tense = Tense.present;
           builder.aspect = Aspect.simple;
-        } else if (token == verb.pastSimple) {
+        } else if (_matchesVerbFormAt(builder.tokens, i, verb.pastSimple)) {
           builder.tense = Tense.past;
           builder.aspect = Aspect.simple;
         }
@@ -536,30 +566,77 @@ class RecognitionEngine {
 
     if (builder.tokens[current].toLowerCase() == 'being' &&
         current + 1 < builder.tokens.length) {
-      final passiveVerb = _lookupVerb(builder.tokens[current + 1]);
+      final passiveMatch = _lookupVerbAt(builder.tokens, current + 1);
+      final passiveVerb = passiveMatch?.verb;
 
       if (passiveVerb != null &&
-          builder.tokens[current + 1].toLowerCase() ==
-              passiveVerb.pastParticiple) {
+          _matchesVerbFormAt(
+            builder.tokens,
+            current + 1,
+            passiveVerb.pastParticiple,
+          )) {
         builder.action = passiveVerb;
         builder.aspect = Aspect.perfectContinuous;
-        builder.verbChainEnd = current + 1;
+        builder.verbChainEnd = passiveMatch!.end;
       }
 
       return;
     }
 
-    final verb = _lookupVerb(builder.tokens[current]);
+    final match = _lookupVerbAt(builder.tokens, current);
+    final verb = match?.verb;
 
     if (verb != null) {
       builder.action = verb;
 
-      if (builder.tokens[current].toLowerCase() == verb.ingForm) {
+      if (_matchesVerbFormAt(builder.tokens, current, verb.ingForm)) {
         builder.aspect = Aspect.perfectContinuous;
       }
 
-      builder.verbChainEnd = current;
+      builder.verbChainEnd = match!.end;
     }
+  }
+
+  void _recognizeVerbAfterBe(_RecognitionBuilder builder, int current) {
+    builder.aspect = Aspect.simple;
+
+    if (current >= builder.tokens.length) {
+      return;
+    }
+
+    if (builder.tokens[current].toLowerCase() == 'being' &&
+        current + 1 < builder.tokens.length) {
+      final passiveMatch = _lookupVerbAt(builder.tokens, current + 1);
+      final passiveVerb = passiveMatch?.verb;
+
+      if (passiveVerb != null &&
+          _matchesVerbFormAt(
+            builder.tokens,
+            current + 1,
+            passiveVerb.pastParticiple,
+          )) {
+        builder.action = passiveVerb;
+        builder.aspect = Aspect.continuous;
+        builder.verbChainEnd = passiveMatch!.end;
+      }
+
+      return;
+    }
+
+    final match = _lookupVerbAt(builder.tokens, current);
+    final verb = match?.verb;
+
+    if (verb == null) {
+      return;
+    }
+
+    builder.action = verb;
+
+    if (_matchesVerbFormAt(builder.tokens, current, verb.ingForm)) {
+      builder.aspect = Aspect.continuous;
+    }
+
+    builder.verbChainEnd = match!.end;
   }
 
   Verb? _lookupVerb(String token) {
@@ -580,6 +657,61 @@ class RecognitionEngine {
         token == verb.pastSimple ||
         token == verb.pastParticiple ||
         token == verb.ingForm;
+  }
+
+  _VerbMatch? _lookupVerbAt(List<String> tokens, int start) {
+    _VerbMatch? best;
+
+    for (final verb in verbs) {
+      for (final form in [
+        verb.infinitive,
+        verb.presentThirdPerson,
+        verb.pastSimple,
+        verb.pastParticiple,
+        verb.ingForm,
+      ]) {
+        if (!_matchesVerbFormAt(tokens, start, form)) {
+          continue;
+        }
+
+        final length = form.split(' ').length;
+        if (best == null || length > best.length) {
+          best = _VerbMatch(verb, start + length - 1, length);
+        }
+      }
+    }
+
+    return best;
+  }
+
+  bool _matchesVerbFormAt(List<String> tokens, int start, String form) {
+    final words = form.toLowerCase().split(' ');
+
+    if (start + words.length > tokens.length) {
+      return false;
+    }
+
+    for (var i = 0; i < words.length; i++) {
+      if (tokens[start + i].toLowerCase() != words[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool _isPredicateLexicalVerb(_RecognitionBuilder builder, int index) {
+    final verb = _lookupVerbAt(builder.tokens, index)?.verb;
+
+    if (verb == null) {
+      return false;
+    }
+
+    if (_looksLikeNounPhraseToken(builder, index)) {
+      return false;
+    }
+
+    return true;
   }
 
   bool _looksLikeNounPhraseToken(_RecognitionBuilder builder, int index) {
@@ -688,6 +820,10 @@ class RecognitionEngine {
   Modal? _lookupModal(String token) {
     final normalized = token.toLowerCase();
 
+    if (normalized == 'cannot') {
+      return can;
+    }
+
     for (final modal in modals) {
       if (normalized == modal.text) {
         return modal;
@@ -701,6 +837,31 @@ class RecognitionEngine {
     var end = builder.verbChainEnd - 1;
 
     while (end >= 0) {
+      switch (builder.tokens[end].toLowerCase()) {
+        case 'not':
+        case 'be':
+        case 'been':
+        case 'being':
+        case 'have':
+        case 'has':
+        case 'had':
+          end--;
+          continue;
+      }
+
+      break;
+    }
+
+    return end;
+  }
+
+  int _subjectEndBeforePredicate(
+    _RecognitionBuilder builder,
+    int predicateStart,
+  ) {
+    var end = predicateStart - 1;
+
+    while (end >= builder.subjectStart) {
       switch (builder.tokens[end].toLowerCase()) {
         case 'not':
         case 'be':
@@ -770,7 +931,9 @@ class RecognitionEngine {
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.agentStart = builder.subjectStart;
-      builder.agentEnd = _participantEnd(builder);
+      builder.agentEnd = builder.subjectEnd >= builder.subjectStart
+          ? builder.subjectEnd
+          : _participantEnd(builder);
     } else {
       builder.agentStart = 0;
       builder.agentEnd = builder.verbChainStart - 1;
@@ -871,7 +1034,9 @@ class RecognitionEngine {
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.objectStart = builder.subjectStart;
-      builder.objectEnd = _participantEnd(builder);
+      builder.objectEnd = builder.subjectEnd >= builder.subjectStart
+          ? builder.subjectEnd
+          : _participantEnd(builder);
     } else {
       builder.objectStart = 0;
       builder.objectEnd = builder.verbChainStart - 1;
@@ -921,7 +1086,9 @@ class RecognitionEngine {
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.objectStart = builder.subjectStart;
-      builder.objectEnd = _participantEnd(builder);
+      builder.objectEnd = builder.subjectEnd >= builder.subjectStart
+          ? builder.subjectEnd
+          : _participantEnd(builder);
     } else {
       builder.objectStart = 0;
       builder.objectEnd = builder.verbChainStart - 1;
@@ -932,7 +1099,9 @@ class RecognitionEngine {
     if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.recipientStart = builder.subjectStart;
-      builder.recipientEnd = _participantEnd(builder);
+      builder.recipientEnd = builder.subjectEnd >= builder.subjectStart
+          ? builder.subjectEnd
+          : _participantEnd(builder);
     } else {
       builder.recipientStart = 0;
       builder.recipientEnd = builder.verbChainStart - 1;
@@ -940,10 +1109,13 @@ class RecognitionEngine {
   }
 
   void _trimParticipantBoundaries(_RecognitionBuilder builder) {
+    _trimFrontPhrases(builder);
+
     final starts = <int>[
       builder.timePhraseStart,
       builder.placePhraseStart,
-      builder.frequencyPhraseStart,
+      if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
+        builder.frequencyPhraseStart,
       builder.mannerPhraseStart,
     ]..removeWhere((e) => e < 0);
 
@@ -964,6 +1136,33 @@ class RecognitionEngine {
 
     if (builder.agentStart >= 0 && builder.agentEnd >= firstPhraseStart) {
       builder.agentEnd = firstPhraseStart - 1;
+    }
+  }
+
+  void _trimFrontPhrases(_RecognitionBuilder builder) {
+    final frontPhraseEnds = <int>[];
+
+    if (builder.frequencyPhrase?.position == PhrasePosition.beforeSubject) {
+      frontPhraseEnds.add(builder.frequencyPhraseEnd);
+    }
+
+    if (frontPhraseEnds.isEmpty) {
+      return;
+    }
+
+    final frontPhraseEnd = frontPhraseEnds.reduce((a, b) => a > b ? a : b);
+
+    if (builder.agentStart >= 0 && builder.agentStart <= frontPhraseEnd) {
+      builder.agentStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.objectStart >= 0 && builder.objectStart <= frontPhraseEnd) {
+      builder.objectStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.recipientStart >= 0 &&
+        builder.recipientStart <= frontPhraseEnd) {
+      builder.recipientStart = frontPhraseEnd + 1;
     }
   }
 
@@ -1032,6 +1231,14 @@ class RecognitionEngine {
   }
 
   String _recognizedNounText(String text) {
+    final noun = _lookupNoun(text);
+
+    if (noun != null) {
+      return text.toLowerCase() == noun.plural.toLowerCase()
+          ? noun.plural
+          : noun.singular;
+    }
+
     return switch (text) {
       'i' => 'I',
       _ => text,
@@ -1047,10 +1254,30 @@ class RecognitionEngine {
   }
 
   Number _recognizedNumber(String text) {
+    final noun = _lookupNoun(text);
+
+    if (noun != null && text.toLowerCase() == noun.plural.toLowerCase()) {
+      return Number.plural;
+    }
+
     return switch (text) {
       'we' || 'us' || 'they' || 'them' => Number.plural,
+      _ when _looksPluralNounText(text) => Number.plural,
       _ => Number.singular,
     };
+  }
+
+  Noun? _lookupNoun(String text) {
+    final normalized = text.toLowerCase();
+
+    for (final noun in _knownNouns) {
+      if (normalized == noun.singular.toLowerCase() ||
+          normalized == noun.plural.toLowerCase()) {
+        return noun;
+      }
+    }
+
+    return null;
   }
 
   Adjective? _lookupAdjective(String token) {
@@ -1189,7 +1416,9 @@ class RecognitionEngine {
     for (final phrase in frequencyPhrases) {
       final phraseText = phrase.text.toLowerCase();
 
-      final wordsBefore = _phraseWordIndex(tokens, phraseText);
+      final wordsBefore = phrase.position == PhrasePosition.beforeSubject
+          ? _phraseWordIndex(builder.tokens, phraseText)
+          : _phraseWordIndex(tokens, phraseText);
 
       if (wordsBefore < 0) {
         continue;
@@ -1197,7 +1426,11 @@ class RecognitionEngine {
 
       builder.frequencyPhrase = phrase;
 
-      builder.frequencyPhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+      builder.frequencyPhraseStart =
+          (phrase.position == PhrasePosition.beforeSubject
+              ? 0
+              : builder.verbChainEnd + 1) +
+          wordsBefore;
 
       builder.frequencyPhraseEnd =
           builder.frequencyPhraseStart + phrase.text.split(' ').length - 1;
@@ -1232,6 +1465,12 @@ class RecognitionEngine {
 
   void _recognizeUnknownTokens(_RecognitionBuilder builder) {
     for (final token in builder.tokens) {
+      if (token.toLowerCase() == 'not') continue;
+
+      if (token.toLowerCase() == 'by') continue;
+
+      if (token.toLowerCase() == 'to') continue;
+
       if (_lookupVerb(token) != null) continue;
 
       if (_lookupModal(token) != null) continue;
@@ -1371,3 +1610,95 @@ class _RecognitionBuilder {
     return tokens.sublist(start, safeEnd + 1).join(' ');
   }
 }
+
+class _VerbMatch {
+  final Verb verb;
+  final int end;
+  final int length;
+
+  const _VerbMatch(this.verb, this.end, this.length);
+}
+
+const _knownNouns = [
+  john,
+  mary,
+  tom,
+  anna,
+  choir,
+  teacher,
+  student,
+  doctor,
+  nurse,
+  engineer,
+  worker,
+  programmer,
+  friend,
+  neighbour,
+  customer,
+  manager,
+  child,
+  man,
+  woman,
+  boy,
+  girl,
+  house,
+  apartment,
+  car,
+  bridge,
+  bus,
+  train,
+  bicycle,
+  phone,
+  computer,
+  laptop,
+  keyboard,
+  mouseDevice,
+  monitor,
+  television,
+  book,
+  newspaper,
+  letter,
+  story,
+  gift,
+  magazine,
+  pen,
+  pencil,
+  table,
+  chair,
+  bed,
+  door,
+  window,
+  key,
+  bottle,
+  cup,
+  glass,
+  ball,
+  plate,
+  spoon,
+  fork,
+  knife,
+  cat,
+  dog,
+  horse,
+  cow,
+  pig,
+  sheep,
+  goat,
+  chicken,
+  duck,
+  bird,
+  fish,
+  rabbit,
+  mouse,
+  bear,
+  wolf,
+  fox,
+  lion,
+  tiger,
+  elephant,
+  monkey,
+  snake,
+  turtle,
+  bee,
+  butterfly,
+];

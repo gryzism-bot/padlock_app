@@ -127,7 +127,7 @@ class GrammarEngine {
       parts.add(adjective.text);
     }
 
-    parts.add(text);
+    parts.add(text.toLowerCase() == 'i' ? 'I' : text);
 
     return parts.join(' ');
   }

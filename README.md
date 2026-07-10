@@ -25,6 +25,53 @@ it runs home_screen.dart because that's what main.dart's main function points to
 
 quick run flutter test
 
+## Night generative contract runner
+
+The loose overnight runner stress-tests the current Grammar Engine,
+Recognition Engine, and data layer by generating `SentenceState` combinations,
+rendering them, recognizing them, and rendering them again.
+
+Quick smoke run:
+
+```powershell
+dart run tool\night_contract.dart --limit=500 --exit-zero
+```
+
+One fixed minute:
+
+```powershell
+dart run tool\night_contract.dart --minutes=1 --exit-zero
+```
+
+Longer run:
+
+```powershell
+dart run tool\night_contract.dart --minutes=480 --exit-zero
+```
+
+Useful options:
+
+```powershell
+--checkpoint-every=1000
+--report=build\night_contract_report.md
+--jsonl=build\night_contract_findings.jsonl
+--fail-fast
+--state-drift-fails
+```
+
+Safe interrupt:
+
+- Press `Ctrl+C`.
+- The runner requests a stop, writes the current markdown report, and keeps
+  findings already streamed to JSONL.
+- JSONL findings are appended as they occur, so an interrupted run still leaves
+  useful evidence.
+
+Default output:
+
+- `build/night_contract_report.md`
+- `build/night_contract_findings.jsonl`
+
 # ARKITEKCZURALLY
 check poster grammar engine as water treatment system png
 

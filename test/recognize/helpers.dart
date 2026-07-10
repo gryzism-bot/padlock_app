@@ -14,7 +14,7 @@ void expectAgent(
   List<Adjective>? adjectives,
 }) {
   expect(state.agent, isNotNull);
-  expect(state.agent!.text, text);
+  expect(state.agent!.text.toLowerCase(), text.toLowerCase());
   expect(state.agent!.determiner, determiner);
   expect(state.agent!.adjective, adjective);
   if (adjectives != null) {
@@ -30,7 +30,7 @@ void expectObject(
   List<Adjective>? adjectives,
 }) {
   expect(state.object, isNotNull);
-  expect(state.object!.text, text);
+  expect(state.object!.text.toLowerCase(), text.toLowerCase());
   expect(state.object!.determiner, determiner);
   expect(state.object!.adjective, adjective);
   if (adjectives != null) {
@@ -46,7 +46,7 @@ void expectRecipient(
   List<Adjective>? adjectives,
 }) {
   expect(state.recipient, isNotNull);
-  expect(state.recipient!.text, text);
+  expect(state.recipient!.text.toLowerCase(), text.toLowerCase());
   expect(state.recipient!.determiner, determiner);
   expect(state.recipient!.adjective, adjective);
   if (adjectives != null) {
