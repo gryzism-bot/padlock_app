@@ -43,7 +43,8 @@ unchanged.
 - Non-`be` verbs cannot carry noun or adjective complements in active or
   passive voice.
 - Lexical `be` requires an agent.
-- Lexical `be` requires a noun or adjective complement.
+- Lexical `be` can be selected as a bare verb frame before a complement is
+  chosen.
 - Lexical `be` is active-only.
 - Lexical `be` cannot carry object, recipient, or passive focus.
 - Lexical `be` noun complements must match agent number.
@@ -86,7 +87,9 @@ it filters candidates through Configuration Engine.
 - Passive focus is hidden until passive voice is selected.
 - Recipient focus is hidden until the full ditransitive passive frame exists.
 - Active voice is a practical exit from passive recipient focus.
-- Lexical `be` can be entered atomically through complement suggestions.
+- Lexical `be` is the doorway to noun and adjective complement suggestions.
+- Noun and adjective complement suggestions are hidden until lexical `be` is
+  selected.
 - Normal verbs, especially `work`, are visible exits from lexical `be`.
 - Noun complement suggestions follow agent number.
 - Object, recipient, and passive-focus suggestions are hidden in lexical `be`.
@@ -95,6 +98,11 @@ it filters candidates through Configuration Engine.
 
 - Present modal frames suggest present-compatible modals.
 - Future frames suggest `will`.
+- When a modal is selected, `no modal` is a high-priority exit.
+- Place phrase suggestions are available as location phrases for ordinary
+  verbs.
+- Destination verbs such as `go`, `come`, `travel`, `arrive`, `leave`, and
+  `return` prioritize place suggestions and render them as destinations.
 - Time phrase ranking prefers tense/aspect-friendly phrases:
   `today` for simple present, `now` for continuous, `yesterday` for past,
   `tomorrow` for future.
@@ -114,8 +122,7 @@ These are not yet hard laws, but Grammar/Recognition tests suggest they may
 become Configuration or Compass work as the UI gets richer.
 
 - Phrase compatibility by verb:
-  destination verbs should prefer destination places; work/study verbs should
-  prefer location/frequency phrases.
+  work/study verbs should prefer location/frequency phrases.
 - Phrase compatibility by tense:
   some time phrases should be ranked down or hidden for conflicting tense.
 - Sentence-form reachability:

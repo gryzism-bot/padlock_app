@@ -304,16 +304,17 @@ void main() {
       expect(render(state), 'He gives Mary book.');
     });
 
-    test('blocks lexical be until a complement frame exists', () {
-      final previous = ConfigurationState.initial();
-      final state = engine.applyMove(previous, const SetAction(be));
-
-      expect(state.sentenceState, same(previous.sentenceState));
-      expect(wasBlocked(state), isTrue);
-      expect(
-        state.messages.map((message) => message.text),
-        contains('Lexical be requires a complement.'),
+    test('selects lexical be as a bare verb frame', () {
+      final state = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(be),
       );
+
+      expect(state.sentenceState.action, be);
+      expect(state.sentenceState.complement, isNull);
+      expect(state.sentenceState.adjectiveComplement, isNull);
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He is.');
     });
 
     test('enters lexical be adjective frame atomically', () {
@@ -465,7 +466,7 @@ void main() {
       expect(render(state), 'He works.');
     });
 
-    test('blocks lexical be in passive voice', () {
+    test('entering lexical be clears incompatible passive/object slots', () {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetAction(work_data.build));
@@ -475,15 +476,29 @@ void main() {
       );
       state = engine.applyMove(state, const SetVoice(Voice.passive));
 
-      final previous = state;
       state = engine.applyMove(state, const SetAction(be));
+
+      expect(state.sentenceState.action, be);
+      expect(state.sentenceState.voice, Voice.active);
+      expect(state.sentenceState.object, isNull);
+      expect(state.sentenceState.recipient, isNull);
+      expect(state.sentenceState.passiveFocus, isNull);
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He is.');
+    });
+
+    test('blocks passive voice from lexical be', () {
+      var state = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(be),
+      );
+
+      final previous = state;
+      state = engine.applyMove(state, const SetVoice(Voice.passive));
 
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
-      expect(
-        state.messages.map((message) => message.text),
-        contains('Lexical be is active-only.'),
-      );
+      expect(state.messages.single.text, 'Lexical be is active-only.');
     });
 
     test('blocks complements on non-be verbs', () {

@@ -74,11 +74,6 @@ class GrammarEngine {
         builder.state.voice == Voice.active,
         'Lexical be is active-only in this predicate frame.',
       );
-      assert(
-        builder.state.complement != null ||
-            builder.state.adjectiveComplement != null,
-        'Lexical be requires a complement.',
-      );
 
       builder.displaySubject = builder.state.agent!;
       builder.displayObject = null;

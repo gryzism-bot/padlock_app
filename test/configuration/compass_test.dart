@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -18,7 +19,7 @@ import 'package:padlock_app/models/grammar/voice.dart';
 void main() {
   final lock = ConfigurationEngine();
   final compass = ConfigurationCompass(
-    actions: [work, work_data.build, give, be],
+    actions: [work, work_data.build, give, be, go],
     objects: [
       book.toNounPhrase(Number.singular),
       bridge.toNounPhrase(Number.singular),
@@ -29,6 +30,12 @@ void main() {
     ],
     adjectiveComplements: [happy, tired],
     modals: [noModal, can, should, will],
+    places: [
+      homePlacePhrase,
+      schoolPlacePhrase,
+      workPlacePhrase,
+      parkPlacePhrase,
+    ],
   );
   final grammar = GrammarEngine();
 
@@ -128,9 +135,36 @@ void main() {
       ]);
     });
 
-    test('enters lexical be through complement suggestions', () {
-      final suggestions = compass.suggestionsFor(
+    test('offers lexical be as the doorway to complement suggestions', () {
+      var suggestions = compass.suggestionsFor(
         ConfigurationState.initial(),
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      expect(suggestions.first.label, 'be');
+      expect(render(suggestions.first.preview), 'He is.');
+
+      expect(
+        compass.suggestionsFor(
+          ConfigurationState.initial(),
+          ConfigurationCompassSlot.complement,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+      expect(
+        compass.suggestionsFor(
+          ConfigurationState.initial(),
+          ConfigurationCompassSlot.adjectiveComplement,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      final beState = suggestions.first.preview;
+      suggestions = compass.suggestionsFor(
+        beState,
         ConfigurationCompassSlot.adjectiveComplement,
         limit: 0,
       );
@@ -139,12 +173,14 @@ void main() {
         'happy',
         'tired',
       ]);
-      expect(suggestions.first.preview.sentenceState.action, be);
       expect(render(suggestions.first.preview), 'He is happy.');
     });
 
     test('noun complement suggestions follow agent number', () {
-      var state = ConfigurationState.initial();
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(be),
+      );
 
       var suggestions = compass.suggestionsFor(
         state,
@@ -318,6 +354,56 @@ void main() {
 
       expect(futureSuggestions.map((suggestion) => suggestion.label), ['will']);
       expect(render(futureSuggestions.single.preview), 'He will work.');
+    });
+
+    test('modal suggestions expose no modal as the exit', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetModal(can),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.modal,
+      );
+
+      expect(suggestions.first.label, 'no modal');
+      expect(suggestions.first.preview.sentenceState.modal, noModal);
+      expect(wasBlocked(suggestions.first.preview), isFalse);
+      expect(render(suggestions.first.preview), 'He works.');
+    });
+
+    test('place suggestions use location meaning for ordinary verbs', () {
+      final suggestions = compass.suggestionsFor(
+        ConfigurationState.initial(),
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+
+      expect(suggestions.first.label, 'school');
+      expect(render(suggestions.first.preview), 'He works at school.');
+    });
+
+    test('place suggestions use destination meaning for movement verbs', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(go),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+
+      expect(suggestions.first.label, 'home');
+      expect(render(suggestions.first.preview), 'He goes home.');
+
+      final schoolSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'school',
+      );
+
+      expect(render(schoolSuggestion.preview), 'He goes to school.');
     });
 
     test('time suggestions put tense-friendly phrases first', () {

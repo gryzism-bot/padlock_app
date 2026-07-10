@@ -344,6 +344,7 @@ String _slotTitle(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.voice => 'Voice',
     ConfigurationCompassSlot.passiveFocus => 'Passive focus',
     ConfigurationCompassSlot.modal => 'Modal',
+    ConfigurationCompassSlot.placePhrase => 'Place phrase',
     ConfigurationCompassSlot.timePhrase => 'Time phrase',
   };
 }
@@ -365,6 +366,7 @@ String _currentValue(
     ConfigurationCompassSlot.passiveFocus => state.passiveFocus?.name ?? '-',
     ConfigurationCompassSlot.modal =>
       state.modal.isNone ? 'no modal' : state.modal.text,
+    ConfigurationCompassSlot.placePhrase => state.placePhrase?.noun ?? '-',
     ConfigurationCompassSlot.timePhrase => state.timePhrase?.text ?? '-',
   };
 }

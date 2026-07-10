@@ -1,4 +1,5 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -7,6 +8,7 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -26,6 +28,7 @@ enum ConfigurationCompassSlot {
   voice,
   passiveFocus,
   modal,
+  placePhrase,
   timePhrase,
 }
 
@@ -53,6 +56,7 @@ class ConfigurationCompass {
   final List<NounPhrase> complements;
   final List<Adjective> adjectiveComplements;
   final List<Modal> modals;
+  final List<PlacePhrase> places;
   final List<TimePhrase> times;
 
   ConfigurationCompass({
@@ -63,6 +67,7 @@ class ConfigurationCompass {
     List<NounPhrase>? complements,
     List<Adjective>? adjectiveComplements,
     List<Modal>? modals,
+    List<PlacePhrase>? places,
     List<TimePhrase>? times,
   }) : actions = actions ?? verbs,
        objects = objects ?? _defaultObjects,
@@ -70,6 +75,7 @@ class ConfigurationCompass {
        complements = complements ?? _defaultComplements,
        adjectiveComplements = adjectiveComplements ?? emotionsAdjectives,
        modals = modals ?? _coreModals,
+       places = places ?? placePhrases,
        times = times ?? timePhrases;
 
   List<ConfigurationSuggestion> suggestionsFor(
@@ -143,20 +149,24 @@ class ConfigurationCompass {
           recipient == sentence.recipient ? 0 : 100,
         ),
       ),
-      ConfigurationCompassSlot.complement => complements.map(
-        (complement) => _CompassCandidate(
-          SetLexicalBeComplement(complement),
-          complement.text,
-          sentence.action == be ? 90 : 100,
-        ),
-      ),
-      ConfigurationCompassSlot.adjectiveComplement => adjectiveComplements.map(
-        (adjective) => _CompassCandidate(
-          SetLexicalBeAdjectiveComplement(adjective),
-          adjective.text,
-          sentence.action == be ? 90 : 100,
-        ),
-      ),
+      ConfigurationCompassSlot.complement => sentence.action == be
+          ? complements.map(
+              (complement) => _CompassCandidate(
+                SetComplement(complement),
+                complement.text,
+                complement == sentence.complement ? 0 : 100,
+              ),
+            )
+          : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.adjectiveComplement => sentence.action == be
+          ? adjectiveComplements.map(
+              (adjective) => _CompassCandidate(
+                SetAdjectiveComplement(adjective),
+                adjective.text,
+                adjective == sentence.adjectiveComplement ? 0 : 100,
+              ),
+            )
+          : const <_CompassCandidate>[],
       ConfigurationCompassSlot.voice =>
         Voice.values
             .where((voice) => voice != sentence.voice)
@@ -184,9 +194,18 @@ class ConfigurationCompass {
               (modal) => _CompassCandidate(
                 SetModal(modal),
                 modal.isNone ? 'no modal' : modal.text,
-                _modalPriority(sentence.tense, modal),
+                _modalPriority(sentence.tense, sentence.modal, modal),
               ),
             ),
+      ConfigurationCompassSlot.placePhrase => places.map(
+        (place) => _CompassCandidate(
+          SetPlacePhrase(place),
+          place.noun,
+          place == sentence.placePhrase
+              ? 0
+              : _placePriority(sentence.action, place),
+        ),
+      ),
       ConfigurationCompassSlot.timePhrase => times.map(
         (time) => _CompassCandidate(
           SetTimePhrase(time),
@@ -216,7 +235,7 @@ int _actionPriority(Verb current, Verb candidate) {
   }
 
   if (candidate == be) {
-    return 70;
+    return 105;
   }
 
   if (candidate.takesRecipient) {
@@ -234,9 +253,9 @@ int _actionPriority(Verb current, Verb candidate) {
   return 80;
 }
 
-int _modalPriority(Tense tense, Modal modal) {
+int _modalPriority(Tense tense, Modal current, Modal modal) {
   if (modal.isNone) {
-    return 60;
+    return current.isNone ? 60 : 120;
   }
 
   if (tense == Tense.future) {
@@ -244,6 +263,27 @@ int _modalPriority(Tense tense, Modal modal) {
   }
 
   return modal == modal_data.will ? 50 : 100;
+}
+
+int _placePriority(Verb action, PlacePhrase place) {
+  final noun = place.noun;
+
+  if (action.usesDestinationPlace) {
+    return switch (noun) {
+      'home' => 130,
+      'school' || 'work' || 'university' || 'office' => 120,
+      'park' || 'shop' || 'restaurant' || 'hospital' => 110,
+      _ => 90,
+    };
+  }
+
+  return switch (noun) {
+    'school' => 110,
+    'home' => 105,
+    'work' || 'office' => 100,
+    'park' => 95,
+    _ => 80,
+  };
 }
 
 int _timePriority(Tense tense, Aspect aspect, TimePhrase time) {

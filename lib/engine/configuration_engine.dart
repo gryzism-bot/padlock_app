@@ -208,12 +208,21 @@ class ConfigurationEngine {
   SentenceState _applyMove(SentenceState state, ConfigurationMove move) {
     return switch (move) {
       SetAgent(:final agent) => _copy(state, agent: agent),
-      SetAction(:final action) => _copy(
-        state,
-        action: action,
-        complement: action == be ? state.complement : null,
-        adjectiveComplement: action == be ? state.adjectiveComplement : null,
-      ),
+      SetAction(:final action) => action == be
+          ? _copy(
+              state,
+              action: action,
+              object: null,
+              recipient: null,
+              voice: Voice.active,
+              passiveFocus: null,
+            )
+          : _copy(
+              state,
+              action: action,
+              complement: null,
+              adjectiveComplement: null,
+            ),
       SetObject(:final object) => _copy(state, object: object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetComplement(:final complement) => _copy(
@@ -309,12 +318,6 @@ class ConfigurationEngine {
     if (state.voice != Voice.active) {
       blockers.add(
         const ConfigurationMessage.blocked('Lexical be is active-only.'),
-      );
-    }
-
-    if (state.complement == null && state.adjectiveComplement == null) {
-      blockers.add(
-        const ConfigurationMessage.blocked('Lexical be requires a complement.'),
       );
     }
 
