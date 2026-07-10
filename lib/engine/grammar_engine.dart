@@ -558,6 +558,30 @@ class GrammarEngine {
   }
 
   void _applyLexicalBeVerbChain(_SentenceBuilder builder) {
+    if (builder.state.sentenceForm == SentenceForm.imperative) {
+      assert(
+        builder.state.tense == Tense.present,
+        'Imperative lexical be uses present tense.',
+      );
+      assert(
+        builder.state.aspect == Aspect.simple,
+        'Imperative lexical be uses simple aspect.',
+      );
+      assert(
+        builder.state.modal.isNone,
+        'Imperative lexical be does not take a modal.',
+      );
+
+      if (builder.state.polarity == Polarity.negative) {
+        builder.verbChain
+          ..add('do')
+          ..add('not');
+      }
+
+      builder.verbChain.add('be');
+      return;
+    }
+
     if (!builder.state.modal.isNone) {
       builder.verbChain.add(builder.state.modal.text);
 

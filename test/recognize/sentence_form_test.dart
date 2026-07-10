@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -177,8 +178,46 @@ void main() {
     test('Imperative', () {
       final state = engine.recognize('Work.');
 
+      expectAgent(state, text: 'you');
       expect(state.action, work);
       expect(state.sentenceForm, SentenceForm.imperative);
-    }, skip: 'Imperative recognition is not implemented yet');
+    });
+
+    test('Negative imperative', () {
+      final state = engine.recognize('Do not work.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, work);
+      expect(state.polarity, Polarity.negative);
+      expect(state.sentenceForm, SentenceForm.imperative);
+    });
+
+    test('Imperative with object', () {
+      final state = engine.recognize('Build the bridge.');
+
+      expectAgent(state, text: 'you');
+      expectObject(state, text: 'bridge', determiner: theDeterminer);
+      expect(state.action, build);
+      expect(state.sentenceForm, SentenceForm.imperative);
+    });
+
+    test('Lexical BE imperative', () {
+      final state = engine.recognize('Be happy.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, be);
+      expect(state.adjectiveComplement, happy);
+      expect(state.sentenceForm, SentenceForm.imperative);
+    });
+
+    test('Negative lexical BE imperative', () {
+      final state = engine.recognize('Do not be happy.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, be);
+      expect(state.adjectiveComplement, happy);
+      expect(state.polarity, Polarity.negative);
+      expect(state.sentenceForm, SentenceForm.imperative);
+    });
   });
 }

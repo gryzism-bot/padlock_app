@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -80,6 +81,37 @@ void main() {
       );
 
       expect(sentence.text, 'Work.');
+    });
+
+    test('Lexical BE imperative', () {
+      final sentence = engine.generate(
+        SentenceState(
+          agent: you,
+          action: be,
+          adjectiveComplement: happy,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+
+      expect(sentence.text, 'Be happy.');
+    });
+
+    test('Negative lexical BE imperative', () {
+      final sentence = engine.generate(
+        SentenceState(
+          agent: you,
+          action: be,
+          adjectiveComplement: happy,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          polarity: Polarity.negative,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+
+      expect(sentence.text, 'Do not be happy.');
     });
 
     test('Negative statement', () {

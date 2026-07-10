@@ -172,6 +172,11 @@ void main() {
         'John will be a teacher.',
         'John has been happy.',
         'Mary is being happy.',
+        'Work.',
+        'Do not work.',
+        'Build the bridge.',
+        'Be happy.',
+        'Do not be happy.',
       ];
 
       for (final sentence in sentences) {

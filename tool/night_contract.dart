@@ -395,20 +395,17 @@ class _NightContractRunner {
   Iterable<_Candidate> _generateCandidates(int cycle) sync* {
     final cyclePrefix = options.minutes == null ? '' : 'cycle-$cycle:';
 
-    yield _Candidate.skip(
-      id: '${cyclePrefix}known-gap:imperative-recognition',
-      bucket: 'known-gap',
-      skipReason: 'imperative recognition is not implemented yet',
-    );
-
     var index = 0;
 
     for (final verb in verbs) {
       if (verb.infinitive == 'be') {
+        yield* _lexicalBeImperativeCandidates(index, cyclePrefix);
         yield* _lexicalBeCandidates(index, cyclePrefix);
         index += 1000;
         continue;
       }
+
+      yield* _imperativeCandidates(verb, index, cyclePrefix);
 
       if (!verb.takesObject) {
         yield _Candidate.skip(
@@ -509,6 +506,79 @@ class _NightContractRunner {
 
       yield* _phraseCandidates(verb, index, cyclePrefix);
       index += 1000;
+    }
+  }
+
+  Iterable<_Candidate> _imperativeCandidates(
+    Verb verb,
+    int index,
+    String cyclePrefix,
+  ) sync* {
+    for (final polarity in Polarity.values) {
+      final object = verb.takesObject
+          ? _objects[index % _objects.length]
+          : null;
+      final recipient = verb.takesRecipient
+          ? _recipients[index % _recipients.length]
+          : null;
+
+      yield _Candidate(
+        id: '${cyclePrefix}imperative:${verb.infinitive}:$index',
+        bucket: 'imperative',
+        state: SentenceState(
+          agent: you,
+          action: verb,
+          object: object,
+          recipient: recipient,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          polarity: polarity,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+      index++;
+    }
+  }
+
+  Iterable<_Candidate> _lexicalBeImperativeCandidates(
+    int index,
+    String cyclePrefix,
+  ) sync* {
+    for (final polarity in Polarity.values) {
+      final complement = _complements[index % _complements.length];
+
+      yield _Candidate(
+        id: '${cyclePrefix}imperative:be:noun:$index',
+        bucket: 'imperative',
+        state: SentenceState(
+          agent: you,
+          action: be,
+          complement: complement,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          polarity: polarity,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+      index++;
+
+      final adjectiveComplement =
+          _adjectiveComplements[index % _adjectiveComplements.length];
+
+      yield _Candidate(
+        id: '${cyclePrefix}imperative:be:adjective:$index',
+        bucket: 'imperative',
+        state: SentenceState(
+          agent: you,
+          action: be,
+          adjectiveComplement: adjectiveComplement,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+          polarity: polarity,
+          sentenceForm: SentenceForm.imperative,
+        ),
+      );
+      index++;
     }
   }
 

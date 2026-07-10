@@ -5,6 +5,7 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/pronouns.dart' show you;
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -57,6 +58,10 @@ class RecognitionEngine {
 
       phase = 'verb chain';
       _recognizeVerbChain(builder);
+      _logRecognitionPhase(builder, phase);
+
+      phase = 'imperative';
+      _recognizeImperative(builder);
       _logRecognitionPhase(builder, phase);
 
       phase = 'voice';
@@ -268,8 +273,13 @@ class RecognitionEngine {
           final match = _lookupVerbAt(builder.tokens, current);
 
           if (match != null) {
-            builder.action = match.verb;
-            builder.verbChainEnd = match.end;
+            if (match.verb == be &&
+                _matchesVerbFormAt(builder.tokens, current, be.infinitive)) {
+              _recognizeLexicalBeAfterBe(builder, current, match.end + 1);
+            } else {
+              builder.action = match.verb;
+              builder.verbChainEnd = match.end;
+            }
           }
         }
 
@@ -310,8 +320,13 @@ class RecognitionEngine {
           final match = _lookupVerbAt(builder.tokens, current);
 
           if (match != null) {
-            builder.action = match.verb;
-            builder.verbChainEnd = match.end;
+            if (match.verb == be &&
+                _matchesVerbFormAt(builder.tokens, current, be.infinitive)) {
+              _recognizeLexicalBeAfterBe(builder, current, match.end + 1);
+            } else {
+              builder.action = match.verb;
+              builder.verbChainEnd = match.end;
+            }
           }
         }
 
@@ -560,7 +575,12 @@ class RecognitionEngine {
         builder.verbChainStart = i;
         builder.verbChainEnd = match!.end;
 
-        if (_matchesVerbFormAt(builder.tokens, i, verb.infinitive)) {
+        if (verb == be &&
+            _matchesVerbFormAt(builder.tokens, i, verb.infinitive)) {
+          builder.tense = Tense.present;
+          builder.aspect = Aspect.simple;
+          _recognizeLexicalBeAfterBe(builder, i, match.end + 1);
+        } else if (_matchesVerbFormAt(builder.tokens, i, verb.infinitive)) {
           builder.tense =
               _matchesVerbFormAt(builder.tokens, i, verb.pastSimple) &&
                   _hasThirdPersonSingularSubjectBefore(builder, i)
@@ -580,6 +600,31 @@ class RecognitionEngine {
         }
         break;
       }
+    }
+  }
+
+  void _recognizeImperative(_RecognitionBuilder builder) {
+    if (builder.sentenceForm != SentenceForm.statement ||
+        builder.verbChainStart != 0 ||
+        builder.action == null) {
+      return;
+    }
+
+    final firstToken = builder.tokens.first.toLowerCase();
+
+    final isDoSupportImperative =
+        firstToken == 'do' && builder.action != doVerb;
+    final isBareBeImperative = firstToken == 'be' && builder.action == be;
+    final isBareInfinitiveImperative = _matchesVerbFormAt(
+      builder.tokens,
+      0,
+      builder.action!.infinitive,
+    );
+
+    if (isDoSupportImperative ||
+        isBareBeImperative ||
+        isBareInfinitiveImperative) {
+      builder.sentenceForm = SentenceForm.imperative;
     }
   }
 
@@ -1045,7 +1090,9 @@ class RecognitionEngine {
   }
 
   void _recognizeActiveParticipants(_RecognitionBuilder builder) {
-    if (builder.sentenceForm == SentenceForm.question &&
+    if (builder.sentenceForm == SentenceForm.imperative) {
+      builder.agent = you;
+    } else if (builder.sentenceForm == SentenceForm.question &&
         builder.verbChainStart == 0) {
       builder.agentStart = builder.subjectStart;
       builder.agentEnd = builder.subjectEnd >= builder.subjectStart
