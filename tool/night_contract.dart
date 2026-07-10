@@ -209,6 +209,10 @@ class _NightContractRunner {
           case _Outcome.pass:
             stats.passed++;
             break;
+          case _Outcome.ambiguous:
+            stats.ambiguous++;
+            _recordFinding(findings, finding);
+            break;
           case _Outcome.stateDrift:
             stats.stateDrift++;
             _recordFinding(findings, finding);
@@ -359,6 +363,19 @@ class _NightContractRunner {
     final actual = _stateFingerprint(recognized);
 
     if (expected != actual) {
+      if (_isFiniteTenseAmbiguity(state, recognized)) {
+        return _Finding(
+          candidate: candidate,
+          outcome: _Outcome.ambiguous,
+          firstSentence: firstSentence,
+          secondSentence: secondSentence,
+          expectedFingerprint: expected,
+          actualFingerprint: actual,
+          recognizedSummary: recognized.summary,
+          unknownTokens: recognitionLogger.lastDiagnostics?.unknownTokens,
+        );
+      }
+
       return _Finding(
         candidate: candidate,
         outcome: _Outcome.stateDrift,
@@ -678,6 +695,7 @@ class _Finding {
 
 enum _Outcome {
   pass,
+  ambiguous,
   stateDrift,
   grammarThrow,
   recognitionThrow,
@@ -688,6 +706,7 @@ enum _Outcome {
 class _NightRunStats {
   int checked = 0;
   int passed = 0;
+  int ambiguous = 0;
   int stateDrift = 0;
   int failed = 0;
   int skipped = 0;
@@ -722,6 +741,7 @@ class _NightRunResult {
       'Night contract run finished in ${duration.inMilliseconds} ms',
       'checked=${stats.checked}',
       'passed=${stats.passed}',
+      'ambiguous=${stats.ambiguous}',
       'stateDrift=${stats.stateDrift}',
       'failed=${stats.failed}',
       'skipped=${stats.skipped}',
@@ -749,6 +769,7 @@ class _NightRunResult {
       ..writeln('| --- | ---: |')
       ..writeln('| Checked | ${stats.checked} |')
       ..writeln('| Passed | ${stats.passed} |')
+      ..writeln('| Ambiguous | ${stats.ambiguous} |')
       ..writeln('| State drift | ${stats.stateDrift} |')
       ..writeln('| Failed | ${stats.failed} |')
       ..writeln('| Skipped | ${stats.skipped} |')
@@ -772,6 +793,7 @@ class _NightRunResult {
     _writeFindingSection(buffer, _Outcome.grammarThrow);
     _writeFindingSection(buffer, _Outcome.recognitionThrow);
     _writeFindingSection(buffer, _Outcome.rerenderThrow);
+    _writeFindingSection(buffer, _Outcome.ambiguous);
     _writeFindingSection(buffer, _Outcome.stateDrift);
 
     return buffer.toString();
@@ -829,23 +851,70 @@ class _NightRunResult {
   }
 }
 
+bool _isFiniteTenseAmbiguity(SentenceState expected, SentenceState actual) {
+  if (expected.action.infinitive != actual.action.infinitive ||
+      expected.voice != actual.voice ||
+      expected.passiveFocus != actual.passiveFocus ||
+      expected.aspect != Aspect.simple ||
+      actual.aspect != Aspect.simple ||
+      !expected.modal.isNone ||
+      !actual.modal.isNone ||
+      expected.polarity != actual.polarity ||
+      expected.sentenceForm != actual.sentenceForm) {
+    return false;
+  }
+
+  final expectedTense = expected.tense;
+  final actualTense = actual.tense;
+  final tensePairIsPresentPast =
+      (expectedTense == Tense.present && actualTense == Tense.past) ||
+      (expectedTense == Tense.past && actualTense == Tense.present);
+
+  if (!tensePairIsPresentPast) {
+    return false;
+  }
+
+  final verbHasSharedPresentPastForm =
+      expected.action.infinitive == expected.action.pastSimple;
+
+  if (!verbHasSharedPresentPastForm) {
+    return false;
+  }
+
+  return _stateFingerprint(expected, includeTense: false) ==
+      _stateFingerprint(actual, includeTense: false);
+}
+
 void _writeTextFile(String path, String contents) {
   final file = File(path);
   file.parent.createSync(recursive: true);
   file.writeAsStringSync(contents);
 }
 
-String _stateFingerprint(SentenceState state) {
+String _stateFingerprint(SentenceState state, {bool includeTense = true}) {
+  final passiveFocus = state.passiveFocus ?? PassiveFocus.object;
+  final agentRole = state.voice == Voice.passive
+      ? _NounFingerprintRole.object
+      : _NounFingerprintRole.subject;
+  final objectRole =
+      state.voice == Voice.passive && passiveFocus == PassiveFocus.object
+      ? _NounFingerprintRole.subject
+      : _NounFingerprintRole.object;
+  final recipientRole =
+      state.voice == Voice.passive && passiveFocus == PassiveFocus.recipient
+      ? _NounFingerprintRole.subject
+      : _NounFingerprintRole.object;
+
   return [
-    'agent=${_nounFingerprint(state.agent)}',
+    'agent=${_nounFingerprint(state.agent, agentRole)}',
     'action=${state.action.infinitive}',
-    'object=${_nounFingerprint(state.object)}',
-    'recipient=${_nounFingerprint(state.recipient)}',
+    'object=${_nounFingerprint(state.object, objectRole)}',
+    'recipient=${_nounFingerprint(state.recipient, recipientRole)}',
     'voice=${state.voice}',
     'passiveFocus=${state.passiveFocus}',
-    'tense=${state.tense}',
+    if (includeTense) 'tense=${state.tense}',
     'aspect=${state.aspect}',
-    'modal=${state.modal.text}',
+    'modal=${_modalFingerprint(state)}',
     'polarity=${state.polarity}',
     'form=${state.sentenceForm}',
     'time=${state.timePhrase?.text}',
@@ -855,18 +924,44 @@ String _stateFingerprint(SentenceState state) {
   ].join('|');
 }
 
-String _nounFingerprint(NounPhrase? phrase) {
+String _modalFingerprint(SentenceState state) {
+  if (state.tense == Tense.future && state.modal.text == 'will') {
+    return '';
+  }
+
+  return state.modal.text;
+}
+
+enum _NounFingerprintRole { subject, object }
+
+String _nounFingerprint(NounPhrase? phrase, _NounFingerprintRole role) {
   if (phrase == null) {
     return 'null';
   }
 
   return [
-    phrase.text,
+    _nounTextFingerprint(phrase.text, role),
     phrase.person,
     phrase.number,
     phrase.determiner?.text,
     phrase.adjectiveList.map((adjective) => adjective.text).join('+'),
   ].join('/');
+}
+
+String _nounTextFingerprint(String text, _NounFingerprintRole role) {
+  final normalized = text.toLowerCase();
+
+  return switch (role) {
+    _NounFingerprintRole.subject => normalized == 'i' ? 'i' : normalized,
+    _NounFingerprintRole.object => switch (normalized) {
+      'i' || 'me' => 'me',
+      'he' || 'him' => 'him',
+      'she' || 'her' => 'her',
+      'we' || 'us' => 'us',
+      'they' || 'them' => 'them',
+      _ => normalized,
+    },
+  };
 }
 
 final _agents = [
