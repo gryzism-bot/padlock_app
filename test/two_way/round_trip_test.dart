@@ -178,5 +178,26 @@ void main() {
         'The beautiful young woman built a new house yesterday.',
       );
     });
+
+    test('populated everyday data stays inside the two-way contract', () {
+      final sentences = [
+        'They swam at school yesterday.',
+        'The young doctor drove a car yesterday.',
+        'Mary left yesterday.',
+        'The beautiful woman explored at school.',
+        'They played basketball.',
+        'Can the old workers play tennis?',
+        'The chef ate a plate.',
+        'The old worker froze.',
+        'John sold her a gift.',
+        'Mary wrote him a letter.',
+        'The teacher taught them a book.',
+        'The young student understood.',
+      ];
+
+      for (final sentence in sentences) {
+        expectSentenceRoundTrip(sentence);
+      }
+    });
   });
 }
