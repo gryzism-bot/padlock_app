@@ -8,6 +8,7 @@ import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
+import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
@@ -18,6 +19,8 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 enum ConfigurationMode { guided }
+
+enum NounPhraseTarget { agent, object, recipient, complement }
 
 enum ConfigurationMessageKind { blocked, info }
 
@@ -97,6 +100,20 @@ class SetComplement extends ConfigurationMove {
   final NounPhrase? complement;
 
   const SetComplement(this.complement);
+}
+
+class SetNounPhraseDeterminer extends ConfigurationMove {
+  final NounPhraseTarget target;
+  final Determiner? determiner;
+
+  const SetNounPhraseDeterminer(this.target, this.determiner);
+}
+
+class SetNounPhraseAdjectives extends ConfigurationMove {
+  final NounPhraseTarget target;
+  final List<Adjective> adjectives;
+
+  const SetNounPhraseAdjectives(this.target, this.adjectives);
 }
 
 class SetAdjectiveComplement extends ConfigurationMove {
@@ -232,6 +249,21 @@ class ConfigurationEngine {
             ? state.adjectiveComplement
             : null,
       ),
+      SetNounPhraseDeterminer(:final target, :final determiner) =>
+        _copyNounPhrase(
+          state,
+          target,
+          (phrase) => phrase.copyWith(determiner: determiner),
+        ),
+      SetNounPhraseAdjectives(:final target, :final adjectives) =>
+        _copyNounPhrase(
+          state,
+          target,
+          (phrase) => phrase.copyWith(
+            adjective: adjectives.isEmpty ? null : adjectives.first,
+            adjectives: adjectives,
+          ),
+        ),
       SetAdjectiveComplement(:final adjectiveComplement) => _copy(
         state,
         complement: adjectiveComplement == null ? state.complement : null,
@@ -293,6 +325,11 @@ class ConfigurationEngine {
   List<ConfigurationMessage> _validate(SentenceState state) {
     final blockers = <ConfigurationMessage>[];
 
+    _validateNounPhrase('Agent', state.agent, blockers);
+    _validateNounPhrase('Object', state.object, blockers);
+    _validateNounPhrase('Recipient', state.recipient, blockers);
+    _validateNounPhrase('Complement', state.complement, blockers);
+
     if (state.action.infinitive == 'be') {
       _validateLexicalBe(state, blockers);
     } else {
@@ -303,6 +340,49 @@ class ConfigurationEngine {
     _validateImperativeFrame(state, blockers);
 
     return blockers;
+  }
+
+  void _validateNounPhrase(
+    String label,
+    NounPhrase? phrase,
+    List<ConfigurationMessage> blockers,
+  ) {
+    final determiner = phrase?.determiner;
+    if (phrase == null || determiner == null) {
+      return;
+    }
+
+    if (_singularDeterminers.contains(determiner.text) && phrase.isPlural) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '$label determiner "${determiner.text}" requires a singular noun.',
+        ),
+      );
+    }
+
+    if (_pluralDeterminers.contains(determiner.text) && !phrase.isPlural) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '$label determiner "${determiner.text}" requires a plural noun.',
+        ),
+      );
+    }
+
+    if (determiner.text == 'a' && _startsWithVowelLetter(phrase.text)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '$label determiner "a" requires a consonant sound.',
+        ),
+      );
+    }
+
+    if (determiner.text == 'an' && !_startsWithVowelLetter(phrase.text)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '$label determiner "an" requires a vowel sound.',
+        ),
+      );
+    }
   }
 
   void _validateLexicalBe(
@@ -591,6 +671,50 @@ class ConfigurationEngine {
           : mannerPhrase as MannerPhrase?,
     );
   }
+
+  SentenceState _copyNounPhrase(
+    SentenceState state,
+    NounPhraseTarget target,
+    NounPhrase Function(NounPhrase phrase) transform,
+  ) {
+    return switch (target) {
+      NounPhraseTarget.agent => state.agent == null
+          ? state
+          : _copy(state, agent: transform(state.agent!)),
+      NounPhraseTarget.object => state.object == null
+          ? state
+          : _copy(state, object: transform(state.object!)),
+      NounPhraseTarget.recipient => state.recipient == null
+          ? state
+          : _copy(state, recipient: transform(state.recipient!)),
+      NounPhraseTarget.complement => state.complement == null
+          ? state
+          : _copy(state, complement: transform(state.complement!)),
+    };
+  }
 }
 
 const _unchanged = Object();
+
+const _singularDeterminers = {
+  'a',
+  'an',
+  'this',
+  'that',
+  'each',
+  'every',
+};
+
+const _pluralDeterminers = {
+  'these',
+  'those',
+  'many',
+};
+
+bool _startsWithVowelLetter(String text) {
+  if (text.isEmpty) {
+    return false;
+  }
+
+  return 'aeiou'.contains(text[0].toLowerCase());
+}

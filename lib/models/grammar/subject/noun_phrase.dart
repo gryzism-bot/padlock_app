@@ -44,4 +44,26 @@ class NounPhrase {
 
   bool get takesThirdPersonVerb =>
       person == Person.third && number == Number.singular;
+
+  NounPhrase copyWith({
+    Object? determiner = _unchanged,
+    Object? adjective = _unchanged,
+    List<Adjective>? adjectives,
+  }) {
+    return NounPhrase(
+      text: text,
+      person: person,
+      number: number,
+      determiner: identical(determiner, _unchanged)
+          ? this.determiner
+          : determiner as Determiner?,
+      adjective: identical(adjective, _unchanged)
+          ? this.adjective
+          : adjective as Adjective?,
+      adjectives: adjectives ?? this.adjectives,
+      translations: translations,
+    );
+  }
 }
+
+const _unchanged = Object();

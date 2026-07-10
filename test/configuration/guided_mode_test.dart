@@ -85,6 +85,84 @@ void main() {
       expect(wasBlocked(state), isFalse);
     });
 
+    test('blocks noun phrase determiners that do not match number', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.plural)),
+      );
+
+      final previous = state;
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseDeterminer(
+          NounPhraseTarget.object,
+          aDeterminer,
+        ),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Object determiner "a" requires a singular noun.',
+      );
+
+      state = engine.applyMove(
+        previous,
+        const SetNounPhraseDeterminer(
+          NounPhraseTarget.object,
+          manyDeterminer,
+        ),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He builds many books.');
+    });
+
+    test('blocks noun phrase articles that do not match noun sound', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      final previous = state;
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseDeterminer(
+          NounPhraseTarget.object,
+          anDeterminer,
+        ),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Object determiner "an" requires a vowel sound.',
+      );
+
+      state = engine.applyMove(
+        previous,
+        SetObject(engineer.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseDeterminer(
+          NounPhraseTarget.object,
+          anDeterminer,
+        ),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'He builds an engineer.');
+    });
+
     test('blocks moving to an intransitive verb while object is present', () {
       var state = ConfigurationState.initial();
 

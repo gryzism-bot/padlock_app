@@ -42,6 +42,10 @@ unchanged.
 - Recipient-capable verbs must also be object-capable in data.
 - Non-`be` verbs cannot carry noun or adjective complements in active or
   passive voice.
+- Noun phrase determiners must match noun number:
+  `a`, `an`, `this`, `that`, `each`, and `every` require singular nouns;
+  `these`, `those`, and `many` require plural nouns.
+- `a` and `an` must match the noun's starting sound for current app data.
 - Lexical `be` requires an agent.
 - Lexical `be` can be selected as a bare verb frame before a complement is
   chosen.
@@ -90,6 +94,8 @@ it filters candidates through Configuration Engine.
 - Lexical `be` is the doorway to noun and adjective complement suggestions.
 - Noun and adjective complement suggestions are hidden until lexical `be` is
   selected.
+- Noun-bearing slots expose determiner and adjective suggestions after the noun
+  exists.
 - Normal verbs, especially `work`, are visible exits from lexical `be`.
 - Noun complement suggestions follow agent number.
 - Object, recipient, and passive-focus suggestions are hidden in lexical `be`.
@@ -145,3 +151,124 @@ When reading a Grammar or Recognition test:
 - If it implies a useful state should be easy to reach, add a Compass law.
 - If it proves a real user can follow that path, add a widget or integration
   test.
+
+## SentenceState Force Map
+
+This asks each field what it influences. "Rightward" means the field opens,
+closes, or ranks later choices in the builder flow. "Leftward" means the field
+changes how an earlier field is rendered or interpreted. "Structural" means the
+field participates in validity laws without being a simple left/right nudge.
+
+### Predicate Core
+
+- `agent`
+  - Structural: required in active voice and lexical `be`.
+  - Leftward/projection: its person and number choose verb agreement strings:
+    `am`, `is`, `are`, `was`, `were`, `has`, `have`, `do`, `does`.
+  - Rightward: its number filters lexical `be` noun complements.
+
+- `action`
+  - Structural: the main predicate frame. It decides whether object,
+    recipient, complements, passive voice, and destination place logic can
+    exist.
+  - Rightward: object-capable verbs open object suggestions; recipient-capable
+    verbs open recipient paths; `be` opens complement paths; destination verbs
+    rank place phrases as destinations.
+  - Leftward/projection: irregular forms, participles, and passive rendering
+    reshape the predicate text.
+
+- `object`
+  - Structural: required for active recipients and passive object focus.
+  - Rightward: once present, it opens object determiner/adjective modifiers and
+    passive voice.
+  - Leftward/projection: in passive object focus, it becomes the displayed
+    subject.
+
+- `recipient`
+  - Structural: requires a recipient-capable verb and an object.
+  - Rightward: once present in passive voice, it opens passive recipient focus.
+  - Leftward/projection: in passive recipient focus, it becomes the displayed
+    subject.
+
+- `complement`
+  - Structural: belongs only to lexical `be`; noun complement number must match
+    agent number.
+  - Rightward: once present, it opens complement determiner/adjective
+    modifiers.
+  - Leftward/projection: completes the meaning of `be` without changing the
+    verb chain.
+
+- `adjectiveComplement`
+  - Structural: belongs only to lexical `be`.
+  - Rightward: no current downstream field.
+  - Leftward/projection: completes the meaning of `be` without changing the
+    verb chain.
+
+### Voice And Verb Chain
+
+- `voice`
+  - Structural: active requires an agent; passive requires an object-capable
+    frame and passive focus laws.
+  - Rightward: passive opens passive focus; active closes passive focus.
+  - Leftward/projection: passive promotes object or recipient into subject
+    position and renders the agent with `by`.
+
+- `passiveFocus`
+  - Structural: belongs only to passive voice; object focus requires object;
+    recipient focus requires recipient-capable verb, recipient, and object.
+  - Rightward: no current downstream field.
+  - Leftward/projection: chooses which participant is promoted in passive
+    rendering.
+
+- `tense`
+  - Structural: participates in modal frame laws.
+  - Rightward: future opens `will`; present opens non-`will` modals; tense ranks
+    time phrases.
+  - Leftward/projection: chooses auxiliary and verb forms.
+
+- `aspect`
+  - Structural: imperative must be simple; aspect participates in the verb
+    chain shape.
+  - Rightward: continuous ranks `now` highly.
+  - Leftward/projection: chooses auxiliary chain such as `is working`,
+    `has worked`, `has been working`.
+
+- `modal`
+  - Structural: modal frame must match tense; imperatives cannot take modals.
+  - Rightward: when present, Compass exposes `no modal` as an exit.
+  - Leftward/projection: forces infinitive/base verb chain after the modal.
+
+- `polarity`
+  - Structural: no current Configuration law beyond being renderable.
+  - Rightward: no current downstream field.
+  - Leftward/projection: inserts negation and may trigger do-support.
+
+- `sentenceForm`
+  - Structural: imperative laws constrain modal, tense, aspect, and voice.
+  - Rightward: no current downstream field, though final UI may rank forms.
+  - Leftward/projection: question form changes auxiliary order; imperative form
+    suppresses the displayed subject.
+
+### Phrase Layer
+
+- `timePhrase`
+  - Structural: no current hard lock beyond renderability.
+  - Rightward: no current downstream field.
+  - Leftward/projection: contributes phrase text; future Configuration may
+    compare it with tense.
+
+- `placePhrase`
+  - Structural: no current hard lock beyond renderability.
+  - Rightward: no current downstream field.
+  - Leftward/projection: its rendered preposition depends on `action`
+    location/destination meaning.
+
+- `frequencyPhrase`
+  - Structural: no current hard lock beyond renderability.
+  - Rightward: no current downstream field.
+  - Leftward/projection: contributes phrase placement/text.
+
+- `mannerPhrase`
+  - Structural: no current hard lock beyond renderability.
+  - Rightward: no current downstream field.
+  - Leftward/projection: contributes phrase placement/text.

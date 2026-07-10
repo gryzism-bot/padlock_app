@@ -4,6 +4,7 @@ import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -17,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ConfigurationEngine lock = const ConfigurationEngine();
-  final ConfigurationCompass compass = ConfigurationCompass();
   final GrammarEngine grammar = GrammarEngine();
 
   late ConfigurationState configuration;
@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final compass = ConfigurationCompass();
     final sentence = grammar.generate(configuration.sentenceState);
 
     return Scaffold(
@@ -74,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _CompassSlotSection(
                   title: _slotTitle(slot),
                   currentValue: _currentValue(slot, configuration),
+                  unlockHint: _unlockHint(slot, configuration),
                   suggestions: compass.suggestionsFor(
                     configuration,
                     slot,
@@ -196,6 +198,7 @@ class _ManualSection extends StatelessWidget {
 class _CompassSlotSection extends StatelessWidget {
   final String title;
   final String currentValue;
+  final String unlockHint;
   final List<ConfigurationSuggestion> suggestions;
   final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
@@ -203,6 +206,7 @@ class _CompassSlotSection extends StatelessWidget {
   const _CompassSlotSection({
     required this.title,
     required this.currentValue,
+    required this.unlockHint,
     required this.suggestions,
     required this.grammar,
     required this.onMove,
@@ -216,7 +220,7 @@ class _CompassSlotSection extends StatelessWidget {
       children: suggestions.isEmpty
           ? [
               Text(
-                'No open move from here.',
+                unlockHint,
                 style: TextStyle(color: Theme.of(context).disabledColor),
               ),
             ]
@@ -284,11 +288,23 @@ class _SuggestionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final label = suggestion.isSelected
+        ? '${suggestion.label} (current)'
+        : '${suggestion.label} -> $preview';
+
     return Tooltip(
-      message: preview,
+      message: suggestion.isSelected ? 'Current: $preview' : preview,
       child: OutlinedButton(
+        style: suggestion.isSelected
+            ? OutlinedButton.styleFrom(
+                foregroundColor: colors.onPrimaryContainer,
+                backgroundColor: colors.primaryContainer,
+                side: BorderSide(color: colors.primary),
+              )
+            : null,
         onPressed: onPressed,
-        child: Text('${suggestion.label} -> $preview'),
+        child: Text(label),
       ),
     );
   }
@@ -338,8 +354,14 @@ String _slotTitle(ConfigurationCompassSlot slot) {
   return switch (slot) {
     ConfigurationCompassSlot.action => 'Verb',
     ConfigurationCompassSlot.object => 'Object',
+    ConfigurationCompassSlot.objectDeterminer => 'Object determiner',
+    ConfigurationCompassSlot.objectAdjective => 'Object adjective',
     ConfigurationCompassSlot.recipient => 'Recipient',
+    ConfigurationCompassSlot.recipientDeterminer => 'Recipient determiner',
+    ConfigurationCompassSlot.recipientAdjective => 'Recipient adjective',
     ConfigurationCompassSlot.complement => 'Noun complement',
+    ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
+    ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
     ConfigurationCompassSlot.adjectiveComplement => 'Adjective complement',
     ConfigurationCompassSlot.voice => 'Voice',
     ConfigurationCompassSlot.passiveFocus => 'Passive focus',
@@ -358,8 +380,23 @@ String _currentValue(
   return switch (slot) {
     ConfigurationCompassSlot.action => state.action.infinitive,
     ConfigurationCompassSlot.object => state.object?.text ?? '-',
+    ConfigurationCompassSlot.objectDeterminer =>
+      state.object?.determiner?.text ?? '-',
+    ConfigurationCompassSlot.objectAdjective => _adjectiveValue(
+      state.object?.adjectiveList,
+    ),
     ConfigurationCompassSlot.recipient => state.recipient?.text ?? '-',
+    ConfigurationCompassSlot.recipientDeterminer =>
+      state.recipient?.determiner?.text ?? '-',
+    ConfigurationCompassSlot.recipientAdjective => _adjectiveValue(
+      state.recipient?.adjectiveList,
+    ),
     ConfigurationCompassSlot.complement => state.complement?.text ?? '-',
+    ConfigurationCompassSlot.complementDeterminer =>
+      state.complement?.determiner?.text ?? '-',
+    ConfigurationCompassSlot.complementAdjective => _adjectiveValue(
+      state.complement?.adjectiveList,
+    ),
     ConfigurationCompassSlot.adjectiveComplement =>
       state.adjectiveComplement?.text ?? '-',
     ConfigurationCompassSlot.voice => state.voice.name,
@@ -369,4 +406,48 @@ String _currentValue(
     ConfigurationCompassSlot.placePhrase => state.placePhrase?.noun ?? '-',
     ConfigurationCompassSlot.timePhrase => state.timePhrase?.text ?? '-',
   };
+}
+
+String _unlockHint(
+  ConfigurationCompassSlot slot,
+  ConfigurationState configuration,
+) {
+  final state = configuration.sentenceState;
+
+  return switch (slot) {
+    ConfigurationCompassSlot.object =>
+      'Choose a verb that can take an object, like build, give, need, see, or use.',
+    ConfigurationCompassSlot.objectDeterminer ||
+    ConfigurationCompassSlot.objectAdjective =>
+      'Choose an object first. Noun phrase modifiers wake after a noun exists.',
+    ConfigurationCompassSlot.recipient =>
+      'Choose a ditransitive verb like give, tell, teach, write, or buy, then keep an object active.',
+    ConfigurationCompassSlot.recipientDeterminer ||
+    ConfigurationCompassSlot.recipientAdjective =>
+      'Choose a recipient first. Recipient modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.complement =>
+      'Choose verb be first. Noun complements belong to the be frame.',
+    ConfigurationCompassSlot.complementDeterminer ||
+    ConfigurationCompassSlot.complementAdjective =>
+      'Choose verb be, then choose a noun complement. Complement modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.adjectiveComplement =>
+      'Choose verb be first. Adjective complements belong to the be frame.',
+    ConfigurationCompassSlot.voice =>
+      'Choose an object-capable verb and an object first. Passive opens after there is something to promote.',
+    ConfigurationCompassSlot.passiveFocus =>
+      'Turn passive voice on first. Recipient focus also needs a recipient-capable verb and a recipient.',
+    ConfigurationCompassSlot.modal =>
+      'No modal fits this tense/frame from here.',
+    ConfigurationCompassSlot.action ||
+    ConfigurationCompassSlot.placePhrase ||
+    ConfigurationCompassSlot.timePhrase => 'No open move from here.',
+  };
+}
+
+String _adjectiveValue(List<Adjective>? adjectives) {
+  if (adjectives == null || adjectives.isEmpty) {
+    return '-';
+  }
+
+  return adjectives.map((adjective) => adjective.text).join(', ');
 }

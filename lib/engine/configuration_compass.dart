@@ -1,7 +1,9 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
+import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -11,6 +13,7 @@ import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
+import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -22,8 +25,14 @@ import 'package:padlock_app/models/grammar/voice.dart';
 enum ConfigurationCompassSlot {
   action,
   object,
+  objectDeterminer,
+  objectAdjective,
   recipient,
+  recipientDeterminer,
+  recipientAdjective,
   complement,
+  complementDeterminer,
+  complementAdjective,
   adjectiveComplement,
   voice,
   passiveFocus,
@@ -37,6 +46,7 @@ class ConfigurationSuggestion {
   final ConfigurationMove move;
   final String label;
   final int priority;
+  final bool isSelected;
   final ConfigurationState preview;
 
   const ConfigurationSuggestion({
@@ -44,6 +54,7 @@ class ConfigurationSuggestion {
     required this.move,
     required this.label,
     required this.priority,
+    this.isSelected = false,
     required this.preview,
   });
 }
@@ -55,6 +66,8 @@ class ConfigurationCompass {
   final List<NounPhrase> recipients;
   final List<NounPhrase> complements;
   final List<Adjective> adjectiveComplements;
+  final List<Adjective> nounAdjectives;
+  final List<Determiner> determiners;
   final List<Modal> modals;
   final List<PlacePhrase> places;
   final List<TimePhrase> times;
@@ -66,6 +79,8 @@ class ConfigurationCompass {
     List<NounPhrase>? recipients,
     List<NounPhrase>? complements,
     List<Adjective>? adjectiveComplements,
+    List<Adjective>? nounAdjectives,
+    List<Determiner>? determiners,
     List<Modal>? modals,
     List<PlacePhrase>? places,
     List<TimePhrase>? times,
@@ -74,6 +89,8 @@ class ConfigurationCompass {
        recipients = recipients ?? _defaultRecipients,
        complements = complements ?? _defaultComplements,
        adjectiveComplements = adjectiveComplements ?? emotionsAdjectives,
+       nounAdjectives = nounAdjectives ?? _defaultNounAdjectives,
+       determiners = determiners ?? allDeterminers,
        modals = modals ?? _coreModals,
        places = places ?? placePhrases,
        times = times ?? timePhrases;
@@ -97,12 +114,17 @@ class ConfigurationCompass {
           move: candidate.move,
           label: candidate.label,
           priority: candidate.priority,
+          isSelected: candidate.isSelected,
           preview: preview,
         ),
       );
     }
 
     suggestions.sort((left, right) {
+      if (left.isSelected != right.isSelected) {
+        return left.isSelected ? -1 : 1;
+      }
+
       final priority = right.priority.compareTo(left.priority);
       if (priority != 0) {
         return priority;
@@ -125,78 +147,112 @@ class ConfigurationCompass {
     final sentence = state.sentenceState;
 
     return switch (slot) {
-      ConfigurationCompassSlot.action =>
-        actions
-            .where((action) => action != sentence.action)
-            .map(
-              (action) => _CompassCandidate(
-                SetAction(action),
-                action.infinitive,
-                _actionPriority(sentence.action, action),
-              ),
-            ),
+      ConfigurationCompassSlot.action => actions.map(
+        (action) => _CompassCandidate(
+          SetAction(action),
+          action.infinitive,
+          action == sentence.action
+              ? 0
+              : _actionPriority(sentence.action, action),
+          isSelected: action == sentence.action,
+        ),
+      ),
       ConfigurationCompassSlot.object => objects.map(
         (object) => _CompassCandidate(
           SetObject(object),
           object.text,
-          object == sentence.object ? 0 : 100,
+          _sameNounChoice(object, sentence.object) ? 0 : 100,
+          isSelected: _sameNounChoice(object, sentence.object),
         ),
+      ),
+      ConfigurationCompassSlot.objectDeterminer => _determinerCandidates(
+        sentence.object,
+        NounPhraseTarget.object,
+      ),
+      ConfigurationCompassSlot.objectAdjective => _adjectiveCandidates(
+        sentence.object,
+        NounPhraseTarget.object,
       ),
       ConfigurationCompassSlot.recipient => recipients.map(
         (recipient) => _CompassCandidate(
           SetRecipient(recipient),
           recipient.text,
-          recipient == sentence.recipient ? 0 : 100,
+          _sameNounChoice(recipient, sentence.recipient) ? 0 : 100,
+          isSelected: _sameNounChoice(recipient, sentence.recipient),
         ),
       ),
-      ConfigurationCompassSlot.complement => sentence.action == be
-          ? complements.map(
-              (complement) => _CompassCandidate(
-                SetComplement(complement),
-                complement.text,
-                complement == sentence.complement ? 0 : 100,
-              ),
-            )
-          : const <_CompassCandidate>[],
-      ConfigurationCompassSlot.adjectiveComplement => sentence.action == be
-          ? adjectiveComplements.map(
-              (adjective) => _CompassCandidate(
-                SetAdjectiveComplement(adjective),
-                adjective.text,
-                adjective == sentence.adjectiveComplement ? 0 : 100,
-              ),
-            )
-          : const <_CompassCandidate>[],
-      ConfigurationCompassSlot.voice =>
-        Voice.values
-            .where((voice) => voice != sentence.voice)
-            .map(
-              (voice) => _CompassCandidate(
-                SetVoice(voice),
-                voice.name,
-                voice == Voice.passive ? 100 : 90,
-              ),
-            ),
-      ConfigurationCompassSlot.passiveFocus =>
-        PassiveFocus.values
-            .where((focus) => focus != sentence.passiveFocus)
-            .map(
-              (focus) => _CompassCandidate(
-                SetPassiveFocus(focus),
-                focus.name,
-                focus == PassiveFocus.object ? 100 : 90,
-              ),
-            ),
-      ConfigurationCompassSlot.modal =>
-        modals
-            .where((modal) => modal != sentence.modal)
-            .map(
-              (modal) => _CompassCandidate(
-                SetModal(modal),
-                modal.isNone ? 'no modal' : modal.text,
-                _modalPriority(sentence.tense, sentence.modal, modal),
-              ),
-            ),
+      ConfigurationCompassSlot.recipientDeterminer => _determinerCandidates(
+        sentence.recipient,
+        NounPhraseTarget.recipient,
+      ),
+      ConfigurationCompassSlot.recipientAdjective => _adjectiveCandidates(
+        sentence.recipient,
+        NounPhraseTarget.recipient,
+      ),
+      ConfigurationCompassSlot.complement =>
+        sentence.action == be
+            ? complements.map(
+                (complement) => _CompassCandidate(
+                  SetComplement(complement),
+                  complement.text,
+                  _sameNounChoice(complement, sentence.complement) ? 0 : 100,
+                  isSelected: _sameNounChoice(complement, sentence.complement),
+                ),
+              )
+            : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.complementDeterminer => _determinerCandidates(
+        sentence.complement,
+        NounPhraseTarget.complement,
+      ),
+      ConfigurationCompassSlot.complementAdjective => _adjectiveCandidates(
+        sentence.complement,
+        NounPhraseTarget.complement,
+      ),
+      ConfigurationCompassSlot.adjectiveComplement =>
+        sentence.action == be
+            ? adjectiveComplements.map(
+                (adjective) => _CompassCandidate(
+                  SetAdjectiveComplement(adjective),
+                  adjective.text,
+                  adjective == sentence.adjectiveComplement ? 0 : 100,
+                  isSelected: adjective == sentence.adjectiveComplement,
+                ),
+              )
+            : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.voice => Voice.values.map(
+        (voice) => _CompassCandidate(
+          SetVoice(voice),
+          voice.name,
+          voice == sentence.voice
+              ? 0
+              : voice == Voice.passive
+              ? 100
+              : 90,
+          isSelected: voice == sentence.voice,
+        ),
+      ),
+      ConfigurationCompassSlot.passiveFocus => PassiveFocus.values.map(
+        (focus) => _CompassCandidate(
+          SetPassiveFocus(focus),
+          focus.name,
+          focus == sentence.passiveFocus
+              ? 0
+              : focus == PassiveFocus.object
+              ? 100
+              : 90,
+          isSelected: focus == sentence.passiveFocus,
+        ),
+      ),
+      ConfigurationCompassSlot.modal => modals.map(
+        (modal) => _CompassCandidate(
+          SetModal(modal),
+          modal.isNone ? 'no modal' : modal.text,
+          modal == sentence.modal
+              ? 0
+              : _modalPriority(sentence.tense, sentence.modal, modal),
+          isSelected: modal == sentence.modal,
+        ),
+      ),
       ConfigurationCompassSlot.placePhrase => places.map(
         (place) => _CompassCandidate(
           SetPlacePhrase(place),
@@ -204,16 +260,85 @@ class ConfigurationCompass {
           place == sentence.placePhrase
               ? 0
               : _placePriority(sentence.action, place),
+          isSelected: place == sentence.placePhrase,
         ),
       ),
       ConfigurationCompassSlot.timePhrase => times.map(
         (time) => _CompassCandidate(
           SetTimePhrase(time),
           time.text,
-          _timePriority(sentence.tense, sentence.aspect, time),
+          time == sentence.timePhrase
+              ? 0
+              : _timePriority(sentence.tense, sentence.aspect, time),
+          isSelected: time == sentence.timePhrase,
         ),
       ),
     };
+  }
+
+  Iterable<_CompassCandidate> _determinerCandidates(
+    NounPhrase? phrase,
+    NounPhraseTarget target,
+  ) {
+    if (phrase == null) {
+      return const <_CompassCandidate>[];
+    }
+
+    return [
+      _CompassCandidate(
+        SetNounPhraseDeterminer(target, null),
+        'no determiner',
+        phrase.determiner == null ? 0 : 115,
+        isSelected: phrase.determiner == null,
+      ),
+      ...determiners.map(
+        (determiner) => _CompassCandidate(
+          SetNounPhraseDeterminer(target, determiner),
+          determiner.text,
+          determiner == phrase.determiner
+              ? 0
+              : _determinerPriority(phrase, determiner),
+          isSelected: determiner == phrase.determiner,
+        ),
+      ),
+    ];
+  }
+
+  Iterable<_CompassCandidate> _adjectiveCandidates(
+    NounPhrase? phrase,
+    NounPhraseTarget target,
+  ) {
+    if (phrase == null) {
+      return const <_CompassCandidate>[];
+    }
+
+    final current = phrase.adjectiveList;
+
+    return [
+      _CompassCandidate(
+        SetNounPhraseAdjectives(target, const []),
+        'no adjective',
+        current.isEmpty ? 0 : 115,
+        isSelected: current.isEmpty,
+      ),
+      ...current.map(
+        (adjective) => _CompassCandidate(
+          SetNounPhraseAdjectives(target, current),
+          adjective.text,
+          0,
+          isSelected: true,
+        ),
+      ),
+      ...nounAdjectives
+          .where((adjective) => !current.contains(adjective))
+          .map(
+            (adjective) => _CompassCandidate(
+              SetNounPhraseAdjectives(target, [...current, adjective]),
+              adjective.text,
+              100,
+            ),
+          ),
+    ];
   }
 }
 
@@ -221,8 +346,14 @@ class _CompassCandidate {
   final ConfigurationMove move;
   final String label;
   final int priority;
+  final bool isSelected;
 
-  const _CompassCandidate(this.move, this.label, this.priority);
+  const _CompassCandidate(
+    this.move,
+    this.label,
+    this.priority, {
+    this.isSelected = false,
+  });
 }
 
 int _actionPriority(Verb current, Verb candidate) {
@@ -286,6 +417,24 @@ int _placePriority(Verb action, PlacePhrase place) {
   };
 }
 
+int _determinerPriority(NounPhrase phrase, Determiner determiner) {
+  final text = determiner.text;
+
+  if (phrase.isPlural) {
+    return switch (text) {
+      'the' || 'some' || 'many' => 110,
+      'these' || 'those' => 105,
+      _ => 80,
+    };
+  }
+
+  return switch (text) {
+    'a' || 'an' || 'the' => 110,
+    'this' || 'that' => 105,
+    _ => 80,
+  };
+}
+
 int _timePriority(Tense tense, Aspect aspect, TimePhrase time) {
   final text = time.text;
 
@@ -318,6 +467,13 @@ bool _wasBlocked(ConfigurationState state) {
   return state.messages.any(
     (message) => message.kind == ConfigurationMessageKind.blocked,
   );
+}
+
+bool _sameNounChoice(NounPhrase candidate, NounPhrase? current) {
+  return current != null &&
+      candidate.text == current.text &&
+      candidate.person == current.person &&
+      candidate.number == current.number;
 }
 
 final _defaultObjects = [
@@ -359,4 +515,10 @@ final _coreModals = [
   modal_data.should,
   modal_data.will,
   modal_data.would,
+];
+
+final _defaultNounAdjectives = [
+  ...sizeAdjectives,
+  ...colorAdjectives,
+  ...emotionsAdjectives,
 ];

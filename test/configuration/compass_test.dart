@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
+import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
+import 'package:padlock_app/data/subjects/adjectives/size.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -29,6 +32,8 @@ void main() {
       john.toNounPhrase(Number.singular),
     ],
     adjectiveComplements: [happy, tired],
+    nounAdjectives: [big, red],
+    determiners: [aDeterminer, anDeterminer, theDeterminer, manyDeterminer],
     modals: [noModal, can, should, will],
     places: [
       homePlacePhrase,
@@ -75,13 +80,91 @@ void main() {
       expect(wasBlocked(suggestions.first.preview), isFalse);
     });
 
+    test('object noun phrase modifiers wake after object exists', () {
+      expect(
+        compass.suggestionsFor(
+          ConfigurationState.initial(),
+          ConfigurationCompassSlot.objectDeterminer,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+      expect(
+        compass.suggestionsFor(
+          ConfigurationState.initial(),
+          ConfigurationCompassSlot.objectAdjective,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(work_data.build));
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      final determinerSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.objectDeterminer,
+        limit: 0,
+      );
+
+      expect(determinerSuggestions.map((suggestion) => suggestion.label), [
+        'no determiner',
+        'a',
+        'the',
+      ]);
+      expect(determinerSuggestions.first.isSelected, isTrue);
+
+      final aSuggestion = determinerSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'a',
+      );
+      expect(render(aSuggestion.preview), 'He builds a book.');
+
+      var adjectiveSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.objectAdjective,
+        limit: 0,
+      );
+
+      expect(adjectiveSuggestions.map((suggestion) => suggestion.label), [
+        'no adjective',
+        'big',
+        'red',
+      ]);
+      expect(adjectiveSuggestions.first.isSelected, isTrue);
+
+      final bigSuggestion = adjectiveSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'big',
+      );
+
+      state = bigSuggestion.preview;
+      expect(render(state), 'He builds big book.');
+
+      adjectiveSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.objectAdjective,
+        limit: 0,
+      );
+      final redSuggestion = adjectiveSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'red',
+      );
+
+      expect(render(redSuggestion.preview), 'He builds big red book.');
+    });
+
     test('suggests passive voice only after an object frame exists', () {
       final initialSuggestions = compass.suggestionsFor(
         ConfigurationState.initial(),
         ConfigurationCompassSlot.voice,
       );
 
-      expect(initialSuggestions.map((suggestion) => suggestion.label), isEmpty);
+      expect(initialSuggestions.map((suggestion) => suggestion.label), [
+        'active',
+      ]);
+      expect(initialSuggestions.single.isSelected, isTrue);
 
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(work_data.build));
@@ -95,9 +178,18 @@ void main() {
         ConfigurationCompassSlot.voice,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), ['passive']);
-      expect(suggestions.single.preview.sentenceState.voice, Voice.passive);
-      expect(render(suggestions.single.preview), 'Bridge is built by him.');
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'active',
+        'passive',
+      ]);
+      expect(suggestions.first.isSelected, isTrue);
+
+      final passiveSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'passive',
+      );
+
+      expect(passiveSuggestion.preview.sentenceState.voice, Voice.passive);
+      expect(render(passiveSuggestion.preview), 'Bridge is built by him.');
     });
 
     test('hides passive focus until passive voice is selected', () {
@@ -142,8 +234,13 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.first.label, 'be');
-      expect(render(suggestions.first.preview), 'He is.');
+      expect(suggestions.first.label, 'work');
+      expect(suggestions.first.isSelected, isTrue);
+
+      final beSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'be',
+      );
+      expect(render(beSuggestion.preview), 'He is.');
 
       expect(
         compass.suggestionsFor(
@@ -162,7 +259,7 @@ void main() {
         isEmpty,
       );
 
-      final beState = suggestions.first.preview;
+      final beState = beSuggestion.preview;
       suggestions = compass.suggestionsFor(
         beState,
         ConfigurationCompassSlot.adjectiveComplement,
@@ -339,9 +436,11 @@ void main() {
       );
 
       expect(presentSuggestions.map((suggestion) => suggestion.label), [
+        'no modal',
         'can',
         'should',
       ]);
+      expect(presentSuggestions.first.isSelected, isTrue);
 
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetTense(Tense.future));
@@ -352,8 +451,12 @@ void main() {
         limit: 0,
       );
 
-      expect(futureSuggestions.map((suggestion) => suggestion.label), ['will']);
-      expect(render(futureSuggestions.single.preview), 'He will work.');
+      expect(futureSuggestions.map((suggestion) => suggestion.label), [
+        'no modal',
+        'will',
+      ]);
+      expect(futureSuggestions.first.isSelected, isTrue);
+      expect(render(futureSuggestions.last.preview), 'He will work.');
     });
 
     test('modal suggestions expose no modal as the exit', () {
@@ -367,10 +470,54 @@ void main() {
         ConfigurationCompassSlot.modal,
       );
 
-      expect(suggestions.first.label, 'no modal');
-      expect(suggestions.first.preview.sentenceState.modal, noModal);
-      expect(wasBlocked(suggestions.first.preview), isFalse);
-      expect(render(suggestions.first.preview), 'He works.');
+      final noModalSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'no modal',
+      );
+
+      expect(noModalSuggestion.preview.sentenceState.modal, noModal);
+      expect(wasBlocked(noModalSuggestion.preview), isFalse);
+      expect(render(noModalSuggestion.preview), 'He works.');
+    });
+
+    test('keeps current choices visible as selected suggestions', () {
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(work_data.build));
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = lock.applyMove(
+        state,
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
+      );
+
+      final actionSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.action,
+      );
+      expect(actionSuggestions.first.label, 'build');
+      expect(actionSuggestions.first.isSelected, isTrue);
+
+      final objectSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.object,
+      );
+      expect(objectSuggestions.first.label, 'book');
+      expect(objectSuggestions.first.isSelected, isTrue);
+
+      final determinerSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.objectDeterminer,
+      );
+      expect(determinerSuggestions.first.label, 'a');
+      expect(determinerSuggestions.first.isSelected, isTrue);
+
+      final adjectiveSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.objectAdjective,
+      );
+      expect(adjectiveSuggestions.first.label, 'no adjective');
+      expect(adjectiveSuggestions.first.isSelected, isTrue);
     });
 
     test('place suggestions use location meaning for ordinary verbs', () {
