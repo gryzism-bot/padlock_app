@@ -1,4 +1,5 @@
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -518,6 +519,26 @@ class ConfigurationEngine {
           '${state.action.infinitive} does not take a complement.',
         ),
       );
+    }
+
+    if (hasFixedObjectFrame(state.action) && state.object != null) {
+      final label = fixedObjectFrameLabel(state.action) ?? 'fixed object';
+      if (!fixedObjectFitsAction(state.object!, state.action)) {
+        blockers.add(
+          ConfigurationMessage.blocked(
+            '${state.action.infinitive} only takes fixed $label objects.',
+          ),
+        );
+      }
+
+      if (state.object!.determiner != null ||
+          state.object!.adjectiveList.isNotEmpty) {
+        blockers.add(
+          ConfigurationMessage.blocked(
+            '${state.action.infinitive} fixed $label objects stay bare.',
+          ),
+        );
+      }
     }
 
     switch (state.voice) {

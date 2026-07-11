@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -233,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 8),
                   for (final section in _visibleSlotSections(compass)) ...[
                     _CompassSlotSection(
-                      title: _slotTitle(section.slot),
+                      title: _slotTitle(section.slot, configuration),
                       unlockHint: _unlockHint(section.slot, configuration),
                       currentSentence: sentence.text,
                       displayMode: displayMode,
@@ -1885,10 +1886,14 @@ class _GuidedMessageChip extends StatelessWidget {
   }
 }
 
-String _slotTitle(ConfigurationCompassSlot slot) {
+String _slotTitle(
+  ConfigurationCompassSlot slot,
+  ConfigurationState configuration,
+) {
   return switch (slot) {
     ConfigurationCompassSlot.action => 'Verb',
-    ConfigurationCompassSlot.object => 'Object',
+    ConfigurationCompassSlot.object =>
+      _fixedObjectSlotTitle(configuration) ?? 'Object',
     ConfigurationCompassSlot.objectDeterminer => 'Object determiner',
     ConfigurationCompassSlot.objectAdjective => 'Object adjective',
     ConfigurationCompassSlot.recipient => 'Recipient',
@@ -1924,7 +1929,8 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.timePhrase => true,
     ConfigurationCompassSlot.object => state.object != null,
     ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective => state.object != null,
+    ConfigurationCompassSlot.objectAdjective =>
+      state.object != null && !hasFixedObjectFrame(state.action),
     ConfigurationCompassSlot.recipient => state.recipient != null,
     ConfigurationCompassSlot.recipientDeterminer ||
     ConfigurationCompassSlot.recipientAdjective => state.recipient != null,
@@ -1948,10 +1954,14 @@ String _unlockHint(
 
   return switch (slot) {
     ConfigurationCompassSlot.object =>
-      'Choose a verb that can take an object, like build, give, need, see, or use.',
+      fixedObjectFrameLabel(state.action) == null
+          ? 'Choose a verb that can take an object, like build, give, need, see, or use.'
+          : 'Choose a fixed ${fixedObjectFrameLabel(state.action)} for ${state.action.infinitive}.',
     ConfigurationCompassSlot.objectDeterminer ||
     ConfigurationCompassSlot.objectAdjective =>
-      'Choose an object first. Noun phrase modifiers wake after a noun exists.',
+      hasFixedObjectFrame(state.action)
+          ? '${state.action.infinitive} fixed ${fixedObjectFrameLabel(state.action)} choices stay bare.'
+          : 'Choose an object first. Noun phrase modifiers wake after a noun exists.',
     ConfigurationCompassSlot.recipient =>
       'Choose a ditransitive verb like give, tell, teach, write, or buy, then keep an object active.',
     ConfigurationCompassSlot.recipientDeterminer ||
@@ -1976,4 +1986,13 @@ String _unlockHint(
     ConfigurationCompassSlot.placePhrase ||
     ConfigurationCompassSlot.timePhrase => 'No open move from here.',
   };
+}
+
+String? _fixedObjectSlotTitle(ConfigurationState configuration) {
+  final label = fixedObjectFrameLabel(configuration.sentenceState.action);
+  if (label == null) {
+    return null;
+  }
+
+  return '${label[0].toUpperCase()}${label.substring(1)}';
 }

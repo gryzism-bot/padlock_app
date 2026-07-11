@@ -7,6 +7,7 @@ const study = Verb(
   pastSimple: 'studied',
   pastParticiple: 'studied',
   ingForm: 'studying',
+  takesObject: true,
   translations: {Language.pl: 'uczyć się'},
 );
 

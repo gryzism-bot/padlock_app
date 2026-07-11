@@ -6,6 +6,8 @@ import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as fixed_object;
 import 'package:padlock_app/data/subjects/object_pronouns.dart' as object_case;
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -62,9 +64,30 @@ void main() {
       final initialSuggestions = compass.suggestionsFor(
         ConfigurationState.initial(),
         ConfigurationCompassSlot.object,
+        limit: 0,
       );
 
-      expect(initialSuggestions, isEmpty);
+      expect(initialSuggestions.map((suggestion) => suggestion.label), [
+        'English',
+        'grammar',
+        'history',
+        'math',
+        'science',
+      ]);
+
+      final englishSuggestion = initialSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'English',
+      );
+      expect(render(englishSuggestion.preview), 'You learn English.');
+
+      final workState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
+      expect(
+        compass.suggestionsFor(workState, ConfigurationCompassSlot.object),
+        isEmpty,
+      );
 
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(work_data.build));
@@ -81,6 +104,94 @@ void main() {
       ]);
       expect(render(suggestions.first.preview), 'You build book.');
       expect(wasBlocked(suggestions.first.preview), isFalse);
+    });
+
+    test('fixed object frames wake a narrow bare object rail', () {
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(play),
+      );
+
+      final objectSuggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.object,
+        limit: 0,
+      );
+
+      expect(
+        objectSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['football', 'tennis', 'volleyball']),
+      );
+
+      final volleyballSuggestion = objectSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'volleyball',
+      );
+      expect(render(volleyballSuggestion.preview), 'You play volleyball.');
+
+      state = volleyballSuggestion.preview;
+      expect(
+        compass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.objectDeterminer,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+      expect(
+        compass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.objectAdjective,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      final blocked = lock.applyMove(
+        state,
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'play fixed activity objects stay bare.',
+      );
+    });
+
+    test('guided actions hide flattened fixed object verbs', () {
+      final suggestions = ConfigurationCompass().suggestionsFor(
+        ConfigurationState.initial(),
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        contains('play'),
+      );
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        isNot(contains('play volleyball')),
+      );
+    });
+
+    test('fixed object frames reject unrelated nouns', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(learn),
+      );
+      final blocked = lock.applyMove(
+        state,
+        const SetObject(fixed_object.volleyball),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'learn only takes fixed subject objects.',
+      );
     });
 
     test('object noun phrase modifiers wake after object exists', () {

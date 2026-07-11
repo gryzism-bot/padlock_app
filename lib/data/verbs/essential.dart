@@ -297,6 +297,7 @@ const play = Verb(
   pastSimple: 'played',
   pastParticiple: 'played',
   ingForm: 'playing',
+  takesObject: true,
   translations: {Language.pl: 'grać'},
 );
 
@@ -306,8 +307,7 @@ const learn = Verb(
   pastSimple: 'learned',
   pastParticiple: 'learned',
   ingForm: 'learning',
-  takesObject: false,
-  //TODO: to be true after implementing learn English in Grammar Engine
+  takesObject: true,
   translations: {Language.pl: 'uczyć się'},
 );
 

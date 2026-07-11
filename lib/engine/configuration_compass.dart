@@ -1,4 +1,5 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
+import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -86,7 +87,7 @@ class ConfigurationCompass {
     List<Modal>? modals,
     List<PlacePhrase>? places,
     List<TimePhrase>? times,
-  }) : actions = actions ?? verbs,
+  }) : actions = actions ?? _defaultActions,
        objects = objects ?? _defaultObjects,
        recipients = recipients ?? _defaultRecipients,
        complements = complements ?? _defaultComplements,
@@ -170,7 +171,7 @@ class ConfigurationCompass {
               ),
             ),
       ConfigurationCompassSlot.object =>
-        objects
+        _objectChoicesFor(sentence.action, objects)
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
@@ -192,11 +193,11 @@ class ConfigurationCompass {
               );
             }),
       ConfigurationCompassSlot.objectDeterminer => _determinerCandidates(
-        sentence.object,
+        hasFixedObjectFrame(sentence.action) ? null : sentence.object,
         NounPhraseTarget.object,
       ),
       ConfigurationCompassSlot.objectAdjective => _adjectiveCandidates(
-        sentence.object,
+        hasFixedObjectFrame(sentence.action) ? null : sentence.object,
         NounPhraseTarget.object,
       ),
       ConfigurationCompassSlot.recipient => recipients.map((recipient) {
@@ -452,6 +453,10 @@ int _actionPriority(Verb current, Verb candidate) {
     return 103;
   }
 
+  if (hasFixedObjectFrame(candidate)) {
+    return 102;
+  }
+
   if (candidate.takesRecipient) {
     return 95;
   }
@@ -564,6 +569,10 @@ bool _objectFitsAction(NounPhrase? object, Verb action) {
     return true;
   }
 
+  if (hasFixedObjectFrame(action)) {
+    return fixedObjectFitsAction(object, action);
+  }
+
   final noun = object.text.toLowerCase();
 
   return switch (action.infinitive) {
@@ -571,6 +580,14 @@ bool _objectFitsAction(NounPhrase? object, Verb action) {
     'ride' => _rideableObjects.contains(noun),
     _ => true,
   };
+}
+
+List<Verb> get _defaultActions =>
+    verbs.where((action) => !isFlattenedFixedObjectVerb(action)).toList();
+
+List<NounPhrase> _objectChoicesFor(Verb action, List<NounPhrase> fallback) {
+  final fixedChoices = fixedObjectChoicesFor(action);
+  return fixedChoices.isEmpty ? fallback : fixedChoices;
 }
 
 String _nounPhraseLabel(NounPhrase phrase) {

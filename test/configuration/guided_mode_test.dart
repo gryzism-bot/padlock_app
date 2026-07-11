@@ -61,7 +61,10 @@ void main() {
     });
 
     test('blocks object on intransitive verb', () {
-      final previous = ConfigurationState.initial();
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
       final state = engine.applyMove(
         previous,
         SetObject(book.toNounPhrase(Number.singular)),
@@ -69,7 +72,7 @@ void main() {
 
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
-      expect(state.messages.single.text, 'learn does not take an object.');
+      expect(state.messages.single.text, 'work does not take an object.');
     });
 
     test('accepts object once verb frame supports it', () {
@@ -245,14 +248,17 @@ void main() {
     });
 
     test('blocks passive voice without a passive-capable frame', () {
-      final previous = ConfigurationState.initial();
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
       final state = engine.applyMove(previous, const SetVoice(Voice.passive));
 
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(
         state.messages.map((message) => message.text),
-        contains('learn cannot be passive in this frame.'),
+        contains('work cannot be passive in this frame.'),
       );
     });
 

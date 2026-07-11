@@ -126,15 +126,16 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
+    await tapAfterScroll(tester, find.byTooltip('You work.'));
     await tapAfterScroll(tester, find.text('passive'));
 
-    expect(renderedSentence(tester), 'You learn.');
+    expect(renderedSentence(tester), 'You work.');
     expect(find.text('Blocked by Lock'), findsWidgets);
-    expect(find.text('learn cannot be passive in this frame.'), findsOneWidget);
+    expect(find.text('work cannot be passive in this frame.'), findsOneWidget);
     expect(
       find.byTooltip(
         const ConfigurationMessage.blocked(
-          'learn cannot be passive in this frame.',
+          'work cannot be passive in this frame.',
         ).tooltip,
       ),
       findsOneWidget,
@@ -261,10 +262,29 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(find.text('Verb:'), findsOneWidget);
+    expect(find.text('Subject:'), findsOneWidget);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
     expect(find.text('Object:'), findsNothing);
     expect(find.text('Recipient:'), findsNothing);
     expect(find.text('Noun complement:'), findsNothing);
     expect(find.text('Adjective complement:'), findsNothing);
+
+    expect(find.byTooltip('You learn English.'), findsWidgets);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('You play.'), delta: -500);
+
+    expect(find.text('Activity:'), findsOneWidget);
+    expect(find.text('Object:'), findsNothing);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('You play volleyball.'));
+
+    expect(renderedSentence(tester), 'You play volleyball.');
+    expect(find.text('Activity:'), findsOneWidget);
 
     await tapAfterScroll(tester, find.byTooltip('You are.'));
 

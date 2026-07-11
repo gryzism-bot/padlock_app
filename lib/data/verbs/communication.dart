@@ -7,6 +7,7 @@ const speak = Verb(
   pastSimple: 'spoke',
   pastParticiple: 'spoken',
   ingForm: 'speaking',
+  takesObject: true,
   translations: {Language.pl: 'mówić'},
 );
 
