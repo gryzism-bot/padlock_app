@@ -36,7 +36,7 @@ void main() {
     test('initial state is a valid renderable frame', () {
       final state = ConfigurationState.initial();
 
-      expect(render(state), 'He works.');
+      expect(render(state), 'You learn.');
       expect(state.messages, isEmpty);
     });
 
@@ -47,7 +47,7 @@ void main() {
       );
 
       expect(state.sentenceState.tense, Tense.past);
-      expect(render(state), 'He worked.');
+      expect(render(state), 'You learned.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -69,7 +69,7 @@ void main() {
 
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
-      expect(state.messages.single.text, 'work does not take an object.');
+      expect(state.messages.single.text, 'learn does not take an object.');
     });
 
     test('accepts object once verb frame supports it', () {
@@ -83,7 +83,7 @@ void main() {
 
       expect(state.sentenceState.action, work_data.build);
       expect(state.sentenceState.object?.text, 'bridge');
-      expect(render(state), 'He builds bridge.');
+      expect(render(state), 'You build bridge.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -115,7 +115,7 @@ void main() {
       );
 
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He builds many books.');
+      expect(render(state), 'You build many books.');
     });
 
     test('blocks noun phrase articles that do not match noun sound', () {
@@ -150,7 +150,7 @@ void main() {
       );
 
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He builds an engineer.');
+      expect(render(state), 'You build an engineer.');
     });
 
     test('checks noun phrase article sound against the first spoken word', () {
@@ -171,11 +171,14 @@ void main() {
       );
 
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He builds a big engineer.');
+      expect(render(state), 'You build a big engineer.');
     });
 
     test('blocks place phrase that repeats the verb word', () {
-      final previous = ConfigurationState.initial();
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
       final state = engine.applyMove(
         previous,
         const SetPlacePhrase(workPlacePhrase),
@@ -249,7 +252,7 @@ void main() {
       expect(wasBlocked(state), isTrue);
       expect(
         state.messages.map((message) => message.text),
-        contains('work cannot be passive in this frame.'),
+        contains('learn cannot be passive in this frame.'),
       );
     });
 
@@ -264,7 +267,7 @@ void main() {
       state = engine.applyMove(state, const SetVoice(Voice.passive));
 
       expect(state.sentenceState.voice, Voice.passive);
-      expect(render(state), 'Bridge is built by him.');
+      expect(render(state), 'Bridge is built by you.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -379,7 +382,7 @@ void main() {
       );
 
       expect(state.sentenceState.passiveFocus, PassiveFocus.recipient);
-      expect(render(state), 'Mary is given book by him.');
+      expect(render(state), 'Mary is given book by you.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -405,7 +408,7 @@ void main() {
       expect(state.sentenceState.voice, Voice.active);
       expect(state.sentenceState.passiveFocus, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He gives Mary book.');
+      expect(render(state), 'You give Mary book.');
     });
 
     test('selects lexical be as a bare verb frame', () {
@@ -418,7 +421,7 @@ void main() {
       expect(state.sentenceState.complement, isNull);
       expect(state.sentenceState.adjectiveComplement, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He is.');
+      expect(render(state), 'You are.');
     });
 
     test('enters lexical be adjective frame atomically', () {
@@ -432,7 +435,7 @@ void main() {
       expect(state.sentenceState.voice, Voice.active);
       expect(state.sentenceState.object, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He is happy.');
+      expect(render(state), 'You are happy.');
     });
 
     test('enters lexical be noun complement frame atomically', () {
@@ -447,7 +450,7 @@ void main() {
       expect(state.sentenceState.complement?.text, 'doctor');
       expect(state.sentenceState.adjectiveComplement, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He is a doctor.');
+      expect(render(state), 'You are a doctor.');
     });
 
     test('blocks lexical be noun complement number mismatch', () {
@@ -467,7 +470,7 @@ void main() {
         state.messages.single.text,
         'Lexical be noun complement must match agent number.',
       );
-      expect(render(state), 'He is a doctor.');
+      expect(render(state), 'You are a doctor.');
     });
 
     test('lexical be frame move clears incompatible passive/object slots', () {
@@ -490,7 +493,7 @@ void main() {
       expect(state.sentenceState.recipient, isNull);
       expect(state.sentenceState.passiveFocus, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He is happy.');
+      expect(render(state), 'You are happy.');
     });
 
     test('lexical be frame can keep a compatible modal frame', () {
@@ -505,7 +508,7 @@ void main() {
       expect(state.sentenceState.action, be);
       expect(state.sentenceState.modal, can);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He can be happy.');
+      expect(render(state), 'You can be happy.');
     });
 
     test('lexical be blocks object recipient and passive focus slots', () {
@@ -567,7 +570,7 @@ void main() {
       expect(state.sentenceState.complement, isNull);
       expect(state.sentenceState.adjectiveComplement, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He works.');
+      expect(render(state), 'You work.');
     });
 
     test('entering lexical be clears incompatible passive/object slots', () {
@@ -588,7 +591,7 @@ void main() {
       expect(state.sentenceState.recipient, isNull);
       expect(state.sentenceState.passiveFocus, isNull);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'He is.');
+      expect(render(state), 'You are.');
     });
 
     test('blocks passive voice from lexical be', () {
@@ -614,7 +617,7 @@ void main() {
 
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
-      expect(state.messages.single.text, 'work does not take a complement.');
+      expect(state.messages.single.text, 'learn does not take a complement.');
     });
 
     test('blocks complements on passive non-be verbs', () {
@@ -670,7 +673,7 @@ void main() {
 
       expect(state.sentenceState.tense, Tense.future);
       expect(state.sentenceState.modal, will);
-      expect(render(state), 'He will work.');
+      expect(render(state), 'You will learn.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -688,7 +691,7 @@ void main() {
       expect(state.sentenceState.modal, should);
       expect(state.sentenceState.voice, Voice.passive);
       expect(wasBlocked(state), isFalse);
-      expect(render(state), 'Bridge should be built by him.');
+      expect(render(state), 'Bridge should be built by you.');
     });
 
     test('blocks imperative with modal', () {

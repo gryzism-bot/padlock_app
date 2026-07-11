@@ -1814,19 +1814,73 @@ class _GuidedMessages extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
       children: [
-        for (final message in messages)
-          Text(
-            message.text,
-            style: TextStyle(
-              color: message.kind == ConfigurationMessageKind.blocked
-                  ? Theme.of(context).colorScheme.error
-                  : Theme.of(context).colorScheme.primary,
-            ),
-          ),
+        for (final message in messages) _GuidedMessageChip(message: message),
       ],
+    );
+  }
+}
+
+class _GuidedMessageChip extends StatelessWidget {
+  final ConfigurationMessage message;
+
+  const _GuidedMessageChip({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isBlocked = message.kind == ConfigurationMessageKind.blocked;
+    final foreground = isBlocked ? colors.error : colors.primary;
+    final background = isBlocked
+        ? colors.errorContainer.withValues(alpha: 0.34)
+        : colors.primaryContainer.withValues(alpha: 0.34);
+    final border = isBlocked ? colors.error : colors.primary;
+
+    return Tooltip(
+      message: message.tooltip,
+      waitDuration: const Duration(milliseconds: 350),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: background,
+          border: Border.all(color: border.withValues(alpha: 0.62)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isBlocked ? Icons.lock : Icons.check_circle_outline,
+                size: 16,
+                color: foreground,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                message.title,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 6),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: Text(
+                  message.text,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: colors.onSurface),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

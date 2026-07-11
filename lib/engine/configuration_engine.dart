@@ -24,17 +24,61 @@ enum NounPhraseTarget { agent, object, recipient, complement }
 
 enum ConfigurationMessageKind { blocked, info }
 
+enum ConfigurationMessageSource { lock, compass, ui }
+
 class ConfigurationMessage {
   final ConfigurationMessageKind kind;
+  final ConfigurationMessageSource source;
   final String text;
 
-  const ConfigurationMessage(this.text, {required this.kind});
+  const ConfigurationMessage(
+    this.text, {
+    required this.kind,
+    this.source = ConfigurationMessageSource.lock,
+  });
 
-  const ConfigurationMessage.blocked(String text)
-    : this(text, kind: ConfigurationMessageKind.blocked);
+  const ConfigurationMessage.blocked(
+    String text, {
+    ConfigurationMessageSource source = ConfigurationMessageSource.lock,
+  }) : this(text, kind: ConfigurationMessageKind.blocked, source: source);
 
-  const ConfigurationMessage.info(String text)
-    : this(text, kind: ConfigurationMessageKind.info);
+  const ConfigurationMessage.info(
+    String text, {
+    ConfigurationMessageSource source = ConfigurationMessageSource.lock,
+  }) : this(text, kind: ConfigurationMessageKind.info, source: source);
+
+  String get title {
+    return switch (kind) {
+      ConfigurationMessageKind.blocked => 'Blocked by ${source.label}',
+      ConfigurationMessageKind.info => '${source.label} update',
+    };
+  }
+
+  String get tooltip {
+    return [
+      title,
+      text,
+      if (kind == ConfigurationMessageKind.blocked) ...[
+        '',
+        'The attempted state was rejected and the previous sentence stayed active.',
+        'If this came from a normal visible chip, refine Compass or the UI rail that exposed it.',
+        'If this came from a direct probe, the Lock is doing its job.',
+      ] else ...[
+        '',
+        'The move was accepted and the sentence state changed.',
+      ],
+    ].join('\n');
+  }
+}
+
+extension ConfigurationMessageSourceLabel on ConfigurationMessageSource {
+  String get label {
+    return switch (this) {
+      ConfigurationMessageSource.lock => 'Lock',
+      ConfigurationMessageSource.compass => 'Compass',
+      ConfigurationMessageSource.ui => 'UI',
+    };
+  }
 }
 
 class ConfigurationState {
@@ -49,8 +93,8 @@ class ConfigurationState {
   factory ConfigurationState.initial() {
     return ConfigurationState(
       sentenceState: SentenceState(
-        agent: he,
-        action: work,
+        agent: you,
+        action: learn,
         tense: Tense.present,
         aspect: Aspect.simple,
       ),

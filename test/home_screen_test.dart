@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/screens/home_screen.dart';
 
@@ -94,18 +95,18 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    expect(renderedSentence(tester), 'He works.');
+    expect(renderedSentence(tester), 'You learn.');
     expect(find.text('Padlock Guided Mode'), findsOneWidget);
     expect(find.text('Verb:'), findsOneWidget);
     expect(find.text('Verb'), findsNothing);
-    expect(find.byTooltip('Current: He works.'), findsWidgets);
+    expect(find.byTooltip('Current: You learn.'), findsWidgets);
     expect(find.byType(SelectableText), findsWidgets);
 
-    await tapAfterScroll(tester, find.byTooltip('He gives.'));
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
-    expect(renderedSentence(tester), 'He gives.');
+    expect(renderedSentence(tester), 'You give.');
   });
 
   testWidgets('Top controls expose guided form choices only', (tester) async {
@@ -117,7 +118,27 @@ void main() {
     expect(find.text('exclamation'), findsOneWidget);
     expect(find.text('imperative'), findsOneWidget);
     expect(find.text('no agent'), findsNothing);
-    expect(renderedSentence(tester), 'He works.');
+    expect(renderedSentence(tester), 'You learn.');
+  });
+
+  testWidgets('Blocked guided moves show lock source and diagnostic tooltip', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expect(renderedSentence(tester), 'You learn.');
+    expect(find.text('Blocked by Lock'), findsWidgets);
+    expect(find.text('learn cannot be passive in this frame.'), findsOneWidget);
+    expect(
+      find.byTooltip(
+        const ConfigurationMessage.blocked(
+          'learn cannot be passive in this frame.',
+        ).tooltip,
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Guided UI can exit lexical be through verb suggestions', (
@@ -125,18 +146,18 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('He is.'));
+    await tapAfterScroll(tester, find.byTooltip('You are.'));
 
-    await tapAfterScroll(tester, find.byTooltip('He is happy.'));
+    await tapAfterScroll(tester, find.byTooltip('You are happy.'));
 
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
-    await tapAfterScroll(tester, find.byTooltip('He works.'), delta: -500);
+    await tapAfterScroll(tester, find.byTooltip('You work.'), delta: -500);
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
-    expect(renderedSentence(tester), 'He works.');
+    expect(renderedSentence(tester), 'You work.');
   });
 
   testWidgets('Verb rail keeps work available after choosing another verb', (
@@ -144,10 +165,10 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('He buys.'));
+    await tapAfterScroll(tester, find.byTooltip('You buy.'));
 
-    expect(renderedSentence(tester), 'He buys.');
-    expect(find.byTooltip('He works.'), findsWidgets);
+    expect(renderedSentence(tester), 'You buy.');
+    expect(find.byTooltip('You work.'), findsWidgets);
   });
 
   testWidgets('Suggestion display mode can switch to word chips', (
@@ -158,7 +179,7 @@ void main() {
     await tapVisible(tester, find.text('Word'));
 
     expect(find.text('give', findRichText: true), findsOneWidget);
-    expect(find.text('He gives.'), findsNothing);
+    expect(find.text('You give.'), findsNothing);
   });
 
   testWidgets('Verb chips mark predicate extensions they can wake', (
@@ -245,25 +266,25 @@ void main() {
     expect(find.text('Noun complement:'), findsNothing);
     expect(find.text('Adjective complement:'), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('He is.'));
+    await tapAfterScroll(tester, find.byTooltip('You are.'));
 
     expect(find.text('Noun complement:'), findsOneWidget);
     expect(find.text('Adjective complement:'), findsOneWidget);
     expect(find.text('Object:'), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('He buys.'), delta: -500);
+    await tapAfterScroll(tester, find.byTooltip('You buy.'), delta: -500);
 
     expect(find.text('Object:'), findsOneWidget);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('He buys book.'));
+    await tapAfterScroll(tester, find.byTooltip('You buy book.'));
 
     expect(find.text('Object determiner:'), findsOneWidget);
     expect(find.text('Object adjective:'), findsOneWidget);
     expect(find.text('Recipient:'), findsOneWidget);
 
-    await tapAfterScroll(tester, find.byTooltip('He gives book.'), delta: -500);
+    await tapAfterScroll(tester, find.byTooltip('You give book.'), delta: -500);
 
     expect(find.text('Recipient:'), findsOneWidget);
   });
@@ -288,7 +309,7 @@ void main() {
     expect(find.text('cat'), findsOneWidget);
 
     await tapAfterScroll(tester, find.text('cat'));
-    expect(renderedSentence(tester), 'Cat works.');
+    expect(renderedSentence(tester), 'Cat learns.');
 
     await tapAfterScroll(
       tester,
@@ -297,7 +318,7 @@ void main() {
     expect(find.text('cats'), findsOneWidget);
 
     await tapAfterScroll(tester, find.text('cats'));
-    expect(renderedSentence(tester), 'Cats work.');
+    expect(renderedSentence(tester), 'Cats learn.');
   });
 
   testWidgets('Object rail number switch changes the selected object', (
@@ -306,7 +327,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('He buys.'));
+    await tapAfterScroll(tester, find.byTooltip('You buy.'));
 
     await tester.scrollUntilVisible(
       find.text('sg'),
@@ -324,7 +345,7 @@ void main() {
     await tester.tap(find.text('book', findRichText: true));
     await tester.pumpAndSettle();
 
-    expect(renderedSentence(tester), 'He buys book.');
+    expect(renderedSentence(tester), 'You buy book.');
 
     tester
         .widget<SegmentedButton<Number>>(
@@ -334,7 +355,7 @@ void main() {
         ?.call({Number.plural});
     await tester.pumpAndSettle();
 
-    expect(renderedSentence(tester), 'He buys books.');
+    expect(renderedSentence(tester), 'You buy books.');
     expect(find.text('book', findRichText: true), findsNothing);
     expect(find.text('books', findRichText: true), findsWidgets);
   });
@@ -342,17 +363,17 @@ void main() {
   testWidgets('Change preview highlights whole changed words', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('He gives.'));
-    await tapAfterScroll(tester, find.byTooltip('He gives book.'));
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
     await tester.scrollUntilVisible(
-      find.byTooltip('He buys book.'),
+      find.byTooltip('You buy book.'),
       -500,
       scrollable: mainScroll,
     );
     await tester.drag(mainScroll, const Offset(0, 120));
     await tester.pumpAndSettle();
 
-    expect(highlightedTextForTooltip(tester, 'He buys book.'), ['buys']);
+    expect(highlightedTextForTooltip(tester, 'You buy book.'), ['buy']);
   });
 
   testWidgets('Passive focus can return to the null default focus', (
@@ -361,21 +382,21 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('He gives.'));
-    await tapAfterScroll(tester, find.byTooltip('He gives book.'));
-    await tapAfterScroll(tester, find.byTooltip('He gives Mary book.'));
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await tapAfterScroll(tester, find.byTooltip('You give Mary book.'));
     await tapAfterScroll(tester, find.text('passive'));
 
-    expect(renderedSentence(tester), 'Book is given to Mary by him.');
+    expect(renderedSentence(tester), 'Book is given to Mary by you.');
 
-    await tapAfterScroll(tester, find.byTooltip('Mary is given book by him.'));
-    expect(renderedSentence(tester), 'Mary is given book by him.');
+    await tapAfterScroll(tester, find.byTooltip('Mary is given book by you.'));
+    expect(renderedSentence(tester), 'Mary is given book by you.');
 
     await tapAfterScroll(
       tester,
       find.text('no passive focus', findRichText: true),
     );
-    expect(renderedSentence(tester), 'Book is given to Mary by him.');
+    expect(renderedSentence(tester), 'Book is given to Mary by you.');
   });
 
   testWidgets('Recipient object pronouns can render passive to phrases', (
@@ -384,13 +405,13 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('He gives.'));
-    await tapAfterScroll(tester, find.byTooltip('He gives book.'));
-    await tapAfterScroll(tester, find.byTooltip('He gives him book.'));
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await tapAfterScroll(tester, find.byTooltip('You give him book.'));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
-    expect(renderedSentence(tester), 'Book was given to him by him.');
+    expect(renderedSentence(tester), 'Book was given to him by you.');
 
     await tapAfterScroll(
       tester,
@@ -413,11 +434,11 @@ void main() {
     );
 
     expect(headerMode.selected, {HeaderPreviewMode.hover});
-    expect(renderedSentence(tester), 'He works.');
+    expect(renderedSentence(tester), 'You learn.');
     expect(find.text('give', findRichText: true), findsOneWidget);
-    expect(find.text('He gives.'), findsNothing);
+    expect(find.text('You give.'), findsNothing);
 
-    final giveSuggestion = find.byTooltip('He gives.');
+    final giveSuggestion = find.byTooltip('You give.');
     final hoverRegion = tester.widget<MouseRegion>(
       find
           .ancestor(of: giveSuggestion, matching: find.byType(MouseRegion))
@@ -426,12 +447,12 @@ void main() {
     hoverRegion.onEnter?.call(const PointerEnterEvent());
     await tester.pump();
 
-    expect(renderedSentence(tester), 'He gives.');
+    expect(renderedSentence(tester), 'You give.');
 
     hoverRegion.onExit?.call(const PointerExitEvent());
     await tester.pump();
 
-    expect(renderedSentence(tester), 'He works.');
+    expect(renderedSentence(tester), 'You learn.');
   });
 
   testWidgets('Random sentence button keeps the UI renderable', (tester) async {

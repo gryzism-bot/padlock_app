@@ -25,7 +25,7 @@ import 'package:padlock_app/models/grammar/voice.dart';
 void main() {
   final lock = ConfigurationEngine();
   final compass = ConfigurationCompass(
-    actions: [work, work_data.build, give, be, go],
+    actions: [learn, work, work_data.build, give, be, go],
     objects: [
       book.toNounPhrase(Number.singular),
       bridge.toNounPhrase(Number.singular),
@@ -79,7 +79,7 @@ void main() {
         'book',
         'bridge',
       ]);
-      expect(render(suggestions.first.preview), 'He builds book.');
+      expect(render(suggestions.first.preview), 'You build book.');
       expect(wasBlocked(suggestions.first.preview), isFalse);
     });
 
@@ -124,7 +124,7 @@ void main() {
       final aSuggestion = determinerSuggestions.singleWhere(
         (suggestion) => suggestion.label == 'a',
       );
-      expect(render(aSuggestion.preview), 'He builds a book.');
+      expect(render(aSuggestion.preview), 'You build a book.');
 
       var adjectiveSuggestions = compass.suggestionsFor(
         state,
@@ -144,7 +144,7 @@ void main() {
       );
 
       state = bigSuggestion.preview;
-      expect(render(state), 'He builds big book.');
+      expect(render(state), 'You build big book.');
 
       adjectiveSuggestions = compass.suggestionsFor(
         state,
@@ -155,7 +155,7 @@ void main() {
         (suggestion) => suggestion.label == 'red',
       );
 
-      expect(render(redSuggestion.preview), 'He builds big red book.');
+      expect(render(redSuggestion.preview), 'You build big red book.');
     });
 
     test('suggests passive voice only after an object frame exists', () {
@@ -197,7 +197,7 @@ void main() {
       );
 
       expect(passiveSuggestion.preview.sentenceState.voice, Voice.passive);
-      expect(render(passiveSuggestion.preview), 'Bridge is built by him.');
+      expect(render(passiveSuggestion.preview), 'Bridge is built by you.');
     });
 
     test('hides passive focus until passive voice is selected', () {
@@ -246,7 +246,7 @@ void main() {
 
       expect(
         suggestions
-            .singleWhere((suggestion) => suggestion.label == 'work')
+            .singleWhere((suggestion) => suggestion.label == 'learn')
             .isSelected,
         isTrue,
       );
@@ -254,7 +254,7 @@ void main() {
       final beSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'be',
       );
-      expect(render(beSuggestion.preview), 'He is.');
+      expect(render(beSuggestion.preview), 'You are.');
 
       expect(
         compass.suggestionsFor(
@@ -284,7 +284,7 @@ void main() {
         'happy',
         'tired',
       ]);
-      expect(render(suggestions.first.preview), 'He is happy.');
+      expect(render(suggestions.first.preview), 'You are happy.');
     });
 
     test('default verb dial keeps go visible as a movement doorway', () {
@@ -356,7 +356,7 @@ void main() {
       expect(workSuggestion.preview.sentenceState.action, work);
       expect(workSuggestion.preview.sentenceState.adjectiveComplement, isNull);
       expect(wasBlocked(workSuggestion.preview), isFalse);
-      expect(render(workSuggestion.preview), 'He works.');
+      expect(render(workSuggestion.preview), 'You work.');
     });
 
     test(
@@ -421,13 +421,13 @@ void main() {
         suggestions.last.preview.sentenceState.passiveFocus,
         PassiveFocus.recipient,
       );
-      expect(render(suggestions.last.preview), 'Mary is given book by him.');
+      expect(render(suggestions.last.preview), 'Mary is given book by you.');
 
       final exitSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'no passive focus',
       );
       expect(exitSuggestion.preview.sentenceState.passiveFocus, isNull);
-      expect(render(exitSuggestion.preview), 'Book is given to Mary by him.');
+      expect(render(exitSuggestion.preview), 'Book is given to Mary by you.');
     });
 
     test('recipient object pronouns support passive to phrases', () {
@@ -448,13 +448,13 @@ void main() {
       );
 
       expect(himSuggestion.preview.sentenceState.recipient, object_case.him);
-      expect(render(himSuggestion.preview), 'He gives him book.');
+      expect(render(himSuggestion.preview), 'You give him book.');
 
       state = lock.applyMove(state, const SetRecipient(object_case.him));
       state = lock.applyMove(state, const SetVoice(Voice.passive));
       state = lock.applyMove(state, const SetTense(Tense.past));
 
-      expect(render(state), 'Book was given to him by him.');
+      expect(render(state), 'Book was given to him by you.');
 
       final agentSuggestions = ConfigurationCompass().suggestionsFor(
         state,
@@ -505,7 +505,7 @@ void main() {
       expect(activeSuggestion.preview.sentenceState.voice, Voice.active);
       expect(activeSuggestion.preview.sentenceState.passiveFocus, isNull);
       expect(wasBlocked(activeSuggestion.preview), isFalse);
-      expect(render(activeSuggestion.preview), 'He gives Mary book.');
+      expect(render(activeSuggestion.preview), 'You give Mary book.');
     });
 
     test('modal suggestions honor tense frames', () {
@@ -536,7 +536,7 @@ void main() {
         'no modal',
       ]);
       expect(futureSuggestions.last.isSelected, isTrue);
-      expect(render(futureSuggestions.first.preview), 'He will work.');
+      expect(render(futureSuggestions.first.preview), 'You will learn.');
     });
 
     test('modal suggestions expose no modal as the exit', () {
@@ -556,7 +556,7 @@ void main() {
 
       expect(noModalSuggestion.preview.sentenceState.modal, noModal);
       expect(wasBlocked(noModalSuggestion.preview), isFalse);
-      expect(render(noModalSuggestion.preview), 'He works.');
+      expect(render(noModalSuggestion.preview), 'You learn.');
     });
 
     test('keeps current choices visible as selected suggestions', () {
@@ -588,7 +588,7 @@ void main() {
       );
       expect(objectSuggestions.first.label, 'a book');
       expect(objectSuggestions.first.isSelected, isTrue);
-      expect(render(objectSuggestions.first.preview), 'He builds a book.');
+      expect(render(objectSuggestions.first.preview), 'You build a book.');
 
       final determinerSuggestions = compass.suggestionsFor(
         state,
@@ -647,12 +647,12 @@ void main() {
         final bridgeSuggestion = suggestions.singleWhere(
           (suggestion) => suggestion.label == 'a big bridge',
         );
-        expect(render(bridgeSuggestion.preview), 'He builds a big bridge.');
+        expect(render(bridgeSuggestion.preview), 'You build a big bridge.');
 
         final engineerSuggestion = suggestions.singleWhere(
           (suggestion) => suggestion.label == 'a big engineer',
         );
-        expect(render(engineerSuggestion.preview), 'He builds a big engineer.');
+        expect(render(engineerSuggestion.preview), 'You build a big engineer.');
 
         state = lock.applyMove(
           state,
@@ -669,7 +669,7 @@ void main() {
         );
         expect(
           render(plainEngineerSuggestion.preview),
-          'He builds an engineer.',
+          'You build an engineer.',
         );
 
         state = lock.applyMove(
@@ -698,7 +698,7 @@ void main() {
         );
         expect(
           render(pluralBookSuggestion.preview),
-          'He builds many big books.',
+          'You build many big books.',
         );
       },
     );
@@ -760,8 +760,12 @@ void main() {
     });
 
     test('place suggestions use location meaning for ordinary verbs', () {
-      final suggestions = compass.suggestionsFor(
+      final state = lock.applyMove(
         ConfigurationState.initial(),
+        const SetAction(work),
+      );
+      final suggestions = compass.suggestionsFor(
+        state,
         ConfigurationCompassSlot.placePhrase,
         limit: 0,
       );
@@ -776,7 +780,7 @@ void main() {
       final schoolSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'school',
       );
-      expect(render(schoolSuggestion.preview), 'He works at school.');
+      expect(render(schoolSuggestion.preview), 'You work at school.');
 
       final stateWithPlace = schoolSuggestion.preview;
       final exitSuggestions = compass.suggestionsFor(
@@ -797,7 +801,7 @@ void main() {
               .singleWhere((suggestion) => suggestion.label == 'no place')
               .preview,
         ),
-        'He works.',
+        'You work.',
       );
     });
 
@@ -814,13 +818,13 @@ void main() {
       );
 
       expect(suggestions.first.label, 'home');
-      expect(render(suggestions.first.preview), 'He goes home.');
+      expect(render(suggestions.first.preview), 'You go home.');
 
       final schoolSuggestion = suggestions.singleWhere(
         (suggestion) => suggestion.label == 'school',
       );
 
-      expect(render(schoolSuggestion.preview), 'He goes to school.');
+      expect(render(schoolSuggestion.preview), 'You go to school.');
     });
 
     test('time suggestions put tense-friendly phrases first', () {
@@ -890,7 +894,7 @@ void main() {
               .singleWhere((suggestion) => suggestion.label == 'no time')
               .preview,
         ),
-        'He will work.',
+        'You will learn.',
       );
     });
 
