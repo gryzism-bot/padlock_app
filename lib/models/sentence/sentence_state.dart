@@ -24,6 +24,7 @@ class SentenceState {
 
   final Voice voice;
   final PassiveFocus? passiveFocus;
+  final bool showPassiveAgent;
 
   final Tense tense;
   final Aspect aspect;
@@ -48,6 +49,7 @@ class SentenceState {
 
     this.voice = Voice.active,
     this.passiveFocus,
+    this.showPassiveAgent = true,
 
     required this.tense,
     required this.aspect,
@@ -73,6 +75,7 @@ class SentenceState {
       'adjectiveComplement=${adjectiveComplement?.text}',
       'voice=$voice',
       'passiveFocus=$passiveFocus',
+      'showPassiveAgent=$showPassiveAgent',
       'tense=$tense',
       'aspect=$aspect',
       'modal=${modal.text}',
@@ -101,6 +104,7 @@ Polarity: $polarity
 Form: $sentenceForm
 Voice: $voice
 Passive Focus: $passiveFocus
+Show Passive Agent: $showPassiveAgent
 Time Phrase: ${timePhrase?.text}
 Place Phrase: ${placePhrase?.noun}
 Frequency Phrase: ${frequencyPhrase?.text}

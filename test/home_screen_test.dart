@@ -391,6 +391,13 @@ void main() {
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'Book was given to him by him.');
+
+    await tapAfterScroll(
+      tester,
+      find.text('hide by-agent', findRichText: true),
+    );
+
+    expect(renderedSentence(tester), 'Book was given to him.');
   });
 
   testWidgets('Hover header previews a word chip without committing it', (

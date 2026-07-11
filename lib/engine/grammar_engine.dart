@@ -107,7 +107,9 @@ class GrammarEngine {
             builder.displaySubject = builder.state.object!;
             builder.displayObject = null;
             builder.displayRecipient = builder.state.recipient;
-            builder.displayAgent = builder.state.agent;
+            builder.displayAgent = builder.state.showPassiveAgent
+                ? builder.state.agent
+                : null;
             break;
 
           case PassiveFocus.recipient:
@@ -119,7 +121,9 @@ class GrammarEngine {
             builder.displaySubject = builder.state.recipient!;
             builder.displayObject = builder.state.object;
             builder.displayRecipient = null;
-            builder.displayAgent = builder.state.agent;
+            builder.displayAgent = builder.state.showPassiveAgent
+                ? builder.state.agent
+                : null;
         }
         break;
     }

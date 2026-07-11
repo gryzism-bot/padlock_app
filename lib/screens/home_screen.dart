@@ -218,6 +218,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ConfigurationCompassSlot.passiveFocus,
                       limit: 3,
                     ),
+                    passiveAgentSuggestions: compass.suggestionsFor(
+                      configuration,
+                      ConfigurationCompassSlot.passiveAgent,
+                      limit: 2,
+                    ),
                     grammar: grammar,
                     configuration: configuration,
                     onMove: _move,
@@ -289,7 +294,8 @@ class _HomeScreenState extends State<HomeScreen> {
       (slot) =>
           slot != ConfigurationCompassSlot.voice &&
           slot != ConfigurationCompassSlot.modal &&
-          slot != ConfigurationCompassSlot.passiveFocus,
+          slot != ConfigurationCompassSlot.passiveFocus &&
+          slot != ConfigurationCompassSlot.passiveAgent,
     )) {
       final suggestions = _suggestionsForSlot(compass, slot);
       if (!_shouldRenderSlot(slot, configuration, suggestions)) {
@@ -420,6 +426,7 @@ class _ControlDeck extends StatelessWidget {
   final String currentSentence;
   final List<ConfigurationSuggestion> modalSuggestions;
   final List<ConfigurationSuggestion> passiveFocusSuggestions;
+  final List<ConfigurationSuggestion> passiveAgentSuggestions;
   final GrammarEngine grammar;
   final ConfigurationState configuration;
   final ValueChanged<ConfigurationMove> onMove;
@@ -429,6 +436,7 @@ class _ControlDeck extends StatelessWidget {
     required this.currentSentence,
     required this.modalSuggestions,
     required this.passiveFocusSuggestions,
+    required this.passiveAgentSuggestions,
     required this.grammar,
     required this.configuration,
     required this.onMove,
@@ -495,6 +503,7 @@ class _ControlDeck extends StatelessWidget {
                 currentSentence: currentSentence,
                 voice: configuration.sentenceState.voice,
                 passiveFocusSuggestions: passiveFocusSuggestions,
+                passiveAgentSuggestions: passiveAgentSuggestions,
                 grammar: grammar,
                 onMove: onMove,
                 onPreviewChanged: onPreviewChanged,
@@ -912,6 +921,7 @@ class _VoiceSection extends StatelessWidget {
   final String currentSentence;
   final Voice voice;
   final List<ConfigurationSuggestion> passiveFocusSuggestions;
+  final List<ConfigurationSuggestion> passiveAgentSuggestions;
   final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
@@ -920,6 +930,7 @@ class _VoiceSection extends StatelessWidget {
     required this.currentSentence,
     required this.voice,
     required this.passiveFocusSuggestions,
+    required this.passiveAgentSuggestions,
     required this.grammar,
     required this.onMove,
     required this.onPreviewChanged,
@@ -950,6 +961,23 @@ class _VoiceSection extends StatelessWidget {
             label: 'passive focus',
             children: [
               for (final suggestion in passiveFocusSuggestions)
+                _SuggestionButton(
+                  suggestion: suggestion,
+                  currentSentence: currentSentence,
+                  displayMode: SuggestionDisplayMode.word,
+                  preview: grammar
+                      .generate(suggestion.preview.sentenceState)
+                      .text,
+                  onPressed: () => onMove(suggestion.move),
+                  onPreviewChanged: onPreviewChanged,
+                ),
+            ],
+          ),
+        if (passiveAgentSuggestions.isNotEmpty)
+          _ChipCluster(
+            label: 'passive agent',
+            children: [
+              for (final suggestion in passiveAgentSuggestions)
                 _SuggestionButton(
                   suggestion: suggestion,
                   currentSentence: currentSentence,
@@ -1818,6 +1846,7 @@ String _slotTitle(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.adjectiveComplement => 'Adjective complement',
     ConfigurationCompassSlot.voice => 'Voice',
     ConfigurationCompassSlot.passiveFocus => 'Passive focus',
+    ConfigurationCompassSlot.passiveAgent => 'Passive agent',
     ConfigurationCompassSlot.modal => 'Modal',
     ConfigurationCompassSlot.placePhrase => 'Place phrase',
     ConfigurationCompassSlot.timePhrase => 'Time phrase',
@@ -1852,6 +1881,7 @@ bool _shouldRenderSlot(
       state.adjectiveComplement != null,
     ConfigurationCompassSlot.voice ||
     ConfigurationCompassSlot.passiveFocus ||
+    ConfigurationCompassSlot.passiveAgent ||
     ConfigurationCompassSlot.modal => false,
   };
 }
@@ -1884,6 +1914,8 @@ String _unlockHint(
       'Choose an object-capable verb and an object first. Passive opens after there is something to promote.',
     ConfigurationCompassSlot.passiveFocus =>
       'Turn passive voice on first. Recipient focus also needs a recipient-capable verb and a recipient.',
+    ConfigurationCompassSlot.passiveAgent =>
+      'Turn passive voice on first. The by-agent phrase can be hidden while the agent stays in state.',
     ConfigurationCompassSlot.modal =>
       'No modal fits this tense/frame from here.',
     ConfigurationCompassSlot.action ||

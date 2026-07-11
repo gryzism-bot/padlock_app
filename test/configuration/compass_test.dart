@@ -455,6 +455,25 @@ void main() {
       state = lock.applyMove(state, const SetTense(Tense.past));
 
       expect(render(state), 'Book was given to him by him.');
+
+      final agentSuggestions = ConfigurationCompass().suggestionsFor(
+        state,
+        ConfigurationCompassSlot.passiveAgent,
+        limit: 0,
+      );
+
+      expect(agentSuggestions.map((suggestion) => suggestion.label), [
+        'show by-agent',
+        'hide by-agent',
+      ]);
+      expect(agentSuggestions.first.isSelected, isTrue);
+
+      final hideAgentSuggestion = agentSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'hide by-agent',
+      );
+
+      expect(hideAgentSuggestion.preview.sentenceState.showPassiveAgent, false);
+      expect(render(hideAgentSuggestion.preview), 'Book was given to him.');
     });
 
     test('offers active voice as an exit from passive recipient focus', () {

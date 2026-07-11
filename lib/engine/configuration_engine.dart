@@ -146,6 +146,12 @@ class SetPassiveFocus extends ConfigurationMove {
   const SetPassiveFocus(this.passiveFocus);
 }
 
+class SetPassiveAgentVisibility extends ConfigurationMove {
+  final bool showPassiveAgent;
+
+  const SetPassiveAgentVisibility(this.showPassiveAgent);
+}
+
 class SetTense extends ConfigurationMove {
   final Tense tense;
 
@@ -234,6 +240,7 @@ class ConfigurationEngine {
                 recipient: null,
                 voice: Voice.active,
                 passiveFocus: null,
+                showPassiveAgent: true,
               )
             : _copy(
                 state,
@@ -279,6 +286,7 @@ class ConfigurationEngine {
         adjectiveComplement: null,
         voice: Voice.active,
         passiveFocus: null,
+        showPassiveAgent: true,
       ),
       SetLexicalBeAdjectiveComplement(:final adjectiveComplement) => _copy(
         state,
@@ -289,15 +297,21 @@ class ConfigurationEngine {
         adjectiveComplement: adjectiveComplement,
         voice: Voice.active,
         passiveFocus: null,
+        showPassiveAgent: true,
       ),
       SetVoice(:final voice) => _copy(
         state,
         voice: voice,
         passiveFocus: voice == Voice.active ? null : state.passiveFocus,
+        showPassiveAgent: voice == Voice.active ? true : state.showPassiveAgent,
       ),
       SetPassiveFocus(:final passiveFocus) => _copy(
         state,
         passiveFocus: passiveFocus,
+      ),
+      SetPassiveAgentVisibility(:final showPassiveAgent) => _copy(
+        state,
+        showPassiveAgent: showPassiveAgent,
       ),
       SetTense(:final tense) => _copy(state, tense: tense),
       SetAspect(:final aspect) => _copy(state, aspect: aspect),
@@ -440,6 +454,14 @@ class ConfigurationEngine {
         ),
       );
     }
+
+    if (!state.showPassiveAgent) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take passive agent visibility.',
+        ),
+      );
+    }
   }
 
   void _validatePredicateFrame(
@@ -468,6 +490,14 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive focus belongs to passive voice.',
+            ),
+          );
+        }
+
+        if (!state.showPassiveAgent) {
+          blockers.add(
+            const ConfigurationMessage.blocked(
+              'Passive agent visibility belongs to passive voice.',
             ),
           );
         }
@@ -647,6 +677,7 @@ class ConfigurationEngine {
     Object? adjectiveComplement = _unchanged,
     Voice? voice,
     Object? passiveFocus = _unchanged,
+    bool? showPassiveAgent,
     Tense? tense,
     Aspect? aspect,
     Modal? modal,
@@ -676,6 +707,7 @@ class ConfigurationEngine {
       passiveFocus: identical(passiveFocus, _unchanged)
           ? state.passiveFocus
           : passiveFocus as PassiveFocus?,
+      showPassiveAgent: showPassiveAgent ?? state.showPassiveAgent,
       tense: tense ?? state.tense,
       aspect: aspect ?? state.aspect,
       modal: modal ?? state.modal,

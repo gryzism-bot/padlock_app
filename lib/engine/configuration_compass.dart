@@ -37,6 +37,7 @@ enum ConfigurationCompassSlot {
   adjectiveComplement,
   voice,
   passiveFocus,
+  passiveAgent,
   modal,
   placePhrase,
   timePhrase,
@@ -289,6 +290,23 @@ class ConfigurationCompass {
                     focus == PassiveFocus.object ? 100 : 90,
                     isSelected: focus == sentence.passiveFocus,
                   ),
+                ),
+              ]
+            : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.passiveAgent =>
+        sentence.voice == Voice.passive && sentence.agent != null
+            ? [
+                _CompassCandidate(
+                  const SetPassiveAgentVisibility(true),
+                  'show by-agent',
+                  sentence.showPassiveAgent ? 110 : 100,
+                  isSelected: sentence.showPassiveAgent,
+                ),
+                _CompassCandidate(
+                  const SetPassiveAgentVisibility(false),
+                  'hide by-agent',
+                  sentence.showPassiveAgent ? 100 : 110,
+                  isSelected: !sentence.showPassiveAgent,
                 ),
               ]
             : const <_CompassCandidate>[],

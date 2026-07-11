@@ -511,5 +511,26 @@ void main() {
       expect(objectFocus.text, 'A book was given to me by him.');
       expect(recipientFocus.text, 'I was given a book by him.');
     });
+
+    test(
+      'Passive agent phrase can be hidden while recipient remains visible',
+      () {
+        final sentence = engine.generate(
+          SentenceState(
+            agent: he,
+            action: give,
+            recipient: he,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.object,
+            showPassiveAgent: false,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence.text, 'A book was given to him.');
+      },
+    );
   });
 }
