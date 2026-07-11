@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
-import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
@@ -16,6 +15,9 @@ import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
+
+part 'widgets/control_cards.dart';
+part 'widgets/suggestion_chips.dart';
 
 enum SuggestionDisplayMode { sentence, change, word }
 
@@ -637,6 +639,19 @@ class _PronounSection extends StatelessWidget {
                         onPressed: () => onMove(const SetAgent(you)),
                       ),
                       _InlineExpandableChipCluster(
+                        expandedLabel: '3rd person singular nouns',
+                        expandedChildren: [
+                          _MoveButton(
+                            label: 'cat',
+                            selected: _sameNounPhrase(
+                              agent,
+                              cat.toNounPhrase(Number.singular),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(cat.toNounPhrase(Number.singular)),
+                            ),
+                          ),
+                        ],
                         children: [
                           _MoveButton(
                             label: 'he',
@@ -652,19 +667,6 @@ class _PronounSection extends StatelessWidget {
                             label: 'it',
                             selected: _sameNounPhrase(agent, it),
                             onPressed: () => onMove(const SetAgent(it)),
-                          ),
-                        ],
-                        expandedLabel: '3rd person singular nouns',
-                        expandedChildren: [
-                          _MoveButton(
-                            label: 'cat',
-                            selected: _sameNounPhrase(
-                              agent,
-                              cat.toNounPhrase(Number.singular),
-                            ),
-                            onPressed: () => onMove(
-                              SetAgent(cat.toNounPhrase(Number.singular)),
-                            ),
                           ),
                         ],
                       ),
@@ -687,13 +689,6 @@ class _PronounSection extends StatelessWidget {
                         onPressed: () => onMove(const SetAgent(you)),
                       ),
                       _InlineExpandableChipCluster(
-                        children: [
-                          _MoveButton(
-                            label: 'they',
-                            selected: _sameNounPhrase(agent, they),
-                            onPressed: () => onMove(const SetAgent(they)),
-                          ),
-                        ],
                         expandedLabel: '3rd person plural nouns',
                         expandedChildren: [
                           _MoveButton(
@@ -705,6 +700,13 @@ class _PronounSection extends StatelessWidget {
                             onPressed: () => onMove(
                               SetAgent(cat.toNounPhrase(Number.plural)),
                             ),
+                          ),
+                        ],
+                        children: [
+                          _MoveButton(
+                            label: 'they',
+                            selected: _sameNounPhrase(agent, they),
+                            onPressed: () => onMove(const SetAgent(they)),
                           ),
                         ],
                       ),
@@ -1147,540 +1149,6 @@ class _CompassSlotSection extends StatelessWidget {
   }
 }
 
-class _ControlCard extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _ControlCard({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 6),
-            Wrap(spacing: 6, runSpacing: 6, children: children),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _VerticalControlCard extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _VerticalControlCard({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 6),
-            for (final child in children) ...[child, const SizedBox(height: 6)],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionFrame extends StatelessWidget {
-  final String title;
-  final List<Widget> controls;
-  final List<Widget> children;
-
-  const _SectionFrame({
-    required this.title,
-    this.controls = const [],
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: _chipRailMaxHeight),
-          child: SingleChildScrollView(
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text('$title:', style: Theme.of(context).textTheme.titleMedium),
-                if (controls.isNotEmpty) ...controls,
-                ...children,
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _InlineExpandableChipCluster extends StatefulWidget {
-  final List<Widget> children;
-  final String expandedLabel;
-  final List<Widget> expandedChildren;
-
-  const _InlineExpandableChipCluster({
-    required this.children,
-    required this.expandedLabel,
-    required this.expandedChildren,
-  });
-
-  @override
-  State<_InlineExpandableChipCluster> createState() =>
-      _InlineExpandableChipClusterState();
-}
-
-class _InlineExpandableChipClusterState
-    extends State<_InlineExpandableChipCluster> {
-  bool isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        ...widget.children,
-        IconButton(
-          tooltip: isExpanded
-              ? 'Hide ${widget.expandedLabel}'
-              : 'Show ${widget.expandedLabel}',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-          iconSize: 16,
-          onPressed: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-        ),
-        if (isExpanded) ...widget.expandedChildren,
-      ],
-    );
-  }
-}
-
-class _InlineOptionRow extends StatelessWidget {
-  final String label;
-  final List<Widget> children;
-
-  const _InlineOptionRow({required this.label, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        SizedBox(
-          width: 42,
-          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
-        ),
-        ...children,
-      ],
-    );
-  }
-}
-
-class _ChipCluster extends StatelessWidget {
-  final String label;
-  final List<Widget> children;
-  final String? expandedLabel;
-  final List<Widget> expandedChildren;
-
-  const _ChipCluster({
-    required this.label,
-    required this.children,
-    this.expandedLabel,
-    this.expandedChildren = const [],
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (expandedChildren.isNotEmpty) {
-      return _ExpandableChipCluster(
-        label: label,
-        expandedLabel: expandedLabel ?? label,
-        children: children,
-        expandedChildren: expandedChildren,
-      );
-    }
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 4),
-            Wrap(spacing: 6, runSpacing: 6, children: children),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ExpandableChipCluster extends StatefulWidget {
-  final String label;
-  final String expandedLabel;
-  final List<Widget> children;
-  final List<Widget> expandedChildren;
-
-  const _ExpandableChipCluster({
-    required this.label,
-    required this.expandedLabel,
-    required this.children,
-    required this.expandedChildren,
-  });
-
-  @override
-  State<_ExpandableChipCluster> createState() => _ExpandableChipClusterState();
-}
-
-class _ExpandableChipClusterState extends State<_ExpandableChipCluster> {
-  bool isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ),
-                const SizedBox(width: 2),
-                IconButton(
-                  tooltip: isExpanded
-                      ? 'Hide ${widget.expandedLabel}'
-                      : 'Show ${widget.expandedLabel}',
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 24,
-                    height: 24,
-                  ),
-                  iconSize: 16,
-                  onPressed: () {
-                    setState(() {
-                      isExpanded = !isExpanded;
-                    });
-                  },
-                  icon: Icon(
-                    isExpanded ? Icons.expand_less : Icons.expand_more,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Wrap(spacing: 6, runSpacing: 6, children: widget.children),
-            if (isExpanded) ...[
-              const SizedBox(height: 6),
-              Text(
-                widget.expandedLabel,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: colors.primary),
-              ),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: widget.expandedChildren,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SuggestionButton extends StatelessWidget {
-  final ConfigurationSuggestion suggestion;
-  final String currentSentence;
-  final SuggestionDisplayMode displayMode;
-  final String preview;
-  final VoidCallback onPressed;
-  final ValueChanged<ConfigurationState?>? onPreviewChanged;
-
-  const _SuggestionButton({
-    required this.suggestion,
-    required this.currentSentence,
-    required this.displayMode,
-    required this.preview,
-    required this.onPressed,
-    required this.onPreviewChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final wakeBadges = _verbWakeBadges(suggestion, colors);
-
-    return MouseRegion(
-      onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
-      onExit: (_) => onPreviewChanged?.call(null),
-      child: Tooltip(
-        message: suggestion.isSelected ? 'Current: $preview' : preview,
-        child: OutlinedButton(
-          style: _compactOutlinedStyle(
-            selected: suggestion.isSelected,
-            colors: colors,
-          ),
-          onPressed: onPressed,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text.rich(
-                  _suggestionSpan(
-                    currentSentence: currentSentence,
-                    preview: preview,
-                    suggestion: suggestion,
-                    displayMode: displayMode,
-                    colors: colors,
-                  ),
-                ),
-              ),
-              if (wakeBadges.isNotEmpty) ...[
-                const SizedBox(width: 5),
-                _VerbWakeBadgeGroup(badges: wakeBadges),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _VerbWakeBadgeGroup extends StatelessWidget {
-  final List<_VerbWakeBadge> badges;
-
-  const _VerbWakeBadgeGroup({required this.badges});
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 2,
-      children: [
-        for (final badge in badges)
-          Tooltip(
-            message: badge.tooltip,
-            child: Icon(
-              Icons.expand_more,
-              key: Key('verb-wake-${badge.keySuffix}'),
-              size: 15,
-              color: badge.color,
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _VerbWakeBadge {
-  final String keySuffix;
-  final String tooltip;
-  final Color color;
-
-  const _VerbWakeBadge({
-    required this.keySuffix,
-    required this.tooltip,
-    required this.color,
-  });
-}
-
-List<_VerbWakeBadge> _verbWakeBadges(
-  ConfigurationSuggestion suggestion,
-  ColorScheme colors,
-) {
-  if (suggestion.slot != ConfigurationCompassSlot.action) {
-    return const [];
-  }
-
-  final move = suggestion.move;
-  if (move is! SetAction) {
-    return const [];
-  }
-
-  final action = move.action;
-
-  return [
-    for (final influence in predicateInfluencesFor(action))
-      _VerbWakeBadge(
-        keySuffix: '${action.infinitive}-${influence.key}',
-        tooltip: influence.tooltip,
-        color: _verbWakeBadgeColor(influence, colors),
-      ),
-  ];
-}
-
-Color _verbWakeBadgeColor(PredicateInfluence influence, ColorScheme colors) {
-  return switch (influence.key) {
-    'complement' => colors.secondary,
-    'recipient' => colors.tertiary,
-    'destination' => colors.error,
-    _ => colors.primary,
-  };
-}
-
-TextSpan _suggestionSpan({
-  required String currentSentence,
-  required String preview,
-  required ConfigurationSuggestion suggestion,
-  required SuggestionDisplayMode displayMode,
-  required ColorScheme colors,
-}) {
-  final baseStyle = TextStyle(
-    color: suggestion.isSelected ? colors.primary : colors.onSurface,
-  );
-
-  if (displayMode == SuggestionDisplayMode.word) {
-    return TextSpan(
-      text: suggestion.label,
-      style: baseStyle.copyWith(
-        fontWeight: suggestion.isSelected ? FontWeight.w700 : FontWeight.w500,
-      ),
-    );
-  }
-
-  if (displayMode == SuggestionDisplayMode.sentence) {
-    return TextSpan(text: preview, style: baseStyle);
-  }
-
-  if (suggestion.isSelected || currentSentence == preview) {
-    return TextSpan(text: preview, style: baseStyle);
-  }
-
-  final change = _changedRange(currentSentence, preview);
-  final highlightStyle = TextStyle(
-    color: colors.onTertiaryContainer,
-    backgroundColor: colors.tertiaryContainer,
-    fontWeight: FontWeight.w800,
-  );
-
-  if (change.start == change.end) {
-    return TextSpan(
-      style: baseStyle,
-      children: [
-        TextSpan(text: preview),
-        TextSpan(text: '  ', style: baseStyle),
-        TextSpan(text: suggestion.label, style: highlightStyle),
-      ],
-    );
-  }
-
-  return TextSpan(
-    style: baseStyle,
-    children: [
-      TextSpan(text: preview.substring(0, change.start)),
-      TextSpan(
-        text: preview.substring(change.start, change.end),
-        style: highlightStyle,
-      ),
-      TextSpan(text: preview.substring(change.end)),
-    ],
-  );
-}
-
-({int start, int end}) _changedRange(String current, String preview) {
-  var start = 0;
-  while (start < current.length &&
-      start < preview.length &&
-      current.codeUnitAt(start) == preview.codeUnitAt(start)) {
-    start++;
-  }
-
-  var currentEnd = current.length;
-  var previewEnd = preview.length;
-  while (currentEnd > start &&
-      previewEnd > start &&
-      current.codeUnitAt(currentEnd - 1) ==
-          preview.codeUnitAt(previewEnd - 1)) {
-    currentEnd--;
-    previewEnd--;
-  }
-
-  while (start > 0 && _isWordCodeUnit(preview.codeUnitAt(start - 1))) {
-    start--;
-  }
-
-  while (previewEnd < preview.length &&
-      _isWordCodeUnit(preview.codeUnitAt(previewEnd))) {
-    previewEnd++;
-  }
-
-  return (start: start, end: previewEnd);
-}
-
-bool _isWordCodeUnit(int codeUnit) {
-  return (codeUnit >= 65 && codeUnit <= 90) ||
-      (codeUnit >= 97 && codeUnit <= 122);
-}
-
 bool _sameNounPhrase(NounPhrase? left, NounPhrase right) {
   return left != null &&
       left.text == right.text &&
@@ -1760,128 +1228,6 @@ Object? _safeDeterminerForNumber(NounPhrase previous, Number number) {
   }
 
   return determiner;
-}
-
-class _MoveButton extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onPressed;
-
-  const _MoveButton({
-    required this.label,
-    this.selected = false,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return OutlinedButton(
-      style: _compactOutlinedStyle(selected: selected, colors: colors),
-      onPressed: onPressed,
-      child: Text(
-        label,
-        style: TextStyle(fontWeight: selected ? FontWeight.w700 : null),
-      ),
-    );
-  }
-}
-
-ButtonStyle _compactOutlinedStyle({
-  required bool selected,
-  required ColorScheme colors,
-}) {
-  return OutlinedButton.styleFrom(
-    visualDensity: VisualDensity.compact,
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    minimumSize: const Size(0, 34),
-    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    foregroundColor: selected ? colors.primary : null,
-    side: selected ? BorderSide(color: colors.primary, width: 2) : null,
-  );
-}
-
-class _GuidedMessages extends StatelessWidget {
-  final List<ConfigurationMessage> messages;
-
-  const _GuidedMessages({required this.messages});
-
-  @override
-  Widget build(BuildContext context) {
-    if (messages.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: [
-        for (final message in messages) _GuidedMessageChip(message: message),
-      ],
-    );
-  }
-}
-
-class _GuidedMessageChip extends StatelessWidget {
-  final ConfigurationMessage message;
-
-  const _GuidedMessageChip({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isBlocked = message.kind == ConfigurationMessageKind.blocked;
-    final foreground = isBlocked ? colors.error : colors.primary;
-    final background = isBlocked
-        ? colors.errorContainer.withValues(alpha: 0.34)
-        : colors.primaryContainer.withValues(alpha: 0.34);
-    final border = isBlocked ? colors.error : colors.primary;
-
-    return Tooltip(
-      message: message.tooltip,
-      waitDuration: const Duration(milliseconds: 350),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: background,
-          border: Border.all(color: border.withValues(alpha: 0.62)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isBlocked ? Icons.lock : Icons.check_circle_outline,
-                size: 16,
-                color: foreground,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                message.title,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Text(
-                  message.text,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: colors.onSurface),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 String _slotTitle(
