@@ -1,8 +1,10 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/screens/home_screen.dart';
 
 void main() {
@@ -15,15 +17,52 @@ void main() {
 
   String renderedSentence(WidgetTester tester) {
     return tester
-        .widget<Text>(find.byKey(const Key('rendered-sentence')))
+        .widget<SelectableText>(find.byKey(const Key('rendered-sentence')))
         .data!;
   }
 
-  Future<void> tapAfterScroll(WidgetTester tester, Finder finder) async {
-    await tester.scrollUntilVisible(finder, 500, scrollable: mainScroll);
-    await tester.drag(mainScroll, const Offset(0, 120));
+  Future<void> tapAfterScroll(
+    WidgetTester tester,
+    Finder finder, {
+    double delta = 500,
+  }) async {
+    final descendantButton = find.descendant(
+      of: finder,
+      matching: find.byType(OutlinedButton),
+    );
+    final ancestorButton = find.ancestor(
+      of: finder,
+      matching: find.byType(OutlinedButton),
+    );
+    final descendantIconButton = find.descendant(
+      of: finder,
+      matching: find.byType(IconButton),
+    );
+    final ancestorIconButton = find.ancestor(
+      of: finder,
+      matching: find.byType(IconButton),
+    );
+    final target = descendantButton.evaluate().isNotEmpty
+        ? descendantButton.first
+        : ancestorButton.evaluate().isNotEmpty
+        ? ancestorButton.first
+        : descendantIconButton.evaluate().isNotEmpty
+        ? descendantIconButton.first
+        : ancestorIconButton.evaluate().isNotEmpty
+        ? ancestorIconButton.first
+        : finder;
+
+    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
     await tester.pumpAndSettle();
-    await tester.tap(finder);
+    if (descendantButton.evaluate().isNotEmpty ||
+        ancestorButton.evaluate().isNotEmpty) {
+      tester.widget<OutlinedButton>(target).onPressed?.call();
+    } else if (descendantIconButton.evaluate().isNotEmpty ||
+        ancestorIconButton.evaluate().isNotEmpty) {
+      tester.widget<IconButton>(target).onPressed?.call();
+    } else {
+      await tester.tap(target, warnIfMissed: false);
+    }
     await tester.pumpAndSettle();
   }
 
@@ -57,18 +96,12 @@ void main() {
 
     expect(renderedSentence(tester), 'He works.');
     expect(find.text('Padlock Guided Mode'), findsOneWidget);
-    expect(find.text('Verb'), findsOneWidget);
+    expect(find.text('Verb:'), findsOneWidget);
+    expect(find.text('Verb'), findsNothing);
+    expect(find.byTooltip('Current: He works.'), findsWidgets);
+    expect(find.byType(SelectableText), findsWidgets);
 
-    final giveSuggestion = find.byTooltip('He gives.');
-    await tester.scrollUntilVisible(
-      giveSuggestion,
-      500,
-      scrollable: mainScroll,
-    );
-    await tester.drag(mainScroll, const Offset(0, 120));
-    await tester.pumpAndSettle();
-    await tester.tap(giveSuggestion);
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.byTooltip('He gives.'));
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
@@ -92,41 +125,29 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    final beSuggestion = find.byTooltip('He is.');
-    await tester.scrollUntilVisible(beSuggestion, 500, scrollable: mainScroll);
-    await tester.drag(mainScroll, const Offset(0, 120));
-    await tester.pumpAndSettle();
-    await tester.tap(beSuggestion);
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.byTooltip('He is.'));
 
-    final happySuggestion = find.byTooltip('He is happy.');
-    await tester.scrollUntilVisible(
-      happySuggestion,
-      500,
-      scrollable: mainScroll,
-    );
-    await tester.drag(mainScroll, const Offset(0, 120));
-    await tester.pumpAndSettle();
-    await tester.tap(happySuggestion);
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.byTooltip('He is happy.'));
 
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
-    final workSuggestion = find.byTooltip('He works.');
-    await tester.scrollUntilVisible(
-      workSuggestion,
-      -500,
-      scrollable: mainScroll,
-    );
-    await tester.drag(mainScroll, const Offset(0, 120));
-    await tester.pumpAndSettle();
-    await tester.tap(workSuggestion);
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.byTooltip('He works.'), delta: -500);
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'He works.');
+  });
+
+  testWidgets('Verb rail keeps work available after choosing another verb', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(tester, find.byTooltip('He buys.'));
+
+    expect(renderedSentence(tester), 'He buys.');
+    expect(find.byTooltip('He works.'), findsWidgets);
   });
 
   testWidgets('Suggestion display mode can switch to word chips', (
@@ -138,6 +159,19 @@ void main() {
 
     expect(find.text('give', findRichText: true), findsOneWidget);
     expect(find.text('He gives.'), findsNothing);
+  });
+
+  testWidgets('Verb chips mark predicate extensions they can wake', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
   });
 
   testWidgets('Guided UI exposes split control groups and larger chip rails', (
@@ -156,7 +190,9 @@ void main() {
     expect(find.text('it'), findsOneWidget);
     expect(find.text('we'), findsOneWidget);
     expect(find.text('they'), findsOneWidget);
-    expect(find.text('3rd person'), findsNWidgets(2));
+    expect(find.text('3rd person'), findsNothing);
+    expect(find.byTooltip('Show 3rd person singular nouns'), findsOneWidget);
+    expect(find.byTooltip('Show 3rd person plural nouns'), findsOneWidget);
     expect(find.text('Modal'), findsOneWidget);
     expect(find.text('Voice'), findsOneWidget);
     expect(find.text('Polarity'), findsOneWidget);
@@ -174,6 +210,64 @@ void main() {
     expect(find.byType(OutlinedButton).evaluate().length, greaterThan(6));
   });
 
+  testWidgets('Wide control deck keeps primary groups on one row', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2048, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+
+    final titles = [
+      find.text('Tense and aspect'),
+      find.text('Subject'),
+      find.text('Modal'),
+      find.text('Voice'),
+      find.text('Polarity'),
+      find.text('Form'),
+    ];
+    final titleTops = [for (final title in titles) tester.getTopLeft(title).dy];
+
+    expect(titleTops.reduce(max) - titleTops.reduce(min), lessThan(2));
+  });
+
+  testWidgets('Predicate extension rails appear only when their frame opens', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Verb:'), findsOneWidget);
+    expect(find.text('Object:'), findsNothing);
+    expect(find.text('Recipient:'), findsNothing);
+    expect(find.text('Noun complement:'), findsNothing);
+    expect(find.text('Adjective complement:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('He is.'));
+
+    expect(find.text('Noun complement:'), findsOneWidget);
+    expect(find.text('Adjective complement:'), findsOneWidget);
+    expect(find.text('Object:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('He buys.'), delta: -500);
+
+    expect(find.text('Object:'), findsOneWidget);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('He buys book.'));
+
+    expect(find.text('Object determiner:'), findsOneWidget);
+    expect(find.text('Object adjective:'), findsOneWidget);
+    expect(find.text('Recipient:'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('He gives book.'), delta: -500);
+
+    expect(find.text('Recipient:'), findsOneWidget);
+  });
+
   testWidgets('Subject rows can expand into noun subjects', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
@@ -187,12 +281,13 @@ void main() {
     expect(find.text('cat'), findsNothing);
     expect(find.text('cats'), findsNothing);
 
-    await tester.tap(find.byTooltip('Show 3rd person singular nouns'));
-    await tester.pumpAndSettle();
+    await tapAfterScroll(
+      tester,
+      find.byTooltip('Show 3rd person singular nouns'),
+    );
     expect(find.text('cat'), findsOneWidget);
 
-    await tester.tap(find.text('cat'));
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.text('cat'));
     expect(renderedSentence(tester), 'Cat works.');
 
     await tapAfterScroll(
@@ -201,8 +296,7 @@ void main() {
     );
     expect(find.text('cats'), findsOneWidget);
 
-    await tester.tap(find.text('cats'));
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.text('cats'));
     expect(renderedSentence(tester), 'Cats work.');
   });
 
@@ -232,12 +326,17 @@ void main() {
 
     expect(renderedSentence(tester), 'He buys book.');
 
-    await tester.tap(find.text('pl'));
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'He buys books.');
     expect(find.text('book', findRichText: true), findsNothing);
-    expect(find.text('books', findRichText: true), findsOneWidget);
+    expect(find.text('books', findRichText: true), findsWidgets);
   });
 
   testWidgets('Change preview highlights whole changed words', (tester) async {
@@ -277,6 +376,21 @@ void main() {
       find.text('no passive focus', findRichText: true),
     );
     expect(renderedSentence(tester), 'Book is given to Mary by him.');
+  });
+
+  testWidgets('Recipient object pronouns can render passive to phrases', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.byTooltip('He gives.'));
+    await tapAfterScroll(tester, find.byTooltip('He gives book.'));
+    await tapAfterScroll(tester, find.byTooltip('He gives him book.'));
+    await tapAfterScroll(tester, find.text('past'));
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expect(renderedSentence(tester), 'Book was given to him by him.');
   });
 
   testWidgets('Hover header previews a word chip without committing it', (

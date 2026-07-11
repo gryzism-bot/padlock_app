@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
-import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -226,24 +226,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         : null,
                   ),
                   const SizedBox(height: 8),
-                  for (final slot in ConfigurationCompassSlot.values.where(
-                    (slot) =>
-                        slot != ConfigurationCompassSlot.voice &&
-                        slot != ConfigurationCompassSlot.modal &&
-                        slot != ConfigurationCompassSlot.passiveFocus,
-                  )) ...[
+                  for (final section in _visibleSlotSections(compass)) ...[
                     _CompassSlotSection(
-                      title: _slotTitle(slot),
-                      currentValue: _currentValue(slot, configuration),
-                      unlockHint: _unlockHint(slot, configuration),
+                      title: _slotTitle(section.slot),
+                      unlockHint: _unlockHint(section.slot, configuration),
                       currentSentence: sentence.text,
                       displayMode: displayMode,
-                      suggestions: _suggestionsForSlot(compass, slot),
-                      nounNumber: slot == ConfigurationCompassSlot.object
+                      suggestions: section.suggestions,
+                      nounNumber:
+                          section.slot == ConfigurationCompassSlot.object
                           ? objectNumber
                           : null,
                       onNounNumberChanged:
-                          slot == ConfigurationCompassSlot.object
+                          section.slot == ConfigurationCompassSlot.object
                           ? (number) => _changeObjectNumber(compass, number)
                           : null,
                       grammar: grammar,
@@ -286,6 +281,33 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  List<_VisibleCompassSlot> _visibleSlotSections(ConfigurationCompass compass) {
+    final sections = <_VisibleCompassSlot>[];
+
+    for (final slot in ConfigurationCompassSlot.values.where(
+      (slot) =>
+          slot != ConfigurationCompassSlot.voice &&
+          slot != ConfigurationCompassSlot.modal &&
+          slot != ConfigurationCompassSlot.passiveFocus,
+    )) {
+      final suggestions = _suggestionsForSlot(compass, slot);
+      if (!_shouldRenderSlot(slot, configuration, suggestions)) {
+        continue;
+      }
+
+      sections.add(_VisibleCompassSlot(slot, suggestions));
+    }
+
+    return sections;
+  }
+}
+
+class _VisibleCompassSlot {
+  final ConfigurationCompassSlot slot;
+  final List<ConfigurationSuggestion> suggestions;
+
+  const _VisibleCompassSlot(this.slot, this.suggestions);
 }
 
 class _AppBarTools extends StatelessWidget {
@@ -339,16 +361,14 @@ class _StickySentenceHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return IgnorePointer(
-      child: Material(
-        color: colors.surface.withValues(alpha: 0.96),
-        elevation: 2,
-        child: SizedBox(
-          height: _stickyHeaderHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-            child: child,
-          ),
+    return Material(
+      color: colors.surface.withValues(alpha: 0.96),
+      elevation: 2,
+      child: SizedBox(
+        height: _stickyHeaderHeight,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+          child: child,
         ),
       ),
     );
@@ -375,20 +395,18 @@ class _SentencePanel extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            SelectableText(
               sentence,
               key: const Key('rendered-sentence'),
               textAlign: TextAlign.center,
               maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 4),
-            Text(
+            SelectableText(
               summary,
               textAlign: TextAlign.center,
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -422,20 +440,32 @@ class _ControlDeck extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final cardWidth = width >= 1160
+        final useSingleRowControls = width >= 1800;
+        final cardWidth = useSingleRowControls
             ? (width - 40) / 6
             : width >= 1040
             ? (width - 20) / 3
             : width >= 760
             ? (width - 10) / 2
             : width;
+        final unitWidth = useSingleRowControls
+            ? (width - 40) / 10.35
+            : cardWidth;
+        final tenseWidth = useSingleRowControls ? unitWidth * 1.75 : cardWidth;
+        final subjectWidth = useSingleRowControls ? unitWidth * 3.4 : cardWidth;
+        final modalWidth = useSingleRowControls ? unitWidth * 1.85 : cardWidth;
+        final voiceWidth = useSingleRowControls ? unitWidth * 1.35 : cardWidth;
+        final polarityWidth = useSingleRowControls
+            ? unitWidth * 0.75
+            : cardWidth;
+        final formWidth = useSingleRowControls ? unitWidth * 1.25 : cardWidth;
 
         return Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             SizedBox(
-              width: cardWidth,
+              width: tenseWidth,
               child: _TenseAspectSection(
                 tense: configuration.sentenceState.tense,
                 aspect: configuration.sentenceState.aspect,
@@ -443,14 +473,14 @@ class _ControlDeck extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: cardWidth,
+              width: subjectWidth,
               child: _PronounSection(
                 agent: configuration.sentenceState.agent,
                 onMove: onMove,
               ),
             ),
             SizedBox(
-              width: cardWidth,
+              width: modalWidth,
               child: _ModalSection(
                 currentSentence: currentSentence,
                 modalSuggestions: modalSuggestions,
@@ -460,7 +490,7 @@ class _ControlDeck extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: cardWidth,
+              width: voiceWidth,
               child: _VoiceSection(
                 currentSentence: currentSentence,
                 voice: configuration.sentenceState.voice,
@@ -471,14 +501,14 @@ class _ControlDeck extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: cardWidth,
+              width: polarityWidth,
               child: _PolaritySection(
                 polarity: configuration.sentenceState.polarity,
                 onMove: onMove,
               ),
             ),
             SizedBox(
-              width: cardWidth,
+              width: formWidth,
               child: _SentenceFormSection(
                 sentenceForm: configuration.sentenceState.sentenceForm,
                 onMove: onMove,
@@ -499,7 +529,7 @@ class _PolaritySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _VerticalControlCard(
+    return _ControlCard(
       title: 'Polarity',
       children: [
         _MoveButton(
@@ -528,7 +558,7 @@ class _SentenceFormSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _VerticalControlCard(
+    return _ControlCard(
       title: 'Form',
       children: [
         _MoveButton(
@@ -595,8 +625,7 @@ class _PronounSection extends StatelessWidget {
                         selected: _sameNounPhrase(agent, you),
                         onPressed: () => onMove(const SetAgent(you)),
                       ),
-                      _ChipCluster(
-                        label: '3rd person',
+                      _InlineExpandableChipCluster(
                         children: [
                           _MoveButton(
                             label: 'he',
@@ -646,8 +675,7 @@ class _PronounSection extends StatelessWidget {
                         selected: _sameNounPhrase(agent, you),
                         onPressed: () => onMove(const SetAgent(you)),
                       ),
-                      _ChipCluster(
-                        label: '3rd person',
+                      _InlineExpandableChipCluster(
                         children: [
                           _MoveButton(
                             label: 'they',
@@ -697,7 +725,7 @@ class _TenseAspectSection extends StatelessWidget {
     return _ControlCard(
       title: 'Tense and aspect',
       children: [
-        _ChipCluster(
+        _InlineOptionRow(
           label: 'tense',
           children: [
             _MoveButton(
@@ -717,7 +745,7 @@ class _TenseAspectSection extends StatelessWidget {
             ),
           ],
         ),
-        _ChipCluster(
+        _InlineOptionRow(
           label: 'aspect',
           children: [
             _MoveButton(
@@ -759,6 +787,13 @@ class _ModalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primarySuggestions = modalSuggestions
+        .where((suggestion) => !_isSecondModalRow(suggestion))
+        .toList();
+    final secondarySuggestions = modalSuggestions
+        .where(_isSecondModalRow)
+        .toList();
+
     return _ControlCard(
       title: 'Modal',
       children: [
@@ -768,18 +803,109 @@ class _ModalSection extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).disabledColor),
           )
         else
-          for (final suggestion in modalSuggestions)
-            _SuggestionButton(
-              suggestion: suggestion,
-              currentSentence: currentSentence,
-              displayMode: SuggestionDisplayMode.word,
-              preview: grammar.generate(suggestion.preview.sentenceState).text,
-              onPressed: () => onMove(suggestion.move),
-              onPreviewChanged: onPreviewChanged,
-            ),
+          _ModalSuggestionRows(
+            primarySuggestions: primarySuggestions,
+            secondarySuggestions: secondarySuggestions,
+            currentSentence: currentSentence,
+            grammar: grammar,
+            onMove: onMove,
+            onPreviewChanged: onPreviewChanged,
+          ),
       ],
     );
   }
+}
+
+class _ModalSuggestionRows extends StatelessWidget {
+  final List<ConfigurationSuggestion> primarySuggestions;
+  final List<ConfigurationSuggestion> secondarySuggestions;
+  final String currentSentence;
+  final GrammarEngine grammar;
+  final ValueChanged<ConfigurationMove> onMove;
+  final ValueChanged<ConfigurationState?>? onPreviewChanged;
+
+  const _ModalSuggestionRows({
+    required this.primarySuggestions,
+    required this.secondarySuggestions,
+    required this.currentSentence,
+    required this.grammar,
+    required this.onMove,
+    required this.onPreviewChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final firstRowSuggestions = [
+      ...primarySuggestions.where((suggestion) => suggestion.label != 'must'),
+    ];
+    final secondRowSuggestions = [
+      ...primarySuggestions.where((suggestion) => suggestion.label == 'must'),
+      ...secondarySuggestions,
+    ];
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ModalSuggestionWrap(
+          suggestions: firstRowSuggestions,
+          currentSentence: currentSentence,
+          grammar: grammar,
+          onMove: onMove,
+          onPreviewChanged: onPreviewChanged,
+        ),
+        if (secondRowSuggestions.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          _ModalSuggestionWrap(
+            suggestions: secondRowSuggestions,
+            currentSentence: currentSentence,
+            grammar: grammar,
+            onMove: onMove,
+            onPreviewChanged: onPreviewChanged,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ModalSuggestionWrap extends StatelessWidget {
+  final List<ConfigurationSuggestion> suggestions;
+  final String currentSentence;
+  final GrammarEngine grammar;
+  final ValueChanged<ConfigurationMove> onMove;
+  final ValueChanged<ConfigurationState?>? onPreviewChanged;
+
+  const _ModalSuggestionWrap({
+    required this.suggestions,
+    required this.currentSentence,
+    required this.grammar,
+    required this.onMove,
+    required this.onPreviewChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        for (final suggestion in suggestions)
+          _SuggestionButton(
+            suggestion: suggestion,
+            currentSentence: currentSentence,
+            displayMode: SuggestionDisplayMode.word,
+            preview: grammar.generate(suggestion.preview.sentenceState).text,
+            onPressed: () => onMove(suggestion.move),
+            onPreviewChanged: onPreviewChanged,
+          ),
+      ],
+    );
+  }
+}
+
+bool _isSecondModalRow(ConfigurationSuggestion suggestion) {
+  return const {'shall', 'should', 'will', 'would'}.contains(suggestion.label);
 }
 
 class _VoiceSection extends StatelessWidget {
@@ -931,7 +1057,6 @@ class _NounNumberSwitch extends StatelessWidget {
 
 class _CompassSlotSection extends StatelessWidget {
   final String title;
-  final String currentValue;
   final String unlockHint;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
@@ -944,7 +1069,6 @@ class _CompassSlotSection extends StatelessWidget {
 
   const _CompassSlotSection({
     required this.title,
-    required this.currentValue,
     required this.unlockHint,
     required this.currentSentence,
     required this.displayMode,
@@ -960,7 +1084,6 @@ class _CompassSlotSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionFrame(
       title: title,
-      subtitle: 'Current: $currentValue',
       controls: [
         if (suggestions.isNotEmpty &&
             nounNumber != null &&
@@ -1056,13 +1179,11 @@ class _VerticalControlCard extends StatelessWidget {
 
 class _SectionFrame extends StatelessWidget {
   final String title;
-  final String subtitle;
   final List<Widget> controls;
   final List<Widget> children;
 
   const _SectionFrame({
     required this.title,
-    required this.subtitle,
     this.controls = const [],
     required this.children,
   });
@@ -1078,36 +1199,94 @@ class _SectionFrame extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: _chipRailMaxHeight),
+          child: SingleChildScrollView(
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                if (controls.isNotEmpty)
-                  Wrap(spacing: 6, runSpacing: 6, children: controls),
+                Text('$title:', style: Theme.of(context).textTheme.titleMedium),
+                if (controls.isNotEmpty) ...controls,
+                ...children,
               ],
             ),
-            const SizedBox(height: 2),
-            Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: _chipRailMaxHeight),
-              child: SingleChildScrollView(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(spacing: 6, runSpacing: 6, children: children),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _InlineExpandableChipCluster extends StatefulWidget {
+  final List<Widget> children;
+  final String expandedLabel;
+  final List<Widget> expandedChildren;
+
+  const _InlineExpandableChipCluster({
+    required this.children,
+    required this.expandedLabel,
+    required this.expandedChildren,
+  });
+
+  @override
+  State<_InlineExpandableChipCluster> createState() =>
+      _InlineExpandableChipClusterState();
+}
+
+class _InlineExpandableChipClusterState
+    extends State<_InlineExpandableChipCluster> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        ...widget.children,
+        IconButton(
+          tooltip: isExpanded
+              ? 'Hide ${widget.expandedLabel}'
+              : 'Show ${widget.expandedLabel}',
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 28, height: 28),
+          iconSize: 16,
+          onPressed: () {
+            setState(() {
+              isExpanded = !isExpanded;
+            });
+          },
+          icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+        ),
+        if (isExpanded) ...widget.expandedChildren,
+      ],
+    );
+  }
+}
+
+class _InlineOptionRow extends StatelessWidget {
+  final String label;
+  final List<Widget> children;
+
+  const _InlineOptionRow({required this.label, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        SizedBox(
+          width: 42,
+          child: Text(label, style: Theme.of(context).textTheme.labelSmall),
+        ),
+        ...children,
+      ],
     );
   }
 }
@@ -1268,6 +1447,7 @@ class _SuggestionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final wakeBadges = _verbWakeBadges(suggestion, colors);
 
     return MouseRegion(
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
@@ -1280,19 +1460,104 @@ class _SuggestionButton extends StatelessWidget {
             colors: colors,
           ),
           onPressed: onPressed,
-          child: Text.rich(
-            _suggestionSpan(
-              currentSentence: currentSentence,
-              preview: preview,
-              suggestion: suggestion,
-              displayMode: displayMode,
-              colors: colors,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text.rich(
+                  _suggestionSpan(
+                    currentSentence: currentSentence,
+                    preview: preview,
+                    suggestion: suggestion,
+                    displayMode: displayMode,
+                    colors: colors,
+                  ),
+                ),
+              ),
+              if (wakeBadges.isNotEmpty) ...[
+                const SizedBox(width: 5),
+                _VerbWakeBadgeGroup(badges: wakeBadges),
+              ],
+            ],
           ),
         ),
       ),
     );
   }
+}
+
+class _VerbWakeBadgeGroup extends StatelessWidget {
+  final List<_VerbWakeBadge> badges;
+
+  const _VerbWakeBadgeGroup({required this.badges});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 2,
+      children: [
+        for (final badge in badges)
+          Tooltip(
+            message: badge.tooltip,
+            child: Icon(
+              Icons.expand_more,
+              key: Key('verb-wake-${badge.keySuffix}'),
+              size: 15,
+              color: badge.color,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _VerbWakeBadge {
+  final String keySuffix;
+  final String tooltip;
+  final Color color;
+
+  const _VerbWakeBadge({
+    required this.keySuffix,
+    required this.tooltip,
+    required this.color,
+  });
+}
+
+List<_VerbWakeBadge> _verbWakeBadges(
+  ConfigurationSuggestion suggestion,
+  ColorScheme colors,
+) {
+  if (suggestion.slot != ConfigurationCompassSlot.action) {
+    return const [];
+  }
+
+  final move = suggestion.move;
+  if (move is! SetAction) {
+    return const [];
+  }
+
+  final action = move.action;
+
+  return [
+    if (action.takesObject)
+      _VerbWakeBadge(
+        keySuffix: '${action.infinitive}-object',
+        tooltip: '${action.infinitive} wakes object',
+        color: colors.primary,
+      ),
+    if (action.takesRecipient)
+      _VerbWakeBadge(
+        keySuffix: '${action.infinitive}-recipient',
+        tooltip: '${action.infinitive} wakes recipient',
+        color: colors.tertiary,
+      ),
+    if (action == be)
+      _VerbWakeBadge(
+        keySuffix: '${action.infinitive}-complement',
+        tooltip: '${action.infinitive} wakes complements',
+        color: colors.secondary,
+      ),
+  ];
 }
 
 TextSpan _suggestionSpan({
@@ -1559,40 +1824,35 @@ String _slotTitle(ConfigurationCompassSlot slot) {
   };
 }
 
-String _currentValue(
+bool _shouldRenderSlot(
   ConfigurationCompassSlot slot,
   ConfigurationState configuration,
+  List<ConfigurationSuggestion> suggestions,
 ) {
+  if (suggestions.isNotEmpty) {
+    return true;
+  }
+
   final state = configuration.sentenceState;
 
   return switch (slot) {
-    ConfigurationCompassSlot.action => state.action.infinitive,
-    ConfigurationCompassSlot.object => state.object?.text ?? '-',
-    ConfigurationCompassSlot.objectDeterminer =>
-      state.object?.determiner?.text ?? '-',
-    ConfigurationCompassSlot.objectAdjective => _adjectiveValue(
-      state.object?.adjectiveList,
-    ),
-    ConfigurationCompassSlot.recipient => state.recipient?.text ?? '-',
-    ConfigurationCompassSlot.recipientDeterminer =>
-      state.recipient?.determiner?.text ?? '-',
-    ConfigurationCompassSlot.recipientAdjective => _adjectiveValue(
-      state.recipient?.adjectiveList,
-    ),
-    ConfigurationCompassSlot.complement => state.complement?.text ?? '-',
-    ConfigurationCompassSlot.complementDeterminer =>
-      state.complement?.determiner?.text ?? '-',
-    ConfigurationCompassSlot.complementAdjective => _adjectiveValue(
-      state.complement?.adjectiveList,
-    ),
+    ConfigurationCompassSlot.action ||
+    ConfigurationCompassSlot.placePhrase ||
+    ConfigurationCompassSlot.timePhrase => true,
+    ConfigurationCompassSlot.object => state.object != null,
+    ConfigurationCompassSlot.objectDeterminer ||
+    ConfigurationCompassSlot.objectAdjective => state.object != null,
+    ConfigurationCompassSlot.recipient => state.recipient != null,
+    ConfigurationCompassSlot.recipientDeterminer ||
+    ConfigurationCompassSlot.recipientAdjective => state.recipient != null,
+    ConfigurationCompassSlot.complement => state.complement != null,
+    ConfigurationCompassSlot.complementDeterminer ||
+    ConfigurationCompassSlot.complementAdjective => state.complement != null,
     ConfigurationCompassSlot.adjectiveComplement =>
-      state.adjectiveComplement?.text ?? '-',
-    ConfigurationCompassSlot.voice => state.voice.name,
-    ConfigurationCompassSlot.passiveFocus => state.passiveFocus?.name ?? '-',
-    ConfigurationCompassSlot.modal =>
-      state.modal.isNone ? 'no modal' : state.modal.text,
-    ConfigurationCompassSlot.placePhrase => state.placePhrase?.noun ?? '-',
-    ConfigurationCompassSlot.timePhrase => state.timePhrase?.text ?? '-',
+      state.adjectiveComplement != null,
+    ConfigurationCompassSlot.voice ||
+    ConfigurationCompassSlot.passiveFocus ||
+    ConfigurationCompassSlot.modal => false,
   };
 }
 
@@ -1630,12 +1890,4 @@ String _unlockHint(
     ConfigurationCompassSlot.placePhrase ||
     ConfigurationCompassSlot.timePhrase => 'No open move from here.',
   };
-}
-
-String _adjectiveValue(List<Adjective>? adjectives) {
-  if (adjectives == null || adjectives.isEmpty) {
-    return '-';
-  }
-
-  return adjectives.map((adjective) => adjective.text).join(', ');
 }

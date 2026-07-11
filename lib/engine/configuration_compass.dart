@@ -5,6 +5,7 @@ import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -109,7 +110,7 @@ class ConfigurationCompass {
 
         return left.label.compareTo(right.label);
       });
-    final suggestions = <ConfigurationSuggestion>[];
+    final validSuggestions = <ConfigurationSuggestion>[];
 
     for (final candidate in candidates) {
       final preview = lock.applyMove(state, candidate.move);
@@ -117,7 +118,7 @@ class ConfigurationCompass {
         continue;
       }
 
-      suggestions.add(
+      validSuggestions.add(
         ConfigurationSuggestion(
           slot: slot,
           move: candidate.move,
@@ -127,13 +128,22 @@ class ConfigurationCompass {
           preview: preview,
         ),
       );
+    }
 
-      if (limit > 0 && suggestions.length >= limit) {
-        break;
+    if (limit <= 0 || validSuggestions.length <= limit) {
+      return validSuggestions;
+    }
+
+    final visible = validSuggestions.take(limit).toList();
+    for (final selected in validSuggestions.where(
+      (suggestion) => suggestion.isSelected,
+    )) {
+      if (!visible.contains(selected)) {
+        visible.add(selected);
       }
     }
 
-    return suggestions;
+    return visible;
   }
 
   Iterable<_CompassCandidate> _candidatesFor(
@@ -416,8 +426,12 @@ int _actionPriority(Verb current, Verb candidate) {
     return 105;
   }
 
-  if (candidate == go) {
+  if (candidate == work) {
     return 104;
+  }
+
+  if (candidate == go) {
+    return 103;
   }
 
   if (candidate.takesRecipient) {
@@ -651,6 +665,12 @@ final _defaultObjects = [
 ];
 
 final _defaultRecipients = [
+  him,
+  her,
+  them,
+  me,
+  us,
+  youObject,
   mary.toNounPhrase(Number.singular),
   john.toNounPhrase(Number.singular),
   teacher.toNounPhrase(Number.singular),

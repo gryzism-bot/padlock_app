@@ -6,6 +6,7 @@ import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/object_pronouns.dart' as object_case;
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -427,6 +428,33 @@ void main() {
       );
       expect(exitSuggestion.preview.sentenceState.passiveFocus, isNull);
       expect(render(exitSuggestion.preview), 'Book is given to Mary by him.');
+    });
+
+    test('recipient object pronouns support passive to phrases', () {
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(give));
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      final suggestions = ConfigurationCompass().suggestionsFor(
+        state,
+        ConfigurationCompassSlot.recipient,
+        limit: 0,
+      );
+      final himSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'him',
+      );
+
+      expect(himSuggestion.preview.sentenceState.recipient, object_case.him);
+      expect(render(himSuggestion.preview), 'He gives him book.');
+
+      state = lock.applyMove(state, const SetRecipient(object_case.him));
+      state = lock.applyMove(state, const SetVoice(Voice.passive));
+      state = lock.applyMove(state, const SetTense(Tense.past));
+
+      expect(render(state), 'Book was given to him by him.');
     });
 
     test('offers active voice as an exit from passive recipient focus', () {
