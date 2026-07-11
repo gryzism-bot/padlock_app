@@ -32,11 +32,17 @@ class _ControlCard extends StatelessWidget {
 
 class _SectionFrame extends StatelessWidget {
   final String title;
+  final bool isExpanded;
+  final VoidCallback? onToggle;
+  final String? collapsedHint;
   final List<Widget> controls;
   final List<Widget> children;
 
   const _SectionFrame({
     required this.title,
+    this.isExpanded = true,
+    this.onToggle,
+    this.collapsedHint,
     this.controls = const [],
     required this.children,
   });
@@ -45,28 +51,89 @@ class _SectionFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return DecoratedBox(
+    final content = DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: onToggle == null || isExpanded
+              ? colors.outlineVariant
+              : colors.primary.withValues(alpha: 0.62),
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: _chipRailMaxHeight),
+          constraints: BoxConstraints(
+            maxHeight: isExpanded ? _chipRailMaxHeight : 56,
+          ),
           child: SingleChildScrollView(
+            physics: isExpanded
+                ? const ClampingScrollPhysics()
+                : const NeverScrollableScrollPhysics(),
             child: Wrap(
               spacing: 6,
               runSpacing: 6,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text('$title:', style: Theme.of(context).textTheme.titleMedium),
-                if (controls.isNotEmpty) ...controls,
-                ...children,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '$title:',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (onToggle != null) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        tooltip: isExpanded
+                            ? 'Close $title rail'
+                            : 'Open $title rail',
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints.tightFor(
+                          width: 24,
+                          height: 24,
+                        ),
+                        iconSize: 18,
+                        onPressed: onToggle,
+                        color: isExpanded
+                            ? colors.onSurfaceVariant
+                            : colors.primary,
+                        icon: Icon(
+                          isExpanded ? Icons.expand_less : Icons.expand_more,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                if (!isExpanded && collapsedHint != null)
+                  Text(
+                    collapsedHint!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                if (isExpanded) ...[
+                  if (controls.isNotEmpty) ...controls,
+                  ...children,
+                ],
               ],
             ),
           ),
         ),
+      ),
+    );
+
+    if (onToggle == null) {
+      return content;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: isExpanded ? null : onToggle,
+        child: content,
       ),
     );
   }
@@ -124,18 +191,27 @@ class _InlineExpandableChipClusterState
 class _InlineOptionRow extends StatelessWidget {
   final String label;
   final List<Widget> children;
+  final double? labelWidth;
+  final double runSpacing;
 
-  const _InlineOptionRow({required this.label, required this.children});
+  const _InlineOptionRow({
+    required this.label,
+    required this.children,
+    this.labelWidth,
+    this.runSpacing = 6,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedLabelWidth = labelWidth ?? (label.length > 8 ? 76.0 : 42.0);
+
     return Wrap(
       spacing: 6,
-      runSpacing: 6,
+      runSpacing: runSpacing,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         SizedBox(
-          width: 42,
+          width: resolvedLabelWidth,
           child: Text(label, style: Theme.of(context).textTheme.labelSmall),
         ),
         ...children,
@@ -144,28 +220,30 @@ class _InlineOptionRow extends StatelessWidget {
   }
 }
 
-class _ChipCluster extends StatelessWidget {
+class _CompactChipCluster extends StatelessWidget {
   final String label;
   final List<Widget> children;
 
-  const _ChipCluster({required this.label, required this.children});
+  const _CompactChipCluster({required this.label, required this.children});
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+        child: Wrap(
+          spacing: 5,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(label, style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 4),
-            Wrap(spacing: 6, runSpacing: 6, children: children),
+            ...children,
           ],
         ),
       ),

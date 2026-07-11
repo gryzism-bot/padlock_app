@@ -73,6 +73,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> expandRail(WidgetTester tester, String title) async {
+    await tapAfterScroll(tester, find.byTooltip('Open $title rail'));
+  }
+
+  Future<void> pressOutlinedText(WidgetTester tester, String label) async {
+    final button = find
+        .ancestor(of: find.text(label), matching: find.byType(OutlinedButton))
+        .first;
+    tester.widget<OutlinedButton>(button).onPressed?.call();
+    await tester.pumpAndSettle();
+  }
+
+  bool appearsBefore(WidgetTester tester, Finder left, Finder right) {
+    final leftOffset = tester.getTopLeft(left);
+    final rightOffset = tester.getTopLeft(right);
+
+    if ((leftOffset.dy - rightOffset.dy).abs() < 1) {
+      return leftOffset.dx < rightOffset.dx;
+    }
+
+    return leftOffset.dy < rightOffset.dy;
+  }
+
   List<String> highlightedTextForTooltip(WidgetTester tester, String tooltip) {
     final richTexts = find
         .descendant(
@@ -169,12 +192,19 @@ void main() {
     expect(find.text('Move trace'), findsNothing);
 
     await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
 
     expect(find.text('Move trace'), findsOneWidget);
     expect(find.text('2 moves'), findsOneWidget);
     expect(find.textContaining('verb -> give'), findsOneWidget);
     expect(find.textContaining('object -> book'), findsOneWidget);
+
+    for (var index = 0; index < 9; index++) {
+      await pressOutlinedText(tester, index.isEven ? 'past' : 'present');
+    }
+
+    expect(find.text('10 moves'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Reset'));
     await tester.pumpAndSettle();
@@ -190,6 +220,7 @@ void main() {
 
     await tapAfterScroll(tester, find.byTooltip('You are.'));
 
+    await expandRail(tester, 'Adjective complement');
     await tapAfterScroll(tester, find.byTooltip('You are happy.'));
 
     await tester.drag(mainScroll, const Offset(0, 1000));
@@ -334,6 +365,8 @@ void main() {
     expect(find.text('Noun complement:'), findsNothing);
     expect(find.text('Adjective complement:'), findsNothing);
 
+    expect(find.byTooltip('You learn English.'), findsNothing);
+    await expandRail(tester, 'Subject');
     expect(find.byTooltip('You learn English.'), findsWidgets);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
@@ -341,10 +374,12 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You play.'), delta: -500);
 
     expect(find.text('Activity:'), findsOneWidget);
+    expect(find.byTooltip('You play volleyball.'), findsNothing);
     expect(find.text('Object:'), findsNothing);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
+    await expandRail(tester, 'Activity');
     await tapAfterScroll(tester, find.byTooltip('You play volleyball.'));
 
     expect(renderedSentence(tester), 'You play volleyball.');
@@ -359,12 +394,15 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You buy.'), delta: -500);
 
     expect(find.text('Object:'), findsOneWidget);
+    expect(find.byTooltip('You buy book.'), findsNothing);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
+    await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You buy book.'));
 
     expect(find.text('Object determiner:'), findsOneWidget);
+    expect(find.byTooltip('You buy a book.'), findsNothing);
     expect(find.text('Object adjective:'), findsOneWidget);
     expect(find.text('Recipient:'), findsOneWidget);
 
@@ -412,6 +450,7 @@ void main() {
 
     await tapVisible(tester, find.text('Word'));
     await tapAfterScroll(tester, find.byTooltip('You buy.'));
+    await expandRail(tester, 'Object');
 
     await tester.scrollUntilVisible(
       find.text('sg'),
@@ -447,6 +486,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
     await tester.scrollUntilVisible(
       find.byTooltip('You buy book.'),
@@ -466,7 +506,9 @@ void main() {
 
     await tapVisible(tester, find.text('Word'));
     await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await expandRail(tester, 'Recipient');
     await tapAfterScroll(tester, find.byTooltip('You give Mary book.'));
     await tapAfterScroll(tester, find.text('passive'));
 
@@ -489,17 +531,25 @@ void main() {
 
     await tapVisible(tester, find.text('Word'));
     await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await expandRail(tester, 'Recipient');
     await tapAfterScroll(tester, find.byTooltip('You give him book.'));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'Book was given to him by you.');
+    final showByAgent = find.text('show by-agent', findRichText: true);
+    final hideByAgent = find.text('hide by-agent', findRichText: true);
+    expect(showByAgent, findsOneWidget);
+    expect(hideByAgent, findsOneWidget);
+    expect(appearsBefore(tester, showByAgent, hideByAgent), isTrue);
 
     await tapAfterScroll(
       tester,
       find.text('hide by-agent', findRichText: true),
     );
+    expect(appearsBefore(tester, showByAgent, hideByAgent), isTrue);
 
     expect(renderedSentence(tester), 'Book was given to him.');
   });

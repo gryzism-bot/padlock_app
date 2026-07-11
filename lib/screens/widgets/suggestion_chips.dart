@@ -564,13 +564,24 @@ class _MoveTracePanel extends StatelessWidget {
                 ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
               )
             else
-              Wrap(
-                spacing: 8,
-                runSpacing: 5,
-                children: [
-                  for (final entry in entries.indexed)
-                    _MoveTraceChip(index: entry.$1 + 1, entry: entry.$2),
-                ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final entry in entries.indexed)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            bottom: entry.$1 == entries.length - 1 ? 0 : 2,
+                          ),
+                          child: _MoveTraceChip(
+                            index: entry.$1 + 1,
+                            entry: entry.$2,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
           ],
         ),
@@ -607,41 +618,33 @@ class _MoveTraceChip extends StatelessWidget {
     return Tooltip(
       message: '$statusText: ${entry.label}\n${entry.sentence}',
       waitDuration: const Duration(milliseconds: 350),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 460),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.68),
-            border: Border.all(color: foreground.withValues(alpha: 0.62)),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 14, color: foreground),
-                const SizedBox(width: 5),
-                Text(
-                  '$index.',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    '${entry.label} | ${entry.sentence}',
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: colors.onSurface),
-                  ),
-                ),
-              ],
+      child: SizedBox(
+        height: 18,
+        child: Row(
+          children: [
+            Icon(icon, size: 11, color: foreground),
+            const SizedBox(width: 4),
+            Text(
+              '$index.',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colors.onSurfaceVariant,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                '${entry.label} | ${entry.sentence}',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colors.onSurface,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

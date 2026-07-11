@@ -26,8 +26,8 @@ enum HeaderPreviewMode { clicked, hover }
 
 const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
-const _diagnosticsDockReserveHeight = 132.0;
-const _moveTraceLimit = 8;
+const _diagnosticsDockReserveHeight = 224.0;
+const _moveTraceLimit = 10;
 const _suggestionLimit = 24;
 const _chipRailMaxHeight = 164.0;
 
@@ -51,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   Number objectNumber = Number.singular;
   List<_MoveTraceEntry> moveTrace = const [];
+  Set<ConfigurationCompassSlot> expandedRails = const {};
 
   @override
   void initState() {
@@ -63,6 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final previousConfiguration = configuration;
       final nextConfiguration = lock.applyMove(configuration, move);
       configuration = nextConfiguration;
+      if (move is SetAction) {
+        expandedRails = const {};
+      }
       if (move case SetObject(:final object?)) {
         objectNumber = object.number;
       }
@@ -89,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
       objectNumber = Number.singular;
       hoveredConfiguration.value = null;
       moveTrace = const [];
+      expandedRails = const {};
     });
   }
 
@@ -118,6 +123,18 @@ class _HomeScreenState extends State<HomeScreen> {
       moveTrace = [
         _MoveTraceEntry.random(grammar.generate(state.sentenceState).text),
       ];
+      expandedRails = const {};
+    });
+  }
+
+  void _toggleRail(ConfigurationCompassSlot slot) {
+    setState(() {
+      hoveredConfiguration.value = null;
+      if (expandedRails.contains(slot)) {
+        expandedRails = {...expandedRails}..remove(slot);
+      } else {
+        expandedRails = {...expandedRails, slot};
+      }
     });
   }
 
@@ -273,6 +290,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     _CompassSlotSection(
                       title: _slotTitle(section.slot, configuration),
                       unlockHint: _unlockHint(section.slot, configuration),
+                      isExpanded: section.isExpanded,
+                      onToggle: section.canToggle
+                          ? () => _toggleRail(section.slot)
+                          : null,
                       currentSentence: sentence.text,
                       displayMode: displayMode,
                       suggestions: section.suggestions,
@@ -340,7 +361,15 @@ class _HomeScreenState extends State<HomeScreen> {
         continue;
       }
 
-      sections.add(_VisibleCompassSlot(slot, suggestions));
+      final canToggle = _isControlledRail(slot);
+      sections.add(
+        _VisibleCompassSlot(
+          slot,
+          suggestions,
+          isExpanded: !canToggle || expandedRails.contains(slot),
+          canToggle: canToggle,
+        ),
+      );
     }
 
     return sections;
@@ -350,8 +379,15 @@ class _HomeScreenState extends State<HomeScreen> {
 class _VisibleCompassSlot {
   final ConfigurationCompassSlot slot;
   final List<ConfigurationSuggestion> suggestions;
+  final bool isExpanded;
+  final bool canToggle;
 
-  const _VisibleCompassSlot(this.slot, this.suggestions);
+  const _VisibleCompassSlot(
+    this.slot,
+    this.suggestions, {
+    required this.isExpanded,
+    required this.canToggle,
+  });
 }
 
 class _AppBarTools extends StatelessWidget {
@@ -424,16 +460,12 @@ class _BottomDock extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 6,
-                      child: SingleChildScrollView(
-                        child: _GuidedMessages(messages: messages),
-                      ),
+                      child: _GuidedMessages(messages: messages),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 5,
-                      child: SingleChildScrollView(
-                        child: _MoveTracePanel(entries: moveTrace),
-                      ),
+                      child: _MoveTracePanel(entries: moveTrace),
                     ),
                   ],
                 ),
@@ -688,14 +720,16 @@ class _ControlDeck extends StatelessWidget {
         final unitWidth = useSingleRowControls
             ? (width - 40) / 10.35
             : cardWidth;
-        final tenseWidth = useSingleRowControls ? unitWidth * 1.75 : cardWidth;
-        final subjectWidth = useSingleRowControls ? unitWidth * 3.4 : cardWidth;
-        final modalWidth = useSingleRowControls ? unitWidth * 1.85 : cardWidth;
-        final voiceWidth = useSingleRowControls ? unitWidth * 1.35 : cardWidth;
-        final polarityWidth = useSingleRowControls
-            ? unitWidth * 0.75
+        final tenseWidth = useSingleRowControls ? unitWidth * 1.55 : cardWidth;
+        final subjectWidth = useSingleRowControls
+            ? unitWidth * 3.15
             : cardWidth;
-        final formWidth = useSingleRowControls ? unitWidth * 1.25 : cardWidth;
+        final modalWidth = useSingleRowControls ? unitWidth * 2.1 : cardWidth;
+        final voiceWidth = useSingleRowControls ? unitWidth * 1.9 : cardWidth;
+        final polarityWidth = useSingleRowControls
+            ? unitWidth * 0.65
+            : cardWidth;
+        final formWidth = useSingleRowControls ? unitWidth : cardWidth;
 
         return Wrap(
           spacing: 8,
@@ -850,7 +884,7 @@ class _PronounSection extends StatelessWidget {
               children: [
                 SizedBox(
                   width: laneWidth,
-                  child: _ChipCluster(
+                  child: _CompactChipCluster(
                     label: 'singular',
                     children: [
                       _MoveButton(
@@ -900,7 +934,7 @@ class _PronounSection extends StatelessWidget {
                 ),
                 SizedBox(
                   width: laneWidth,
-                  child: _ChipCluster(
+                  child: _CompactChipCluster(
                     label: 'plural',
                     children: [
                       _MoveButton(
@@ -1146,6 +1180,27 @@ bool _isSecondModalRow(ConfigurationSuggestion suggestion) {
   return const {'shall', 'should', 'will', 'would'}.contains(suggestion.label);
 }
 
+List<ConfigurationSuggestion> _fixedPassiveAgentSuggestions(
+  List<ConfigurationSuggestion> suggestions,
+) {
+  final ordered = [...suggestions]
+    ..sort((left, right) {
+      return _passiveAgentOrder(
+        left.label,
+      ).compareTo(_passiveAgentOrder(right.label));
+    });
+
+  return ordered;
+}
+
+int _passiveAgentOrder(String label) {
+  return switch (label) {
+    'show by-agent' => 0,
+    'hide by-agent' => 1,
+    _ => 2,
+  };
+}
+
 class _VoiceSection extends StatelessWidget {
   final String currentSentence;
   final Voice voice;
@@ -1167,11 +1222,17 @@ class _VoiceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orderedPassiveAgentSuggestions = _fixedPassiveAgentSuggestions(
+      passiveAgentSuggestions,
+    );
+
     return _ControlCard(
       title: 'Voice',
       children: [
-        _ChipCluster(
+        _InlineOptionRow(
           label: 'voice',
+          labelWidth: 36,
+          runSpacing: 4,
           children: [
             _MoveButton(
               label: 'active',
@@ -1186,8 +1247,10 @@ class _VoiceSection extends StatelessWidget {
           ],
         ),
         if (passiveFocusSuggestions.isNotEmpty)
-          _ChipCluster(
-            label: 'passive focus',
+          _InlineOptionRow(
+            label: 'focus',
+            labelWidth: 36,
+            runSpacing: 4,
             children: [
               for (final suggestion in passiveFocusSuggestions)
                 _SuggestionButton(
@@ -1202,11 +1265,13 @@ class _VoiceSection extends StatelessWidget {
                 ),
             ],
           ),
-        if (passiveAgentSuggestions.isNotEmpty)
-          _ChipCluster(
-            label: 'passive agent',
+        if (orderedPassiveAgentSuggestions.isNotEmpty)
+          _InlineOptionRow(
+            label: 'agent',
+            labelWidth: 36,
+            runSpacing: 4,
             children: [
-              for (final suggestion in passiveAgentSuggestions)
+              for (final suggestion in orderedPassiveAgentSuggestions)
                 _SuggestionButton(
                   suggestion: suggestion,
                   currentSentence: currentSentence,
@@ -1315,6 +1380,8 @@ class _NounNumberSwitch extends StatelessWidget {
 class _CompassSlotSection extends StatelessWidget {
   final String title;
   final String unlockHint;
+  final bool isExpanded;
+  final VoidCallback? onToggle;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
   final List<ConfigurationSuggestion> suggestions;
@@ -1327,6 +1394,8 @@ class _CompassSlotSection extends StatelessWidget {
   const _CompassSlotSection({
     required this.title,
     required this.unlockHint,
+    required this.isExpanded,
+    required this.onToggle,
     required this.currentSentence,
     required this.displayMode,
     required this.suggestions,
@@ -1341,8 +1410,12 @@ class _CompassSlotSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionFrame(
       title: title,
+      isExpanded: isExpanded,
+      onToggle: onToggle,
+      collapsedHint: _collapsedRailHint(title),
       controls: [
-        if (suggestions.isNotEmpty &&
+        if (isExpanded &&
+            suggestions.isNotEmpty &&
             nounNumber != null &&
             onNounNumberChanged != null)
           _NounNumberSwitch(
@@ -1350,7 +1423,9 @@ class _CompassSlotSection extends StatelessWidget {
             onChanged: onNounNumberChanged!,
           ),
       ],
-      children: suggestions.isEmpty
+      children: !isExpanded
+          ? const []
+          : suggestions.isEmpty
           ? [
               Text(
                 unlockHint,
@@ -1479,6 +1554,32 @@ String _slotTitle(
     ConfigurationCompassSlot.placePhrase => 'Place phrase',
     ConfigurationCompassSlot.timePhrase => 'Time phrase',
   };
+}
+
+bool _isControlledRail(ConfigurationCompassSlot slot) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object ||
+    ConfigurationCompassSlot.objectDeterminer ||
+    ConfigurationCompassSlot.objectAdjective ||
+    ConfigurationCompassSlot.recipient ||
+    ConfigurationCompassSlot.recipientDeterminer ||
+    ConfigurationCompassSlot.recipientAdjective ||
+    ConfigurationCompassSlot.complement ||
+    ConfigurationCompassSlot.complementDeterminer ||
+    ConfigurationCompassSlot.complementAdjective ||
+    ConfigurationCompassSlot.adjectiveComplement => true,
+    ConfigurationCompassSlot.action ||
+    ConfigurationCompassSlot.voice ||
+    ConfigurationCompassSlot.passiveFocus ||
+    ConfigurationCompassSlot.passiveAgent ||
+    ConfigurationCompassSlot.modal ||
+    ConfigurationCompassSlot.placePhrase ||
+    ConfigurationCompassSlot.timePhrase => false,
+  };
+}
+
+String _collapsedRailHint(String title) {
+  return 'Click to open $title choices.';
 }
 
 bool _shouldRenderSlot(
