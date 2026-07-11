@@ -762,6 +762,7 @@ class ConfigurationEngine {
       recipient: identical(recipient, _unchanged)
           ? state.recipient
           : recipient as NounPhrase?,
+      recipientPlacement: state.recipientPlacement,
       complement: identical(complement, _unchanged)
           ? state.complement
           : complement as NounPhrase?,

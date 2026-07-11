@@ -3,6 +3,7 @@ import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
@@ -795,9 +796,13 @@ class GrammarEngine {
       parts.addAll(builder.verbChain);
     }
 
+    final activeToRecipient =
+        builder.state.voice == Voice.active &&
+        builder.state.recipientPlacement == RecipientPlacement.toPhrase;
+
     // ---------- RECIPIENT ----------
 
-    if (builder.displayRecipient != null) {
+    if (builder.displayRecipient != null && !activeToRecipient) {
       if (builder.state.voice == Voice.passive) {
         parts.add('to ${_renderObjectCase(builder.displayRecipient!)}');
       } else {
@@ -809,6 +814,10 @@ class GrammarEngine {
 
     if (builder.displayObject != null) {
       parts.add(_renderObjectCase(builder.displayObject!));
+    }
+
+    if (builder.displayRecipient != null && activeToRecipient) {
+      parts.add('to ${_renderObjectCase(builder.displayRecipient!)}');
     }
 
     // ---------- COMPLEMENT ----------

@@ -19,6 +19,7 @@ import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/preposition.dart';
+import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
@@ -1155,6 +1156,20 @@ class RecognitionEngine {
 
   void _recognizeActiveRecipientAndObject(_RecognitionBuilder builder) {
     final participantStart = builder.verbChainEnd + 1;
+    final toIndex = builder.tokens.indexWhere(
+      (token) => token.toLowerCase() == 'to',
+      participantStart,
+    );
+
+    if (toIndex > participantStart && toIndex < builder.tokens.length - 1) {
+      builder.objectStart = participantStart;
+      builder.objectEnd = toIndex - 1;
+      builder.recipientStart = toIndex + 1;
+      builder.recipientEnd = builder.tokens.length - 1;
+      builder.recipientPlacement = RecipientPlacement.toPhrase;
+      return;
+    }
+
     final recipientEnd = _nounPhraseEnd(builder, participantStart);
     final objectStart = recipientEnd + 1;
 
@@ -1169,6 +1184,7 @@ class RecognitionEngine {
     builder.recipientEnd = recipientEnd;
     builder.objectStart = objectStart;
     builder.objectEnd = builder.tokens.length - 1;
+    builder.recipientPlacement = RecipientPlacement.beforeObject;
   }
 
   int _nounPhraseEnd(_RecognitionBuilder builder, int start) {
@@ -1765,6 +1781,7 @@ class _RecognitionBuilder {
 
   NounPhrase? object;
   NounPhrase? recipient;
+  RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   NounPhrase? complement;
   Adjective? adjectiveComplement;
 
@@ -1793,6 +1810,7 @@ class _RecognitionBuilder {
     agent: agent,
     object: object,
     recipient: recipient,
+    recipientPlacement: recipientPlacement,
     complement: complement,
     adjectiveComplement: adjectiveComplement,
     voice: voice,
@@ -1820,6 +1838,7 @@ class _RecognitionBuilder {
       'subject: $subjectStart -> $subjectEnd (${_tokensBetween(subjectStart, subjectEnd)})',
       'agent: $agentStart -> $agentEnd (${_tokensBetween(agentStart, agentEnd)}) = ${agent?.text}',
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
+      'recipientPlacement: $recipientPlacement',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',
       'complement: $complementStart -> $complementEnd (${_tokensBetween(complementStart, complementEnd)}) = ${complement?.text ?? adjectiveComplement?.text}',
       'action: ${action?.infinitive}',

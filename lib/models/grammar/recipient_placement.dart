@@ -1,0 +1,1 @@
+enum RecipientPlacement { beforeObject, toPhrase }

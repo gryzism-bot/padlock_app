@@ -2,6 +2,7 @@ import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
@@ -19,6 +20,7 @@ class SentenceState {
   final Verb action;
   final NounPhrase? object;
   final NounPhrase? recipient;
+  final RecipientPlacement recipientPlacement;
   final NounPhrase? complement;
   final Adjective? adjectiveComplement;
 
@@ -44,6 +46,7 @@ class SentenceState {
     required this.action,
     this.object,
     this.recipient,
+    this.recipientPlacement = RecipientPlacement.beforeObject,
     this.complement,
     this.adjectiveComplement,
 
@@ -71,6 +74,7 @@ class SentenceState {
       'action=${action.infinitive}',
       'object=${object?.text}',
       'recipient=${recipient?.text}',
+      'recipientPlacement=$recipientPlacement',
       'complement=${complement?.text}',
       'adjectiveComplement=${adjectiveComplement?.text}',
       'voice=$voice',
@@ -95,6 +99,7 @@ Agent: ${agent?.text}
 Action: ${action.infinitive}
 Object: ${object?.text}
 Recipient: ${recipient?.text}
+Recipient Placement: $recipientPlacement
 Complement: ${complement?.text}
 Adjective Complement: ${adjectiveComplement?.text}
 Tense: $tense
