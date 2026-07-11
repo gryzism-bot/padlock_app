@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -24,6 +25,7 @@ enum SuggestionDisplayMode { sentence, change, word }
 enum HeaderPreviewMode { clicked, hover }
 
 const _stickyHeaderHeight = 120.0;
+const _stickyFooterHeight = 28.0;
 const _suggestionLimit = 24;
 const _chipRailMaxHeight = 164.0;
 
@@ -194,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 36),
         ],
       ),
+      bottomNavigationBar: const _StickyFooter(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -356,6 +359,34 @@ class _AppBarTools extends StatelessWidget {
             ),
             const SizedBox(width: 8),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StickyFooter extends StatelessWidget {
+  const _StickyFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Material(
+      color: colors.surface.withValues(alpha: 0.96),
+      elevation: 2,
+      child: SizedBox(
+        height: _stickyFooterHeight,
+        child: Center(
+          child: Text(
+            'Logos Dynamics 2026',
+            key: const Key('app-footer-brand'),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontSize: 11,
+              letterSpacing: 0,
+            ),
+          ),
         ),
       ),
     );

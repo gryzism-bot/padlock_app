@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -75,13 +74,19 @@ void main() {
   }
 
   List<String> highlightedTextForTooltip(WidgetTester tester, String tooltip) {
-    final richText = tester.widget<RichText>(
-      find
-          .descendant(
-            of: find.byTooltip(tooltip),
-            matching: find.byType(RichText),
-          )
-          .first,
+    final richTexts = find
+        .descendant(
+          of: find.byTooltip(tooltip),
+          matching: find.byType(RichText),
+        )
+        .evaluate()
+        .map((element) => element.widget)
+        .cast<RichText>();
+
+    final richText = richTexts.firstWhere(
+      (richText) => _textSpans(
+        richText.text,
+      ).any((span) => span.style?.backgroundColor != null),
     );
 
     return _textSpans(richText.text)
@@ -97,6 +102,8 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn.');
     expect(find.text('Padlock Guided Mode'), findsOneWidget);
+    expect(find.byKey(const Key('app-footer-brand')), findsOneWidget);
+    expect(find.text('Logos Dynamics 2026'), findsOneWidget);
     expect(find.text('Verb:'), findsOneWidget);
     expect(find.text('Verb'), findsNothing);
     expect(find.byTooltip('Current: You learn.'), findsWidgets);
@@ -130,8 +137,15 @@ void main() {
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'You work.');
-    expect(find.text('Blocked by Lock'), findsWidgets);
+    expect(find.text('Testing tool prompt'), findsOneWidget);
+    expect(find.text('2 signals'), findsOneWidget);
+    expect(find.text('verb predicate frame type violation'), findsOneWidget);
+    expect(find.text('passive configuration shape violation'), findsOneWidget);
     expect(find.text('work cannot be passive in this frame.'), findsOneWidget);
+    expect(
+      find.text('Passive object focus requires an object.'),
+      findsOneWidget,
+    );
     expect(
       find.byTooltip(
         const ConfigurationMessage.blocked(
@@ -197,6 +211,23 @@ void main() {
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-output-be')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-output-give')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-output-play')), findsOneWidget);
+
+    final giveRecipientIcon = tester.widget<Icon>(
+      find.byKey(const Key('verb-wake-give-recipient')),
+    );
+    expect(giveRecipientIcon.icon?.fontFamily, 'PhosphorLight');
+    expect(giveRecipientIcon.icon?.fontPackage, 'phosphor_flutter');
+    expect(giveRecipientIcon.icon?.codePoint, 0xe57e);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-give')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(2),
+    );
   });
 
   testWidgets('Guided UI exposes split control groups and larger chip rails', (

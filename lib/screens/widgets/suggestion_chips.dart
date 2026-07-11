@@ -20,7 +20,7 @@ class _SuggestionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final wakeBadges = _verbWakeBadges(suggestion, colors);
+    final wakeSignal = _verbWakeSignal(suggestion, colors);
 
     return MouseRegion(
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
@@ -33,24 +33,22 @@ class _SuggestionButton extends StatelessWidget {
             colors: colors,
           ),
           onPressed: onPressed,
-          child: Row(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text.rich(
-                  _suggestionSpan(
-                    currentSentence: currentSentence,
-                    preview: preview,
-                    suggestion: suggestion,
-                    displayMode: displayMode,
-                    colors: colors,
-                  ),
+              if (wakeSignal != null) ...[
+                _VerbWakeSignalView(signal: wakeSignal),
+                const SizedBox(height: 1),
+              ],
+              Text.rich(
+                _suggestionSpan(
+                  currentSentence: currentSentence,
+                  preview: preview,
+                  suggestion: suggestion,
+                  displayMode: displayMode,
+                  colors: colors,
                 ),
               ),
-              if (wakeBadges.isNotEmpty) ...[
-                const SizedBox(width: 5),
-                _VerbWakeBadgeGroup(badges: wakeBadges),
-              ],
             ],
           ),
         ),
@@ -59,70 +57,272 @@ class _SuggestionButton extends StatelessWidget {
   }
 }
 
-class _VerbWakeBadgeGroup extends StatelessWidget {
-  final List<_VerbWakeBadge> badges;
+class _VerbWakeSignalView extends StatelessWidget {
+  final _VerbWakeSignal signal;
 
-  const _VerbWakeBadgeGroup({required this.badges});
+  const _VerbWakeSignalView({required this.signal});
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 2,
-      children: [
-        for (final badge in badges)
-          Tooltip(
-            message: badge.tooltip,
-            child: Icon(
-              Icons.expand_more,
-              key: Key('verb-wake-${badge.keySuffix}'),
+    return Tooltip(
+      message: signal.tooltip,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final entry in signal.icons.indexed) ...[
+            Icon(
+              _phosphorIconFor(entry.$2),
+              key: entry.$1 < signal.keySuffixes.length
+                  ? Key('verb-wake-${signal.keySuffixes[entry.$1]}')
+                  : null,
               size: 15,
-              color: badge.color,
+              color: signal.color,
             ),
-          ),
+            if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
+          ],
+          const SizedBox(width: 3),
+          _VerbWakeOutputs(signal: signal),
+        ],
+      ),
+    );
+  }
+}
+
+class _VerbWakeOutputs extends StatelessWidget {
+  final _VerbWakeSignal signal;
+
+  const _VerbWakeOutputs({required this.signal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: Key('verb-wake-output-${signal.actionKey}'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var index = 0; index < signal.outputCount; index++)
+          Icon(_phosphorOutputIcon, size: 8, color: signal.color),
       ],
     );
   }
 }
 
-class _VerbWakeBadge {
-  final String keySuffix;
+class _VerbWakeSignal {
+  final List<String> keySuffixes;
+  final String actionKey;
   final String tooltip;
+  final List<SemanticIcon> icons;
   final Color color;
+  final int outputCount;
 
-  const _VerbWakeBadge({
-    required this.keySuffix,
+  const _VerbWakeSignal({
+    required this.keySuffixes,
+    required this.actionKey,
     required this.tooltip,
+    required this.icons,
     required this.color,
+    required this.outputCount,
   });
 }
 
-List<_VerbWakeBadge> _verbWakeBadges(
+_VerbWakeSignal? _verbWakeSignal(
   ConfigurationSuggestion suggestion,
   ColorScheme colors,
 ) {
   if (suggestion.slot != ConfigurationCompassSlot.action) {
-    return const [];
+    return null;
   }
 
   final move = suggestion.move;
   if (move is! SetAction) {
-    return const [];
+    return null;
   }
 
   final action = move.action;
+  final influences = predicateInfluencesFor(action);
+  if (influences.isEmpty) {
+    return null;
+  }
 
-  return [
-    for (final influence in predicateInfluencesFor(action))
-      _VerbWakeBadge(
-        keySuffix: '${action.infinitive}-${influence.key}',
-        tooltip: influence.tooltip,
-        color: _verbWakeBadgeColor(influence, colors),
-      ),
-  ];
+  final influenceKeys = [for (final influence in influences) influence.key];
+  final profile = predicateSemanticIconProfileFor(
+    infinitive: action.infinitive,
+    influenceKeys: influenceKeys,
+  );
+  final outputCount = predicateSemanticOutputCount(
+    infinitive: action.infinitive,
+    influenceKeys: influenceKeys,
+    profile: profile,
+  );
+
+  return _VerbWakeSignal(
+    keySuffixes: [
+      for (final influence in influences)
+        '${action.infinitive}-${influence.key}',
+    ],
+    actionKey: action.infinitive,
+    tooltip: _verbWakeTooltip(action.infinitive, influences, outputCount),
+    icons: profile.icons,
+    color: _verbWakeSignalColor(influences, colors),
+    outputCount: outputCount,
+  );
 }
 
-Color _verbWakeBadgeColor(PredicateInfluence influence, ColorScheme colors) {
-  return switch (influence.key) {
+String _verbWakeTooltip(
+  String action,
+  List<PredicateInfluence> influences,
+  int outputCount,
+) {
+  final labels = influences.map((influence) => influence.label).join(', ');
+  final railWord = outputCount == 1 ? 'rail' : 'rails';
+  return '$action unlocks $labels. It can wake $outputCount $railWord.';
+}
+
+IconData _phosphorIconFor(SemanticIcon icon) {
+  return _phosphorIconDataBySemanticIcon[icon]!;
+}
+
+const _phosphorOutputIcon = IconData(
+  0xe06c,
+  fontFamily: 'PhosphorBold',
+  fontPackage: 'phosphor_flutter',
+  matchTextDirection: true,
+);
+
+const _phosphorIconDataBySemanticIcon = <SemanticIcon, IconData>{
+  SemanticIcon.arrowDown: IconData(
+    0xe03e,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.arrowIn: IconData(
+    0xe09e,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.arrowOut: IconData(
+    0xe06c,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.arrowUp: IconData(
+    0xe08e,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.activity: IconData(
+    0xe718,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.book: IconData(
+    0xe0e2,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.complement: IconData(
+    0xe67c,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.crowd: IconData(
+    0xe4d6,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.euro: IconData(
+    0xe554,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.fist: IconData(
+    0xe57a,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.foot: IconData(
+    0xea88,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.grabbingHand: IconData(
+    0xe57c,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.hand: IconData(
+    0xe298,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.hands: IconData(
+    0xe582,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.language: IconData(
+    0xe324,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.lightbulb: IconData(
+    0xe2dc,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.object: IconData(
+    0xe390,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.openHand: IconData(
+    0xe57e,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.pen: IconData(
+    0xe3aa,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.person: IconData(
+    0xe3a8,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+  SemanticIcon.subject: IconData(
+    0xe73e,
+    fontFamily: 'PhosphorLight',
+    fontPackage: 'phosphor_flutter',
+    matchTextDirection: true,
+  ),
+};
+
+Color _verbWakeSignalColor(
+  List<PredicateInfluence> influences,
+  ColorScheme colors,
+) {
+  final primaryInfluence = influences.first;
+  return switch (primaryInfluence.key) {
     'complement' => colors.secondary,
     'recipient' => colors.tertiary,
     'destination' => colors.error,
@@ -235,12 +435,75 @@ class _GuidedMessages extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 6,
-      children: [
-        for (final message in messages) _GuidedMessageChip(message: message),
-      ],
+    return _GuidedMessagePanel(messages: messages);
+  }
+}
+
+class _GuidedMessagePanel extends StatelessWidget {
+  final List<ConfigurationMessage> messages;
+
+  const _GuidedMessagePanel({required this.messages});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final hasBlocked = messages.any(
+      (message) => message.kind == ConfigurationMessageKind.blocked,
+    );
+    final foreground = hasBlocked ? colors.error : colors.primary;
+    final background = hasBlocked
+        ? colors.errorContainer.withValues(alpha: 0.24)
+        : colors.primaryContainer.withValues(alpha: 0.24);
+    final border = hasBlocked ? colors.error : colors.primary;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: border.withValues(alpha: 0.62)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  hasBlocked ? Icons.lock : Icons.check_circle_outline,
+                  size: 16,
+                  color: foreground,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Testing tool prompt',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: foreground,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${messages.length} ${messages.length == 1 ? 'signal' : 'signals'}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Wrap(
+              spacing: 8,
+              runSpacing: 5,
+              children: [
+                for (final message in messages)
+                  _GuidedMessageChip(message: message),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -254,54 +517,148 @@ class _GuidedMessageChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isBlocked = message.kind == ConfigurationMessageKind.blocked;
+    final lawAlert = _lockLawAlertFor(message);
     final foreground = isBlocked ? colors.error : colors.primary;
-    final background = isBlocked
-        ? colors.errorContainer.withValues(alpha: 0.34)
-        : colors.primaryContainer.withValues(alpha: 0.34);
-    final border = isBlocked ? colors.error : colors.primary;
+    final background = colors.surface.withValues(alpha: 0.62);
+    final border = foreground;
 
     return Tooltip(
       message: message.tooltip,
       waitDuration: const Duration(milliseconds: 350),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: background,
-          border: Border.all(color: border.withValues(alpha: 0.62)),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isBlocked ? Icons.lock : Icons.check_circle_outline,
-                size: 16,
-                color: foreground,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                message.title,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w700,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: background,
+            border: Border.all(color: border.withValues(alpha: 0.62)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Icon(
+                      isBlocked ? Icons.lock : Icons.check_circle_outline,
+                      size: 14,
+                      color: foreground,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Lock law alert:',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        lawAlert.label,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: foreground,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: Text(
-                  message.text,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: colors.onSurface),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Text(
+                      'Example nearby:',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        message.text,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+class _LockLawAlert {
+  final String label;
+
+  const _LockLawAlert(this.label);
+}
+
+_LockLawAlert _lockLawAlertFor(ConfigurationMessage message) {
+  if (message.kind == ConfigurationMessageKind.info) {
+    return const _LockLawAlert('state update');
+  }
+
+  final text = message.text;
+
+  if (text.contains('determiner') ||
+      text.contains('consonant sound') ||
+      text.contains('vowel sound')) {
+    return const _LockLawAlert('noun phrase shape violation');
+  }
+
+  if (text.startsWith('Lexical be')) {
+    return const _LockLawAlert('lexical be frame violation');
+  }
+
+  if (text.contains('cannot be passive in this frame') ||
+      text.contains('does not take an object') ||
+      text.contains('does not take a recipient') ||
+      text.contains('does not take a complement') ||
+      text.contains('only takes fixed') ||
+      text.contains('fixed ') ||
+      text.contains('Recipient frames require an object')) {
+    return const _LockLawAlert('verb predicate frame type violation');
+  }
+
+  if (text.contains('Passive object focus') ||
+      text.contains('Passive recipient focus') ||
+      text.contains('Passive focus belongs') ||
+      text.contains('Passive agent visibility belongs') ||
+      text.contains('has no recipient focus')) {
+    return const _LockLawAlert('passive configuration shape violation');
+  }
+
+  if (text.contains('modal') ||
+      text.contains('Will belongs') ||
+      text.contains('present modal frame')) {
+    return const _LockLawAlert('modal tense frame violation');
+  }
+
+  if (text.contains('Imperatives')) {
+    return const _LockLawAlert('imperative frame violation');
+  }
+
+  if (text.contains('Place phrase')) {
+    return const _LockLawAlert('phrase compatibility violation');
+  }
+
+  if (text.contains('Active voice requires an agent')) {
+    return const _LockLawAlert('active voice shape violation');
+  }
+
+  return const _LockLawAlert('configuration law violation');
 }
