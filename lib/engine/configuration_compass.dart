@@ -1,5 +1,6 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -441,35 +442,16 @@ int _actionPriority(Verb current, Verb candidate) {
     return 100;
   }
 
-  if (candidate == be) {
-    return 105;
-  }
+  final priority = predicateDoorwayPriority(candidate);
 
-  if (candidate == work) {
-    return 104;
-  }
-
-  if (candidate == go) {
-    return 103;
-  }
-
-  if (hasFixedObjectFrame(candidate)) {
-    return 102;
-  }
-
-  if (candidate.takesRecipient) {
-    return 95;
-  }
-
-  if (candidate.takesObject) {
-    return 90;
-  }
-
-  if (current.takesObject && !candidate.takesObject) {
+  if (current.takesObject &&
+      !candidate.takesObject &&
+      predicateInfluenceRank(candidate) == 0 &&
+      priority == 80) {
     return 60;
   }
 
-  return 80;
+  return priority;
 }
 
 int _modalPriority(Tense tense, Modal current, Modal modal) {

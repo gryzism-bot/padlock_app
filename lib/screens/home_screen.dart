@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
@@ -1568,25 +1569,22 @@ List<_VerbWakeBadge> _verbWakeBadges(
   final action = move.action;
 
   return [
-    if (action.takesObject)
+    for (final influence in predicateInfluencesFor(action))
       _VerbWakeBadge(
-        keySuffix: '${action.infinitive}-object',
-        tooltip: '${action.infinitive} wakes object',
-        color: colors.primary,
-      ),
-    if (action.takesRecipient)
-      _VerbWakeBadge(
-        keySuffix: '${action.infinitive}-recipient',
-        tooltip: '${action.infinitive} wakes recipient',
-        color: colors.tertiary,
-      ),
-    if (action == be)
-      _VerbWakeBadge(
-        keySuffix: '${action.infinitive}-complement',
-        tooltip: '${action.infinitive} wakes complements',
-        color: colors.secondary,
+        keySuffix: '${action.infinitive}-${influence.key}',
+        tooltip: influence.tooltip,
+        color: _verbWakeBadgeColor(influence, colors),
       ),
   ];
+}
+
+Color _verbWakeBadgeColor(PredicateInfluence influence, ColorScheme colors) {
+  return switch (influence.key) {
+    'complement' => colors.secondary,
+    'recipient' => colors.tertiary,
+    'destination' => colors.error,
+    _ => colors.primary,
+  };
 }
 
 TextSpan _suggestionSpan({

@@ -408,6 +408,27 @@ void main() {
       expect(suggestions.map((suggestion) => suggestion.label), contains('go'));
     });
 
+    test('ranks predicate doorways by sentence influence', () {
+      final labels = ConfigurationCompass()
+          .suggestionsFor(
+            ConfigurationState.initial(),
+            ConfigurationCompassSlot.action,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(
+        labels,
+        containsAll(['be', 'give', 'play', 'learn', 'go', 'get', 'work']),
+      );
+      expect(labels.indexOf('be'), lessThan(labels.indexOf('get')));
+      expect(labels.indexOf('give'), lessThan(labels.indexOf('get')));
+      expect(labels.indexOf('play'), lessThan(labels.indexOf('get')));
+      expect(labels.indexOf('learn'), lessThan(labels.indexOf('get')));
+      expect(labels.indexOf('go'), lessThan(labels.indexOf('work')));
+    });
+
     test('noun complement suggestions follow agent number', () {
       var state = lock.applyMove(
         ConfigurationState.initial(),

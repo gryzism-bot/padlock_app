@@ -189,6 +189,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
