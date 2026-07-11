@@ -70,12 +70,11 @@ class _VerbWakeSignalView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final entry in signal.icons.indexed) ...[
-            Icon(
-              _phosphorIconFor(entry.$2),
+            _PredicateIconGlyph(
+              slot: entry.$2,
               key: entry.$1 < signal.keySuffixes.length
                   ? Key('verb-wake-${signal.keySuffixes[entry.$1]}')
                   : null,
-              size: 15,
               color: signal.color,
             ),
             if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
@@ -100,9 +99,29 @@ class _VerbWakeOutputs extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var index = 0; index < signal.outputCount; index++)
-          Icon(_phosphorOutputIcon, size: 8, color: signal.color),
+          Icon(_materialOutputIcon, size: 9, color: signal.color),
       ],
     );
+  }
+}
+
+class _PredicateIconGlyph extends StatelessWidget {
+  final PredicateIconSlot slot;
+  final Color color;
+
+  const _PredicateIconGlyph({
+    super.key,
+    required this.slot,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (slot.assetPath.isNotEmpty) {
+      return Icon(Icons.image_outlined, size: 15, color: color);
+    }
+
+    return Icon(_materialIconFor(slot.materialIcon), size: 15, color: color);
   }
 }
 
@@ -110,7 +129,7 @@ class _VerbWakeSignal {
   final List<String> keySuffixes;
   final String actionKey;
   final String tooltip;
-  final List<SemanticIcon> icons;
+  final List<PredicateIconSlot> icons;
   final Color color;
   final int outputCount;
 
@@ -177,145 +196,34 @@ String _verbWakeTooltip(
   return '$action unlocks $labels. It can wake $outputCount $railWord.';
 }
 
-IconData _phosphorIconFor(SemanticIcon icon) {
-  return _phosphorIconDataBySemanticIcon[icon]!;
+const _materialOutputIcon = Icons.keyboard_arrow_right;
+
+IconData _materialIconFor(String materialIcon) {
+  return switch (materialIcon) {
+    MaterialIconKey.accountTreeOutlined => Icons.account_tree_outlined,
+    MaterialIconKey.arrowDownward => Icons.arrow_downward,
+    MaterialIconKey.arrowForward => Icons.arrow_forward,
+    MaterialIconKey.arrowUpward => Icons.arrow_upward,
+    MaterialIconKey.backHandOutlined => Icons.back_hand_outlined,
+    MaterialIconKey.callReceived => Icons.call_received,
+    MaterialIconKey.directionsWalk => Icons.directions_walk,
+    MaterialIconKey.editOutlined => Icons.edit_outlined,
+    MaterialIconKey.euro => Icons.euro,
+    MaterialIconKey.frontHandOutlined => Icons.front_hand_outlined,
+    MaterialIconKey.groupsOutlined => Icons.groups_outlined,
+    MaterialIconKey.handshakeOutlined => Icons.handshake_outlined,
+    MaterialIconKey.inventory2Outlined => Icons.inventory_2_outlined,
+    MaterialIconKey.lightbulbOutline => Icons.lightbulb_outline,
+    MaterialIconKey.menuBookOutlined => Icons.menu_book_outlined,
+    MaterialIconKey.panToolAltOutlined => Icons.pan_tool_alt_outlined,
+    MaterialIconKey.panToolOutlined => Icons.pan_tool_outlined,
+    MaterialIconKey.personOutline => Icons.person_outline,
+    MaterialIconKey.recordVoiceOverOutlined => Icons.record_voice_over_outlined,
+    MaterialIconKey.schoolOutlined => Icons.school_outlined,
+    MaterialIconKey.sportsSoccer => Icons.sports_soccer,
+    _ => Icons.help_outline,
+  };
 }
-
-const _phosphorOutputIcon = IconData(
-  0xe06c,
-  fontFamily: 'PhosphorBold',
-  fontPackage: 'phosphor_flutter',
-  matchTextDirection: true,
-);
-
-const _phosphorIconDataBySemanticIcon = <SemanticIcon, IconData>{
-  SemanticIcon.arrowDown: IconData(
-    0xe03e,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.arrowIn: IconData(
-    0xe09e,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.arrowOut: IconData(
-    0xe06c,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.arrowUp: IconData(
-    0xe08e,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.activity: IconData(
-    0xe718,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.book: IconData(
-    0xe0e2,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.complement: IconData(
-    0xe67c,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.crowd: IconData(
-    0xe4d6,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.euro: IconData(
-    0xe554,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.fist: IconData(
-    0xe57a,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.foot: IconData(
-    0xea88,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.grabbingHand: IconData(
-    0xe57c,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.hand: IconData(
-    0xe298,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.hands: IconData(
-    0xe582,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.language: IconData(
-    0xe324,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.lightbulb: IconData(
-    0xe2dc,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.object: IconData(
-    0xe390,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.openHand: IconData(
-    0xe57e,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.pen: IconData(
-    0xe3aa,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.person: IconData(
-    0xe3a8,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-  SemanticIcon.subject: IconData(
-    0xe73e,
-    fontFamily: 'PhosphorLight',
-    fontPackage: 'phosphor_flutter',
-    matchTextDirection: true,
-  ),
-};
 
 Color _verbWakeSignalColor(
   List<PredicateInfluence> influences,

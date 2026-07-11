@@ -216,11 +216,14 @@ void main() {
     expect(find.byKey(const Key('verb-wake-output-play')), findsOneWidget);
 
     final giveRecipientIcon = tester.widget<Icon>(
-      find.byKey(const Key('verb-wake-give-recipient')),
+      find
+          .descendant(
+            of: find.byKey(const Key('verb-wake-give-recipient')),
+            matching: find.byType(Icon),
+          )
+          .first,
     );
-    expect(giveRecipientIcon.icon?.fontFamily, 'PhosphorLight');
-    expect(giveRecipientIcon.icon?.fontPackage, 'phosphor_flutter');
-    expect(giveRecipientIcon.icon?.codePoint, 0xe57e);
+    expect(giveRecipientIcon.icon, Icons.pan_tool_outlined);
     expect(
       find.descendant(
         of: find.byKey(const Key('verb-wake-output-give')),

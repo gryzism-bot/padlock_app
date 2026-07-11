@@ -26,6 +26,7 @@ enum HeaderPreviewMode { clicked, hover }
 
 const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
+const _testingPromptReserveHeight = 132.0;
 const _suggestionLimit = 24;
 const _chipRailMaxHeight = 164.0;
 
@@ -196,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 36),
         ],
       ),
-      bottomNavigationBar: const _StickyFooter(),
+      bottomNavigationBar: _BottomDock(messages: configuration.messages),
       body: SafeArea(
         child: Stack(
           children: [
@@ -211,8 +212,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _GuidedMessages(messages: configuration.messages),
-                  const SizedBox(height: 8),
                   _ControlDeck(
                     currentSentence: sentence.text,
                     modalSuggestions: compass.suggestionsFor(
@@ -361,6 +360,40 @@ class _AppBarTools extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BottomDock extends StatelessWidget {
+  final List<ConfigurationMessage> messages;
+
+  const _BottomDock({required this.messages});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (messages.isNotEmpty)
+          Material(
+            color: colors.surface.withValues(alpha: 0.96),
+            elevation: 2,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: _testingPromptReserveHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                child: SingleChildScrollView(
+                  child: _GuidedMessages(messages: messages),
+                ),
+              ),
+            ),
+          ),
+        const _StickyFooter(),
+      ],
     );
   }
 }
