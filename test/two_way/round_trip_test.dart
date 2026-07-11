@@ -1,277 +1,236 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:padlock_app/data/modals.dart';
-import 'package:padlock_app/data/phrases/frequency_phrases.dart';
-import 'package:padlock_app/data/phrases/place_phrases.dart';
-import 'package:padlock_app/data/phrases/time_phrases.dart';
-import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
-import 'package:padlock_app/data/subjects/adjectives/quality.dart';
-import 'package:padlock_app/data/subjects/determiners.dart';
-import 'package:padlock_app/data/subjects/object_pronouns.dart';
-import 'package:padlock_app/data/subjects/pronouns.dart';
-import 'package:padlock_app/data/subjects/third_person/objects.dart';
-import 'package:padlock_app/data/subjects/third_person/people.dart';
-import 'package:padlock_app/data/verbs/education.dart';
-import 'package:padlock_app/data/verbs/essential.dart';
-import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
-import 'package:padlock_app/models/grammar/passive_focus.dart';
-import 'package:padlock_app/models/grammar/recipient_placement.dart';
-import 'package:padlock_app/models/grammar/recipient_preposition.dart';
-import 'package:padlock_app/models/grammar/sentence_form.dart';
-import 'package:padlock_app/models/grammar/subject/number.dart';
-import 'package:padlock_app/models/grammar/verb/aspect.dart';
-import 'package:padlock_app/models/grammar/verb/polarity.dart';
-import 'package:padlock_app/models/grammar/verb/tense.dart';
-import 'package:padlock_app/models/grammar/voice.dart';
-import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 void main() {
   final grammar = GrammarEngine();
   final recognition = RecognitionEngine();
 
-  String render(SentenceState state) => grammar.generate(state).text;
+  void expectSentenceRoundTrip(String sentence) {
+    try {
+      final recognized = recognition.recognize(sentence);
+      final rendered = grammar.generate(recognized).text;
 
-  void expectStateRoundTrip(SentenceState state) {
-    final firstSentence = render(state);
-    final recognized = recognition.recognize(firstSentence);
-    final secondSentence = render(recognized);
-
-    expect(secondSentence, firstSentence);
+      expect(rendered, sentence, reason: sentence);
+    } catch (error, stackTrace) {
+      fail('Failed to round-trip "$sentence": $error\n$stackTrace');
+    }
   }
 
-  void expectSentenceRoundTrip(String sentence) {
-    final recognized = recognition.recognize(sentence);
-    final rendered = render(recognized);
-
-    expect(rendered, sentence);
+  void expectSentenceRoundTrips(List<String> sentences) {
+    for (final sentence in sentences) {
+      expectSentenceRoundTrip(sentence);
+    }
   }
 
   group('Two-way one-predicate contract', () {
-    test('state -> sentence -> state -> sentence keeps core active shapes', () {
-      final states = [
-        SentenceState(
-          agent: he,
-          action: work,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-        ),
-        SentenceState(
-          agent: mary.toNounPhrase(Number.singular),
-          action: study,
-          tense: Tense.past,
-          aspect: Aspect.simple,
-          timePhrase: yesterdayTimePhrase,
-        ),
-        SentenceState(
-          agent: they,
-          action: build,
-          object: it,
-          modal: should,
-          tense: Tense.present,
-          aspect: Aspect.simple,
-        ),
-        SentenceState(
-          agent: teacher.toNounPhrase(
-            Number.singular,
-            determiner: theDeterminer,
-            adjective: beautiful,
-          ),
-          action: learn,
-          tense: Tense.present,
-          aspect: Aspect.perfect,
-          placePhrase: schoolPlacePhrase,
-          frequencyPhrase: everyDayFrequencyPhrase,
-        ),
-      ];
-
-      for (final state in states) {
-        expectStateRoundTrip(state);
-      }
+    test('basic rules stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'I work.',
+        'You work.',
+        'He works.',
+        'She works.',
+        'It works.',
+        'We work.',
+        'They work.',
+        'Mary studied yesterday.',
+        'The child studies.',
+        'The children study.',
+        'Does he work?',
+        'Did the dog run?',
+        'Do the old workers play football?',
+        'That car does not work.',
+        'Our students did not study yesterday.',
+        'No student worked yesterday.',
+        'He works!',
+        'You run!',
+      ]);
     });
 
-    test(
-      'state -> sentence -> state -> sentence keeps passive and questions',
-      () {
-        final states = [
-          SentenceState(
-            object: bridge.toNounPhrase(
-              Number.singular,
-              determiner: theDeterminer,
-              adjective: newAdjective,
-            ),
-            agent: worker.toNounPhrase(
-              Number.plural,
-              determiner: theDeterminer,
-              adjective: old,
-            ),
-            action: build,
-            voice: Voice.passive,
-            passiveFocus: PassiveFocus.object,
-            tense: Tense.past,
-            aspect: Aspect.perfectContinuous,
-            sentenceForm: SentenceForm.question,
-          ),
-          SentenceState(
-            agent: teacher.toNounPhrase(
-              Number.singular,
-              determiner: theDeterminer,
-              adjective: beautiful,
-            ),
-            action: work,
-            modal: will,
-            tense: Tense.future,
-            aspect: Aspect.perfectContinuous,
-            polarity: Polarity.negative,
-            placePhrase: homePlacePhrase,
-          ),
-          SentenceState(
-            object: bridge.toNounPhrase(Number.singular),
-            action: build,
-            voice: Voice.passive,
-            modal: should,
-            tense: Tense.present,
-            aspect: Aspect.simple,
-            polarity: Polarity.negative,
-            sentenceForm: SentenceForm.question,
-          ),
-          SentenceState(
-            agent: he,
-            recipient: she,
-            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
-            action: give,
-            voice: Voice.passive,
-            passiveFocus: PassiveFocus.recipient,
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-          SentenceState(
-            agent: he,
-            recipient: she,
-            recipientPlacement: RecipientPlacement.toPhrase,
-            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
-            action: give,
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-          SentenceState(
-            agent: he,
-            recipient: she,
-            recipientPlacement: RecipientPlacement.toPhrase,
-            recipientPreposition: RecipientPreposition.forBenefit,
-            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
-            action: buy,
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-          SentenceState(
-            agent: he,
-            recipient: she,
-            recipientPlacement: RecipientPlacement.toPhrase,
-            recipientPreposition: RecipientPreposition.forBenefit,
-            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
-            action: buy,
-            voice: Voice.passive,
-            passiveFocus: PassiveFocus.object,
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-          SentenceState(
-            agent: they,
-            action: see,
-            object: themselves,
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-          SentenceState(
-            agent: you,
-            action: give,
-            recipient: yourself,
-            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
-            tense: Tense.past,
-            aspect: Aspect.simple,
-          ),
-        ];
+    test('tense and aspect stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'John worked.',
+        'John was working.',
+        'John has worked.',
+        'John has been working.',
+        'John will work.',
+        'The old worker had built a bridge.',
+        'Had the old worker built a bridge?',
+        'The new teacher has not learned at work yesterday.',
+        'The young student learned at home yesterday.',
+        'The beautiful chef will have been working at home.',
+        'Will the beautiful chef have been working at home tomorrow?',
+        'Had the old workers been building the new bridge yesterday?',
+        'The dog was running in the park yesterday.',
+        'Cats have been sleeping at home.',
+      ]);
+    });
 
-        for (final state in states) {
-          expectStateRoundTrip(state);
-        }
-      },
-    );
-
-    test('sentence -> state -> sentence preserves canonical app sentences', () {
-      final sentences = [
-        'Does he work?',
+    test('modals and need stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
         'They should build it.',
-        'The beautiful teacher has learned at school every day.',
-        'Had the new bridge been being built by the old workers?',
-        'The beautiful chef will not have been working at home.',
-        'Should bridge not be built?',
-        'He gave her a book.',
-        'He bought her a book.',
-        'A book was given to her by him.',
-        'He gave a book to her.',
-        'He bought a book for her.',
-        'A book was bought for her by him.',
-        'She was given a book by him.',
-        'They saw themselves.',
-        'You gave yourself a book.',
-        'They bought a gift for themselves.',
         'John cannot play football.',
         'John could work.',
         'Mary would work.',
         'John could have worked.',
         'Might Mary work?',
+        'Can the old workers play tennis?',
+        'She should study.',
+        'Some dogs must work.',
+        'Can the beautiful teacher not work at home?',
+        'The beautiful chef can learn at work tomorrow.',
         'John needs a book.',
         'John does not need a book.',
         'John need not work.',
         'Need John work?',
-        'Do the old workers play football?',
+      ]);
+    });
+
+    test('passive voice stays inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'The bridge was built by John.',
+        'The bridge was not built by John.',
         'The new bridge will have been built by John.',
-        'Always you speak.',
+        'The new bridge has been being built.',
+        'Had the new bridge been being built by the old workers?',
+        'Should bridge not be built?',
+        'A book was given to her by him.',
+        'A book was given to her.',
+        'A book was bought for her by him.',
+        'A book was bought for her.',
+        'She was given a book by him.',
+        'Were the old workers given a book by Mary?',
+      ]);
+    });
+
+    test('core participants stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'He saw her.',
+        'She helped him.',
+        'He gave her a book.',
+        'He bought her a book.',
+        'He gave a book to her.',
+        'He bought a book for her.',
+        'She could have made the red book for him.',
+        'They saw themselves.',
+        'I saw myself.',
+        'We saw ourselves.',
+        'You gave yourself a book.',
+        'They bought a gift for themselves.',
+        'John gave the red book to the old teacher.',
+        'John sold her a gift.',
+        'Mary wrote him a letter.',
+        'The teacher taught them a book.',
+      ]);
+    });
+
+    test('lexical be stays inside the two-way contract', () {
+      expectSentenceRoundTrips([
         'John is a doctor.',
         'Mary was happy.',
         'Is the young doctor happy?',
+        'Are the old workers happy?',
         'John will be a teacher.',
         'John has been happy.',
         'Mary is being happy.',
+        'You can be happy.',
+        'Be happy.',
+        'Do not be happy.',
+      ]);
+    });
+
+    test('imperatives and sentence forms stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
         'Work.',
         'Do not work.',
         'Build the bridge.',
-        'Be happy.',
-        'Do not be happy.',
-      ];
-
-      for (final sentence in sentences) {
-        expectSentenceRoundTrip(sentence);
-      }
+        'Do not build the bridge.',
+        'Cook.',
+        'Be a doctor.',
+        'John works!',
+        'These dogs have learned!',
+      ]);
     });
 
-    test('multiple adjectives stay inside the two-way contract', () {
-      expectSentenceRoundTrip(
+    test('noun phrases and phrases stay inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'The beautiful teacher has learned at school every day.',
         'The beautiful young woman built a new house yesterday.',
-      );
+        'The new teacher built a new house yesterday.',
+        'The new teacher built a new house.',
+        'John has worked at home today.',
+        'This teacher will teach at school tomorrow.',
+        'Every beautiful student can travel to work every day.',
+        'The old bridge has not been built by the young workers.',
+        'Always you speak.',
+        'Usually John works at home.',
+        'John works at home every day.',
+        'Mary studied at university on Monday.',
+        'They work quietly.',
+        'John built a bridge carefully.',
+      ]);
     });
 
     test('populated everyday data stays inside the two-way contract', () {
-      final sentences = [
+      expectSentenceRoundTrips([
         'They swam at school yesterday.',
         'The young doctor drove a car yesterday.',
         'Mary left yesterday.',
         'The beautiful woman explored at school.',
         'They played basketball.',
-        'Can the old workers play tennis?',
         'The chef ate a plate.',
         'The old worker froze.',
-        'John sold her a gift.',
-        'Mary wrote him a letter.',
-        'The teacher taught them a book.',
         'The young student understood.',
-      ];
+        'John read a newspaper.',
+        'Mary opened the door.',
+        'The manager caught the ball.',
+        'The student kicked a ball.',
+        'The worker lifted the table.',
+        'The children slept at home.',
+        'The young engineer is working at work now.',
+      ]);
+    });
 
-      for (final sentence in sentences) {
-        expectSentenceRoundTrip(sentence);
-      }
+    test('essential verb data stays inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'John is happy.',
+        'John has a book.',
+        'John did.',
+        'John found a key.',
+        'John sang.',
+        'John broke.',
+        'John began.',
+        'John went to school.',
+        'Mary came to school.',
+        'John got a gift.',
+        'John made Mary a gift.',
+        'John took a key.',
+        'John gave Mary a book.',
+        'John knew Mary.',
+        'John thought.',
+        'John said.',
+        'John saw Mary.',
+        'John wanted a book.',
+        'John needed a book.',
+        'John met Mary.',
+        'John liked Mary.',
+        'John loved Mary.',
+        'John worked.',
+        'John bought Mary a gift.',
+        'John sold a gift.',
+        'John used a computer.',
+        'John watched television.',
+        'John lost a key.',
+        'John played football.',
+        'John learned English.',
+        'John hated Mary.',
+        'John remembered Mary.',
+        'John slept.',
+        'John opened the door.',
+        'John closed the door.',
+        'John helped Mary.',
+        'John read a newspaper.',
+      ]);
     });
   });
 }

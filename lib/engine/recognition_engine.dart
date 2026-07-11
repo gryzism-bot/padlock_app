@@ -5,6 +5,8 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as fixed_object;
 import 'package:padlock_app/data/subjects/pronouns.dart' show you;
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -1499,6 +1501,12 @@ class RecognitionEngine {
   }
 
   String _recognizedNounText(String text) {
+    final fixedObject = _lookupFixedObject(text);
+
+    if (fixedObject != null) {
+      return fixedObject.text;
+    }
+
     final noun = _lookupNoun(text);
 
     if (noun != null) {
@@ -1548,6 +1556,18 @@ class RecognitionEngine {
       if (normalized == noun.singular.toLowerCase() ||
           normalized == noun.plural.toLowerCase()) {
         return noun;
+      }
+    }
+
+    return null;
+  }
+
+  NounPhrase? _lookupFixedObject(String text) {
+    final normalized = text.toLowerCase();
+
+    for (final object in _knownFixedObjects) {
+      if (normalized == object.text.toLowerCase()) {
+        return object;
       }
     }
 
@@ -1996,4 +2016,19 @@ const _knownNouns = [
   turtle,
   bee,
   butterfly,
+];
+
+const _knownFixedObjects = [
+  fixed_object.football,
+  fixed_object.basketball,
+  fixed_object.volleyball,
+  fixed_object.tennis,
+  fixed_object.golf,
+  fixed_object.english,
+  fixed_object.polish,
+  fixed_object.spanish,
+  fixed_object.math,
+  fixed_object.history,
+  fixed_object.science,
+  fixed_object.grammar,
 ];

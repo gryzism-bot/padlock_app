@@ -24,6 +24,7 @@ const have = Verb(
   pastSimple: 'had',
   pastParticiple: 'had',
   ingForm: 'having',
+  takesObject: true,
   translations: {Language.pl: 'mieć'},
 );
 
@@ -70,6 +71,7 @@ const read = Verb(
   pastSimple: 'read',
   pastParticiple: 'read',
   ingForm: 'reading',
+  takesObject: true,
   translations: {Language.pl: 'czytać'},
 );
 
@@ -407,6 +409,8 @@ final List<Verb> essentialVerbs = [
   buy,
   sell,
   read,
+  watch,
+  lose,
 ];
 
 final List<Verb> verbs = [
