@@ -201,23 +201,27 @@ class ConfigurationCompass {
         hasFixedObjectFrame(sentence.action) ? null : sentence.object,
         NounPhraseTarget.object,
       ),
-      ConfigurationCompassSlot.recipient => recipients.map((recipient) {
-        final isSelected = _sameNounChoice(recipient, sentence.recipient);
-        final nextRecipient = isSelected
-            ? sentence.recipient
-            : _carryCompatibleNounPhrase(
-                from: sentence.recipient,
-                to: recipient,
-              );
-        return _CompassCandidate(
-          SetRecipient(nextRecipient),
-          nextRecipient == null
-              ? recipient.text
-              : _nounPhraseLabel(nextRecipient),
-          100,
-          isSelected: isSelected,
-        );
-      }),
+      ConfigurationCompassSlot.recipient => [
+        if (sentence.recipient != null)
+          const _CompassCandidate(SetRecipient(null), 'no recipient', 120),
+        ...recipients.map((recipient) {
+          final isSelected = _sameNounChoice(recipient, sentence.recipient);
+          final nextRecipient = isSelected
+              ? sentence.recipient
+              : _carryCompatibleNounPhrase(
+                  from: sentence.recipient,
+                  to: recipient,
+                );
+          return _CompassCandidate(
+            SetRecipient(nextRecipient),
+            nextRecipient == null
+                ? recipient.text
+                : _nounPhraseLabel(nextRecipient),
+            100,
+            isSelected: isSelected,
+          );
+        }),
+      ],
       ConfigurationCompassSlot.recipientDeterminer => _determinerCandidates(
         sentence.recipient,
         NounPhraseTarget.recipient,

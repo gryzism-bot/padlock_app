@@ -588,6 +588,18 @@ void main() {
 
       expect(render(state), 'Book was given to him by you.');
 
+      final recipientSuggestions = ConfigurationCompass().suggestionsFor(
+        state,
+        ConfigurationCompassSlot.recipient,
+        limit: 0,
+      );
+      final noRecipientSuggestion = recipientSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'no recipient',
+      );
+
+      expect(noRecipientSuggestion.preview.sentenceState.recipient, isNull);
+      expect(render(noRecipientSuggestion.preview), 'Book was given by you.');
+
       final agentSuggestions = ConfigurationCompass().suggestionsFor(
         state,
         ConfigurationCompassSlot.passiveAgent,

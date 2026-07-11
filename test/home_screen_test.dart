@@ -554,6 +554,27 @@ void main() {
     expect(renderedSentence(tester), 'Book was given to him.');
   });
 
+  testWidgets('Recipient rail can clear optional passive to phrase', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await expandRail(tester, 'Recipient');
+    await tapAfterScroll(tester, find.byTooltip('You give him book.'));
+    await tapAfterScroll(tester, find.text('past'));
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expect(renderedSentence(tester), 'Book was given to him by you.');
+
+    await tapAfterScroll(tester, find.text('no recipient', findRichText: true));
+
+    expect(renderedSentence(tester), 'Book was given by you.');
+  });
+
   testWidgets('Hover header previews a word chip without committing it', (
     tester,
   ) async {
