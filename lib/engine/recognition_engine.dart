@@ -3,6 +3,7 @@ import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
@@ -1859,29 +1860,33 @@ class _RecognitionBuilder {
 
   final List<String> unknownTokens = [];
 
-  SentenceState get state => SentenceState(
-    action: action!,
-    agent: agent,
-    object: object,
-    recipient: recipient,
-    recipientPlacement: recipientPlacement,
-    recipientPreposition: recipientPreposition,
-    complement: complement,
-    adjectiveComplement: adjectiveComplement,
-    voice: voice,
-    passiveFocus: voice == Voice.passive
-        ? passiveFocus ?? PassiveFocus.object
-        : null,
-    tense: tense,
-    aspect: aspect,
-    modal: modal,
-    polarity: polarity,
-    sentenceForm: sentenceForm,
-    timePhrase: timePhrase,
-    placePhrase: placePhrase,
-    frequencyPhrase: frequencyPhrase,
-    mannerPhrase: mannerPhrase,
-  );
+  SentenceState get state {
+    final fixedObjectAlias = fixedObjectVerbAliasFor(action!);
+
+    return SentenceState(
+      action: fixedObjectAlias?.action ?? action!,
+      agent: agent,
+      object: object ?? fixedObjectAlias?.object,
+      recipient: recipient,
+      recipientPlacement: recipientPlacement,
+      recipientPreposition: recipientPreposition,
+      complement: complement,
+      adjectiveComplement: adjectiveComplement,
+      voice: voice,
+      passiveFocus: voice == Voice.passive
+          ? passiveFocus ?? PassiveFocus.object
+          : null,
+      tense: tense,
+      aspect: aspect,
+      modal: modal,
+      polarity: polarity,
+      sentenceForm: sentenceForm,
+      timePhrase: timePhrase,
+      placePhrase: placePhrase,
+      frequencyPhrase: frequencyPhrase,
+      mannerPhrase: mannerPhrase,
+    );
+  }
 
   String debugSnapshot() {
     return [

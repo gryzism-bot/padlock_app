@@ -1,6 +1,14 @@
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
+import 'package:padlock_app/data/verbs/essential.dart' show play;
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
+
+class FixedObjectVerbAlias {
+  final Verb action;
+  final NounPhrase object;
+
+  const FixedObjectVerbAlias({required this.action, required this.object});
+}
 
 const fixedObjectFrameLabels = {
   'play': 'activity',
@@ -24,6 +32,14 @@ const flattenedFixedObjectVerbInfinitives = {
   'play golf',
 };
 
+const fixedObjectVerbAliases = {
+  'play football': FixedObjectVerbAlias(action: play, object: football),
+  'play basketball': FixedObjectVerbAlias(action: play, object: basketball),
+  'play volleyball': FixedObjectVerbAlias(action: play, object: volleyball),
+  'play tennis': FixedObjectVerbAlias(action: play, object: tennis),
+  'play golf': FixedObjectVerbAlias(action: play, object: golf),
+};
+
 bool hasFixedObjectFrame(Verb action) {
   return fixedObjectChoicesByVerb.containsKey(action.infinitive);
 }
@@ -44,4 +60,8 @@ bool fixedObjectFitsAction(NounPhrase object, Verb action) {
 
 bool isFlattenedFixedObjectVerb(Verb action) {
   return flattenedFixedObjectVerbInfinitives.contains(action.infinitive);
+}
+
+FixedObjectVerbAlias? fixedObjectVerbAliasFor(Verb action) {
+  return fixedObjectVerbAliases[action.infinitive];
 }

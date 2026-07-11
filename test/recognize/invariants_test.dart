@@ -8,7 +8,7 @@ import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
-import 'package:padlock_app/data/verbs/sport.dart' as sport;
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/work.dart' hide clean;
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -283,7 +283,8 @@ void main() {
         adjective: old,
       );
       expect(state.agent!.text, isNot('workers play'));
-      expect(state.action, sport.playFootball);
+      expect(state.action, play);
+      expect(state.object, football);
       expect(state.sentenceForm, SentenceForm.question);
     });
 
@@ -355,7 +356,8 @@ void main() {
         final state = engine.recognize('Can Mary not play football?');
 
         expectAgent(state, text: 'Mary');
-        expect(state.action, sport.playFootball);
+        expect(state.action, play);
+        expect(state.object, football);
         expect(state.polarity, Polarity.negative);
         expect(state.sentenceForm, SentenceForm.question);
       },

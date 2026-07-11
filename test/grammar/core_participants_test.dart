@@ -3,6 +3,7 @@ import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -206,6 +207,30 @@ void main() {
         );
 
         expect(sentence, entry.value.sentence);
+      }
+    });
+
+    test('fixed activity objects render as regular object participants', () {
+      final cases = {
+        football: 'John played football.',
+        basketball: 'John played basketball.',
+        volleyball: 'John played volleyball.',
+        tennis: 'John played tennis.',
+        golf: 'John played golf.',
+      };
+
+      for (final entry in cases.entries) {
+        final sentence = render(
+          SentenceState(
+            agent: john.toNounPhrase(Number.singular),
+            action: play,
+            object: entry.key,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, entry.value);
       }
     });
 

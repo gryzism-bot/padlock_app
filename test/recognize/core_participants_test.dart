@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
@@ -153,6 +154,45 @@ void main() {
         expect(state.action, see);
       }
     });
+
+    test('flattened fixed activity verbs canonicalize to play plus object', () {
+      final cases = {
+        'John played football.': football,
+        'John played basketball.': basketball,
+        'John played volleyball.': volleyball,
+        'John played tennis.': tennis,
+        'John played golf.': golf,
+      };
+
+      for (final entry in cases.entries) {
+        final state = engine.recognize(entry.key);
+
+        expectAgent(state, text: 'john');
+        expect(state.action, play);
+        expect(state.object, entry.value);
+        expect(state.tense, Tense.past);
+        expect(state.aspect, Aspect.simple);
+      }
+    });
+
+    test(
+      'fixed activity aliases canonicalize through questions and modals',
+      () {
+        final cases = {
+          'Does John play volleyball?': volleyball,
+          'John cannot play football.': football,
+          'They should play basketball.': basketball,
+          'Did Mary play tennis?': tennis,
+        };
+
+        for (final entry in cases.entries) {
+          final state = engine.recognize(entry.key);
+
+          expect(state.action, play, reason: entry.key);
+          expect(state.object, entry.value, reason: entry.key);
+        }
+      },
+    );
 
     test('active recipients recognize reflexive participants', () {
       final state = engine.recognize('You gave yourself a book.');
