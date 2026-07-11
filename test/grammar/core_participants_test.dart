@@ -55,6 +55,23 @@ void main() {
       expect(sentence, 'John gave a book to Mary.');
     });
 
+    test('active to-recipient uses to as the default preposition', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: give,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          recipient: mary.toNounPhrase(Number.singular),
+          recipientPlacement: RecipientPlacement.toPhrase,
+          recipientPreposition: RecipientPreposition.to,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John gave a book to Mary.');
+    });
+
     test('active to-recipient keeps both participant noun phrases intact', () {
       final sentence = render(
         SentenceState(
@@ -182,6 +199,48 @@ void main() {
 
       expect(sentence, 'A book was given to Mary by John.');
     });
+
+    test('passive object focus keeps for-benefit recipient preposition', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: buy,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          recipient: mary.toNounPhrase(Number.singular),
+          recipientPlacement: RecipientPlacement.toPhrase,
+          recipientPreposition: RecipientPreposition.forBenefit,
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'A book was bought for Mary by John.');
+    });
+
+    test(
+      'passive object focus can hide agent while keeping recipient phrase',
+      () {
+        final sentence = render(
+          SentenceState(
+            agent: john.toNounPhrase(Number.singular),
+            action: buy,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            recipient: mary.toNounPhrase(Number.singular),
+            recipientPlacement: RecipientPlacement.toPhrase,
+            recipientPreposition: RecipientPreposition.forBenefit,
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.object,
+            showPassiveAgent: false,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, 'A book was bought for Mary.');
+      },
+    );
 
     test('passive recipient focus keeps object after the verb chain', () {
       final sentence = render(

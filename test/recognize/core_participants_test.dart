@@ -35,6 +35,7 @@ void main() {
       expect(state.action, give);
       expect(state.voice, Voice.active);
       expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+      expect(state.recipientPreposition, RecipientPreposition.to);
     });
 
     test('active to-recipient keeps modifiers on the correct noun phrase', () {
@@ -75,6 +76,7 @@ void main() {
         expectObject(state, text: 'book', determiner: aDeterminer);
         expectRecipient(state, text: entry.recipient);
         expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+        expect(state.recipientPreposition, RecipientPreposition.to);
       }
     });
 
@@ -98,6 +100,7 @@ void main() {
       expectRecipient(state, text: 'mary');
       expect(state.timePhrase!.text, 'yesterday');
       expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+      expect(state.recipientPreposition, RecipientPreposition.to);
     });
 
     test('active for-recipient frame keeps object before recipient', () {
@@ -139,6 +142,31 @@ void main() {
       expectAgent(state, text: 'john');
       expect(state.voice, Voice.passive);
       expect(state.passiveFocus, PassiveFocus.object);
+      expect(state.recipientPreposition, RecipientPreposition.to);
+    });
+
+    test('passive object focus recognizes for-benefit recipient phrase', () {
+      final state = engine.recognize('A book was bought for Mary by John.');
+
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectRecipient(state, text: 'mary');
+      expectAgent(state, text: 'john');
+      expect(state.action, buy);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+      expect(state.recipientPreposition, RecipientPreposition.forBenefit);
+    });
+
+    test('passive for-recipient does not swallow trailing time phrases', () {
+      final state = engine.recognize('A book was bought for Mary yesterday.');
+
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectRecipient(state, text: 'mary');
+      expect(state.agent, isNull);
+      expect(state.timePhrase!.text, 'yesterday');
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+      expect(state.recipientPreposition, RecipientPreposition.forBenefit);
     });
 
     test('passive recipient focus keeps object after the verb chain', () {

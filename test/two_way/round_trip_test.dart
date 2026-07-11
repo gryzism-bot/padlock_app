@@ -163,6 +163,18 @@ void main() {
             tense: Tense.past,
             aspect: Aspect.simple,
           ),
+          SentenceState(
+            agent: he,
+            recipient: she,
+            recipientPlacement: RecipientPlacement.toPhrase,
+            recipientPreposition: RecipientPreposition.forBenefit,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: buy,
+            voice: Voice.passive,
+            passiveFocus: PassiveFocus.object,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
         ];
 
         for (final state in states) {
@@ -184,6 +196,7 @@ void main() {
         'A book was given to her by him.',
         'He gave a book to her.',
         'He bought a book for her.',
+        'A book was bought for her by him.',
         'She was given a book by him.',
         'John cannot play football.',
         'John could work.',

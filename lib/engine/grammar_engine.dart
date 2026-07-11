@@ -804,7 +804,9 @@ class GrammarEngine {
 
     if (builder.displayRecipient != null && !activeToRecipient) {
       if (builder.state.voice == Voice.passive) {
-        parts.add('to ${_renderObjectCase(builder.displayRecipient!)}');
+        parts.add(
+          '${builder.state.recipientPreposition.text} ${_renderObjectCase(builder.displayRecipient!)}',
+        );
       } else {
         parts.add(_renderObjectCase(builder.displayRecipient!));
       }

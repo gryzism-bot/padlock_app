@@ -77,6 +77,112 @@ check poster grammar engine as water treatment system png
 
 ## Grammar Engine renders a frame. Recognition Engine reconstructs a frame from sentence. Configuration Engine governs the movie.
 
+## Engine question map
+
+Each engine owns a different question. When a new law appears, put it in the
+lowest engine that can answer it without stealing another engine's job.
+
+### Grammar Engine
+
+Question:
+
+Given a complete `SentenceState`, what English sentence does it render?
+
+Grammar Engine owns form laws:
+
+- active double-object frame: `John gave Mary a book.`
+- active prepositional recipient: `John gave a book to Mary.`
+- active beneficiary recipient: `John bought a book for Mary.`
+- passive object focus: `A book was given to Mary by John.`
+- passive beneficiary phrase: `A book was bought for Mary by John.`
+- passive recipient focus: `Mary was given a book by John.`
+- object-case pronouns in participant phrases: `to him`, `for her`, `by me`
+- hidden passive agent: `A book was given to Mary.`
+- questions, negatives, modals, tense, aspect, and voice around those forms
+
+If changing a rule changes the sentence text, it probably belongs here.
+
+### Recognition Engine
+
+Question:
+
+Given an English sentence from the app's language space, what `SentenceState`
+does it reconstruct?
+
+Recognition Engine owns the mirror of Grammar Engine's form laws:
+
+- `John gave Mary a book.` reconstructs recipient before object
+- `John gave a book to Mary.` reconstructs object before `to` recipient
+- `John bought a book for Mary.` reconstructs object before `for` recipient
+- `A book was given to Mary by John.` reconstructs passive object focus
+- `Mary was given a book by John.` reconstructs passive recipient focus
+- phrase boundaries do not swallow time/place/frequency/manner phrases
+
+If changing a rule changes how sentence text is parsed, it probably belongs
+here.
+
+### Configuration Engine / Lock
+
+Question:
+
+Is this `SentenceState` allowed as a guided state?
+
+Configuration Engine owns validity laws:
+
+- active voice requires an agent
+- passive object focus requires an object
+- recipient frames require an object
+- recipient-capable verbs must also be object-capable
+- lexical `be` excludes object, recipient, and passive voice
+- modal/tense/frame combinations are allowed or blocked
+- noun phrase determiners must fit number and article sound
+
+If changing a rule changes whether a state is permitted, it probably belongs
+here.
+
+### Configuration Compass
+
+Question:
+
+From this valid state, what should the user see next?
+
+Compass owns navigation and suggestion laws:
+
+- which verb chips appear first
+- which rails are awake, hidden, collapsed, or selected
+- which option is ranked first for a verb
+- which selected option stays visible
+- which nearby move previews best from the current state
+
+If changing a rule changes what option appears first, appears at all, or gets
+suggested, it probably belongs here.
+
+### Semantic C-section
+
+Question:
+
+Does this valid form make sense as an English meaning?
+
+The semantic layer is future C-section work:
+
+- `I eat street` should be blocked, greyed, or explained
+- `I drink school` should be blocked, greyed, or explained
+- `I run to you` should be allowed
+- `play` should prefer sports, games, music, and instruments
+- same-participant cases should become reflexive or suspicious:
+  `You gave yourself a book`, not `You gave you a book`
+
+If changing a rule judges meaning or world-fit without changing grammar form,
+it probably belongs here.
+
+Short rule:
+
+- text changes -> Grammar Engine
+- parsing changes -> Recognition Engine
+- state validity changes -> Configuration Engine
+- option visibility/ranking changes -> Configuration Compass
+- meaning/world-fit changes -> semantic C-section
+
 ## UI shaves what Configuration Engine knows
 
 Grammar Engine renders sentence from SentenceState object that has agent, object, tense, verb, polarity, aspect, phrases etc filled with data objects based on model classes

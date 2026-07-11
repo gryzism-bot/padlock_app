@@ -1157,7 +1157,7 @@ class RecognitionEngine {
 
   void _recognizeActiveRecipientAndObject(_RecognitionBuilder builder) {
     final participantStart = builder.verbChainEnd + 1;
-    final prepositionMatch = _activeRecipientPreposition(
+    final prepositionMatch = _recipientPrepositionMatch(
       builder,
       participantStart,
     );
@@ -1192,7 +1192,7 @@ class RecognitionEngine {
     builder.recipientPreposition = RecipientPreposition.to;
   }
 
-  _RecipientPrepositionMatch? _activeRecipientPreposition(
+  _RecipientPrepositionMatch? _recipientPrepositionMatch(
     _RecognitionBuilder builder,
     int start,
   ) {
@@ -1292,18 +1292,20 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     int byIndex,
   ) {
-    final toIndex = builder.tokens.indexWhere(
-      (token) => token.toLowerCase() == 'to',
+    final prepositionMatch = _recipientPrepositionMatch(
+      builder,
       builder.verbChainEnd + 1,
     );
+    final prepositionIndex = prepositionMatch?.index ?? -1;
 
-    if (toIndex >= 0 && (byIndex < 0 || toIndex < byIndex)) {
+    if (prepositionIndex >= 0 && (byIndex < 0 || prepositionIndex < byIndex)) {
       builder.passiveFocus = PassiveFocus.object;
       _recognizePassiveObjectSubject(builder);
-      builder.recipientStart = toIndex + 1;
+      builder.recipientStart = prepositionIndex + 1;
       builder.recipientEnd = byIndex >= 0
           ? byIndex - 1
           : builder.tokens.length - 1;
+      builder.recipientPreposition = prepositionMatch!.preposition;
     } else {
       builder.passiveFocus = PassiveFocus.recipient;
       _recognizePassiveRecipientSubject(builder);
