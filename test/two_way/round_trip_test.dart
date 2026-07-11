@@ -6,6 +6,7 @@ import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -175,6 +176,21 @@ void main() {
             tense: Tense.past,
             aspect: Aspect.simple,
           ),
+          SentenceState(
+            agent: they,
+            action: see,
+            object: themselves,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+          SentenceState(
+            agent: you,
+            action: give,
+            recipient: yourself,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
         ];
 
         for (final state in states) {
@@ -198,6 +214,9 @@ void main() {
         'He bought a book for her.',
         'A book was bought for her by him.',
         'She was given a book by him.',
+        'They saw themselves.',
+        'You gave yourself a book.',
+        'They bought a gift for themselves.',
         'John cannot play football.',
         'John could work.',
         'Mary would work.',

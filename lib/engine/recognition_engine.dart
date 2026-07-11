@@ -1515,8 +1515,8 @@ class RecognitionEngine {
 
   Person _recognizedPerson(String text) {
     return switch (text) {
-      'i' || 'me' || 'we' || 'us' => Person.first,
-      'you' => Person.second,
+      'i' || 'me' || 'myself' || 'we' || 'us' || 'ourselves' => Person.first,
+      'you' || 'yourself' || 'yourselves' => Person.second,
       _ => Person.third,
     };
   }
@@ -1529,7 +1529,13 @@ class RecognitionEngine {
     }
 
     return switch (text) {
-      'we' || 'us' || 'they' || 'them' => Number.plural,
+      'we' ||
+      'us' ||
+      'ourselves' ||
+      'they' ||
+      'them' ||
+      'themselves' => Number.plural,
+      'yourselves' => Number.plural,
       _ when _looksPluralNounText(text) => Number.plural,
       _ => Number.singular,
     };

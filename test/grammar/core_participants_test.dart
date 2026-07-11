@@ -3,6 +3,7 @@ import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -180,6 +181,64 @@ void main() {
       );
 
       expect(sentence, 'She could have made the red book for him.');
+    });
+
+    test('active objects can be reflexive participants', () {
+      final cases = {
+        i: (object: myself, sentence: 'I saw myself.'),
+        you: (object: yourself, sentence: 'You saw yourself.'),
+        he: (object: himself, sentence: 'He saw himself.'),
+        she: (object: herself, sentence: 'She saw herself.'),
+        it: (object: itself, sentence: 'It saw itself.'),
+        we: (object: ourselves, sentence: 'We saw ourselves.'),
+        they: (object: themselves, sentence: 'They saw themselves.'),
+      };
+
+      for (final entry in cases.entries) {
+        final sentence = render(
+          SentenceState(
+            agent: entry.key,
+            action: see,
+            object: entry.value.object,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, entry.value.sentence);
+      }
+    });
+
+    test('active recipients can be reflexive participants', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: give,
+          recipient: yourself,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You gave yourself a book.');
+    });
+
+    test('active to-recipient can use reflexive pronouns', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: buy,
+          object: gift.toNounPhrase(Number.singular, determiner: aDeterminer),
+          recipient: themselves,
+          recipientPlacement: RecipientPlacement.toPhrase,
+          recipientPreposition: RecipientPreposition.forBenefit,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'They bought a gift for themselves.');
     });
 
     test('passive object focus always renders recipient as a to phrase', () {

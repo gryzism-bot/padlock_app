@@ -134,6 +134,47 @@ void main() {
       expect(state.recipientPreposition, RecipientPreposition.forBenefit);
     });
 
+    test('active objects recognize reflexive participants', () {
+      final cases = [
+        (sentence: 'I saw myself.', agent: 'i', object: 'myself'),
+        (sentence: 'You saw yourself.', agent: 'you', object: 'yourself'),
+        (sentence: 'He saw himself.', agent: 'he', object: 'himself'),
+        (sentence: 'She saw herself.', agent: 'she', object: 'herself'),
+        (sentence: 'It saw itself.', agent: 'it', object: 'itself'),
+        (sentence: 'We saw ourselves.', agent: 'we', object: 'ourselves'),
+        (sentence: 'They saw themselves.', agent: 'they', object: 'themselves'),
+      ];
+
+      for (final entry in cases) {
+        final state = engine.recognize(entry.sentence);
+
+        expectAgent(state, text: entry.agent);
+        expectObject(state, text: entry.object);
+        expect(state.action, see);
+      }
+    });
+
+    test('active recipients recognize reflexive participants', () {
+      final state = engine.recognize('You gave yourself a book.');
+
+      expectAgent(state, text: 'you');
+      expectRecipient(state, text: 'yourself');
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expect(state.action, give);
+      expect(state.recipientPlacement, RecipientPlacement.beforeObject);
+    });
+
+    test('active to-recipient recognizes reflexive participants', () {
+      final state = engine.recognize('They bought a gift for themselves.');
+
+      expectAgent(state, text: 'they');
+      expectObject(state, text: 'gift', determiner: aDeterminer);
+      expectRecipient(state, text: 'themselves');
+      expect(state.action, buy);
+      expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+      expect(state.recipientPreposition, RecipientPreposition.forBenefit);
+    });
+
     test('passive object focus keeps recipient as a to phrase', () {
       final state = engine.recognize('A book was given to Mary by John.');
 
