@@ -817,7 +817,9 @@ class GrammarEngine {
     }
 
     if (builder.displayRecipient != null && activeToRecipient) {
-      parts.add('to ${_renderObjectCase(builder.displayRecipient!)}');
+      parts.add(
+        '${builder.state.recipientPreposition.text} ${_renderObjectCase(builder.displayRecipient!)}',
+      );
     }
 
     // ---------- COMPLEMENT ----------

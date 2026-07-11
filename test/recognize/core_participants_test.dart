@@ -5,6 +5,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
+import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -97,6 +98,37 @@ void main() {
       expectRecipient(state, text: 'mary');
       expect(state.timePhrase!.text, 'yesterday');
       expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+    });
+
+    test('active for-recipient frame keeps object before recipient', () {
+      final state = engine.recognize('John bought a book for Mary.');
+
+      expectAgent(state, text: 'john');
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectRecipient(state, text: 'mary');
+      expect(state.action, buy);
+      expect(state.voice, Voice.active);
+      expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+      expect(state.recipientPreposition, RecipientPreposition.forBenefit);
+    });
+
+    test('active for-recipient survives verb chains and pronoun case', () {
+      final state = engine.recognize(
+        'She could have made the red book for him.',
+      );
+
+      expectAgent(state, text: 'she');
+      expectObject(
+        state,
+        text: 'book',
+        determiner: theDeterminer,
+        adjective: red,
+      );
+      expectRecipient(state, text: 'him');
+      expect(state.action, make);
+      expect(state.aspect, Aspect.perfect);
+      expect(state.recipientPlacement, RecipientPlacement.toPhrase);
+      expect(state.recipientPreposition, RecipientPreposition.forBenefit);
     });
 
     test('passive object focus keeps recipient as a to phrase', () {

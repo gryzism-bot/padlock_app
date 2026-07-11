@@ -16,6 +16,7 @@ import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
+import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -152,6 +153,16 @@ void main() {
             tense: Tense.past,
             aspect: Aspect.simple,
           ),
+          SentenceState(
+            agent: he,
+            recipient: she,
+            recipientPlacement: RecipientPlacement.toPhrase,
+            recipientPreposition: RecipientPreposition.forBenefit,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            action: buy,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
         ];
 
         for (final state in states) {
@@ -172,6 +183,7 @@ void main() {
         'He bought her a book.',
         'A book was given to her by him.',
         'He gave a book to her.',
+        'He bought a book for her.',
         'She was given a book by him.',
         'John cannot play football.',
         'John could work.',

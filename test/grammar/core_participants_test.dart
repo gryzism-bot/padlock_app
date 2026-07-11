@@ -10,6 +10,7 @@ import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
+import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -123,6 +124,45 @@ void main() {
       );
 
       expect(sentence, 'Should John have given a book to Mary?');
+    });
+
+    test('active recipient phrase can use for after the object', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: buy,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          recipient: mary.toNounPhrase(Number.singular),
+          recipientPlacement: RecipientPlacement.toPhrase,
+          recipientPreposition: RecipientPreposition.forBenefit,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John bought a book for Mary.');
+    });
+
+    test('active for-recipient keeps modifiers and pronoun case', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: make,
+          object: book.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+            adjective: red,
+          ),
+          recipient: he,
+          recipientPlacement: RecipientPlacement.toPhrase,
+          recipientPreposition: RecipientPreposition.forBenefit,
+          modal: could,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'She could have made the red book for him.');
     });
 
     test('passive object focus always renders recipient as a to phrase', () {

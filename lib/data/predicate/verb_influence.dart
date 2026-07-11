@@ -21,7 +21,7 @@ const _popularDoorwayBonusByVerb = {
   'be': 24,
   'give': 23,
   'get': 22,
-  'go': 21,
+  'go': 24,
   'play': 20,
   'learn': 19,
   'work': 16,

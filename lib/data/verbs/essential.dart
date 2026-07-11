@@ -119,6 +119,7 @@ const make = Verb(
   pastParticiple: 'made',
   ingForm: 'making',
   takesObject: true,
+  takesRecipient: true,
   translations: {Language.pl: 'robić'},
 );
 

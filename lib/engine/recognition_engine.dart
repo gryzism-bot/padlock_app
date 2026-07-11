@@ -20,6 +20,7 @@ import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/preposition.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
+import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
@@ -1156,17 +1157,20 @@ class RecognitionEngine {
 
   void _recognizeActiveRecipientAndObject(_RecognitionBuilder builder) {
     final participantStart = builder.verbChainEnd + 1;
-    final toIndex = builder.tokens.indexWhere(
-      (token) => token.toLowerCase() == 'to',
+    final prepositionMatch = _activeRecipientPreposition(
+      builder,
       participantStart,
     );
+    final prepositionIndex = prepositionMatch?.index ?? -1;
 
-    if (toIndex > participantStart && toIndex < builder.tokens.length - 1) {
+    if (prepositionIndex > participantStart &&
+        prepositionIndex < builder.tokens.length - 1) {
       builder.objectStart = participantStart;
-      builder.objectEnd = toIndex - 1;
-      builder.recipientStart = toIndex + 1;
+      builder.objectEnd = prepositionIndex - 1;
+      builder.recipientStart = prepositionIndex + 1;
       builder.recipientEnd = builder.tokens.length - 1;
       builder.recipientPlacement = RecipientPlacement.toPhrase;
+      builder.recipientPreposition = prepositionMatch!.preposition;
       return;
     }
 
@@ -1185,6 +1189,27 @@ class RecognitionEngine {
     builder.objectStart = objectStart;
     builder.objectEnd = builder.tokens.length - 1;
     builder.recipientPlacement = RecipientPlacement.beforeObject;
+    builder.recipientPreposition = RecipientPreposition.to;
+  }
+
+  _RecipientPrepositionMatch? _activeRecipientPreposition(
+    _RecognitionBuilder builder,
+    int start,
+  ) {
+    for (var index = start; index < builder.tokens.length; index++) {
+      final token = builder.tokens[index].toLowerCase();
+      if (token == 'to') {
+        return _RecipientPrepositionMatch(index, RecipientPreposition.to);
+      }
+      if (token == 'for') {
+        return _RecipientPrepositionMatch(
+          index,
+          RecipientPreposition.forBenefit,
+        );
+      }
+    }
+
+    return null;
   }
 
   int _nounPhraseEnd(_RecognitionBuilder builder, int start) {
@@ -1782,6 +1807,7 @@ class _RecognitionBuilder {
   NounPhrase? object;
   NounPhrase? recipient;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
+  RecipientPreposition recipientPreposition = RecipientPreposition.to;
   NounPhrase? complement;
   Adjective? adjectiveComplement;
 
@@ -1811,6 +1837,7 @@ class _RecognitionBuilder {
     object: object,
     recipient: recipient,
     recipientPlacement: recipientPlacement,
+    recipientPreposition: recipientPreposition,
     complement: complement,
     adjectiveComplement: adjectiveComplement,
     voice: voice,
@@ -1839,6 +1866,7 @@ class _RecognitionBuilder {
       'agent: $agentStart -> $agentEnd (${_tokensBetween(agentStart, agentEnd)}) = ${agent?.text}',
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
       'recipientPlacement: $recipientPlacement',
+      'recipientPreposition: $recipientPreposition',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',
       'complement: $complementStart -> $complementEnd (${_tokensBetween(complementStart, complementEnd)}) = ${complement?.text ?? adjectiveComplement?.text}',
       'action: ${action?.infinitive}',
@@ -1869,6 +1897,13 @@ class _VerbMatch {
   final int length;
 
   const _VerbMatch(this.verb, this.end, this.length);
+}
+
+class _RecipientPrepositionMatch {
+  final int index;
+  final RecipientPreposition preposition;
+
+  const _RecipientPrepositionMatch(this.index, this.preposition);
 }
 
 const _knownNouns = [
