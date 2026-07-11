@@ -339,10 +339,6 @@ class _GuidedMessages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (messages.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     return _GuidedMessagePanel(messages: messages);
   }
 }
@@ -385,7 +381,7 @@ class _GuidedMessagePanel extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Testing tool prompt',
+                  'Language alert',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: foreground,
                     fontWeight: FontWeight.w800,
@@ -401,14 +397,22 @@ class _GuidedMessagePanel extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 5),
-            Wrap(
-              spacing: 8,
-              runSpacing: 5,
-              children: [
-                for (final message in messages)
-                  _GuidedMessageChip(message: message),
-              ],
-            ),
+            if (messages.isEmpty)
+              Text(
+                'No language alerts.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 5,
+                children: [
+                  for (final message in messages)
+                    _GuidedMessageChip(message: message),
+                ],
+              ),
           ],
         ),
       ),
@@ -499,6 +503,141 @@ class _GuidedMessageChip extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MoveTracePanel extends StatelessWidget {
+  final List<_MoveTraceEntry> entries;
+
+  const _MoveTracePanel({required this.entries});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.secondaryContainer.withValues(alpha: 0.18),
+        border: Border.all(color: colors.secondary.withValues(alpha: 0.54)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.route_outlined, size: 16, color: colors.secondary),
+                const SizedBox(width: 6),
+                Text(
+                  'Move trace',
+                  key: const Key('move-trace-title'),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colors.secondary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${entries.length} ${entries.length == 1 ? 'move' : 'moves'}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            if (entries.isEmpty)
+              Text(
+                'No moves since reset.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 5,
+                children: [
+                  for (final entry in entries.indexed)
+                    _MoveTraceChip(index: entry.$1 + 1, entry: entry.$2),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MoveTraceChip extends StatelessWidget {
+  final int index;
+  final _MoveTraceEntry entry;
+
+  const _MoveTraceChip({required this.index, required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final foreground = switch (entry.status) {
+      _MoveTraceStatus.accepted => colors.secondary,
+      _MoveTraceStatus.blocked => colors.error,
+      _MoveTraceStatus.random => colors.tertiary,
+    };
+    final icon = switch (entry.status) {
+      _MoveTraceStatus.accepted => Icons.check_circle_outline,
+      _MoveTraceStatus.blocked => Icons.lock_outline,
+      _MoveTraceStatus.random => Icons.shuffle,
+    };
+    final statusText = switch (entry.status) {
+      _MoveTraceStatus.accepted => 'accepted',
+      _MoveTraceStatus.blocked => 'blocked',
+      _MoveTraceStatus.random => 'random',
+    };
+
+    return Tooltip(
+      message: '$statusText: ${entry.label}\n${entry.sentence}',
+      waitDuration: const Duration(milliseconds: 350),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 460),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surface.withValues(alpha: 0.68),
+            border: Border.all(color: foreground.withValues(alpha: 0.62)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: foreground),
+                const SizedBox(width: 5),
+                Text(
+                  '$index.',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    '${entry.label} | ${entry.sentence}',
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colors.onSurface),
+                  ),
                 ),
               ],
             ),

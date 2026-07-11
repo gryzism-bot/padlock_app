@@ -114,6 +114,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You give.');
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.textContaining('verb -> give'), findsOneWidget);
   });
 
   testWidgets('Top controls expose guided form choices only', (tester) async {
@@ -137,7 +139,7 @@ void main() {
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'You work.');
-    expect(find.text('Testing tool prompt'), findsOneWidget);
+    expect(find.text('Language alert'), findsOneWidget);
     expect(find.text('2 signals'), findsOneWidget);
     expect(find.text('verb predicate frame type violation'), findsOneWidget);
     expect(find.text('passive configuration shape violation'), findsOneWidget);
@@ -154,6 +156,31 @@ void main() {
       ),
       findsOneWidget,
     );
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.textContaining('voice -> passive'), findsOneWidget);
+    expect(find.textContaining('kept You work.'), findsOneWidget);
+  });
+
+  testWidgets('Move trace records moves and reset clears the route', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Move trace'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.text('2 moves'), findsOneWidget);
+    expect(find.textContaining('verb -> give'), findsOneWidget);
+    expect(find.textContaining('object -> book'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Reset'));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You learn.');
+    expect(find.text('Move trace'), findsNothing);
   });
 
   testWidgets('Guided UI can exit lexical be through verb suggestions', (
@@ -399,8 +426,7 @@ void main() {
     expect(find.text('book', findRichText: true), findsOneWidget);
     expect(find.text('books', findRichText: true), findsNothing);
 
-    await tester.tap(find.text('book', findRichText: true));
-    await tester.pumpAndSettle();
+    await tapAfterScroll(tester, find.byTooltip('You buy book.'));
 
     expect(renderedSentence(tester), 'You buy book.');
 
@@ -520,6 +546,8 @@ void main() {
 
     expect(renderedSentence(tester), isNotEmpty);
     expect(renderedSentence(tester).endsWith('.'), isTrue);
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.textContaining('random sentence'), findsOneWidget);
   });
 }
 

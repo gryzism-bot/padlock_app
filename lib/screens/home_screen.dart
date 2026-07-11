@@ -26,7 +26,8 @@ enum HeaderPreviewMode { clicked, hover }
 
 const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
-const _testingPromptReserveHeight = 132.0;
+const _diagnosticsDockReserveHeight = 132.0;
+const _moveTraceLimit = 8;
 const _suggestionLimit = 24;
 const _chipRailMaxHeight = 164.0;
 
@@ -49,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     null,
   );
   Number objectNumber = Number.singular;
+  List<_MoveTraceEntry> moveTrace = const [];
 
   @override
   void initState() {
@@ -58,11 +60,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _move(ConfigurationMove move) {
     setState(() {
-      configuration = lock.applyMove(configuration, move);
+      final previousConfiguration = configuration;
+      final nextConfiguration = lock.applyMove(configuration, move);
+      configuration = nextConfiguration;
       if (move case SetObject(:final object?)) {
         objectNumber = object.number;
       }
       hoveredConfiguration.value = null;
+      moveTrace = _appendMoveTrace(
+        moveTrace,
+        _MoveTraceEntry.fromMove(
+          move: move,
+          sentence: grammar.generate(nextConfiguration.sentenceState).text,
+          wasBlocked: nextConfiguration.messages.any(
+            (message) => message.kind == ConfigurationMessageKind.blocked,
+          ),
+          keptSentence:
+              previousConfiguration.sentenceState.summary ==
+              nextConfiguration.sentenceState.summary,
+        ),
+      );
     });
   }
 
@@ -71,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = ConfigurationState.initial();
       objectNumber = Number.singular;
       hoveredConfiguration.value = null;
+      moveTrace = const [];
     });
   }
 
@@ -97,6 +115,9 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = state;
       objectNumber = state.sentenceState.object?.number ?? Number.singular;
       hoveredConfiguration.value = null;
+      moveTrace = [
+        _MoveTraceEntry.random(grammar.generate(state.sentenceState).text),
+      ];
     });
   }
 
@@ -150,6 +171,14 @@ class _HomeScreenState extends State<HomeScreen> {
         configuration,
         SetObject(_carrySafeNounModifiers(object, variant)),
       );
+      moveTrace = _appendMoveTrace(
+        moveTrace,
+        _MoveTraceEntry(
+          label: 'object number -> ${number.name}',
+          sentence: grammar.generate(configuration.sentenceState).text,
+          status: _MoveTraceStatus.accepted,
+        ),
+      );
     });
   }
 
@@ -197,7 +226,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 36),
         ],
       ),
-      bottomNavigationBar: _BottomDock(messages: configuration.messages),
+      bottomNavigationBar: _BottomDock(
+        messages: configuration.messages,
+        moveTrace: moveTrace,
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -366,8 +398,9 @@ class _AppBarTools extends StatelessWidget {
 
 class _BottomDock extends StatelessWidget {
   final List<ConfigurationMessage> messages;
+  final List<_MoveTraceEntry> moveTrace;
 
-  const _BottomDock({required this.messages});
+  const _BottomDock({required this.messages, required this.moveTrace});
 
   @override
   Widget build(BuildContext context) {
@@ -376,18 +409,33 @@ class _BottomDock extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (messages.isNotEmpty)
+        if (messages.isNotEmpty || moveTrace.isNotEmpty)
           Material(
             color: colors.surface.withValues(alpha: 0.96),
             elevation: 2,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                maxHeight: _testingPromptReserveHeight,
+                maxHeight: _diagnosticsDockReserveHeight,
               ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                child: SingleChildScrollView(
-                  child: _GuidedMessages(messages: messages),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: SingleChildScrollView(
+                        child: _GuidedMessages(messages: messages),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      flex: 5,
+                      child: SingleChildScrollView(
+                        child: _MoveTracePanel(entries: moveTrace),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -396,6 +444,119 @@ class _BottomDock extends StatelessWidget {
       ],
     );
   }
+}
+
+enum _MoveTraceStatus { accepted, blocked, random }
+
+class _MoveTraceEntry {
+  final String label;
+  final String sentence;
+  final _MoveTraceStatus status;
+
+  const _MoveTraceEntry({
+    required this.label,
+    required this.sentence,
+    required this.status,
+  });
+
+  factory _MoveTraceEntry.random(String sentence) {
+    return _MoveTraceEntry(
+      label: 'random sentence',
+      sentence: sentence,
+      status: _MoveTraceStatus.random,
+    );
+  }
+
+  factory _MoveTraceEntry.fromMove({
+    required ConfigurationMove move,
+    required String sentence,
+    required bool wasBlocked,
+    required bool keptSentence,
+  }) {
+    return _MoveTraceEntry(
+      label: _moveTraceLabel(move),
+      sentence: keptSentence && wasBlocked ? 'kept $sentence' : sentence,
+      status: wasBlocked ? _MoveTraceStatus.blocked : _MoveTraceStatus.accepted,
+    );
+  }
+}
+
+List<_MoveTraceEntry> _appendMoveTrace(
+  List<_MoveTraceEntry> entries,
+  _MoveTraceEntry entry,
+) {
+  return [...entries, entry].takeLast(_moveTraceLimit).toList();
+}
+
+extension _TakeLastExtension<T> on List<T> {
+  Iterable<T> takeLast(int count) sync* {
+    final start = length > count ? length - count : 0;
+    for (var index = start; index < length; index++) {
+      yield this[index];
+    }
+  }
+}
+
+String _moveTraceLabel(ConfigurationMove move) {
+  return switch (move) {
+    SetAgent(:final agent) => 'subject -> ${_nounTraceText(agent)}',
+    SetAction(:final action) => 'verb -> ${action.infinitive}',
+    SetObject(:final object) => 'object -> ${_nounTraceText(object)}',
+    SetRecipient(:final recipient) =>
+      'recipient -> ${_nounTraceText(recipient)}',
+    SetComplement(:final complement) =>
+      'noun complement -> ${_nounTraceText(complement)}',
+    SetNounPhraseDeterminer(:final target, :final determiner) =>
+      '${_nounPhraseTargetTraceText(target)} determiner -> ${determiner?.text ?? 'none'}',
+    SetNounPhraseAdjectives(:final target, :final adjectives) =>
+      '${_nounPhraseTargetTraceText(target)} adjective -> ${adjectives.isEmpty ? 'none' : adjectives.map((adjective) => adjective.text).join(' ')}',
+    SetAdjectiveComplement(:final adjectiveComplement) =>
+      'adjective complement -> ${adjectiveComplement?.text ?? 'none'}',
+    SetLexicalBeComplement(:final complement) =>
+      'noun complement -> ${complement.text}',
+    SetLexicalBeAdjectiveComplement(:final adjectiveComplement) =>
+      'adjective complement -> ${adjectiveComplement.text}',
+    SetVoice(:final voice) => 'voice -> ${voice.name}',
+    SetPassiveFocus(:final passiveFocus) =>
+      'passive focus -> ${passiveFocus?.name ?? 'none'}',
+    SetPassiveAgentVisibility(:final showPassiveAgent) =>
+      showPassiveAgent ? 'passive agent -> show' : 'passive agent -> hide',
+    SetTense(:final tense) => 'tense -> ${tense.name}',
+    SetAspect(:final aspect) => 'aspect -> ${aspect.name}',
+    SetModal(:final modal) =>
+      modal.isNone ? 'modal -> none' : 'modal -> ${modal.text}',
+    SetPolarity(:final polarity) => 'polarity -> ${polarity.name}',
+    SetSentenceForm(:final sentenceForm) => 'form -> ${sentenceForm.name}',
+    SetTimePhrase(:final timePhrase) =>
+      'time phrase -> ${timePhrase?.text ?? 'none'}',
+    SetPlacePhrase(:final placePhrase) =>
+      'place phrase -> ${placePhrase?.render() ?? 'none'}',
+    SetFrequencyPhrase(:final frequencyPhrase) =>
+      'frequency phrase -> ${frequencyPhrase?.text ?? 'none'}',
+    SetMannerPhrase(:final mannerPhrase) =>
+      'manner phrase -> ${mannerPhrase?.text ?? 'none'}',
+  };
+}
+
+String _nounTraceText(NounPhrase? nounPhrase) {
+  if (nounPhrase == null) {
+    return 'none';
+  }
+
+  return [
+    if (nounPhrase.determiner != null) nounPhrase.determiner!.text,
+    ...nounPhrase.adjectiveList.map((adjective) => adjective.text),
+    nounPhrase.text,
+  ].join(' ');
+}
+
+String _nounPhraseTargetTraceText(NounPhraseTarget target) {
+  return switch (target) {
+    NounPhraseTarget.agent => 'subject',
+    NounPhraseTarget.object => 'object',
+    NounPhraseTarget.recipient => 'recipient',
+    NounPhraseTarget.complement => 'complement',
+  };
 }
 
 class _StickyFooter extends StatelessWidget {
