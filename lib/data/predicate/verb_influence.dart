@@ -60,6 +60,13 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         tooltip: '${action.infinitive} wakes recipient',
         rank: 50,
       ),
+    if (action.takesAddressee)
+      PredicateInfluence(
+        key: 'addressee',
+        label: 'addressee',
+        tooltip: '${action.infinitive} wakes addressee',
+        rank: 48,
+      ),
     if (fixedLabel != null)
       PredicateInfluence(
         key: fixedLabel,

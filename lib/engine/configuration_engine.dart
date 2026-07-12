@@ -22,7 +22,14 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 enum ConfigurationMode { guided }
 
-enum NounPhraseTarget { agent, object, recipient, companion, complement }
+enum NounPhraseTarget {
+  agent,
+  object,
+  recipient,
+  addressee,
+  companion,
+  complement,
+}
 
 enum ConfigurationMessageKind { blocked, info }
 
@@ -140,6 +147,12 @@ class SetRecipient extends ConfigurationMove {
   final NounPhrase? recipient;
 
   const SetRecipient(this.recipient);
+}
+
+class SetAddressee extends ConfigurationMove {
+  final NounPhrase? addressee;
+
+  const SetAddressee(this.addressee);
 }
 
 class SetCompanion extends ConfigurationMove {
@@ -290,6 +303,7 @@ class ConfigurationEngine {
                 action: action,
                 object: null,
                 recipient: null,
+                addressee: null,
                 voice: Voice.active,
                 passiveFocus: null,
                 showPassiveAgent: true,
@@ -297,11 +311,13 @@ class ConfigurationEngine {
             : _copy(
                 state,
                 action: action,
+                addressee: action.takesAddressee ? state.addressee : null,
                 complement: null,
                 adjectiveComplement: null,
               ),
       SetObject(:final object) => _copy(state, object: object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
+      SetAddressee(:final addressee) => _copy(state, addressee: addressee),
       SetCompanion(:final companion) => _copy(state, companion: companion),
       SetComplement(:final complement) => _copy(
         state,
@@ -335,6 +351,7 @@ class ConfigurationEngine {
         action: be,
         object: null,
         recipient: null,
+        addressee: null,
         complement: complement,
         adjectiveComplement: null,
         voice: Voice.active,
@@ -346,6 +363,7 @@ class ConfigurationEngine {
         action: be,
         object: null,
         recipient: null,
+        addressee: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
         voice: Voice.active,
@@ -398,6 +416,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Object', state.object, blockers);
     _validateNounPhrase('Object complement', state.objectComplement, blockers);
     _validateNounPhrase('Recipient', state.recipient, blockers);
+    _validateNounPhrase('Addressee', state.addressee, blockers);
     _validateNounPhrase('Companion', state.companion, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
 
@@ -512,6 +531,14 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.addressee != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take an addressee.',
+        ),
+      );
+    }
+
     if (state.passiveFocus != null) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -614,6 +641,14 @@ class ConfigurationEngine {
           );
         }
 
+        if (state.addressee != null && !state.action.takesAddressee) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} does not take an addressee.',
+            ),
+          );
+        }
+
         if (state.object != null && !state.action.takesObject) {
           blockers.add(
             ConfigurationMessage.blocked(
@@ -633,6 +668,14 @@ class ConfigurationEngine {
         break;
 
       case Voice.passive:
+        if (state.addressee != null && !state.action.takesAddressee) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} does not take an addressee.',
+            ),
+          );
+        }
+
         if (!state.action.takesObject) {
           blockers.add(
             ConfigurationMessage.blocked(
@@ -779,6 +822,7 @@ class ConfigurationEngine {
     Object? objectComplement = _unchanged,
     Object? objectAdjectiveComplement = _unchanged,
     Object? recipient = _unchanged,
+    Object? addressee = _unchanged,
     Object? companion = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -812,6 +856,9 @@ class ConfigurationEngine {
       recipient: identical(recipient, _unchanged)
           ? state.recipient
           : recipient as NounPhrase?,
+      addressee: identical(addressee, _unchanged)
+          ? state.addressee
+          : addressee as NounPhrase?,
       companion: identical(companion, _unchanged)
           ? state.companion
           : companion as NounPhrase?,
@@ -869,6 +916,10 @@ class ConfigurationEngine {
         state.recipient == null
             ? state
             : _copy(state, recipient: transform(state.recipient!)),
+      NounPhraseTarget.addressee =>
+        state.addressee == null
+            ? state
+            : _copy(state, addressee: transform(state.addressee!)),
       NounPhraseTarget.companion =>
         state.companion == null
             ? state

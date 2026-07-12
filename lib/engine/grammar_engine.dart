@@ -79,6 +79,7 @@ class GrammarEngine {
       builder.displaySubject = builder.state.agent!;
       builder.displayObject = null;
       builder.displayRecipient = null;
+      builder.displayAddressee = builder.state.addressee;
       builder.displayCompanion = builder.state.companion;
       builder.displayAgent = null;
       builder.displayObjectComplement = null;
@@ -95,6 +96,7 @@ class GrammarEngine {
         builder.displaySubject = builder.state.agent!;
         builder.displayObject = builder.state.object;
         builder.displayRecipient = builder.state.recipient;
+        builder.displayAddressee = builder.state.addressee;
         builder.displayCompanion = builder.state.companion;
         builder.displayAgent = null;
         builder.displayObjectComplement = builder.state.objectComplement;
@@ -115,6 +117,7 @@ class GrammarEngine {
             builder.displaySubject = builder.state.object!;
             builder.displayObject = null;
             builder.displayRecipient = builder.state.recipient;
+            builder.displayAddressee = builder.state.addressee;
             builder.displayCompanion = builder.state.companion;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
@@ -133,6 +136,7 @@ class GrammarEngine {
             builder.displaySubject = builder.state.recipient!;
             builder.displayObject = builder.state.object;
             builder.displayRecipient = null;
+            builder.displayAddressee = builder.state.addressee;
             builder.displayCompanion = builder.state.companion;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
@@ -859,6 +863,12 @@ class GrammarEngine {
       parts.add(builder.displayAdjectiveComplement!.text);
     }
 
+    // ---------- ADDRESSEE ----------
+
+    if (builder.displayAddressee != null) {
+      parts.add('to ${_renderObjectCase(builder.displayAddressee!)}');
+    }
+
     // ---------- COMPANION ----------
 
     if (builder.displayCompanion != null) {
@@ -933,6 +943,7 @@ class _SentenceBuilder {
   late NounPhrase displaySubject;
   NounPhrase? displayObject;
   NounPhrase? displayRecipient;
+  NounPhrase? displayAddressee;
   NounPhrase? displayCompanion;
   NounPhrase? displayAgent;
   NounPhrase? displayObjectComplement;
@@ -960,6 +971,7 @@ class _SentenceBuilder {
       'displaySubject: ${displaySubjectOrNull?.text}',
       'displayObject: ${displayObject?.text}',
       'displayRecipient: ${displayRecipient?.text}',
+      'displayAddressee: ${displayAddressee?.text}',
       'displayCompanion: ${displayCompanion?.text}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',

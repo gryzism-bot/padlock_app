@@ -7,6 +7,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -245,6 +246,51 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'build does not take a recipient.');
+    });
+
+    test('accepts addressee on verbs with addressee frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(speak));
+      state = engine.applyMove(
+        state,
+        SetAddressee(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.addressee?.text, 'Mary');
+      expect(render(state), 'You speak to Mary.');
+    });
+
+    test('blocks addressee on verbs without addressee frame', () {
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
+      final state = engine.applyMove(
+        previous,
+        SetAddressee(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(state.messages.single.text, 'work does not take an addressee.');
+    });
+
+    test('changing action clears incompatible addressee frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(speak));
+      state = engine.applyMove(
+        state,
+        SetAddressee(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetAction(work));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, work);
+      expect(state.sentenceState.addressee, isNull);
+      expect(render(state), 'You work.');
     });
 
     test('blocks passive voice without a passive-capable frame', () {

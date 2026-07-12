@@ -8,6 +8,7 @@ const speak = Verb(
   pastParticiple: 'spoken',
   ingForm: 'speaking',
   takesObject: true,
+  takesAddressee: true,
   translations: {Language.pl: 'mówić'},
 );
 
@@ -17,6 +18,7 @@ const talk = Verb(
   pastSimple: 'talked',
   pastParticiple: 'talked',
   ingForm: 'talking',
+  takesAddressee: true,
   translations: {Language.pl: 'rozmawiać'},
 );
 
@@ -86,6 +88,7 @@ const write = Verb(
   ingForm: 'writing',
   takesObject: true,
   takesRecipient: true,
+  takesAddressee: true,
   translations: {Language.pl: 'pisać'},
 );
 

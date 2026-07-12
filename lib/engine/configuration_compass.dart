@@ -33,6 +33,9 @@ enum ConfigurationCompassSlot {
   recipient,
   recipientDeterminer,
   recipientAdjective,
+  addressee,
+  addresseeDeterminer,
+  addresseeAdjective,
   complement,
   complementDeterminer,
   complementAdjective,
@@ -229,6 +232,35 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.recipientAdjective => _adjectiveCandidates(
         sentence.recipient,
         NounPhraseTarget.recipient,
+      ),
+      ConfigurationCompassSlot.addressee => [
+        if (sentence.addressee != null)
+          const _CompassCandidate(SetAddressee(null), 'no addressee', 120),
+        ...recipients.map((addressee) {
+          final isSelected = _sameNounChoice(addressee, sentence.addressee);
+          final nextAddressee = isSelected
+              ? sentence.addressee
+              : _carryCompatibleNounPhrase(
+                  from: sentence.addressee,
+                  to: addressee,
+                );
+          return _CompassCandidate(
+            SetAddressee(nextAddressee),
+            nextAddressee == null
+                ? addressee.text
+                : _nounPhraseLabel(nextAddressee),
+            100,
+            isSelected: isSelected,
+          );
+        }),
+      ],
+      ConfigurationCompassSlot.addresseeDeterminer => _determinerCandidates(
+        sentence.addressee,
+        NounPhraseTarget.addressee,
+      ),
+      ConfigurationCompassSlot.addresseeAdjective => _adjectiveCandidates(
+        sentence.addressee,
+        NounPhraseTarget.addressee,
       ),
       ConfigurationCompassSlot.complement =>
         sentence.action == be

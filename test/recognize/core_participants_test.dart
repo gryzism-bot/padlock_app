@@ -330,6 +330,16 @@ void main() {
       expect(state.adjectiveComplement, isNull);
     });
 
+    test('companion can recognize an indefinite name determiner', () {
+      final state = engine.recognize('They are with a Mary.');
+
+      expectAgent(state, text: 'they');
+      expectCompanion(state, text: 'mary', determiner: aDeterminer);
+      expect(state.action, be);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
+    });
+
     test('ordinary verbs recognize companion surface', () {
       final state = engine.recognize('John ran with Mary.');
 
@@ -337,6 +347,48 @@ void main() {
       expectCompanion(state, text: 'mary');
       expect(state.action, run);
       expect(state.mannerPhrase, isNull);
+    });
+
+    test('communication verbs recognize addressee surface', () {
+      final state = engine.recognize('John spoke to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, speak);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('addressee pronouns recognize object case', () {
+      final state = engine.recognize('Mary should talk to him.');
+
+      expectAgent(state, text: 'mary');
+      expectAddressee(state, text: 'him');
+      expect(state.action, talk);
+      expect(state.modal, should);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('write can recognize an addressee without an object', () {
+      final state = engine.recognize('John wrote to her.');
+
+      expectAgent(state, text: 'john');
+      expectAddressee(state, text: 'her');
+      expect(state.action, write);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('recipient still wins when object precedes to phrase', () {
+      final state = engine.recognize('John wrote a letter to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectObject(state, text: 'letter', determiner: aDeterminer);
+      expectRecipient(state, text: 'mary');
+      expect(state.addressee, isNull);
+      expect(state.action, write);
+      expect(state.recipientPlacement, RecipientPlacement.toPhrase);
     });
 
     test('with manner phrase does not become companion surface', () {

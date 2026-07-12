@@ -12,6 +12,7 @@ import 'package:padlock_app/data/subjects/object_pronouns.dart' as object_case;
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
@@ -27,7 +28,7 @@ import 'package:padlock_app/models/grammar/voice.dart';
 void main() {
   final lock = ConfigurationEngine();
   final compass = ConfigurationCompass(
-    actions: [learn, work, work_data.build, give, be, go],
+    actions: [learn, work, work_data.build, give, speak, be, go],
     objects: [
       book.toNounPhrase(Number.singular),
       bridge.toNounPhrase(Number.singular),
@@ -513,6 +514,28 @@ void main() {
         );
       },
     );
+
+    test('addressee suggestions require addressee-capable frame', () {
+      var state = ConfigurationState.initial();
+
+      expect(
+        compass.suggestionsFor(state, ConfigurationCompassSlot.addressee),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(speak));
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.addressee,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'John',
+        'Mary',
+      ]);
+      expect(render(suggestions.last.preview), 'You speak to Mary.');
+    });
 
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();

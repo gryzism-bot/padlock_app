@@ -536,6 +536,8 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetObject(:final object) => 'object -> ${_nounTraceText(object)}',
     SetRecipient(:final recipient) =>
       'recipient -> ${_nounTraceText(recipient)}',
+    SetAddressee(:final addressee) =>
+      'addressee -> ${_nounTraceText(addressee)}',
     SetCompanion(:final companion) =>
       'companion -> ${_nounTraceText(companion)}',
     SetComplement(:final complement) =>
@@ -589,6 +591,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.agent => 'subject',
     NounPhraseTarget.object => 'object',
     NounPhraseTarget.recipient => 'recipient',
+    NounPhraseTarget.addressee => 'addressee',
     NounPhraseTarget.companion => 'companion',
     NounPhraseTarget.complement => 'complement',
   };
@@ -1546,6 +1549,9 @@ String _slotTitle(
     ConfigurationCompassSlot.recipient => 'Recipient',
     ConfigurationCompassSlot.recipientDeterminer => 'Recipient determiner',
     ConfigurationCompassSlot.recipientAdjective => 'Recipient adjective',
+    ConfigurationCompassSlot.addressee => 'Addressee',
+    ConfigurationCompassSlot.addresseeDeterminer => 'Addressee determiner',
+    ConfigurationCompassSlot.addresseeAdjective => 'Addressee adjective',
     ConfigurationCompassSlot.complement => 'Noun complement',
     ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
     ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
@@ -1567,6 +1573,9 @@ bool _isControlledRail(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.recipient ||
     ConfigurationCompassSlot.recipientDeterminer ||
     ConfigurationCompassSlot.recipientAdjective ||
+    ConfigurationCompassSlot.addressee ||
+    ConfigurationCompassSlot.addresseeDeterminer ||
+    ConfigurationCompassSlot.addresseeAdjective ||
     ConfigurationCompassSlot.complement ||
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective ||
@@ -1607,6 +1616,9 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.recipient => state.recipient != null,
     ConfigurationCompassSlot.recipientDeterminer ||
     ConfigurationCompassSlot.recipientAdjective => state.recipient != null,
+    ConfigurationCompassSlot.addressee => state.addressee != null,
+    ConfigurationCompassSlot.addresseeDeterminer ||
+    ConfigurationCompassSlot.addresseeAdjective => state.addressee != null,
     ConfigurationCompassSlot.complement => state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective => state.complement != null,
@@ -1640,6 +1652,11 @@ String _unlockHint(
     ConfigurationCompassSlot.recipientDeterminer ||
     ConfigurationCompassSlot.recipientAdjective =>
       'Choose a recipient first. Recipient modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.addressee =>
+      'Choose a verb that can speak, talk, or write to someone.',
+    ConfigurationCompassSlot.addresseeDeterminer ||
+    ConfigurationCompassSlot.addresseeAdjective =>
+      'Choose an addressee first. Addressee modifiers wake after that noun exists.',
     ConfigurationCompassSlot.complement =>
       'Choose verb be first. Noun complements belong to the be frame.',
     ConfigurationCompassSlot.complementDeterminer ||

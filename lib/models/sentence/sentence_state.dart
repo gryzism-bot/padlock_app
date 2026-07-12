@@ -22,6 +22,7 @@ class SentenceState {
   final Verb action;
   final NounPhrase? object;
   final NounPhrase? recipient;
+  final NounPhrase? addressee;
   final NounPhrase? companion;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
@@ -53,6 +54,7 @@ class SentenceState {
     required this.action,
     this.object,
     this.recipient,
+    this.addressee,
     this.companion,
     this.recipientPlacement = RecipientPlacement.beforeObject,
     this.recipientPreposition = RecipientPreposition.to,
@@ -86,6 +88,7 @@ class SentenceState {
       'action=${action.infinitive}',
       'object=${object?.text}',
       'recipient=${recipient?.text}',
+      'addressee=${addressee?.text}',
       'companion=${companion?.text}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
@@ -116,6 +119,7 @@ Agent: ${agent?.text}
 Action: ${action.infinitive}
 Object: ${object?.text}
 Recipient: ${recipient?.text}
+Addressee: ${addressee?.text}
 Companion: ${companion?.text}
 Recipient Placement: $recipientPlacement
 Recipient Preposition: $recipientPreposition

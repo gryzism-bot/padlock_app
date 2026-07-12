@@ -391,6 +391,23 @@ void main() {
       expect(sentence, 'Mary should be with him.');
     });
 
+    test('companion can take an indefinite name determiner', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: be,
+          companion: mary.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'They are with a Mary.');
+    });
+
     test('ordinary verbs can render companion surface', () {
       final sentence = render(
         SentenceState(
@@ -403,6 +420,49 @@ void main() {
       );
 
       expect(sentence, 'John ran with Mary.');
+    });
+
+    test('communication verbs can render addressee surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: speak,
+          addressee: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John spoke to Mary.');
+    });
+
+    test('addressee pronouns render in object case', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: talk,
+          addressee: he,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary should talk to him.');
+    });
+
+    test('write can render an addressee without an object', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: write,
+          addressee: she,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John wrote to her.');
     });
 
     test('active recipients can be reflexive participants', () {
