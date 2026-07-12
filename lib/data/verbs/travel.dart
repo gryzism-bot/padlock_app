@@ -8,6 +8,7 @@ const travel = Verb(
   pastParticiple: 'travelled',
   ingForm: 'travelling',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'podróżować'},
 );
 
@@ -27,6 +28,7 @@ const arrive = Verb(
   pastParticiple: 'arrived',
   ingForm: 'arriving',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'przybyć'},
 );
 
@@ -37,6 +39,7 @@ const leave = Verb(
   pastParticiple: 'left',
   ingForm: 'leaving',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'opuścić'},
 );
 
@@ -56,6 +59,7 @@ const returnVerb = Verb(
   pastParticiple: 'returned',
   ingForm: 'returning',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'wrócić'},
 );
 

@@ -264,8 +264,11 @@ void main() {
     expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-read-text')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-drive-vehicle')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
@@ -288,6 +291,20 @@ void main() {
         matching: find.byType(Icon),
       ),
       findsNWidgets(2),
+    );
+    expect(
+      find.byTooltip(
+        'give unlocks recipient, object. grammar frame: recipient, object. '
+        'It can wake 2 rails.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byTooltip(
+        'read unlocks text. predicate property: text. '
+        'It can wake 1 rail.',
+      ),
+      findsOneWidget,
     );
   });
 
@@ -409,6 +426,31 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You give book.'), delta: -500);
 
     expect(find.text('Recipient:'), findsOneWidget);
+  });
+
+  testWidgets('Core participant surface maps predicate doors to rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Core participant surface:'), findsOneWidget);
+    expect(find.text('predicate: learn (filled)'), findsOneWidget);
+    expect(find.text('subject: you (filled)'), findsOneWidget);
+    expect(find.text('study subject: none (awake)'), findsOneWidget);
+    expect(find.text('recipient: none (asleep)'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+
+    expect(find.text('predicate: give (filled)'), findsOneWidget);
+    expect(find.text('object: none (awake)'), findsOneWidget);
+    expect(find.text('recipient: none (awake)'), findsOneWidget);
+    expect(find.text('Object:'), findsOneWidget);
+    expect(find.byTooltip('You give book.'), findsNothing);
+
+    await tapAfterScroll(tester, find.text('object: none (awake)'));
+
+    expect(find.text('object: none (open)'), findsOneWidget);
+    expect(find.byTooltip('You give book.'), findsWidgets);
   });
 
   testWidgets('Subject rows can expand into noun subjects', (tester) async {

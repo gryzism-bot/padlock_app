@@ -290,6 +290,10 @@ Current insight:
 
 Merged side quests:
 
+- introduce a single active locus for the final UI:
+  subject, predicate, object, recipient, complement, phrase, or grammar control
+- add a path-scoped Compass API or wrapper:
+  given active locus + expanded local branch, return only reachable local moves
 - avoid recomputing large suggestion lists in build methods
 - cache Compass suggestions per state where practical
 - cache Grammar render output around preview-heavy Compass/UI paths:
@@ -297,6 +301,19 @@ Merged side quests:
 - keep rails collapsed until opened
 - when a verb feature rail is open, limit Compass work to that verb's active
   local tree instead of also expanding other verbs and their possible rails
+- define collapse rules:
+  - changing another major word collapses the current local branch
+  - reset clears all local pressure
+  - random records a new state and starts collapsed
+  - switching from detailed subject/object phrase back to a pronoun may require
+    collapsing modifiers first
+- add preview budgets:
+  - show a small nearest set first
+  - render full sentence previews only for visible candidates
+  - defer hidden candidate previews until hover/open/search
+- split developer cockpit from product toy:
+  - cockpit can keep broad rails for debugging
+  - product UI consumes the same Configuration state through local paths
 - add lazy/virtualized rail lists before loading much larger vocabulary
 - index object candidates by verb frame or semantic category
 - pre-render or cache stable noun/phrase fragments only if profiling shows that

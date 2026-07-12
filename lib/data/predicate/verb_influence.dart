@@ -3,17 +3,21 @@ import 'dart:math';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
+enum PredicateInfluenceSource { grammarFrame, predicateProperty }
+
 class PredicateInfluence {
   final String key;
   final String label;
   final String tooltip;
   final int rank;
+  final PredicateInfluenceSource source;
 
   const PredicateInfluence({
     required this.key,
     required this.label,
     required this.tooltip,
     required this.rank,
+    required this.source,
   });
 }
 
@@ -24,9 +28,16 @@ const _popularDoorwayBonusByVerb = {
   'go': 24,
   'play': 20,
   'learn': 19,
+  'read': 18,
+  'run': 18,
+  'use': 17,
+  'drive': 17,
+  'watch': 16,
   'work': 16,
   'need': 15,
+  'open': 15,
   'want': 14,
+  'close': 14,
   'make': 13,
   'take': 12,
   'buy': 11,
@@ -35,7 +46,7 @@ const _popularDoorwayBonusByVerb = {
   'study': 8,
   'tell': 7,
   'teach': 6,
-  'drive': 5,
+  'travel': 5,
   'have': 4,
   'do': 3,
   'say': 2,
@@ -52,6 +63,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'complement',
         tooltip: '${action.infinitive} wakes complements',
         rank: 60,
+        source: PredicateInfluenceSource.predicateProperty,
       ),
     if (action.takesRecipient)
       PredicateInfluence(
@@ -59,6 +71,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'recipient',
         tooltip: '${action.infinitive} wakes recipient',
         rank: 50,
+        source: PredicateInfluenceSource.grammarFrame,
       ),
     if (action.takesAddressee)
       PredicateInfluence(
@@ -66,6 +79,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'addressee',
         tooltip: '${action.infinitive} wakes addressee',
         rank: 48,
+        source: PredicateInfluenceSource.predicateProperty,
       ),
     if (action.takesCompanion)
       PredicateInfluence(
@@ -73,6 +87,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'companion',
         tooltip: '${action.infinitive} wakes companion',
         rank: 46,
+        source: PredicateInfluenceSource.predicateProperty,
       ),
     if (fixedLabel != null)
       PredicateInfluence(
@@ -80,6 +95,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: fixedLabel,
         tooltip: '${action.infinitive} wakes $fixedLabel',
         rank: 45,
+        source: PredicateInfluenceSource.predicateProperty,
       ),
     if (action.usesDestinationPlace)
       PredicateInfluence(
@@ -87,6 +103,15 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'destination',
         tooltip: '${action.infinitive} wakes destination',
         rank: 40,
+        source: PredicateInfluenceSource.predicateProperty,
+      ),
+    if (action.takesObjectComplement)
+      PredicateInfluence(
+        key: 'object-complement',
+        label: 'object complement',
+        tooltip: '${action.infinitive} wakes object complement',
+        rank: 38,
+        source: PredicateInfluenceSource.grammarFrame,
       ),
     if (action.takesObject && fixedLabel == null)
       PredicateInfluence(
@@ -94,6 +119,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'object',
         tooltip: '${action.infinitive} wakes object',
         rank: 30,
+        source: PredicateInfluenceSource.grammarFrame,
       ),
   ];
 }

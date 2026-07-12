@@ -17,6 +17,7 @@ const create = Verb(
   pastSimple: 'created',
   pastParticiple: 'created',
   ingForm: 'creating',
+  takesObject: true,
   translations: {Language.pl: 'tworzyć'},
 );
 
@@ -26,6 +27,7 @@ const design = Verb(
   pastSimple: 'designed',
   pastParticiple: 'designed',
   ingForm: 'designing',
+  takesObject: true,
   translations: {Language.pl: 'projektować'},
 );
 
@@ -35,6 +37,7 @@ const develop = Verb(
   pastSimple: 'developed',
   pastParticiple: 'developed',
   ingForm: 'developing',
+  takesObject: true,
   translations: {Language.pl: 'rozwijać'},
 );
 
@@ -44,6 +47,7 @@ const program = Verb(
   pastSimple: 'programmed',
   pastParticiple: 'programmed',
   ingForm: 'programming',
+  takesObject: true,
   translations: {Language.pl: 'programować'},
 );
 
@@ -53,6 +57,7 @@ const testVerb = Verb(
   pastSimple: 'tested',
   pastParticiple: 'tested',
   ingForm: 'testing',
+  takesObject: true,
   translations: {Language.pl: 'testować'},
 );
 
@@ -62,6 +67,7 @@ const debug = Verb(
   pastSimple: 'debugged',
   pastParticiple: 'debugged',
   ingForm: 'debugging',
+  takesObject: true,
   translations: {Language.pl: 'debugować'},
 );
 
@@ -71,6 +77,7 @@ const fix = Verb(
   pastSimple: 'fixed',
   pastParticiple: 'fixed',
   ingForm: 'fixing',
+  takesObject: true,
   translations: {Language.pl: 'naprawiać'},
 );
 
@@ -80,6 +87,7 @@ const repair = Verb(
   pastSimple: 'repaired',
   pastParticiple: 'repaired',
   ingForm: 'repairing',
+  takesObject: true,
   translations: {Language.pl: 'naprawiać'},
 );
 
@@ -89,6 +97,7 @@ const clean = Verb(
   pastSimple: 'cleaned',
   pastParticiple: 'cleaned',
   ingForm: 'cleaning',
+  takesObject: true,
   translations: {Language.pl: 'czyścić'},
 );
 
@@ -98,6 +107,7 @@ const organize = Verb(
   pastSimple: 'organized',
   pastParticiple: 'organized',
   ingForm: 'organizing',
+  takesObject: true,
   translations: {Language.pl: 'organizować'},
 );
 
@@ -107,6 +117,7 @@ const manage = Verb(
   pastSimple: 'managed',
   pastParticiple: 'managed',
   ingForm: 'managing',
+  takesObject: true,
   translations: {Language.pl: 'zarządzać'},
 );
 
@@ -125,6 +136,7 @@ const deliver = Verb(
   pastSimple: 'delivered',
   pastParticiple: 'delivered',
   ingForm: 'delivering',
+  takesObject: true,
   translations: {Language.pl: 'dostarczać'},
 );
 
@@ -134,6 +146,7 @@ const produce = Verb(
   pastSimple: 'produced',
   pastParticiple: 'produced',
   ingForm: 'producing',
+  takesObject: true,
   translations: {Language.pl: 'produkować'},
 );
 
@@ -143,6 +156,7 @@ const earn = Verb(
   pastSimple: 'earned',
   pastParticiple: 'earned',
   ingForm: 'earning',
+  takesObject: true,
   translations: {Language.pl: 'zarabiać'},
 );
 

@@ -7,6 +7,7 @@ const cook = Verb(
   pastSimple: 'cooked',
   pastParticiple: 'cooked',
   ingForm: 'cooking',
+  takesObject: true,
   translations: {Language.pl: 'gotować'},
 );
 
@@ -16,6 +17,7 @@ const bake = Verb(
   pastSimple: 'baked',
   pastParticiple: 'baked',
   ingForm: 'baking',
+  takesObject: true,
   translations: {Language.pl: 'piec'},
 );
 
@@ -25,6 +27,7 @@ const fry = Verb(
   pastSimple: 'fried',
   pastParticiple: 'fried',
   ingForm: 'frying',
+  takesObject: true,
   translations: {Language.pl: 'smażyć'},
 );
 
@@ -34,6 +37,7 @@ const boil = Verb(
   pastSimple: 'boiled',
   pastParticiple: 'boiled',
   ingForm: 'boiling',
+  takesObject: true,
   translations: {Language.pl: 'gotować (we wrzątku)'},
 );
 
@@ -43,6 +47,7 @@ const grill = Verb(
   pastSimple: 'grilled',
   pastParticiple: 'grilled',
   ingForm: 'grilling',
+  takesObject: true,
   translations: {Language.pl: 'grillować'},
 );
 
@@ -62,6 +67,7 @@ const drink = Verb(
   pastSimple: 'drank',
   pastParticiple: 'drunk',
   ingForm: 'drinking',
+  takesObject: true,
   translations: {Language.pl: 'pić'},
 );
 
@@ -71,6 +77,7 @@ const roast = Verb(
   pastSimple: 'roasted',
   pastParticiple: 'roasted',
   ingForm: 'roasting',
+  takesObject: true,
   translations: {Language.pl: 'piec'},
 );
 
@@ -80,6 +87,7 @@ const steam = Verb(
   pastSimple: 'steamed',
   pastParticiple: 'steamed',
   ingForm: 'steaming',
+  takesObject: true,
   translations: {Language.pl: 'gotować na parze'},
 );
 
@@ -89,6 +97,7 @@ const cut = Verb(
   pastSimple: 'cut',
   pastParticiple: 'cut',
   ingForm: 'cutting',
+  takesObject: true,
   translations: {Language.pl: 'kroić'},
 );
 
@@ -98,6 +107,7 @@ const chop = Verb(
   pastSimple: 'chopped',
   pastParticiple: 'chopped',
   ingForm: 'chopping',
+  takesObject: true,
   translations: {Language.pl: 'siekać'},
 );
 
@@ -107,6 +117,7 @@ const slice = Verb(
   pastSimple: 'sliced',
   pastParticiple: 'sliced',
   ingForm: 'slicing',
+  takesObject: true,
   translations: {Language.pl: 'kroić w plastry'},
 );
 
@@ -116,6 +127,7 @@ const peel = Verb(
   pastSimple: 'peeled',
   pastParticiple: 'peeled',
   ingForm: 'peeling',
+  takesObject: true,
   translations: {Language.pl: 'obierać'},
 );
 
@@ -125,6 +137,7 @@ const mix = Verb(
   pastSimple: 'mixed',
   pastParticiple: 'mixed',
   ingForm: 'mixing',
+  takesObject: true,
   translations: {Language.pl: 'mieszać'},
 );
 
@@ -134,6 +147,7 @@ const stir = Verb(
   pastSimple: 'stirred',
   pastParticiple: 'stirred',
   ingForm: 'stirring',
+  takesObject: true,
   translations: {Language.pl: 'mieszać'},
 );
 
@@ -143,6 +157,7 @@ const pour = Verb(
   pastSimple: 'poured',
   pastParticiple: 'poured',
   ingForm: 'pouring',
+  takesObject: true,
   translations: {Language.pl: 'nalewać'},
 );
 
@@ -152,6 +167,7 @@ const add = Verb(
   pastSimple: 'added',
   pastParticiple: 'added',
   ingForm: 'adding',
+  takesObject: true,
   translations: {Language.pl: 'dodawać'},
 );
 
@@ -161,6 +177,7 @@ const serve = Verb(
   pastSimple: 'served',
   pastParticiple: 'served',
   ingForm: 'serving',
+  takesObject: true,
   translations: {Language.pl: 'podawać'},
 );
 
@@ -170,6 +187,7 @@ const taste = Verb(
   pastSimple: 'tasted',
   pastParticiple: 'tasted',
   ingForm: 'tasting',
+  takesObject: true,
   translations: {Language.pl: 'smakować'},
 );
 
@@ -179,6 +197,7 @@ const freeze = Verb(
   pastSimple: 'froze',
   pastParticiple: 'frozen',
   ingForm: 'freezing',
+  takesObject: true,
   translations: {Language.pl: 'zamrażać'},
 );
 
@@ -188,6 +207,7 @@ const melt = Verb(
   pastSimple: 'melted',
   pastParticiple: 'melted',
   ingForm: 'melting',
+  takesObject: true,
   translations: {Language.pl: 'topić'},
 );
 
@@ -197,6 +217,7 @@ const wash = Verb(
   pastSimple: 'washed',
   pastParticiple: 'washed',
   ingForm: 'washing',
+  takesObject: true,
   translations: {Language.pl: 'myć'},
 );
 

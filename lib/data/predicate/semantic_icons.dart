@@ -12,6 +12,7 @@ class MaterialIconKey {
   static const arrowUpward = 'arrow_upward';
   static const backHandOutlined = 'back_hand_outlined';
   static const callReceived = 'call_received';
+  static const directionsCar = 'directions_car';
   static const directionsWalk = 'directions_walk';
   static const editOutlined = 'edit_outlined';
   static const euro = 'euro';
@@ -21,6 +22,8 @@ class MaterialIconKey {
   static const inventory2Outlined = 'inventory_2_outlined';
   static const lightbulbOutline = 'lightbulb_outline';
   static const menuBookOutlined = 'menu_book_outlined';
+  static const movieOutlined = 'movie_outlined';
+  static const noCrashOutlined = 'no_crash_outlined';
   static const panToolAltOutlined = 'pan_tool_alt_outlined';
   static const panToolOutlined = 'pan_tool_outlined';
   static const personOutline = 'person_outline';
@@ -195,6 +198,36 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
   if (influenceKeys.contains('language')) {
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.recordVoiceOverOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('text')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.menuBookOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('tool')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.panToolOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.inventory2Outlined),
+    ];
+  }
+  if (influenceKeys.contains('media')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.movieOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('vehicle')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.directionsCar),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('openable')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.noCrashOutlined),
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }

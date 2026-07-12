@@ -205,6 +205,45 @@ A learner never manipulates grammar directly—they perform physical interaction
 
 The UI is not a grammar editor. It is a collection of windows into a much richer configuration space, exposing only the information required by the current interaction model.
 
+## UI turns scattered options into paths
+
+The current guided screen is a developer cockpit. It exposes many rails at
+once, which is useful while building the machine but too broad for the final
+toy. The product UI should be centered on the sentence and especially on the
+predicate. A user should touch one visible word, then follow the path that word
+opens.
+
+Water-treatment model:
+
+- user intent is pressure
+- `SentenceState` is the current water shape in the system
+- Configuration Engine / Lock is the set of valves that cannot open into an
+  invalid state
+- Configuration Compass routes pressure into the useful next pipes
+- UI shows only the pipework around the valve currently being touched
+- collapse/reset releases pressure from the current local branch
+
+This is both a product rule and a performance rule. As the sentence becomes
+more specific, the UI should narrow the interaction tree instead of widening it.
+More committed sentence detail means more pressure in the system, so parallel
+pipes should close until the current branch is collapsed.
+
+Example:
+
+- The starter sentence can be `You learn.`
+- `You` and `learn` are visible sentence fields.
+- Clicking `learn` opens verb-centered choices.
+- Choosing `learn` can reveal only `learn`-specific doors:
+  objects/skills, companion, place, time, manner.
+- While a `learn` feature door is open, Compass does not need to compute every
+  other verb and every rail those verbs could wake.
+- Clicking `You` opens the subject path:
+  pronouns first, then third-person noun expansion if requested.
+
+The final UI should therefore feel closer to backend design than the current
+cockpit: one predicate in the center, with the sentence unfolding outward from
+the active word.
+
 ## Configuration Engine prevents UI's HomeScreen from importing Grammar Engine's generate(SentenceState: (subject, tense, aspect, modal, verb, polarity, voice, etc.)) and grammar logic implementation, it prevents HomeScreen from becoming GrammarEngine's generate parameter filler which can damage it's performance with hundreds of data consts with tens of translations
 
 Grammar Engine and Recognition Engine transform language. Configuration Engine transforms interaction.

@@ -30,6 +30,7 @@ const spell = Verb(
   pastSimple: 'spelled',
   pastParticiple: 'spelled',
   ingForm: 'spelling',
+  takesObject: true,
   translations: {Language.pl: 'literować'},
 );
 
@@ -39,6 +40,7 @@ const count = Verb(
   pastSimple: 'counted',
   pastParticiple: 'counted',
   ingForm: 'counting',
+  takesObject: true,
   translations: {Language.pl: 'liczyć'},
 );
 
@@ -48,6 +50,7 @@ const calculate = Verb(
   pastSimple: 'calculated',
   pastParticiple: 'calculated',
   ingForm: 'calculating',
+  takesObject: true,
   translations: {Language.pl: 'obliczać'},
 );
 
@@ -57,6 +60,7 @@ const solve = Verb(
   pastSimple: 'solved',
   pastParticiple: 'solved',
   ingForm: 'solving',
+  takesObject: true,
   translations: {Language.pl: 'rozwiązywać'},
 );
 
@@ -66,6 +70,7 @@ const understand = Verb(
   pastSimple: 'understood',
   pastParticiple: 'understood',
   ingForm: 'understanding',
+  takesObject: true,
   translations: {Language.pl: 'rozumieć'},
 );
 
@@ -75,6 +80,7 @@ const forget = Verb(
   pastSimple: 'forgot',
   pastParticiple: 'forgotten',
   ingForm: 'forgetting',
+  takesObject: true,
   translations: {Language.pl: 'zapominać'},
 );
 
@@ -84,6 +90,7 @@ const practice = Verb(
   pastSimple: 'practiced',
   pastParticiple: 'practiced',
   ingForm: 'practicing',
+  takesObject: true,
   translations: {Language.pl: 'ćwiczyć'},
 );
 
@@ -93,6 +100,7 @@ const repeat = Verb(
   pastSimple: 'repeated',
   pastParticiple: 'repeated',
   ingForm: 'repeating',
+  takesObject: true,
   translations: {Language.pl: 'powtarzać'},
 );
 
@@ -102,6 +110,7 @@ const improve = Verb(
   pastSimple: 'improved',
   pastParticiple: 'improved',
   ingForm: 'improving',
+  takesObject: true,
   translations: {Language.pl: 'polepszać'},
 );
 
@@ -120,6 +129,7 @@ const research = Verb(
   pastSimple: 'researched',
   pastParticiple: 'researched',
   ingForm: 'researching',
+  takesObject: true,
   translations: {Language.pl: 'prowadzić badania'},
 );
 

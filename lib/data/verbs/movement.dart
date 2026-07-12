@@ -7,6 +7,7 @@ const walk = Verb(
   pastSimple: 'walked',
   pastParticiple: 'walked',
   ingForm: 'walking',
+  usesDestinationPlace: true,
   takesCompanion: true,
   translations: {Language.pl: 'chodzić'},
 );
@@ -17,6 +18,7 @@ const run = Verb(
   pastSimple: 'ran',
   pastParticiple: 'run',
   ingForm: 'running',
+  usesDestinationPlace: true,
   takesCompanion: true,
   translations: {Language.pl: 'biegać'},
 );
@@ -36,6 +38,7 @@ const swim = Verb(
   pastSimple: 'swam',
   pastParticiple: 'swum',
   ingForm: 'swimming',
+  usesDestinationPlace: true,
   translations: {Language.pl: 'pływać'},
 );
 
@@ -45,6 +48,7 @@ const fly = Verb(
   pastSimple: 'flew',
   pastParticiple: 'flown',
   ingForm: 'flying',
+  usesDestinationPlace: true,
   translations: {Language.pl: 'latać'},
 );
 
@@ -54,6 +58,7 @@ const drive = Verb(
   pastSimple: 'drove',
   pastParticiple: 'driven',
   ingForm: 'driving',
+  usesDestinationPlace: true,
   takesObject: true,
   translations: {Language.pl: 'prowadzić'},
 );
@@ -64,6 +69,7 @@ const ride = Verb(
   pastSimple: 'rode',
   pastParticiple: 'ridden',
   ingForm: 'riding',
+  usesDestinationPlace: true,
   takesObject: true,
   translations: {Language.pl: 'jeździć'},
 );
@@ -101,6 +107,7 @@ const sail = Verb(
   pastSimple: 'sailed',
   pastParticiple: 'sailed',
   ingForm: 'sailing',
+  usesDestinationPlace: true,
   translations: {Language.pl: 'żeglować'},
 );
 
@@ -110,6 +117,7 @@ const skate = Verb(
   pastSimple: 'skated',
   pastParticiple: 'skated',
   ingForm: 'skating',
+  usesDestinationPlace: true,
   translations: {Language.pl: 'jeździć na łyżwach'},
 );
 
@@ -119,6 +127,7 @@ const ski = Verb(
   pastSimple: 'skied',
   pastParticiple: 'skied',
   ingForm: 'skiing',
+  usesDestinationPlace: true,
   translations: {Language.pl: 'jeździć na nartach'},
 );
 

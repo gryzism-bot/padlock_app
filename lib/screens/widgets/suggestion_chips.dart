@@ -192,8 +192,27 @@ String _verbWakeTooltip(
   int outputCount,
 ) {
   final labels = influences.map((influence) => influence.label).join(', ');
+  final grammarLabels = influences
+      .where(
+        (influence) =>
+            influence.source == PredicateInfluenceSource.grammarFrame,
+      )
+      .map((influence) => influence.label)
+      .join(', ');
+  final propertyLabels = influences
+      .where(
+        (influence) =>
+            influence.source == PredicateInfluenceSource.predicateProperty,
+      )
+      .map((influence) => influence.label)
+      .join(', ');
   final railWord = outputCount == 1 ? 'rail' : 'rails';
-  return '$action unlocks $labels. It can wake $outputCount $railWord.';
+  final sourceText = [
+    if (grammarLabels.isNotEmpty) 'grammar frame: $grammarLabels',
+    if (propertyLabels.isNotEmpty) 'predicate property: $propertyLabels',
+  ].join('. ');
+  return '$action unlocks $labels. $sourceText. '
+      'It can wake $outputCount $railWord.';
 }
 
 const _materialOutputIcon = Icons.keyboard_arrow_right;
@@ -206,6 +225,7 @@ IconData _materialIconFor(String materialIcon) {
     MaterialIconKey.arrowUpward => Icons.arrow_upward,
     MaterialIconKey.backHandOutlined => Icons.back_hand_outlined,
     MaterialIconKey.callReceived => Icons.call_received,
+    MaterialIconKey.directionsCar => Icons.directions_car,
     MaterialIconKey.directionsWalk => Icons.directions_walk,
     MaterialIconKey.editOutlined => Icons.edit_outlined,
     MaterialIconKey.euro => Icons.euro,
@@ -215,6 +235,8 @@ IconData _materialIconFor(String materialIcon) {
     MaterialIconKey.inventory2Outlined => Icons.inventory_2_outlined,
     MaterialIconKey.lightbulbOutline => Icons.lightbulb_outline,
     MaterialIconKey.menuBookOutlined => Icons.menu_book_outlined,
+    MaterialIconKey.movieOutlined => Icons.movie_outlined,
+    MaterialIconKey.noCrashOutlined => Icons.no_crash_outlined,
     MaterialIconKey.panToolAltOutlined => Icons.pan_tool_alt_outlined,
     MaterialIconKey.panToolOutlined => Icons.pan_tool_outlined,
     MaterialIconKey.personOutline => Icons.person_outline,
@@ -234,6 +256,7 @@ Color _verbWakeSignalColor(
     'complement' => colors.secondary,
     'recipient' => colors.tertiary,
     'destination' => colors.error,
+    'addressee' || 'companion' => colors.secondary,
     _ => colors.primary,
   };
 }
