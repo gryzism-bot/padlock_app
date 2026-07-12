@@ -82,9 +82,11 @@ Next crease candidates:
   - `I painted the door red.`
   - `They elected her president.`
 - lexical `be` phrase complements:
-  - `He is at school.`
-  - `She is from Poland.`
-  - `They are with Mary.`
+  - done for place/location/source:
+    - `He is at school.`
+    - `She is from Poland.`
+  - remaining companion surface:
+    - `They are with Mary.`
 - verb-bound prepositional participants:
   - `run to school`
   - `speak to Mary`

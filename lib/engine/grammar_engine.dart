@@ -760,9 +760,11 @@ class GrammarEngine {
     builder.timePhrase = builder.state.timePhrase?.render() ?? '';
 
     if (builder.state.placePhrase != null) {
-      final meaning = builder.state.action.usesDestinationPlace
-          ? PlaceMeaning.destination
-          : PlaceMeaning.location;
+      final meaning =
+          builder.state.placeMeaning ??
+          (builder.state.action.usesDestinationPlace
+              ? PlaceMeaning.destination
+              : PlaceMeaning.location);
 
       builder.placePhrase = builder.state.placePhrase!.render(meaning);
     } else {

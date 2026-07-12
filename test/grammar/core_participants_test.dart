@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
@@ -7,12 +8,14 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
+import 'package:padlock_app/data/subjects/third_person/geography.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -284,6 +287,78 @@ void main() {
       );
 
       expect(sentence, 'He was made calm by them.');
+    });
+
+    test('lexical be renders place phrase as a predicate complement', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: be,
+          placePhrase: schoolPlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John is at school.');
+    });
+
+    test('lexical be place complement survives verb chains', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: be,
+          placePhrase: homePlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'Mary has been at home.');
+    });
+
+    test('lexical be place complement survives modals', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: be,
+          placePhrase: homePlacePhrase,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary should be at home.');
+    });
+
+    test('lexical be can render source place complement', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: be,
+          placePhrase: polandPlacePhrase,
+          placeMeaning: PlaceMeaning.source,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She is from Poland.');
+    });
+
+    test('lexical be can link place subject to place complement', () {
+      final sentence = render(
+        SentenceState(
+          agent: czechia.toNounPhrase(Number.singular),
+          action: be,
+          placePhrase: europePlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Czechia is in Europe.');
     });
 
     test('active recipients can be reflexive participants', () {

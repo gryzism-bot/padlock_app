@@ -5,6 +5,7 @@ import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -370,6 +371,7 @@ class ConfigurationEngine {
       SetPlacePhrase(:final placePhrase) => _copy(
         state,
         placePhrase: placePhrase,
+        placeMeaning: placePhrase == null ? null : state.placeMeaning,
       ),
       SetFrequencyPhrase(:final frequencyPhrase) => _copy(
         state,
@@ -781,6 +783,7 @@ class ConfigurationEngine {
     SentenceForm? sentenceForm,
     Object? timePhrase = _unchanged,
     Object? placePhrase = _unchanged,
+    Object? placeMeaning = _unchanged,
     Object? frequencyPhrase = _unchanged,
     Object? mannerPhrase = _unchanged,
   }) {
@@ -824,6 +827,9 @@ class ConfigurationEngine {
       placePhrase: identical(placePhrase, _unchanged)
           ? state.placePhrase
           : placePhrase as PlacePhrase?,
+      placeMeaning: identical(placeMeaning, _unchanged)
+          ? state.placeMeaning
+          : placeMeaning as PlaceMeaning?,
       frequencyPhrase: identical(frequencyPhrase, _unchanged)
           ? state.frequencyPhrase
           : frequencyPhrase as FrequencyPhrase?,

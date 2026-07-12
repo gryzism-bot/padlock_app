@@ -53,6 +53,30 @@ const universityPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'uniwersytet'},
 );
 
+const polandPlacePhrase = PlacePhrase(
+  noun: 'Poland',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'Polska'},
+);
+
+const europePlacePhrase = PlacePhrase(
+  noun: 'Europe',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'Europa'},
+);
+
 const officePlacePhrase = PlacePhrase(
   noun: 'office',
   takesArticle: true,
@@ -214,6 +238,8 @@ List<PlacePhrase> placePhrases = [
   workPlacePhrase,
   schoolPlacePhrase,
   universityPlacePhrase,
+  polandPlacePhrase,
+  europePlacePhrase,
   officePlacePhrase,
   parkPlacePhrase,
   gardenPlacePhrase,

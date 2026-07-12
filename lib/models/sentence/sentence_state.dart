@@ -1,6 +1,7 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/recipient_preposition.dart';
@@ -42,6 +43,7 @@ class SentenceState {
 
   final TimePhrase? timePhrase;
   final PlacePhrase? placePhrase;
+  final PlaceMeaning? placeMeaning;
   final FrequencyPhrase? frequencyPhrase;
   final MannerPhrase? mannerPhrase;
 
@@ -71,6 +73,7 @@ class SentenceState {
 
     this.timePhrase,
     this.placePhrase,
+    this.placeMeaning,
     this.frequencyPhrase,
     this.mannerPhrase,
   });
@@ -97,6 +100,7 @@ class SentenceState {
       'form=$sentenceForm',
       'time=${timePhrase?.text}',
       'place=${placePhrase?.noun}',
+      'placeMeaning=${placeMeaning?.name}',
       'frequency=${frequencyPhrase?.text}',
       'manner=${mannerPhrase?.text}',
     ].join(', ');
@@ -125,6 +129,7 @@ Passive Focus: $passiveFocus
 Show Passive Agent: $showPassiveAgent
 Time Phrase: ${timePhrase?.text}
 Place Phrase: ${placePhrase?.noun}
+Place Meaning: ${placeMeaning?.name}
 Frequency Phrase: ${frequencyPhrase?.text}
 ''';
   }

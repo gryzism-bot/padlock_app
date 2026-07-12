@@ -10,6 +10,7 @@ import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
 import 'package:padlock_app/data/subjects/pronouns.dart' show you;
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/geography.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart' hide need;
@@ -19,6 +20,7 @@ import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/preposition.dart';
@@ -1747,7 +1749,9 @@ class RecognitionEngine {
 
   void _recognizePlacePhrase(_RecognitionBuilder builder, List<String> tokens) {
     for (final phrase in placePhrases) {
-      for (final preposition in phrase.prepositions.values) {
+      for (final entry in phrase.prepositions.entries) {
+        final meaning = entry.key;
+        final preposition = entry.value;
         final wordsBefore = _placePhraseWordIndex(tokens, phrase, preposition);
 
         if (wordsBefore < 0) {
@@ -1755,6 +1759,7 @@ class RecognitionEngine {
         }
 
         builder.placePhrase = phrase;
+        builder.placeMeaning = meaning;
 
         final phraseLength =
             (preposition != null ? 1 : 0) +
@@ -1957,6 +1962,7 @@ class _RecognitionBuilder {
   int timePhraseEnd = -1;
 
   PlacePhrase? placePhrase;
+  PlaceMeaning? placeMeaning;
   int placePhraseStart = -1;
   int placePhraseEnd = -1;
 
@@ -1997,6 +2003,7 @@ class _RecognitionBuilder {
       sentenceForm: sentenceForm,
       timePhrase: timePhrase,
       placePhrase: placePhrase,
+      placeMeaning: placeMeaning,
       frequencyPhrase: frequencyPhrase,
       mannerPhrase: mannerPhrase,
     );
@@ -2023,7 +2030,7 @@ class _RecognitionBuilder {
       'passiveFocus: $passiveFocus',
       'modal: $modal',
       'polarity: $polarity',
-      'phrases: time=${timePhrase?.text} [$timePhraseStart,$timePhraseEnd], place=${placePhrase?.noun} [$placePhraseStart,$placePhraseEnd], frequency=${frequencyPhrase?.text} [$frequencyPhraseStart,$frequencyPhraseEnd], manner=${mannerPhrase?.text} [$mannerPhraseStart,$mannerPhraseEnd]',
+      'phrases: time=${timePhrase?.text} [$timePhraseStart,$timePhraseEnd], place=${placePhrase?.noun}/${placeMeaning?.name} [$placePhraseStart,$placePhraseEnd], frequency=${frequencyPhrase?.text} [$frequencyPhraseStart,$frequencyPhraseEnd], manner=${mannerPhrase?.text} [$mannerPhraseStart,$mannerPhraseEnd]',
       'unknownTokens: $unknownTokens',
       if (action != null) 'state: ${state.summary}',
     ].join('\n');
@@ -2076,6 +2083,7 @@ const _knownNouns = [
   woman,
   boy,
   girl,
+  czechia,
   house,
   apartment,
   car,

@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
@@ -7,6 +9,7 @@ import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
@@ -242,6 +245,66 @@ void main() {
       expect(state.action, make);
       expect(state.voice, Voice.passive);
       expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test(
+      'lexical be recognizes place phrase as predicate complement surface',
+      () {
+        final state = engine.recognize('John is at school.');
+
+        expectAgent(state, text: 'john');
+        expect(state.action, be);
+        expect(state.placePhrase, schoolPlacePhrase);
+        expect(state.complement, isNull);
+        expect(state.adjectiveComplement, isNull);
+        expect(state.tense, Tense.present);
+        expect(state.aspect, Aspect.simple);
+      },
+    );
+
+    test('lexical be place complement survives verb chains', () {
+      final state = engine.recognize('Mary has been at home.');
+
+      expectAgent(state, text: 'mary');
+      expect(state.action, be);
+      expect(state.placePhrase, homePlacePhrase);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
+      expect(state.tense, Tense.present);
+      expect(state.aspect, Aspect.perfect);
+    });
+
+    test('lexical be place complement survives modals', () {
+      final state = engine.recognize('Mary should be at home.');
+
+      expectAgent(state, text: 'mary');
+      expect(state.action, be);
+      expect(state.placePhrase, homePlacePhrase);
+      expect(state.modal, should);
+      expect(state.tense, Tense.present);
+      expect(state.aspect, Aspect.simple);
+    });
+
+    test('lexical be recognizes source place complement', () {
+      final state = engine.recognize('She is from Poland.');
+
+      expectAgent(state, text: 'she');
+      expect(state.action, be);
+      expect(state.placePhrase, polandPlacePhrase);
+      expect(state.placeMeaning, PlaceMeaning.source);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
+    });
+
+    test('lexical be recognizes place subject with place complement', () {
+      final state = engine.recognize('Czechia is in Europe.');
+
+      expectAgent(state, text: 'czechia');
+      expect(state.action, be);
+      expect(state.placePhrase, europePlacePhrase);
+      expect(state.placeMeaning, PlaceMeaning.location);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
     });
 
     test('active recipients recognize reflexive participants', () {
