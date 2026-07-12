@@ -1,4 +1,7 @@
 import 'package:padlock_app/models/grammar/subject/noun.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/subject/person.dart';
 import 'package:padlock_app/models/language.dart';
 
 const john = Noun(
@@ -34,6 +37,13 @@ const choir = Noun(
   plural: 'choirs',
   singularTranslations: {Language.pl: 'chór'},
   pluralTranslations: {Language.pl: 'chóry'},
+);
+
+const person = Noun(
+  singular: 'person',
+  plural: 'people',
+  singularTranslations: {Language.pl: 'osoba'},
+  pluralTranslations: {Language.pl: 'ludzie'},
 );
 
 const teacher = Noun(
@@ -92,6 +102,13 @@ const friend = Noun(
   pluralTranslations: {Language.pl: 'przyjaciele'},
 );
 
+const enemy = Noun(
+  singular: 'enemy',
+  plural: 'enemies',
+  singularTranslations: {Language.pl: 'wrog'},
+  pluralTranslations: {Language.pl: 'wrogowie'},
+);
+
 const neighbour = Noun(
   singular: 'neighbour',
   plural: 'neighbours',
@@ -146,4 +163,32 @@ const girl = Noun(
   plural: 'girls',
   singularTranslations: {Language.pl: 'dziewczynka'},
   pluralTranslations: {Language.pl: 'dziewczynki'},
+);
+
+const someone = NounPhrase(
+  text: 'someone',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'ktos'},
+);
+
+const anyone = NounPhrase(
+  text: 'anyone',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'ktokolwiek'},
+);
+
+const nobody = NounPhrase(
+  text: 'nobody',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'nikt'},
+);
+
+const everyone = NounPhrase(
+  text: 'everyone',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'wszyscy'},
 );

@@ -9,6 +9,29 @@ ordered from the deepest crease upward:
 4. Semantic C-section: meaning and world-fit.
 5. UI: how the machine exposes those choices.
 
+## Feature Surface Map
+
+UI is not equal to features. UI is the surface where implemented features become
+reachable, understandable, and testable.
+
+Use this map when deciding whether a feature is truly done:
+
+| Feature | Grammar | Recognition | Lock | Compass | UI |
+| --- | --- | --- | --- | --- | --- |
+| lexical `be` noun complement | yes | yes | yes | yes | yes |
+| lexical `be` adjective complement | yes | yes | yes | yes | yes |
+| lexical `be` place/source complement | yes | yes | yes | partial | partial |
+| companion surface | yes | yes | yes | yes | partial |
+| destination/addressee surface | yes | yes | yes | yes | partial |
+| recipient before object | yes | yes | yes | yes | partial |
+| recipient with `to`/`for` | yes | yes | yes | partial | partial |
+| fixed predicate objects | yes | yes | yes | yes | yes |
+| object/recipient determiner exits | yes | yes | yes | yes | needs polish |
+| semantic fit such as `eat food` over `eat street` | no | no | planned | planned | no |
+
+If a row is green through old engines but partial in UI, it is not a grammar
+gap. It is a feature-surfacing gap.
+
 ## Boundary Check: Laws That May Belong Lower
 
 Configuration Engine is mostly holding the right kind of laws. It blocks states

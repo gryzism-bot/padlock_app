@@ -160,6 +160,68 @@ void main() {
       );
     });
 
+    test('default vocabulary exposes broader third-person noun surface', () {
+      final broadCompass = ConfigurationCompass();
+
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(see),
+      );
+      final objectLabels = broadCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+          .map((suggestion) => suggestion.label);
+
+      expect(
+        objectLabels,
+        containsAll(['plant', 'plants', 'cat', 'cats', 'dog', 'dogs']),
+      );
+
+      state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(give),
+      );
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      final recipientLabels = broadCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.recipient, limit: 0)
+          .map((suggestion) => suggestion.label);
+
+      expect(
+        recipientLabels,
+        containsAll([
+          'a friend',
+          'my friend',
+          'our friend',
+          'that enemy',
+          'someone',
+          'anyone',
+          'nobody',
+          'everyone',
+        ]),
+      );
+
+      state = lock.applyMove(ConfigurationState.initial(), const SetAction(be));
+      final complementLabels = broadCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.complement, limit: 0)
+          .map((suggestion) => suggestion.label);
+
+      expect(
+        complementLabels,
+        containsAll([
+          'a friend',
+          'my friend',
+          'our friend',
+          'that enemy',
+          'someone',
+          'anyone',
+          'nobody',
+          'everyone',
+        ]),
+      );
+    });
+
     test(
       'fixed text objects can take object modifiers while pronoun recipients stay bare',
       () {
@@ -515,12 +577,26 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), [
-        'a doctor',
-        'a student',
-        'a teacher',
-        'an engineer',
-      ]);
+      final singularLabels = suggestions
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(
+        singularLabels,
+        containsAll([
+          'a doctor',
+          'a friend',
+          'a person',
+          'a student',
+          'a teacher',
+          'an engineer',
+          'someone',
+          'anyone',
+          'nobody',
+          'everyone',
+        ]),
+      );
+      expect(singularLabels, isNot(contains('people')));
 
       state = lock.applyMove(state, const SetAgent(they));
       suggestions = compass.suggestionsFor(
@@ -529,13 +605,28 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), [
-        'doctors',
-        'engineers',
-        'students',
-        'teachers',
-      ]);
-      expect(render(suggestions.last.preview), 'They are teachers.');
+      final pluralLabels = suggestions
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(
+        pluralLabels,
+        containsAll([
+          'doctors',
+          'enemies',
+          'engineers',
+          'friends',
+          'people',
+          'students',
+          'teachers',
+        ]),
+      );
+      expect(pluralLabels, isNot(contains('someone')));
+
+      final teachers = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'teachers',
+      );
+      expect(render(teachers.preview), 'They are teachers.');
     });
 
     test('offers normal verbs as exits from lexical be', () {

@@ -8,6 +8,7 @@ import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -793,6 +794,12 @@ final _defaultObjects = [
   bottle.toNounPhrase(Number.plural),
   ball.toNounPhrase(Number.singular),
   ball.toNounPhrase(Number.plural),
+  plant.toNounPhrase(Number.singular),
+  plant.toNounPhrase(Number.plural),
+  cat.toNounPhrase(Number.singular),
+  cat.toNounPhrase(Number.plural),
+  dog.toNounPhrase(Number.singular),
+  dog.toNounPhrase(Number.plural),
 ];
 
 final _defaultRecipients = [
@@ -804,9 +811,23 @@ final _defaultRecipients = [
   youObject,
   mary.toNounPhrase(Number.singular),
   john.toNounPhrase(Number.singular),
+  someone,
+  anyone,
+  nobody,
+  everyone,
   teacher.toNounPhrase(Number.singular),
   student.toNounPhrase(Number.singular),
+  person.toNounPhrase(Number.singular),
+  person.toNounPhrase(Number.plural),
   friend.toNounPhrase(Number.singular),
+  friend.toNounPhrase(Number.singular, determiner: aDeterminer),
+  friend.toNounPhrase(Number.singular, determiner: myDeterminer),
+  friend.toNounPhrase(Number.singular, determiner: ourDeterminer),
+  friend.toNounPhrase(Number.plural),
+  enemy.toNounPhrase(Number.singular, determiner: thatDeterminer),
+  enemy.toNounPhrase(Number.plural),
+  cat.toNounPhrase(Number.singular, determiner: aDeterminer),
+  dog.toNounPhrase(Number.singular, determiner: aDeterminer),
 ];
 
 final _defaultComplements = [
@@ -818,6 +839,18 @@ final _defaultComplements = [
   student.toNounPhrase(Number.plural),
   engineer.toNounPhrase(Number.singular, determiner: anDeterminer),
   engineer.toNounPhrase(Number.plural),
+  person.toNounPhrase(Number.singular, determiner: aDeterminer),
+  person.toNounPhrase(Number.plural),
+  friend.toNounPhrase(Number.singular, determiner: aDeterminer),
+  friend.toNounPhrase(Number.singular, determiner: myDeterminer),
+  friend.toNounPhrase(Number.singular, determiner: ourDeterminer),
+  friend.toNounPhrase(Number.plural),
+  enemy.toNounPhrase(Number.singular, determiner: thatDeterminer),
+  enemy.toNounPhrase(Number.plural),
+  someone,
+  anyone,
+  nobody,
+  everyone,
 ];
 
 final _coreModals = [

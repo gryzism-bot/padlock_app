@@ -225,6 +225,13 @@ const ball = Noun(
   pluralTranslations: {Language.pl: 'pilki'},
 );
 
+const plant = Noun(
+  singular: 'plant',
+  plural: 'plants',
+  singularTranslations: {Language.pl: 'roslina'},
+  pluralTranslations: {Language.pl: 'rosliny'},
+);
+
 const plate = Noun(
   singular: 'plate',
   plural: 'plates',

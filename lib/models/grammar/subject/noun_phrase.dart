@@ -93,4 +93,8 @@ const _pronounTexts = {
   'ourselves',
   'yourselves',
   'themselves',
+  'someone',
+  'anyone',
+  'nobody',
+  'everyone',
 };

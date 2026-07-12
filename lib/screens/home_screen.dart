@@ -5,7 +5,9 @@ import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -1145,6 +1147,128 @@ class _PronounSection extends StatelessWidget {
                               SetAgent(cat.toNounPhrase(Number.singular)),
                             ),
                           ),
+                          _MoveButton(
+                            label: 'dog',
+                            selected: _sameNounPhrase(
+                              agent,
+                              dog.toNounPhrase(Number.singular),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(dog.toNounPhrase(Number.singular)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'John',
+                            selected: _sameNounPhrase(
+                              agent,
+                              john.toNounPhrase(Number.singular),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(john.toNounPhrase(Number.singular)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'Mary',
+                            selected: _sameNounPhrase(
+                              agent,
+                              mary.toNounPhrase(Number.singular),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(mary.toNounPhrase(Number.singular)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'a friend',
+                            selected: _sameNounPhrase(
+                              agent,
+                              friend.toNounPhrase(
+                                Number.singular,
+                                determiner: aDeterminer,
+                              ),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(
+                                friend.toNounPhrase(
+                                  Number.singular,
+                                  determiner: aDeterminer,
+                                ),
+                              ),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'my friend',
+                            selected: _sameNounPhrase(
+                              agent,
+                              friend.toNounPhrase(
+                                Number.singular,
+                                determiner: myDeterminer,
+                              ),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(
+                                friend.toNounPhrase(
+                                  Number.singular,
+                                  determiner: myDeterminer,
+                                ),
+                              ),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'our friend',
+                            selected: _sameNounPhrase(
+                              agent,
+                              friend.toNounPhrase(
+                                Number.singular,
+                                determiner: ourDeterminer,
+                              ),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(
+                                friend.toNounPhrase(
+                                  Number.singular,
+                                  determiner: ourDeterminer,
+                                ),
+                              ),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'that enemy',
+                            selected: _sameNounPhrase(
+                              agent,
+                              enemy.toNounPhrase(
+                                Number.singular,
+                                determiner: thatDeterminer,
+                              ),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(
+                                enemy.toNounPhrase(
+                                  Number.singular,
+                                  determiner: thatDeterminer,
+                                ),
+                              ),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'someone',
+                            selected: _sameNounPhrase(agent, someone),
+                            onPressed: () => onMove(const SetAgent(someone)),
+                          ),
+                          _MoveButton(
+                            label: 'anyone',
+                            selected: _sameNounPhrase(agent, anyone),
+                            onPressed: () => onMove(const SetAgent(anyone)),
+                          ),
+                          _MoveButton(
+                            label: 'nobody',
+                            selected: _sameNounPhrase(agent, nobody),
+                            onPressed: () => onMove(const SetAgent(nobody)),
+                          ),
+                          _MoveButton(
+                            label: 'everyone',
+                            selected: _sameNounPhrase(agent, everyone),
+                            onPressed: () => onMove(const SetAgent(everyone)),
+                          ),
                         ],
                         children: [
                           _MoveButton(
@@ -1193,6 +1317,46 @@ class _PronounSection extends StatelessWidget {
                             ),
                             onPressed: () => onMove(
                               SetAgent(cat.toNounPhrase(Number.plural)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'dogs',
+                            selected: _sameNounPhrase(
+                              agent,
+                              dog.toNounPhrase(Number.plural),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(dog.toNounPhrase(Number.plural)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'friends',
+                            selected: _sameNounPhrase(
+                              agent,
+                              friend.toNounPhrase(Number.plural),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(friend.toNounPhrase(Number.plural)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'enemies',
+                            selected: _sameNounPhrase(
+                              agent,
+                              enemy.toNounPhrase(Number.plural),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(enemy.toNounPhrase(Number.plural)),
+                            ),
+                          ),
+                          _MoveButton(
+                            label: 'people',
+                            selected: _sameNounPhrase(
+                              agent,
+                              person.toNounPhrase(Number.plural),
+                            ),
+                            onPressed: () => onMove(
+                              SetAgent(person.toNounPhrase(Number.plural)),
                             ),
                           ),
                         ],
