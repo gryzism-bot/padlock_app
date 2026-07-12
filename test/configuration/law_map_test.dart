@@ -26,5 +26,19 @@ void main() {
 
       expect(offenders, isEmpty);
     });
+
+    test('destination-capable verbs expose destination influence', () {
+      final offenders = verbs
+          .where((verb) => verb.usesDestinationPlace)
+          .where(
+            (verb) => predicateInfluencesFor(
+              verb,
+            ).every((influence) => influence.key != 'destination'),
+          )
+          .map((verb) => verb.infinitive)
+          .toList();
+
+      expect(offenders, isEmpty);
+    });
   });
 }

@@ -540,6 +540,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       'addressee -> ${_nounTraceText(addressee)}',
     SetCompanion(:final companion) =>
       'companion -> ${_nounTraceText(companion)}',
+    SetDestination(:final destination) =>
+      'destination -> ${_nounTraceText(destination)}',
     SetComplement(:final complement) =>
       'noun complement -> ${_nounTraceText(complement)}',
     SetNounPhraseDeterminer(:final target, :final determiner) =>
@@ -593,6 +595,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.recipient => 'recipient',
     NounPhraseTarget.addressee => 'addressee',
     NounPhraseTarget.companion => 'companion',
+    NounPhraseTarget.destination => 'destination',
     NounPhraseTarget.complement => 'complement',
   };
 }
@@ -1555,6 +1558,9 @@ String _slotTitle(
     ConfigurationCompassSlot.companion => 'Companion',
     ConfigurationCompassSlot.companionDeterminer => 'Companion determiner',
     ConfigurationCompassSlot.companionAdjective => 'Companion adjective',
+    ConfigurationCompassSlot.destination => 'Destination',
+    ConfigurationCompassSlot.destinationDeterminer => 'Destination determiner',
+    ConfigurationCompassSlot.destinationAdjective => 'Destination adjective',
     ConfigurationCompassSlot.complement => 'Noun complement',
     ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
     ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
@@ -1582,6 +1588,9 @@ bool _isControlledRail(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.companion ||
     ConfigurationCompassSlot.companionDeterminer ||
     ConfigurationCompassSlot.companionAdjective ||
+    ConfigurationCompassSlot.destination ||
+    ConfigurationCompassSlot.destinationDeterminer ||
+    ConfigurationCompassSlot.destinationAdjective ||
     ConfigurationCompassSlot.complement ||
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective ||
@@ -1628,6 +1637,9 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.companion => state.companion != null,
     ConfigurationCompassSlot.companionDeterminer ||
     ConfigurationCompassSlot.companionAdjective => state.companion != null,
+    ConfigurationCompassSlot.destination => state.destination != null,
+    ConfigurationCompassSlot.destinationDeterminer ||
+    ConfigurationCompassSlot.destinationAdjective => state.destination != null,
     ConfigurationCompassSlot.complement => state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective => state.complement != null,
@@ -1671,6 +1683,11 @@ String _unlockHint(
     ConfigurationCompassSlot.companionDeterminer ||
     ConfigurationCompassSlot.companionAdjective =>
       'Choose a companion first. Companion modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.destination =>
+      'Choose a movement verb like go, come, travel, arrive, leave, or return.',
+    ConfigurationCompassSlot.destinationDeterminer ||
+    ConfigurationCompassSlot.destinationAdjective =>
+      'Choose a destination first. Destination modifiers wake after that noun exists.',
     ConfigurationCompassSlot.complement =>
       'Choose verb be first. Noun complements belong to the be frame.',
     ConfigurationCompassSlot.complementDeterminer ||

@@ -28,6 +28,7 @@ enum NounPhraseTarget {
   recipient,
   addressee,
   companion,
+  destination,
   complement,
 }
 
@@ -159,6 +160,12 @@ class SetCompanion extends ConfigurationMove {
   final NounPhrase? companion;
 
   const SetCompanion(this.companion);
+}
+
+class SetDestination extends ConfigurationMove {
+  final NounPhrase? destination;
+
+  const SetDestination(this.destination);
 }
 
 class SetComplement extends ConfigurationMove {
@@ -304,6 +311,7 @@ class ConfigurationEngine {
                 object: null,
                 recipient: null,
                 addressee: null,
+                destination: null,
                 voice: Voice.active,
                 passiveFocus: null,
                 showPassiveAgent: true,
@@ -313,6 +321,9 @@ class ConfigurationEngine {
                 action: action,
                 addressee: action.takesAddressee ? state.addressee : null,
                 companion: action.takesCompanion ? state.companion : null,
+                destination: action.usesDestinationPlace
+                    ? state.destination
+                    : null,
                 complement: null,
                 adjectiveComplement: null,
               ),
@@ -320,6 +331,10 @@ class ConfigurationEngine {
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetAddressee(:final addressee) => _copy(state, addressee: addressee),
       SetCompanion(:final companion) => _copy(state, companion: companion),
+      SetDestination(:final destination) => _copy(
+        state,
+        destination: destination,
+      ),
       SetComplement(:final complement) => _copy(
         state,
         complement: complement,
@@ -353,6 +368,7 @@ class ConfigurationEngine {
         object: null,
         recipient: null,
         addressee: null,
+        destination: null,
         complement: complement,
         adjectiveComplement: null,
         voice: Voice.active,
@@ -365,6 +381,7 @@ class ConfigurationEngine {
         object: null,
         recipient: null,
         addressee: null,
+        destination: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
         voice: Voice.active,
@@ -419,6 +436,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Recipient', state.recipient, blockers);
     _validateNounPhrase('Addressee', state.addressee, blockers);
     _validateNounPhrase('Companion', state.companion, blockers);
+    _validateNounPhrase('Destination', state.destination, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
 
     if (state.action.infinitive == 'be') {
@@ -540,6 +558,14 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.destination != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take a destination.',
+        ),
+      );
+    }
+
     if (state.passiveFocus != null) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -592,6 +618,14 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take a companion.',
+        ),
+      );
+    }
+
+    if (state.destination != null && !state.action.usesDestinationPlace) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${state.action.infinitive} does not take a destination.',
         ),
       );
     }
@@ -833,6 +867,7 @@ class ConfigurationEngine {
     Object? recipient = _unchanged,
     Object? addressee = _unchanged,
     Object? companion = _unchanged,
+    Object? destination = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
     Voice? voice,
@@ -871,6 +906,9 @@ class ConfigurationEngine {
       companion: identical(companion, _unchanged)
           ? state.companion
           : companion as NounPhrase?,
+      destination: identical(destination, _unchanged)
+          ? state.destination
+          : destination as NounPhrase?,
       recipientPlacement: state.recipientPlacement,
       recipientPreposition: state.recipientPreposition,
       complement: identical(complement, _unchanged)
@@ -933,6 +971,10 @@ class ConfigurationEngine {
         state.companion == null
             ? state
             : _copy(state, companion: transform(state.companion!)),
+      NounPhraseTarget.destination =>
+        state.destination == null
+            ? state
+            : _copy(state, destination: transform(state.destination!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state

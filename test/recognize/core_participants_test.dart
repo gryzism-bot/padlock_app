@@ -10,6 +10,7 @@ import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
@@ -475,6 +476,53 @@ void main() {
       expect(state.placePhrase, schoolPlacePhrase);
       expect(state.placeMeaning, PlaceMeaning.destination);
       expect(state.mannerPhrase, quietlyMannerPhrase);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('motion verbs recognize manner before person destination', () {
+      final state = engine.recognize('Mary went silently to John.');
+
+      expectAgent(state, text: 'mary');
+      expectDestination(state, text: 'john');
+      expect(state.action, go);
+      expect(state.mannerPhrase, silentlyMannerPhrase);
+      expect(state.placePhrase, isNull);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('regular destination verbs recognize person destination surface', () {
+      final state = engine.recognize('Mary travelled silently to John.');
+
+      expectAgent(state, text: 'mary');
+      expectDestination(state, text: 'john');
+      expect(state.action, travel_data.travel);
+      expect(state.mannerPhrase, silentlyMannerPhrase);
+      expect(state.placePhrase, isNull);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('regular destination verbs recognize perfect destination chains', () {
+      final state = engine.recognize('Mary has travelled to school.');
+
+      expectAgent(state, text: 'mary');
+      expect(state.action, travel_data.travel);
+      expect(state.placePhrase, schoolPlacePhrase);
+      expect(state.placeMeaning, PlaceMeaning.destination);
+      expect(state.tense, Tense.present);
+      expect(state.aspect, Aspect.perfect);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('person destination pronouns recognize object case', () {
+      final state = engine.recognize('Mary went to him.');
+
+      expectAgent(state, text: 'mary');
+      expectDestination(state, text: 'him');
+      expect(state.action, go);
       expect(state.object, isNull);
       expect(state.recipient, isNull);
     });

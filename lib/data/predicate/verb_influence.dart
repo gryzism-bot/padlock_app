@@ -85,7 +85,7 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
       PredicateInfluence(
         key: 'destination',
         label: 'destination',
-        tooltip: '${action.infinitive} wakes destination place',
+        tooltip: '${action.infinitive} wakes destination',
         rank: 40,
       ),
     if (action.takesObject && fixedLabel == null)

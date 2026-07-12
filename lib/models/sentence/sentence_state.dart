@@ -24,6 +24,7 @@ class SentenceState {
   final NounPhrase? recipient;
   final NounPhrase? addressee;
   final NounPhrase? companion;
+  final NounPhrase? destination;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
   final NounPhrase? objectComplement;
@@ -56,6 +57,7 @@ class SentenceState {
     this.recipient,
     this.addressee,
     this.companion,
+    this.destination,
     this.recipientPlacement = RecipientPlacement.beforeObject,
     this.recipientPreposition = RecipientPreposition.to,
     this.objectComplement,
@@ -90,6 +92,7 @@ class SentenceState {
       'recipient=${recipient?.text}',
       'addressee=${addressee?.text}',
       'companion=${companion?.text}',
+      'destination=${destination?.text}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
       'objectComplement=${objectComplement?.text}',
@@ -121,6 +124,7 @@ Object: ${object?.text}
 Recipient: ${recipient?.text}
 Addressee: ${addressee?.text}
 Companion: ${companion?.text}
+Destination: ${destination?.text}
 Recipient Placement: $recipientPlacement
 Recipient Preposition: $recipientPreposition
 Object Complement: ${objectComplement?.text}

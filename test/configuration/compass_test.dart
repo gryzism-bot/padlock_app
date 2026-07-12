@@ -562,6 +562,31 @@ void main() {
       expect(render(suggestions.last.preview), 'You speak with Mary.');
     });
 
+    test('destination suggestions require movement destination frame', () {
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(speak),
+      );
+
+      expect(
+        compass.suggestionsFor(state, ConfigurationCompassSlot.destination),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(go));
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.destination,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'John',
+        'Mary',
+      ]);
+      expect(render(suggestions.last.preview), 'You go to Mary.');
+    });
+
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(give));

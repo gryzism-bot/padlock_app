@@ -81,6 +81,7 @@ class GrammarEngine {
       builder.displayRecipient = null;
       builder.displayAddressee = builder.state.addressee;
       builder.displayCompanion = builder.state.companion;
+      builder.displayDestination = builder.state.destination;
       builder.displayAgent = null;
       builder.displayObjectComplement = null;
       builder.displayObjectAdjectiveComplement = null;
@@ -98,6 +99,7 @@ class GrammarEngine {
         builder.displayRecipient = builder.state.recipient;
         builder.displayAddressee = builder.state.addressee;
         builder.displayCompanion = builder.state.companion;
+        builder.displayDestination = builder.state.destination;
         builder.displayAgent = null;
         builder.displayObjectComplement = builder.state.objectComplement;
         builder.displayObjectAdjectiveComplement =
@@ -119,6 +121,7 @@ class GrammarEngine {
             builder.displayRecipient = builder.state.recipient;
             builder.displayAddressee = builder.state.addressee;
             builder.displayCompanion = builder.state.companion;
+            builder.displayDestination = builder.state.destination;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
@@ -138,6 +141,7 @@ class GrammarEngine {
             builder.displayRecipient = null;
             builder.displayAddressee = builder.state.addressee;
             builder.displayCompanion = builder.state.companion;
+            builder.displayDestination = builder.state.destination;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
@@ -881,6 +885,12 @@ class GrammarEngine {
       parts.add('with ${_renderObjectCase(builder.displayCompanion!)}');
     }
 
+    // ---------- DESTINATION ----------
+
+    if (builder.displayDestination != null) {
+      parts.add('to ${_renderObjectCase(builder.displayDestination!)}');
+    }
+
     // ---------- PASSIVE AGENT ----------
 
     if (builder.displayAgent != null) {
@@ -943,6 +953,7 @@ class GrammarEngine {
         builder.mannerPhrase.isNotEmpty &&
         (builder.displayAddressee != null ||
             builder.displayCompanion != null ||
+            builder.displayDestination != null ||
             (builder.state.action.usesDestinationPlace &&
                 builder.placePhrase.isNotEmpty));
   }
@@ -962,6 +973,7 @@ class _SentenceBuilder {
   NounPhrase? displayRecipient;
   NounPhrase? displayAddressee;
   NounPhrase? displayCompanion;
+  NounPhrase? displayDestination;
   NounPhrase? displayAgent;
   NounPhrase? displayObjectComplement;
   Adjective? displayObjectAdjectiveComplement;
@@ -990,6 +1002,7 @@ class _SentenceBuilder {
       'displayRecipient: ${displayRecipient?.text}',
       'displayAddressee: ${displayAddressee?.text}',
       'displayCompanion: ${displayCompanion?.text}',
+      'displayDestination: ${displayDestination?.text}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',
       'displayObjectAdjectiveComplement: ${displayObjectAdjectiveComplement?.text}',

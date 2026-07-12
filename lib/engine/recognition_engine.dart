@@ -1487,6 +1487,7 @@ class RecognitionEngine {
       builder.placePhraseStart,
       builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
       builder.companionStart > 0 ? builder.companionStart - 1 : -1,
+      builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
       builder.mannerPhraseStart,
@@ -1536,6 +1537,14 @@ class RecognitionEngine {
       firstPhraseStart,
     )) {
       builder.companionEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
+      builder.destinationStart,
+      builder.destinationEnd,
+      firstPhraseStart,
+    )) {
+      builder.destinationEnd = firstPhraseStart - 1;
     }
 
     if (_crossesPhrase(
@@ -1598,6 +1607,11 @@ class RecognitionEngine {
     if (builder.companionStart >= 0 &&
         builder.companionStart <= frontPhraseEnd) {
       builder.companionStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.destinationStart >= 0 &&
+        builder.destinationStart <= frontPhraseEnd) {
+      builder.destinationStart = frontPhraseEnd + 1;
     }
 
     if (builder.complementStart >= 0 &&
@@ -1663,6 +1677,16 @@ class RecognitionEngine {
         builder.tokens.sublist(
           builder.companionStart,
           builder.companionEnd + 1,
+        ),
+      );
+    }
+
+    if (builder.destinationStart >= 0 &&
+        builder.destinationEnd >= builder.destinationStart) {
+      builder.destination = _recognizeNounPhrase(
+        builder.tokens.sublist(
+          builder.destinationStart,
+          builder.destinationEnd + 1,
         ),
       );
     }
@@ -1828,6 +1852,7 @@ class RecognitionEngine {
     _recognizeTimePhrase(builder, phraseTokens);
     _recognizePlacePhrase(builder, phraseTokens);
     _recognizeFrequencyPhrase(builder, phraseTokens);
+    _recognizeDestinationPhrase(builder, phraseTokens);
     _recognizeAddresseePhrase(builder, phraseTokens);
     _recognizeCompanionPhrase(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
@@ -2012,6 +2037,51 @@ class RecognitionEngine {
     builder.addresseeEnd = _nounPhraseEnd(builder, addresseeStart);
   }
 
+  void _recognizeDestinationPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    if (builder.action?.usesDestinationPlace != true) {
+      return;
+    }
+
+    final wordsBefore = _toWordIndexNotAlreadyPlace(builder, tokens);
+
+    if (wordsBefore < 0) {
+      return;
+    }
+
+    final toIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final destinationStart = toIndex + 1;
+
+    if (!_looksLikeCompanionPhrase(builder, destinationStart)) {
+      return;
+    }
+
+    builder.destinationStart = destinationStart;
+    builder.destinationEnd = _nounPhraseEnd(builder, destinationStart);
+  }
+
+  int _toWordIndexNotAlreadyPlace(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    for (var index = 0; index < tokens.length; index++) {
+      if (tokens[index].toLowerCase() != 'to') {
+        continue;
+      }
+
+      final absoluteIndex = builder.verbChainEnd + 1 + index;
+      if (absoluteIndex == builder.placePhraseStart) {
+        continue;
+      }
+
+      return index;
+    }
+
+    return -1;
+  }
+
   bool _looksLikeCompanionPhrase(_RecognitionBuilder builder, int start) {
     if (start >= builder.tokens.length) {
       return false;
@@ -2119,6 +2189,9 @@ class _RecognitionBuilder {
   int companionStart = -1;
   int companionEnd = -1;
 
+  int destinationStart = -1;
+  int destinationEnd = -1;
+
   int complementStart = -1;
   int complementEnd = -1;
 
@@ -2152,6 +2225,7 @@ class _RecognitionBuilder {
   NounPhrase? recipient;
   NounPhrase? addressee;
   NounPhrase? companion;
+  NounPhrase? destination;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
   NounPhrase? complement;
@@ -2190,6 +2264,7 @@ class _RecognitionBuilder {
       recipient: recipient,
       addressee: addressee,
       companion: companion,
+      destination: destination,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
       complement: complement,
@@ -2223,6 +2298,7 @@ class _RecognitionBuilder {
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
       'addressee: $addresseeStart -> $addresseeEnd (${_tokensBetween(addresseeStart, addresseeEnd)}) = ${addressee?.text}',
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
+      'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',

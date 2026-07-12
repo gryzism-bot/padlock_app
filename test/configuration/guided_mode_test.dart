@@ -357,6 +357,51 @@ void main() {
       expect(render(state), 'You build.');
     });
 
+    test('accepts destination on movement verbs', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(go));
+      state = engine.applyMove(
+        state,
+        SetDestination(john.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.destination?.text, 'John');
+      expect(render(state), 'You go to John.');
+    });
+
+    test('blocks destination on verbs without destination frame', () {
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(speak),
+      );
+      final state = engine.applyMove(
+        previous,
+        SetDestination(john.toNounPhrase(Number.singular)),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(state.messages.single.text, 'speak does not take a destination.');
+    });
+
+    test('changing action clears incompatible destination frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(go));
+      state = engine.applyMove(
+        state,
+        SetDestination(john.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetAction(speak));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, speak);
+      expect(state.sentenceState.destination, isNull);
+      expect(render(state), 'You speak.');
+    });
+
     test('blocks passive voice without a passive-capable frame', () {
       final previous = engine.applyMove(
         ConfigurationState.initial(),

@@ -15,6 +15,7 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -598,6 +599,67 @@ void main() {
       );
 
       expect(sentence, 'Mary went quietly to school.');
+    });
+
+    test('motion verbs can render manner before person destination', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: go,
+          destination: john.toNounPhrase(Number.singular),
+          mannerPhrase: silentlyMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary went silently to John.');
+    });
+
+    test(
+      'regular destination verbs use the same person destination surface',
+      () {
+        final sentence = render(
+          SentenceState(
+            agent: mary.toNounPhrase(Number.singular),
+            action: travel_data.travel,
+            destination: john.toNounPhrase(Number.singular),
+            mannerPhrase: silentlyMannerPhrase,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, 'Mary travelled silently to John.');
+      },
+    );
+
+    test('regular destination verbs survive perfect verb chains', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: travel_data.travel,
+          placePhrase: schoolPlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'Mary has travelled to school.');
+    });
+
+    test('person destination pronouns render in object case', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: go,
+          destination: he,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary went to him.');
     });
 
     test('active recipients can be reflexive participants', () {

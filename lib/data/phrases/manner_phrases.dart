@@ -32,6 +32,12 @@ const quietlyMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const silentlyMannerPhrase = MannerPhrase(
+  text: 'silently',
+  translations: {Language.pl: 'cicho'},
+  position: PhrasePosition.afterPredicate,
+);
+
 const loudlyMannerPhrase = MannerPhrase(
   text: 'loudly',
   translations: {Language.pl: 'głośno'},
@@ -134,6 +140,7 @@ List<MannerPhrase> mannerPhrases = [
   carefullyMannerPhrase,
   easilyMannerPhrase,
   quietlyMannerPhrase,
+  silentlyMannerPhrase,
   loudlyMannerPhrase,
   happilyMannerPhrase,
   sadlyMannerPhrase,
