@@ -85,7 +85,7 @@ Next crease candidates:
   - done for place/location/source:
     - `He is at school.`
     - `She is from Poland.`
-  - remaining companion surface:
+  - done for companion surface:
     - `They are with Mary.`
 - verb-bound prepositional participants:
   - `run to school`

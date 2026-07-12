@@ -22,7 +22,7 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 enum ConfigurationMode { guided }
 
-enum NounPhraseTarget { agent, object, recipient, complement }
+enum NounPhraseTarget { agent, object, recipient, companion, complement }
 
 enum ConfigurationMessageKind { blocked, info }
 
@@ -140,6 +140,12 @@ class SetRecipient extends ConfigurationMove {
   final NounPhrase? recipient;
 
   const SetRecipient(this.recipient);
+}
+
+class SetCompanion extends ConfigurationMove {
+  final NounPhrase? companion;
+
+  const SetCompanion(this.companion);
 }
 
 class SetComplement extends ConfigurationMove {
@@ -296,6 +302,7 @@ class ConfigurationEngine {
               ),
       SetObject(:final object) => _copy(state, object: object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
+      SetCompanion(:final companion) => _copy(state, companion: companion),
       SetComplement(:final complement) => _copy(
         state,
         complement: complement,
@@ -391,6 +398,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Object', state.object, blockers);
     _validateNounPhrase('Object complement', state.objectComplement, blockers);
     _validateNounPhrase('Recipient', state.recipient, blockers);
+    _validateNounPhrase('Companion', state.companion, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
 
     if (state.action.infinitive == 'be') {
@@ -771,6 +779,7 @@ class ConfigurationEngine {
     Object? objectComplement = _unchanged,
     Object? objectAdjectiveComplement = _unchanged,
     Object? recipient = _unchanged,
+    Object? companion = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
     Voice? voice,
@@ -803,6 +812,9 @@ class ConfigurationEngine {
       recipient: identical(recipient, _unchanged)
           ? state.recipient
           : recipient as NounPhrase?,
+      companion: identical(companion, _unchanged)
+          ? state.companion
+          : companion as NounPhrase?,
       recipientPlacement: state.recipientPlacement,
       recipientPreposition: state.recipientPreposition,
       complement: identical(complement, _unchanged)
@@ -857,6 +869,10 @@ class ConfigurationEngine {
         state.recipient == null
             ? state
             : _copy(state, recipient: transform(state.recipient!)),
+      NounPhraseTarget.companion =>
+        state.companion == null
+            ? state
+            : _copy(state, companion: transform(state.companion!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state

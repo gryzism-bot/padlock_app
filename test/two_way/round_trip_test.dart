@@ -142,6 +142,8 @@ void main() {
         'Mary should be at home.',
         'She is from Poland.',
         'Czechia is in Europe.',
+        'They are with Mary.',
+        'Mary should be with him.',
         'Is the teacher in the office?',
         'Be happy.',
         'Do not be happy.',
@@ -176,7 +178,9 @@ void main() {
         'Usually John works at home.',
         'John works at home every day.',
         'Mary studied at university on Monday.',
+        'John ran with Mary.',
         'They work quietly.',
+        'John worked with care.',
         'John built a bridge carefully.',
       ]);
     });

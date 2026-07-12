@@ -536,6 +536,8 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetObject(:final object) => 'object -> ${_nounTraceText(object)}',
     SetRecipient(:final recipient) =>
       'recipient -> ${_nounTraceText(recipient)}',
+    SetCompanion(:final companion) =>
+      'companion -> ${_nounTraceText(companion)}',
     SetComplement(:final complement) =>
       'noun complement -> ${_nounTraceText(complement)}',
     SetNounPhraseDeterminer(:final target, :final determiner) =>
@@ -587,6 +589,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.agent => 'subject',
     NounPhraseTarget.object => 'object',
     NounPhraseTarget.recipient => 'recipient',
+    NounPhraseTarget.companion => 'companion',
     NounPhraseTarget.complement => 'complement',
   };
 }

@@ -1150,6 +1150,10 @@ class RecognitionEngine {
     }
 
     if (builder.verbChainEnd < builder.tokens.length - 1) {
+      if (_startsNonParticipantPhrase(builder, builder.verbChainEnd + 1)) {
+        return;
+      }
+
       if (builder.action?.takesObjectComplement == true &&
           _recognizeActiveObjectComplement(builder)) {
         return;
@@ -1163,6 +1167,42 @@ class RecognitionEngine {
       builder.objectStart = builder.verbChainEnd + 1;
       builder.objectEnd = builder.tokens.length - 1;
     }
+  }
+
+  bool _startsNonParticipantPhrase(_RecognitionBuilder builder, int start) {
+    if (start >= builder.tokens.length) {
+      return false;
+    }
+
+    final tokens = builder.tokens.sublist(start);
+
+    for (final phrase in timePhrases) {
+      if (_phraseWordIndex(tokens, phrase.text) == 0) {
+        return true;
+      }
+    }
+
+    for (final phrase in placePhrases) {
+      for (final preposition in phrase.prepositions.values) {
+        if (_placePhraseWordIndex(tokens, phrase, preposition) == 0) {
+          return true;
+        }
+      }
+    }
+
+    for (final phrase in frequencyPhrases) {
+      if (_phraseWordIndex(tokens, phrase.text) == 0) {
+        return true;
+      }
+    }
+
+    for (final phrase in mannerPhrases) {
+      if (_phraseWordIndex(tokens, phrase.text) == 0) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   bool _recognizeActiveObjectComplement(_RecognitionBuilder builder) {
@@ -1440,6 +1480,7 @@ class RecognitionEngine {
     final starts = <int>[
       builder.timePhraseStart,
       builder.placePhraseStart,
+      builder.companionStart > 0 ? builder.companionStart - 1 : -1,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
       builder.mannerPhraseStart,
@@ -1451,28 +1492,57 @@ class RecognitionEngine {
 
     final firstPhraseStart = starts.reduce((a, b) => a < b ? a : b);
 
-    if (builder.objectStart >= 0 && builder.objectEnd >= firstPhraseStart) {
+    if (_crossesPhrase(
+      builder.objectStart,
+      builder.objectEnd,
+      firstPhraseStart,
+    )) {
       builder.objectEnd = firstPhraseStart - 1;
     }
 
-    if (builder.objectComplementStart >= 0 &&
-        builder.objectComplementEnd >= firstPhraseStart) {
+    if (_crossesPhrase(
+      builder.objectComplementStart,
+      builder.objectComplementEnd,
+      firstPhraseStart,
+    )) {
       builder.objectComplementEnd = firstPhraseStart - 1;
     }
 
-    if (builder.recipientStart >= 0 &&
-        builder.recipientEnd >= firstPhraseStart) {
+    if (_crossesPhrase(
+      builder.recipientStart,
+      builder.recipientEnd,
+      firstPhraseStart,
+    )) {
       builder.recipientEnd = firstPhraseStart - 1;
     }
 
-    if (builder.agentStart >= 0 && builder.agentEnd >= firstPhraseStart) {
+    if (_crossesPhrase(
+      builder.companionStart,
+      builder.companionEnd,
+      firstPhraseStart,
+    )) {
+      builder.companionEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
+      builder.agentStart,
+      builder.agentEnd,
+      firstPhraseStart,
+    )) {
       builder.agentEnd = firstPhraseStart - 1;
     }
 
-    if (builder.complementStart >= 0 &&
-        builder.complementEnd >= firstPhraseStart) {
+    if (_crossesPhrase(
+      builder.complementStart,
+      builder.complementEnd,
+      firstPhraseStart,
+    )) {
       builder.complementEnd = firstPhraseStart - 1;
     }
+  }
+
+  bool _crossesPhrase(int start, int end, int phraseStart) {
+    return start >= 0 && start <= phraseStart && end >= phraseStart;
   }
 
   void _trimFrontPhrases(_RecognitionBuilder builder) {
@@ -1504,6 +1574,11 @@ class RecognitionEngine {
     if (builder.recipientStart >= 0 &&
         builder.recipientStart <= frontPhraseEnd) {
       builder.recipientStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.companionStart >= 0 &&
+        builder.companionStart <= frontPhraseEnd) {
+      builder.companionStart = frontPhraseEnd + 1;
     }
 
     if (builder.complementStart >= 0 &&
@@ -1549,6 +1624,16 @@ class RecognitionEngine {
         builder.tokens.sublist(
           builder.recipientStart,
           builder.recipientEnd + 1,
+        ),
+      );
+    }
+
+    if (builder.companionStart >= 0 &&
+        builder.companionEnd >= builder.companionStart) {
+      builder.companion = _recognizeNounPhrase(
+        builder.tokens.sublist(
+          builder.companionStart,
+          builder.companionEnd + 1,
         ),
       );
     }
@@ -1714,6 +1799,7 @@ class RecognitionEngine {
     _recognizeTimePhrase(builder, phraseTokens);
     _recognizePlacePhrase(builder, phraseTokens);
     _recognizeFrequencyPhrase(builder, phraseTokens);
+    _recognizeCompanionPhrase(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
   }
 
@@ -1846,6 +1932,51 @@ class RecognitionEngine {
     }
   }
 
+  void _recognizeCompanionPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    final wordsBefore = _phraseWordIndex(tokens, 'with');
+
+    if (wordsBefore < 0) {
+      return;
+    }
+
+    final withIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final companionStart = withIndex + 1;
+
+    if (!_looksLikeCompanionPhrase(builder, companionStart)) {
+      return;
+    }
+
+    builder.companionStart = companionStart;
+    builder.companionEnd = _nounPhraseEnd(builder, companionStart);
+  }
+
+  bool _looksLikeCompanionPhrase(_RecognitionBuilder builder, int start) {
+    if (start >= builder.tokens.length) {
+      return false;
+    }
+
+    if (_startsStandalonePronounPhrase(builder, start)) {
+      return true;
+    }
+
+    var current = start;
+    if (_lookupDeterminer(builder.tokens[current]) != null &&
+        current + 1 < builder.tokens.length) {
+      current++;
+    }
+
+    while (_lookupAdjective(builder.tokens[current]) != null &&
+        current + 1 < builder.tokens.length) {
+      current++;
+    }
+
+    final text = builder.tokens[current].toLowerCase();
+    return _lookupNoun(text) != null;
+  }
+
   void _recognizeMannerPhrase(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -1877,6 +2008,8 @@ class RecognitionEngine {
       if (token.toLowerCase() == 'by') continue;
 
       if (token.toLowerCase() == 'to') continue;
+
+      if (token.toLowerCase() == 'with') continue;
 
       if (_lookupVerb(token) != null) continue;
 
@@ -1921,6 +2054,9 @@ class _RecognitionBuilder {
   int recipientStart = -1;
   int recipientEnd = -1;
 
+  int companionStart = -1;
+  int companionEnd = -1;
+
   int complementStart = -1;
   int complementEnd = -1;
 
@@ -1952,6 +2088,7 @@ class _RecognitionBuilder {
   NounPhrase? objectComplement;
   Adjective? objectAdjectiveComplement;
   NounPhrase? recipient;
+  NounPhrase? companion;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
   NounPhrase? complement;
@@ -1988,6 +2125,7 @@ class _RecognitionBuilder {
       objectComplement: objectComplement,
       objectAdjectiveComplement: objectAdjectiveComplement,
       recipient: recipient,
+      companion: companion,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
       complement: complement,
@@ -2019,6 +2157,7 @@ class _RecognitionBuilder {
       'subject: $subjectStart -> $subjectEnd (${_tokensBetween(subjectStart, subjectEnd)})',
       'agent: $agentStart -> $agentEnd (${_tokensBetween(agentStart, agentEnd)}) = ${agent?.text}',
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
+      'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',

@@ -13,6 +13,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -359,6 +360,49 @@ void main() {
       );
 
       expect(sentence, 'Czechia is in Europe.');
+    });
+
+    test('lexical be can render companion surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: be,
+          companion: mary.toNounPhrase(Number.singular),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'They are with Mary.');
+    });
+
+    test('lexical be companion survives modals', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: be,
+          companion: he,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary should be with him.');
+    });
+
+    test('ordinary verbs can render companion surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: run,
+          companion: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John ran with Mary.');
     });
 
     test('active recipients can be reflexive participants', () {

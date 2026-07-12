@@ -79,6 +79,7 @@ class GrammarEngine {
       builder.displaySubject = builder.state.agent!;
       builder.displayObject = null;
       builder.displayRecipient = null;
+      builder.displayCompanion = builder.state.companion;
       builder.displayAgent = null;
       builder.displayObjectComplement = null;
       builder.displayObjectAdjectiveComplement = null;
@@ -94,6 +95,7 @@ class GrammarEngine {
         builder.displaySubject = builder.state.agent!;
         builder.displayObject = builder.state.object;
         builder.displayRecipient = builder.state.recipient;
+        builder.displayCompanion = builder.state.companion;
         builder.displayAgent = null;
         builder.displayObjectComplement = builder.state.objectComplement;
         builder.displayObjectAdjectiveComplement =
@@ -113,6 +115,7 @@ class GrammarEngine {
             builder.displaySubject = builder.state.object!;
             builder.displayObject = null;
             builder.displayRecipient = builder.state.recipient;
+            builder.displayCompanion = builder.state.companion;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
@@ -130,6 +133,7 @@ class GrammarEngine {
             builder.displaySubject = builder.state.recipient!;
             builder.displayObject = builder.state.object;
             builder.displayRecipient = null;
+            builder.displayCompanion = builder.state.companion;
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
@@ -855,6 +859,12 @@ class GrammarEngine {
       parts.add(builder.displayAdjectiveComplement!.text);
     }
 
+    // ---------- COMPANION ----------
+
+    if (builder.displayCompanion != null) {
+      parts.add('with ${_renderObjectCase(builder.displayCompanion!)}');
+    }
+
     // ---------- PASSIVE AGENT ----------
 
     if (builder.displayAgent != null) {
@@ -923,6 +933,7 @@ class _SentenceBuilder {
   late NounPhrase displaySubject;
   NounPhrase? displayObject;
   NounPhrase? displayRecipient;
+  NounPhrase? displayCompanion;
   NounPhrase? displayAgent;
   NounPhrase? displayObjectComplement;
   Adjective? displayObjectAdjectiveComplement;
@@ -949,6 +960,7 @@ class _SentenceBuilder {
       'displaySubject: ${displaySubjectOrNull?.text}',
       'displayObject: ${displayObject?.text}',
       'displayRecipient: ${displayRecipient?.text}',
+      'displayCompanion: ${displayCompanion?.text}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',
       'displayObjectAdjectiveComplement: ${displayObjectAdjectiveComplement?.text}',

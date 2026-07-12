@@ -54,6 +54,22 @@ void expectRecipient(
   }
 }
 
+void expectCompanion(
+  SentenceState state, {
+  required String text,
+  Determiner? determiner,
+  Adjective? adjective,
+  List<Adjective>? adjectives,
+}) {
+  expect(state.companion, isNotNull);
+  expect(state.companion!.text.toLowerCase(), text.toLowerCase());
+  expect(state.companion!.determiner, determiner);
+  expect(state.companion!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.companion!.adjectiveList, adjectives);
+  }
+}
+
 void expectComplement(
   SentenceState state, {
   required String text,

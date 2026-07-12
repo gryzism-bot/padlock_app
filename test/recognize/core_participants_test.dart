@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
@@ -8,6 +9,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
@@ -305,6 +307,45 @@ void main() {
       expect(state.placeMeaning, PlaceMeaning.location);
       expect(state.complement, isNull);
       expect(state.adjectiveComplement, isNull);
+    });
+
+    test('lexical be recognizes companion surface', () {
+      final state = engine.recognize('They are with Mary.');
+
+      expectAgent(state, text: 'they');
+      expectCompanion(state, text: 'mary');
+      expect(state.action, be);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
+    });
+
+    test('lexical be companion survives modals', () {
+      final state = engine.recognize('Mary should be with him.');
+
+      expectAgent(state, text: 'mary');
+      expectCompanion(state, text: 'him');
+      expect(state.action, be);
+      expect(state.modal, should);
+      expect(state.complement, isNull);
+      expect(state.adjectiveComplement, isNull);
+    });
+
+    test('ordinary verbs recognize companion surface', () {
+      final state = engine.recognize('John ran with Mary.');
+
+      expectAgent(state, text: 'john');
+      expectCompanion(state, text: 'mary');
+      expect(state.action, run);
+      expect(state.mannerPhrase, isNull);
+    });
+
+    test('with manner phrase does not become companion surface', () {
+      final state = engine.recognize('John worked with care.');
+
+      expectAgent(state, text: 'john');
+      expect(state.action, work);
+      expect(state.companion, isNull);
+      expect(state.mannerPhrase, withCareMannerPhrase);
     });
 
     test('active recipients recognize reflexive participants', () {
