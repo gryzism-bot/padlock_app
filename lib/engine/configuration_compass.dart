@@ -183,7 +183,7 @@ class ConfigurationCompass {
             ),
       ConfigurationCompassSlot.object => [
         if (sentence.object != null)
-          const _CompassCandidate(SetObject(null), 'no object', 90),
+          const _CompassCandidate(SetObject(null), 'no object', 120),
         ..._objectChoicesFor(sentence.action, objects)
             .where(
               (object) =>

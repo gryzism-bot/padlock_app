@@ -876,9 +876,15 @@ void main() {
         ConfigurationCompassSlot.object,
         limit: 0,
       );
-      expect(objectSuggestions.first.label, 'a book');
-      expect(objectSuggestions.first.isSelected, isTrue);
-      expect(render(objectSuggestions.first.preview), 'You build a book.');
+      expect(objectSuggestions.first.label, 'no object');
+      expect(objectSuggestions.first.isSelected, isFalse);
+      expect(render(objectSuggestions.first.preview), 'You build.');
+
+      final selectedObject = objectSuggestions.singleWhere(
+        (suggestion) => suggestion.isSelected,
+      );
+      expect(selectedObject.label, 'a book');
+      expect(render(selectedObject.preview), 'You build a book.');
 
       final determinerSuggestions = compass.suggestionsFor(
         state,
