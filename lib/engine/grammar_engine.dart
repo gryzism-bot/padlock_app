@@ -80,6 +80,8 @@ class GrammarEngine {
       builder.displayObject = null;
       builder.displayRecipient = null;
       builder.displayAgent = null;
+      builder.displayObjectComplement = null;
+      builder.displayObjectAdjectiveComplement = null;
       builder.displayComplement = builder.state.complement;
       builder.displayAdjectiveComplement = builder.state.adjectiveComplement;
       return;
@@ -93,6 +95,9 @@ class GrammarEngine {
         builder.displayObject = builder.state.object;
         builder.displayRecipient = builder.state.recipient;
         builder.displayAgent = null;
+        builder.displayObjectComplement = builder.state.objectComplement;
+        builder.displayObjectAdjectiveComplement =
+            builder.state.objectAdjectiveComplement;
         break;
 
       case Voice.passive:
@@ -111,6 +116,9 @@ class GrammarEngine {
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
+            builder.displayObjectComplement = builder.state.objectComplement;
+            builder.displayObjectAdjectiveComplement =
+                builder.state.objectAdjectiveComplement;
             break;
 
           case PassiveFocus.recipient:
@@ -125,6 +133,9 @@ class GrammarEngine {
             builder.displayAgent = builder.state.showPassiveAgent
                 ? builder.state.agent
                 : null;
+            builder.displayObjectComplement = builder.state.objectComplement;
+            builder.displayObjectAdjectiveComplement =
+                builder.state.objectAdjectiveComplement;
         }
         break;
     }
@@ -818,6 +829,14 @@ class GrammarEngine {
       parts.add(_renderObjectCase(builder.displayObject!));
     }
 
+    if (builder.displayObjectComplement != null) {
+      parts.add(_renderNounPhrase(builder.displayObjectComplement!));
+    }
+
+    if (builder.displayObjectAdjectiveComplement != null) {
+      parts.add(builder.displayObjectAdjectiveComplement!.text);
+    }
+
     if (builder.displayRecipient != null && activeToRecipient) {
       parts.add(
         '${builder.state.recipientPreposition.text} ${_renderObjectCase(builder.displayRecipient!)}',
@@ -903,6 +922,8 @@ class _SentenceBuilder {
   NounPhrase? displayObject;
   NounPhrase? displayRecipient;
   NounPhrase? displayAgent;
+  NounPhrase? displayObjectComplement;
+  Adjective? displayObjectAdjectiveComplement;
   NounPhrase? displayComplement;
   Adjective? displayAdjectiveComplement;
 
@@ -927,6 +948,8 @@ class _SentenceBuilder {
       'displayObject: ${displayObject?.text}',
       'displayRecipient: ${displayRecipient?.text}',
       'displayAgent: ${displayAgent?.text}',
+      'displayObjectComplement: ${displayObjectComplement?.text}',
+      'displayObjectAdjectiveComplement: ${displayObjectAdjectiveComplement?.text}',
       'displayComplement: ${displayComplement?.text}',
       'displayAdjectiveComplement: ${displayAdjectiveComplement?.text}',
       'verbChain: ${verbChain.join(' ')}',

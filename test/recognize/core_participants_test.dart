@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
@@ -193,6 +195,54 @@ void main() {
         }
       },
     );
+
+    test('active object adjective complement follows the object', () {
+      final state = engine.recognize('They made him calm.');
+
+      expectAgent(state, text: 'they');
+      expectObject(state, text: 'him');
+      expect(state.objectAdjectiveComplement, calm);
+      expect(state.objectComplement, isNull);
+      expect(state.action, make);
+    });
+
+    test('active object noun complement follows the object', () {
+      final state = engine.recognize('They called him a teacher.');
+
+      expectAgent(state, text: 'they');
+      expectObject(state, text: 'him');
+      expect(state.objectComplement, isNotNull);
+      expect(state.objectComplement!.text, 'teacher');
+      expect(state.objectComplement!.determiner, aDeterminer);
+      expect(state.action, call);
+    });
+
+    test(
+      'recipient frame still wins when make receives a second noun phrase',
+      () {
+        final state = engine.recognize('John made Mary a gift.');
+
+        expectAgent(state, text: 'john');
+        expectRecipient(state, text: 'mary');
+        expectObject(state, text: 'gift', determiner: aDeterminer);
+        expect(state.objectComplement, isNull);
+        expect(state.objectAdjectiveComplement, isNull);
+        expect(state.action, make);
+        expect(state.recipientPlacement, RecipientPlacement.beforeObject);
+      },
+    );
+
+    test('passive object complement follows the passive verb chain', () {
+      final state = engine.recognize('He was made calm by them.');
+
+      expectAgent(state, text: 'them');
+      expectObject(state, text: 'he');
+      expect(state.objectAdjectiveComplement, calm);
+      expect(state.objectComplement, isNull);
+      expect(state.action, make);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
 
     test('active recipients recognize reflexive participants', () {
       final state = engine.recognize('You gave yourself a book.');

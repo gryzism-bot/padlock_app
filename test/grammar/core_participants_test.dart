@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
+import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
@@ -8,6 +9,7 @@ import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -232,6 +234,56 @@ void main() {
 
         expect(sentence, entry.value);
       }
+    });
+
+    test('active object adjective complement follows the object', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: make,
+          object: he,
+          objectAdjectiveComplement: calm,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'They made him calm.');
+    });
+
+    test('active object noun complement follows the object', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: call,
+          object: he,
+          objectComplement: teacher.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'They called him a teacher.');
+    });
+
+    test('passive object complement follows the passive verb chain', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: make,
+          object: he,
+          objectAdjectiveComplement: calm,
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'He was made calm by them.');
     });
 
     test('active recipients can be reflexive participants', () {

@@ -55,6 +55,8 @@ const call = Verb(
   pastSimple: 'called',
   pastParticiple: 'called',
   ingForm: 'calling',
+  takesObject: true,
+  takesObjectComplement: true,
   translations: {Language.pl: 'dzwonić'},
 );
 

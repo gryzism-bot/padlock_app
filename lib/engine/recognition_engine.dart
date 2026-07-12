@@ -1148,6 +1148,11 @@ class RecognitionEngine {
     }
 
     if (builder.verbChainEnd < builder.tokens.length - 1) {
+      if (builder.action?.takesObjectComplement == true &&
+          _recognizeActiveObjectComplement(builder)) {
+        return;
+      }
+
       if (builder.action?.takesRecipient == true) {
         _recognizeActiveRecipientAndObject(builder);
         return;
@@ -1156,6 +1161,49 @@ class RecognitionEngine {
       builder.objectStart = builder.verbChainEnd + 1;
       builder.objectEnd = builder.tokens.length - 1;
     }
+  }
+
+  bool _recognizeActiveObjectComplement(_RecognitionBuilder builder) {
+    final participantStart = builder.verbChainEnd + 1;
+    final objectEnd = _nounPhraseEnd(builder, participantStart);
+    final complementStart = objectEnd + 1;
+
+    if (objectEnd < participantStart ||
+        complementStart > builder.tokens.length - 1) {
+      return false;
+    }
+
+    if (!_looksLikeObjectComplement(builder, complementStart)) {
+      return false;
+    }
+
+    builder.objectStart = participantStart;
+    builder.objectEnd = objectEnd;
+    builder.objectComplementStart = complementStart;
+    builder.objectComplementEnd = builder.tokens.length - 1;
+    return true;
+  }
+
+  bool _looksLikeObjectComplement(_RecognitionBuilder builder, int start) {
+    if (start >= builder.tokens.length) {
+      return false;
+    }
+
+    final token = builder.tokens[start].toLowerCase();
+    if (token == 'to' || token == 'for' || token == 'by') {
+      return false;
+    }
+
+    if (_lookupAdjective(builder.tokens[start]) != null) {
+      return true;
+    }
+
+    if (builder.action?.takesRecipient == true &&
+        _lookupDeterminer(builder.tokens[start]) != null) {
+      return false;
+    }
+
+    return true;
   }
 
   void _recognizeActiveRecipientAndObject(_RecognitionBuilder builder) {
@@ -1269,7 +1317,8 @@ class RecognitionEngine {
       (token) => token.toLowerCase() == 'by',
     );
 
-    if (builder.action?.takesRecipient == true) {
+    if (builder.action?.takesRecipient == true &&
+        !_hasPassiveObjectComplementTail(builder, byIndex)) {
       _recognizePassiveRecipientFrame(builder, byIndex);
       return;
     }
@@ -1285,10 +1334,40 @@ class RecognitionEngine {
       builder.objectEnd = builder.verbChainStart - 1;
     }
 
+    if (builder.action?.takesObjectComplement == true) {
+      final complementStart = builder.verbChainEnd + 1;
+      final complementEnd = byIndex >= 0
+          ? byIndex - 1
+          : builder.tokens.length - 1;
+
+      if (complementStart <= complementEnd &&
+          _looksLikeObjectComplement(builder, complementStart)) {
+        builder.objectComplementStart = complementStart;
+        builder.objectComplementEnd = complementEnd;
+      }
+    }
+
     if (byIndex >= 0) {
       builder.agentStart = byIndex + 1;
       builder.agentEnd = builder.tokens.length - 1;
     }
+  }
+
+  bool _hasPassiveObjectComplementTail(
+    _RecognitionBuilder builder,
+    int byIndex,
+  ) {
+    if (builder.action?.takesObjectComplement != true) {
+      return false;
+    }
+
+    final complementStart = builder.verbChainEnd + 1;
+    final complementEnd = byIndex >= 0
+        ? byIndex - 1
+        : builder.tokens.length - 1;
+
+    return complementStart <= complementEnd &&
+        _looksLikeObjectComplement(builder, complementStart);
   }
 
   void _recognizePassiveRecipientFrame(
@@ -1374,6 +1453,11 @@ class RecognitionEngine {
       builder.objectEnd = firstPhraseStart - 1;
     }
 
+    if (builder.objectComplementStart >= 0 &&
+        builder.objectComplementEnd >= firstPhraseStart) {
+      builder.objectComplementEnd = firstPhraseStart - 1;
+    }
+
     if (builder.recipientStart >= 0 &&
         builder.recipientEnd >= firstPhraseStart) {
       builder.recipientEnd = firstPhraseStart - 1;
@@ -1410,6 +1494,11 @@ class RecognitionEngine {
       builder.objectStart = frontPhraseEnd + 1;
     }
 
+    if (builder.objectComplementStart >= 0 &&
+        builder.objectComplementStart <= frontPhraseEnd) {
+      builder.objectComplementStart = frontPhraseEnd + 1;
+    }
+
     if (builder.recipientStart >= 0 &&
         builder.recipientStart <= frontPhraseEnd) {
       builder.recipientStart = frontPhraseEnd + 1;
@@ -1432,6 +1521,24 @@ class RecognitionEngine {
       builder.object = _recognizeNounPhrase(
         builder.tokens.sublist(builder.objectStart, builder.objectEnd + 1),
       );
+    }
+
+    if (builder.objectComplementStart >= 0 &&
+        builder.objectComplementEnd >= builder.objectComplementStart) {
+      final objectComplementTokens = builder.tokens.sublist(
+        builder.objectComplementStart,
+        builder.objectComplementEnd + 1,
+      );
+
+      if (objectComplementTokens.length == 1) {
+        builder.objectAdjectiveComplement = _lookupAdjective(
+          objectComplementTokens.single,
+        );
+      }
+
+      if (builder.objectAdjectiveComplement == null) {
+        builder.objectComplement = _recognizeNounPhrase(objectComplementTokens);
+      }
     }
 
     if (builder.recipientStart >= 0 &&
@@ -1803,6 +1910,9 @@ class _RecognitionBuilder {
   int objectStart = -1;
   int objectEnd = -1;
 
+  int objectComplementStart = -1;
+  int objectComplementEnd = -1;
+
   int recipientStart = -1;
   int recipientEnd = -1;
 
@@ -1834,6 +1944,8 @@ class _RecognitionBuilder {
   NounPhrase? agent;
 
   NounPhrase? object;
+  NounPhrase? objectComplement;
+  Adjective? objectAdjectiveComplement;
   NounPhrase? recipient;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
@@ -1867,6 +1979,8 @@ class _RecognitionBuilder {
       action: fixedObjectAlias?.action ?? action!,
       agent: agent,
       object: object ?? fixedObjectAlias?.object,
+      objectComplement: objectComplement,
+      objectAdjectiveComplement: objectAdjectiveComplement,
       recipient: recipient,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
@@ -1901,6 +2015,7 @@ class _RecognitionBuilder {
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',
+      'objectComplement: $objectComplementStart -> $objectComplementEnd (${_tokensBetween(objectComplementStart, objectComplementEnd)}) = ${objectComplement?.text ?? objectAdjectiveComplement?.text}',
       'complement: $complementStart -> $complementEnd (${_tokensBetween(complementStart, complementEnd)}) = ${complement?.text ?? adjectiveComplement?.text}',
       'action: ${action?.infinitive}',
       'tense/aspect: $tense / $aspect',

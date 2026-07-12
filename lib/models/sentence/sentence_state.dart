@@ -23,6 +23,8 @@ class SentenceState {
   final NounPhrase? recipient;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
+  final NounPhrase? objectComplement;
+  final Adjective? objectAdjectiveComplement;
   final NounPhrase? complement;
   final Adjective? adjectiveComplement;
 
@@ -50,6 +52,8 @@ class SentenceState {
     this.recipient,
     this.recipientPlacement = RecipientPlacement.beforeObject,
     this.recipientPreposition = RecipientPreposition.to,
+    this.objectComplement,
+    this.objectAdjectiveComplement,
     this.complement,
     this.adjectiveComplement,
 
@@ -79,6 +83,8 @@ class SentenceState {
       'recipient=${recipient?.text}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
+      'objectComplement=${objectComplement?.text}',
+      'objectAdjectiveComplement=${objectAdjectiveComplement?.text}',
       'complement=${complement?.text}',
       'adjectiveComplement=${adjectiveComplement?.text}',
       'voice=$voice',
@@ -105,6 +111,8 @@ Object: ${object?.text}
 Recipient: ${recipient?.text}
 Recipient Placement: $recipientPlacement
 Recipient Preposition: $recipientPreposition
+Object Complement: ${objectComplement?.text}
+Object Adjective Complement: ${objectAdjectiveComplement?.text}
 Complement: ${complement?.text}
 Adjective Complement: ${adjectiveComplement?.text}
 Tense: $tense

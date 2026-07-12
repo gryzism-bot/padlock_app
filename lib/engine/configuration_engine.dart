@@ -387,6 +387,7 @@ class ConfigurationEngine {
 
     _validateNounPhrase('Agent', state.agent, blockers);
     _validateNounPhrase('Object', state.object, blockers);
+    _validateNounPhrase('Object complement', state.objectComplement, blockers);
     _validateNounPhrase('Recipient', state.recipient, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
 
@@ -484,6 +485,15 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.objectComplement != null ||
+        state.objectAdjectiveComplement != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take an object complement.',
+        ),
+      );
+    }
+
     if (state.recipient != null) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -519,6 +529,25 @@ class ConfigurationEngine {
           '${state.action.infinitive} does not take a complement.',
         ),
       );
+    }
+
+    if (state.objectComplement != null ||
+        state.objectAdjectiveComplement != null) {
+      if (!state.action.takesObjectComplement) {
+        blockers.add(
+          ConfigurationMessage.blocked(
+            '${state.action.infinitive} does not take an object complement.',
+          ),
+        );
+      }
+
+      if (state.object == null) {
+        blockers.add(
+          const ConfigurationMessage.blocked(
+            'Object complements require an object.',
+          ),
+        );
+      }
     }
 
     if (hasFixedObjectFrame(state.action) && state.object != null) {
@@ -737,6 +766,8 @@ class ConfigurationEngine {
     Object? agent = _unchanged,
     Verb? action,
     Object? object = _unchanged,
+    Object? objectComplement = _unchanged,
+    Object? objectAdjectiveComplement = _unchanged,
     Object? recipient = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -759,6 +790,13 @@ class ConfigurationEngine {
       object: identical(object, _unchanged)
           ? state.object
           : object as NounPhrase?,
+      objectComplement: identical(objectComplement, _unchanged)
+          ? state.objectComplement
+          : objectComplement as NounPhrase?,
+      objectAdjectiveComplement:
+          identical(objectAdjectiveComplement, _unchanged)
+          ? state.objectAdjectiveComplement
+          : objectAdjectiveComplement as Adjective?,
       recipient: identical(recipient, _unchanged)
           ? state.recipient
           : recipient as NounPhrase?,

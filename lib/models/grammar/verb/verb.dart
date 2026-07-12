@@ -9,6 +9,7 @@ class Verb {
   //only for Recognition Engine
   final bool takesObject;
   final bool takesRecipient;
+  final bool takesObjectComplement;
 
   /// go, come, travel, arrive, leave...
   final bool usesDestinationPlace;
@@ -24,6 +25,7 @@ class Verb {
     this.usesDestinationPlace = false,
     this.takesObject = false,
     this.takesRecipient = false,
+    this.takesObjectComplement = false,
     required this.translations,
   });
 }
