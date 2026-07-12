@@ -269,14 +269,66 @@ recorded.
   modal again if that becomes cleaner than a `no modal` chip
 - passive focus and passive agent visibility should keep stable positions
 
-### Performance
+### General Performance Tweaks
+
+Current insight:
+
+- The current UI is a developer cockpit:
+  - the top control panel is mostly grammar-law setting:
+    tense, aspect, subject/person, modal, voice, polarity, sentence form
+  - the lower rails are mostly vocabulary and predicate unfoldings:
+    verbs, objects, recipients, complements, places, times, and semantic rails
+- The final UI can be much narrower:
+  - the sentence sits in the middle
+  - clickable words have faint outlines
+  - selecting a word opens only the local choices for that word
+  - opening a verb feature temporarily locks out other verb choices until the
+    feature rail is collapsed or reset
+- This means performance should come from interaction shape first, then caches:
+  the UI should not ask Compass to compute paths the user cannot currently
+  choose.
+
+Merged side quests:
 
 - avoid recomputing large suggestion lists in build methods
 - cache Compass suggestions per state where practical
+- cache Grammar render output around preview-heavy Compass/UI paths:
+  `SentenceState -> rendered sentence`
 - keep rails collapsed until opened
+- when a verb feature rail is open, limit Compass work to that verb's active
+  local tree instead of also expanding other verbs and their possible rails
 - add lazy/virtualized rail lists before loading much larger vocabulary
 - index object candidates by verb frame or semantic category
+- pre-render or cache stable noun/phrase fragments only if profiling shows that
+  preview rendering is hot
 - avoid rendering hundreds of chips when only a rail header is visible
+- keep Grammar Engine micro-optimizations low priority unless profiling proves
+  they matter; Grammar renders one trusted `SentenceState`, while Compass/UI may
+  render many nearby previews
+- Recognition lookup indexes may become useful later for night runs and typed
+  recognition, but they are less urgent for the final guided UI
+
+Final UI direction:
+
+- Starter sentence can be `You learn.`
+- `you` and `learn` are outlined as clickable sentence fields.
+- Clicking `learn` opens the verb list: `go`, `get`, `travel`, etc.
+- Choosing a verb keeps the sentence centered and opens only that verb's local
+  feature doors.
+- If `learn` wakes an object/skill surface, `learn` can show a caret; opening
+  it reveals choices such as `English`, `grammar`, or a later `how to walk`
+  surface.
+- If `you` is clicked, the subject picker opens locally:
+  - direct pronouns: `I`, `you`, `he`, `she`, `it`, `we`, `they`
+  - third person can carry a caret for noun expansion:
+    `Mary`, `cat`, `dog`, `teacher`
+- A small global number switch may remain near tense/aspect, but full plural
+  vocabulary does not need to live permanently in the control panel.
+- If a richer subject such as `young dogs` is selected, switching back to `you`
+  may require collapsing that subject detail first. This is acceptable: it makes
+  the interaction tree directed and prevents broad recomputation.
+- This is the water-treatment interlock model applied to UI:
+  a local expanded path narrows reachable valves until it is collapsed.
 
 ### Copy And QA
 
