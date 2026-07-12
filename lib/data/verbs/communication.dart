@@ -9,6 +9,7 @@ const speak = Verb(
   ingForm: 'speaking',
   takesObject: true,
   takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'mówić'},
 );
 
@@ -19,6 +20,7 @@ const talk = Verb(
   pastParticiple: 'talked',
   ingForm: 'talking',
   takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'rozmawiać'},
 );
 
@@ -68,6 +70,7 @@ const listen = Verb(
   pastSimple: 'listened',
   pastParticiple: 'listened',
   ingForm: 'listening',
+  takesAddressee: true,
   translations: {Language.pl: 'słuchać'},
 );
 
@@ -98,6 +101,8 @@ const explain = Verb(
   pastSimple: 'explained',
   pastParticiple: 'explained',
   ingForm: 'explaining',
+  takesObject: true,
+  takesAddressee: true,
   translations: {Language.pl: 'wyjaśniać'},
 );
 
@@ -125,6 +130,7 @@ const agree = Verb(
   pastSimple: 'agreed',
   pastParticiple: 'agreed',
   ingForm: 'agreeing',
+  takesCompanion: true,
   translations: {Language.pl: 'zgadzać się'},
 );
 
@@ -134,6 +140,7 @@ const disagree = Verb(
   pastSimple: 'disagreed',
   pastParticiple: 'disagreed',
   ingForm: 'disagreeing',
+  takesCompanion: true,
   translations: {Language.pl: 'nie zgadzać się'},
 );
 
@@ -161,6 +168,7 @@ const shout = Verb(
   pastSimple: 'shouted',
   pastParticiple: 'shouted',
   ingForm: 'shouting',
+  takesAddressee: true,
   translations: {Language.pl: 'krzyczeć'},
 );
 
@@ -170,6 +178,7 @@ const whisper = Verb(
   pastSimple: 'whispered',
   pastParticiple: 'whispered',
   ingForm: 'whispering',
+  takesAddressee: true,
   translations: {Language.pl: 'szeptać'},
 );
 
@@ -179,6 +188,8 @@ const introduce = Verb(
   pastSimple: 'introduced',
   pastParticiple: 'introduced',
   ingForm: 'introducing',
+  takesObject: true,
+  takesAddressee: true,
   translations: {Language.pl: 'przedstawiać'},
 );
 

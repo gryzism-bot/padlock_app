@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
@@ -463,6 +464,140 @@ void main() {
       );
 
       expect(sentence, 'John wrote to her.');
+    });
+
+    test('listen can render a bound addressee phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: listen,
+          addressee: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John listened to Mary.');
+    });
+
+    test('explain can render object plus bound addressee phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: explain,
+          object: grammar,
+          addressee: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John explained grammar to Mary.');
+    });
+
+    test('introduce can render object plus bound addressee phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: introduce,
+          object: tom.toNounPhrase(Number.singular),
+          addressee: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John introduced Tom to Mary.');
+    });
+
+    test('manner can stay before bound addressee phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: explain,
+          object: grammar,
+          addressee: mary.toNounPhrase(Number.singular),
+          mannerPhrase: carefullyMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John explained grammar carefully to Mary.');
+    });
+
+    test('manner can sit between verb and bound addressee phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: speak,
+          addressee: mary.toNounPhrase(Number.singular),
+          mannerPhrase: quietlyMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John spoke quietly to Mary.');
+    });
+
+    test('agreement verbs can render bound with participant surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: agree,
+          companion: mary.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John agreed with Mary.');
+    });
+
+    test('manner can stay before bound companion phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: agree,
+          companion: mary.toNounPhrase(Number.singular),
+          mannerPhrase: politelyMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John agreed politely with Mary.');
+    });
+
+    test('companion verbs can render manner before with participant', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: speak,
+          companion: mary.toNounPhrase(Number.singular),
+          mannerPhrase: wellMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John spoke well with Mary.');
+    });
+
+    test('motion verbs can render manner before destination place', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: go,
+          placePhrase: schoolPlacePhrase,
+          mannerPhrase: quietlyMannerPhrase,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary went quietly to school.');
     });
 
     test('active recipients can be reflexive participants', () {

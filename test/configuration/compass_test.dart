@@ -537,6 +537,31 @@ void main() {
       expect(render(suggestions.last.preview), 'You speak to Mary.');
     });
 
+    test('companion suggestions require companion-capable frame', () {
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work_data.build),
+      );
+
+      expect(
+        compass.suggestionsFor(state, ConfigurationCompassSlot.companion),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(speak));
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.companion,
+        limit: 0,
+      );
+
+      expect(suggestions.map((suggestion) => suggestion.label), [
+        'John',
+        'Mary',
+      ]);
+      expect(render(suggestions.last.preview), 'You speak with Mary.');
+    });
+
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(give));

@@ -8,6 +8,7 @@ const study = Verb(
   pastParticiple: 'studied',
   ingForm: 'studying',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'uczyć się'},
 );
 
@@ -19,6 +20,7 @@ const teach = Verb(
   ingForm: 'teaching',
   takesObject: true,
   takesRecipient: true,
+  takesCompanion: true,
   translations: {Language.pl: 'uczyć'},
 );
 

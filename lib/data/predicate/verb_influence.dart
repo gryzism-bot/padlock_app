@@ -67,6 +67,13 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         tooltip: '${action.infinitive} wakes addressee',
         rank: 48,
       ),
+    if (action.takesCompanion)
+      PredicateInfluence(
+        key: 'companion',
+        label: 'companion',
+        tooltip: '${action.infinitive} wakes companion',
+        rank: 46,
+      ),
     if (fixedLabel != null)
       PredicateInfluence(
         key: fixedLabel,

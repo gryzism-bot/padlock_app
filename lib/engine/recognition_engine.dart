@@ -1966,6 +1966,10 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
+    if (builder.action != be && builder.action?.takesCompanion != true) {
+      return;
+    }
+
     final wordsBefore = _phraseWordIndex(tokens, 'with');
 
     if (wordsBefore < 0) {

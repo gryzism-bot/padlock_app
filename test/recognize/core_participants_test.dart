@@ -380,6 +380,105 @@ void main() {
       expect(state.recipient, isNull);
     });
 
+    test('listen recognizes a bound addressee phrase', () {
+      final state = engine.recognize('John listened to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, listen);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('explain recognizes object plus bound addressee phrase', () {
+      final state = engine.recognize('John explained grammar to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectObject(state, text: 'grammar');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, explain);
+      expect(state.recipient, isNull);
+    });
+
+    test('manner can stay before object plus bound addressee phrase', () {
+      final state = engine.recognize(
+        'John explained grammar carefully to Mary.',
+      );
+
+      expectAgent(state, text: 'john');
+      expectObject(state, text: 'grammar');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, explain);
+      expect(state.mannerPhrase, carefullyMannerPhrase);
+      expect(state.recipient, isNull);
+    });
+
+    test('manner can sit between verb and bound addressee phrase', () {
+      final state = engine.recognize('John spoke quietly to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, speak);
+      expect(state.mannerPhrase, quietlyMannerPhrase);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('introduce recognizes object plus bound addressee phrase', () {
+      final state = engine.recognize('John introduced Tom to Mary.');
+
+      expectAgent(state, text: 'john');
+      expectObject(state, text: 'tom');
+      expectAddressee(state, text: 'mary');
+      expect(state.action, introduce);
+      expect(state.recipient, isNull);
+    });
+
+    test('agreement verbs recognize bound with participant surface', () {
+      final state = engine.recognize('John agreed with Mary.');
+
+      expectAgent(state, text: 'john');
+      expectCompanion(state, text: 'mary');
+      expect(state.action, agree);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+      expect(state.mannerPhrase, isNull);
+    });
+
+    test('manner can stay before bound companion phrase', () {
+      final state = engine.recognize('John agreed politely with Mary.');
+
+      expectAgent(state, text: 'john');
+      expectCompanion(state, text: 'mary');
+      expect(state.action, agree);
+      expect(state.mannerPhrase, politelyMannerPhrase);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('companion verbs recognize manner before with participant', () {
+      final state = engine.recognize('John spoke well with Mary.');
+
+      expectAgent(state, text: 'john');
+      expectCompanion(state, text: 'mary');
+      expect(state.action, speak);
+      expect(state.mannerPhrase, wellMannerPhrase);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
+    test('motion verbs recognize manner before destination place', () {
+      final state = engine.recognize('Mary went quietly to school.');
+
+      expectAgent(state, text: 'mary');
+      expect(state.action, go);
+      expect(state.placePhrase, schoolPlacePhrase);
+      expect(state.placeMeaning, PlaceMeaning.destination);
+      expect(state.mannerPhrase, quietlyMannerPhrase);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
     test('recipient still wins when object precedes to phrase', () {
       final state = engine.recognize('John wrote a letter to Mary.');
 

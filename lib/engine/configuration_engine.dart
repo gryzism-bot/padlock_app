@@ -312,6 +312,7 @@ class ConfigurationEngine {
                 state,
                 action: action,
                 addressee: action.takesAddressee ? state.addressee : null,
+                companion: action.takesCompanion ? state.companion : null,
                 complement: null,
                 adjectiveComplement: null,
               ),
@@ -585,6 +586,14 @@ class ConfigurationEngine {
           ),
         );
       }
+    }
+
+    if (state.companion != null && !state.action.takesCompanion) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${state.action.infinitive} does not take a companion.',
+        ),
+      );
     }
 
     if (hasFixedObjectFrame(state.action) && state.object != null) {

@@ -7,6 +7,7 @@ const walk = Verb(
   pastSimple: 'walked',
   pastParticiple: 'walked',
   ingForm: 'walking',
+  takesCompanion: true,
   translations: {Language.pl: 'chodzić'},
 );
 
@@ -16,6 +17,7 @@ const run = Verb(
   pastSimple: 'ran',
   pastParticiple: 'run',
   ingForm: 'running',
+  takesCompanion: true,
   translations: {Language.pl: 'biegać'},
 );
 

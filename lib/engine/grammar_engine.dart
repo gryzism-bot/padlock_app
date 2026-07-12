@@ -863,6 +863,12 @@ class GrammarEngine {
       parts.add(builder.displayAdjectiveComplement!.text);
     }
 
+    // ---------- BOUND PARTICIPANT MANNER ----------
+
+    if (_mannerBeforeBoundTail(builder)) {
+      _addPhrase(parts, builder.mannerPhrase);
+    }
+
     // ---------- ADDRESSEE ----------
 
     if (builder.displayAddressee != null) {
@@ -925,9 +931,20 @@ class GrammarEngine {
       _addPhrase(parts, builder.frequencyPhrase);
     }
 
-    if (builder.state.mannerPhrase?.position == PhrasePosition.afterPredicate) {
+    if (builder.state.mannerPhrase?.position == PhrasePosition.afterPredicate &&
+        !_mannerBeforeBoundTail(builder)) {
       _addPhrase(parts, builder.mannerPhrase);
     }
+  }
+
+  bool _mannerBeforeBoundTail(_SentenceBuilder builder) {
+    return builder.state.mannerPhrase?.position ==
+            PhrasePosition.afterPredicate &&
+        builder.mannerPhrase.isNotEmpty &&
+        (builder.displayAddressee != null ||
+            builder.displayCompanion != null ||
+            (builder.state.action.usesDestinationPlace &&
+                builder.placePhrase.isNotEmpty));
   }
 
   void _addPhrase(List<String> parts, String phrase) {

@@ -91,6 +91,7 @@ const go = Verb(
   pastParticiple: 'gone',
   ingForm: 'going',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'iść'},
 );
 
@@ -101,6 +102,7 @@ const come = Verb(
   pastParticiple: 'come',
   ingForm: 'coming',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'przyjść'},
 );
 
@@ -241,6 +243,7 @@ const work = Verb(
   pastSimple: 'worked',
   pastParticiple: 'worked',
   ingForm: 'working',
+  takesCompanion: true,
   translations: {Language.pl: 'pracować'},
 );
 
@@ -312,6 +315,7 @@ const learn = Verb(
   pastParticiple: 'learned',
   ingForm: 'learning',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'uczyć się'},
 );
 

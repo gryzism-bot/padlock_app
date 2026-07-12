@@ -4,6 +4,8 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as fixed_object;
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -262,6 +264,23 @@ void main() {
       expect(render(state), 'You speak to Mary.');
     });
 
+    test('accepts object plus addressee on bound preposition verbs', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(explain));
+      state = engine.applyMove(state, const SetObject(fixed_object.grammar));
+      state = engine.applyMove(
+        state,
+        SetAddressee(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object?.text, 'grammar');
+      expect(state.sentenceState.addressee?.text, 'Mary');
+      expect(state.sentenceState.recipient, isNull);
+      expect(render(state), 'You explain grammar to Mary.');
+    });
+
     test('blocks addressee on verbs without addressee frame', () {
       final previous = engine.applyMove(
         ConfigurationState.initial(),
@@ -291,6 +310,51 @@ void main() {
       expect(state.sentenceState.action, work);
       expect(state.sentenceState.addressee, isNull);
       expect(render(state), 'You work.');
+    });
+
+    test('accepts companion on verbs with companion frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(speak));
+      state = engine.applyMove(
+        state,
+        SetCompanion(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.companion?.text, 'Mary');
+      expect(render(state), 'You speak with Mary.');
+    });
+
+    test('blocks companion on verbs without companion frame', () {
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work_data.build),
+      );
+      final state = engine.applyMove(
+        previous,
+        SetCompanion(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(state.messages.single.text, 'build does not take a companion.');
+    });
+
+    test('changing action clears incompatible companion frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(speak));
+      state = engine.applyMove(
+        state,
+        SetCompanion(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetAction(work_data.build));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, work_data.build);
+      expect(state.sentenceState.companion, isNull);
+      expect(render(state), 'You build.');
     });
 
     test('blocks passive voice without a passive-capable frame', () {

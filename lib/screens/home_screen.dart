@@ -1552,6 +1552,9 @@ String _slotTitle(
     ConfigurationCompassSlot.addressee => 'Addressee',
     ConfigurationCompassSlot.addresseeDeterminer => 'Addressee determiner',
     ConfigurationCompassSlot.addresseeAdjective => 'Addressee adjective',
+    ConfigurationCompassSlot.companion => 'Companion',
+    ConfigurationCompassSlot.companionDeterminer => 'Companion determiner',
+    ConfigurationCompassSlot.companionAdjective => 'Companion adjective',
     ConfigurationCompassSlot.complement => 'Noun complement',
     ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
     ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
@@ -1576,6 +1579,9 @@ bool _isControlledRail(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.addressee ||
     ConfigurationCompassSlot.addresseeDeterminer ||
     ConfigurationCompassSlot.addresseeAdjective ||
+    ConfigurationCompassSlot.companion ||
+    ConfigurationCompassSlot.companionDeterminer ||
+    ConfigurationCompassSlot.companionAdjective ||
     ConfigurationCompassSlot.complement ||
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective ||
@@ -1619,6 +1625,9 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.addressee => state.addressee != null,
     ConfigurationCompassSlot.addresseeDeterminer ||
     ConfigurationCompassSlot.addresseeAdjective => state.addressee != null,
+    ConfigurationCompassSlot.companion => state.companion != null,
+    ConfigurationCompassSlot.companionDeterminer ||
+    ConfigurationCompassSlot.companionAdjective => state.companion != null,
     ConfigurationCompassSlot.complement => state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective => state.complement != null,
@@ -1657,6 +1666,11 @@ String _unlockHint(
     ConfigurationCompassSlot.addresseeDeterminer ||
     ConfigurationCompassSlot.addresseeAdjective =>
       'Choose an addressee first. Addressee modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.companion =>
+      'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
+    ConfigurationCompassSlot.companionDeterminer ||
+    ConfigurationCompassSlot.companionAdjective =>
+      'Choose a companion first. Companion modifiers wake after that noun exists.',
     ConfigurationCompassSlot.complement =>
       'Choose verb be first. Noun complements belong to the be frame.',
     ConfigurationCompassSlot.complementDeterminer ||
