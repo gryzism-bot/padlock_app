@@ -76,17 +76,14 @@ class GrammarEngine {
         'Lexical be is active-only in this predicate frame.',
       );
 
-      builder.displaySubject = builder.state.agent!;
-      builder.displayObject = null;
-      builder.displayRecipient = null;
-      builder.displayAddressee = builder.state.addressee;
-      builder.displayCompanion = builder.state.companion;
-      builder.displayDestination = builder.state.destination;
-      builder.displayAgent = null;
-      builder.displayObjectComplement = null;
-      builder.displayObjectAdjectiveComplement = null;
-      builder.displayComplement = builder.state.complement;
-      builder.displayAdjectiveComplement = builder.state.adjectiveComplement;
+      builder.setDisplay(
+        subject: builder.state.agent!,
+        addressee: builder.state.addressee,
+        companion: builder.state.companion,
+        destination: builder.state.destination,
+        complement: builder.state.complement,
+        adjectiveComplement: builder.state.adjectiveComplement,
+      );
       return;
     }
 
@@ -94,16 +91,16 @@ class GrammarEngine {
       case Voice.active:
         assert(builder.state.agent != null, 'Active voice requires an agent.');
 
-        builder.displaySubject = builder.state.agent!;
-        builder.displayObject = builder.state.object;
-        builder.displayRecipient = builder.state.recipient;
-        builder.displayAddressee = builder.state.addressee;
-        builder.displayCompanion = builder.state.companion;
-        builder.displayDestination = builder.state.destination;
-        builder.displayAgent = null;
-        builder.displayObjectComplement = builder.state.objectComplement;
-        builder.displayObjectAdjectiveComplement =
-            builder.state.objectAdjectiveComplement;
+        builder.setDisplay(
+          subject: builder.state.agent!,
+          object: builder.state.object,
+          recipient: builder.state.recipient,
+          addressee: builder.state.addressee,
+          companion: builder.state.companion,
+          destination: builder.state.destination,
+          objectComplement: builder.state.objectComplement,
+          objectAdjectiveComplement: builder.state.objectAdjectiveComplement,
+        );
         break;
 
       case Voice.passive:
@@ -116,18 +113,19 @@ class GrammarEngine {
               'Passive object focus requires an object.',
             );
 
-            builder.displaySubject = builder.state.object!;
-            builder.displayObject = null;
-            builder.displayRecipient = builder.state.recipient;
-            builder.displayAddressee = builder.state.addressee;
-            builder.displayCompanion = builder.state.companion;
-            builder.displayDestination = builder.state.destination;
-            builder.displayAgent = builder.state.showPassiveAgent
-                ? builder.state.agent
-                : null;
-            builder.displayObjectComplement = builder.state.objectComplement;
-            builder.displayObjectAdjectiveComplement =
-                builder.state.objectAdjectiveComplement;
+            builder.setDisplay(
+              subject: builder.state.object!,
+              recipient: builder.state.recipient,
+              addressee: builder.state.addressee,
+              companion: builder.state.companion,
+              destination: builder.state.destination,
+              agent: builder.state.showPassiveAgent
+                  ? builder.state.agent
+                  : null,
+              objectComplement: builder.state.objectComplement,
+              objectAdjectiveComplement:
+                  builder.state.objectAdjectiveComplement,
+            );
             break;
 
           case PassiveFocus.recipient:
@@ -136,18 +134,19 @@ class GrammarEngine {
               'Passive recipient focus requires a recipient.',
             );
 
-            builder.displaySubject = builder.state.recipient!;
-            builder.displayObject = builder.state.object;
-            builder.displayRecipient = null;
-            builder.displayAddressee = builder.state.addressee;
-            builder.displayCompanion = builder.state.companion;
-            builder.displayDestination = builder.state.destination;
-            builder.displayAgent = builder.state.showPassiveAgent
-                ? builder.state.agent
-                : null;
-            builder.displayObjectComplement = builder.state.objectComplement;
-            builder.displayObjectAdjectiveComplement =
-                builder.state.objectAdjectiveComplement;
+            builder.setDisplay(
+              subject: builder.state.recipient!,
+              object: builder.state.object,
+              addressee: builder.state.addressee,
+              companion: builder.state.companion,
+              destination: builder.state.destination,
+              agent: builder.state.showPassiveAgent
+                  ? builder.state.agent
+                  : null,
+              objectComplement: builder.state.objectComplement,
+              objectAdjectiveComplement:
+                  builder.state.objectAdjectiveComplement,
+            );
         }
         break;
     }
@@ -187,397 +186,175 @@ class GrammarEngine {
       return;
     }
 
-    switch (builder.state.tense) {
-      // -------------------------------------------------------
-      // PRESENT
-      // -------------------------------------------------------
-
-      case Tense.present:
-        switch (builder.state.aspect) {
-          case Aspect.simple:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              if (builder.state.voice == Voice.passive) {
-                builder.verbChain
-                  ..add('be')
-                  ..add(builder.state.action.pastParticiple);
-              } else {
-                builder.verbChain.add(builder.state.action.infinitive);
-              }
-            } else if (builder.state.voice == Voice.passive) {
-              builder.verbChain.add(_presentBe(builder.displaySubject));
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add(builder.state.action.pastParticiple);
-            } else if (builder.state.polarity == Polarity.negative) {
-              builder.verbChain
-                ..add(
-                  builder.displaySubject.takesThirdPersonVerb ? 'does' : 'do',
-                )
-                ..add('not')
-                ..add(builder.state.action.infinitive);
-            } else if (builder.state.sentenceForm == SentenceForm.question) {
-              builder.verbChain
-                ..add(
-                  builder.displaySubject.takesThirdPersonVerb ? 'does' : 'do',
-                )
-                ..add(builder.state.action.infinitive);
-            } else {
-              builder.verbChain.add(
-                builder.displaySubject.takesThirdPersonVerb
-                    ? builder.state.action.presentThirdPerson
-                    : builder.state.action.infinitive,
-              );
-            }
-            break;
-
-          case Aspect.continuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('be');
-            } else {
-              builder.verbChain.add(_presentBe(builder.displaySubject));
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-
-          case Aspect.perfect:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('have');
-            } else {
-              builder.verbChain.add(
-                builder.displaySubject.takesThirdPersonVerb ? 'has' : 'have',
-              );
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('been')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.pastParticiple);
-            }
-
-            break;
-
-          case Aspect.perfectContinuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain
-                ..add('have')
-                ..add('been');
-            } else {
-              builder.verbChain.add(
-                builder.displaySubject.takesThirdPersonVerb ? 'has' : 'have',
-              );
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('been');
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-        }
-
+    switch (builder.state.aspect) {
+      case Aspect.simple:
+        _applySimpleVerbChain(builder);
         break;
-      // -------------------------------------------------------
-      // PAST
-      // -------------------------------------------------------
-
-      case Tense.past:
-        switch (builder.state.aspect) {
-          case Aspect.simple:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              if (builder.state.voice == Voice.passive) {
-                builder.verbChain
-                  ..add('be')
-                  ..add(builder.state.action.pastParticiple);
-              } else {
-                builder.verbChain.add(builder.state.action.infinitive);
-              }
-            } else if (builder.state.voice == Voice.passive) {
-              builder.verbChain.add(_pastBe(builder.displaySubject));
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add(builder.state.action.pastParticiple);
-            } else if (builder.state.polarity == Polarity.negative) {
-              builder.verbChain
-                ..add('did')
-                ..add('not')
-                ..add(builder.state.action.infinitive);
-            } else if (builder.state.sentenceForm == SentenceForm.question) {
-              builder.verbChain
-                ..add('did')
-                ..add(builder.state.action.infinitive);
-            } else {
-              builder.verbChain.add(builder.state.action.pastSimple);
-            }
-
-            break;
-
-          case Aspect.continuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('be');
-            } else {
-              builder.verbChain.add(_pastBe(builder.displaySubject));
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-
-          case Aspect.perfect:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('have');
-            } else {
-              builder.verbChain.add('had');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('been')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.pastParticiple);
-            }
-
-            break;
-
-          case Aspect.perfectContinuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain
-                ..add('have')
-                ..add('been');
-            } else {
-              builder.verbChain.add('had');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-
-              builder.verbChain.add('been');
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-        }
-
+      case Aspect.continuous:
+        _applyContinuousVerbChain(builder);
         break;
-      // -------------------------------------------------------
-      // FUTURE
-      // -------------------------------------------------------
-
-      case Tense.future:
-        switch (builder.state.aspect) {
-          case Aspect.simple:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            } else {
-              builder.verbChain.add('will');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('be')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.infinitive);
-            }
-
-            break;
-
-          case Aspect.continuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            } else {
-              builder.verbChain.add('will');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            builder.verbChain.add('be');
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-
-          case Aspect.perfect:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            } else {
-              builder.verbChain.add('will');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            builder.verbChain.add('have');
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('been')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.pastParticiple);
-            }
-
-            break;
-
-          case Aspect.perfectContinuous:
-            if (!builder.state.modal.isNone) {
-              builder.verbChain.add(builder.state.modal.text);
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            } else {
-              builder.verbChain.add('will');
-
-              if (builder.state.polarity == Polarity.negative) {
-                builder.verbChain.add('not');
-              }
-            }
-
-            builder.verbChain
-              ..add('have')
-              ..add('been');
-
-            if (builder.state.voice == Voice.passive) {
-              builder.verbChain
-                ..add('being')
-                ..add(builder.state.action.pastParticiple);
-            } else {
-              builder.verbChain.add(builder.state.action.ingForm);
-            }
-
-            break;
-        }
-
+      case Aspect.perfect:
+        _applyPerfectVerbChain(builder);
+        break;
+      case Aspect.perfectContinuous:
+        _applyPerfectContinuousVerbChain(builder);
         break;
     }
+  }
+
+  void _applySimpleVerbChain(_SentenceBuilder builder) {
+    if (_usesModalOrFuture(builder)) {
+      _addModalOrFutureAuxiliary(builder);
+      _addSimpleNonFiniteTail(builder);
+      return;
+    }
+
+    if (builder.state.voice == Voice.passive) {
+      builder.verbChain.add(_finiteBe(builder));
+      _addNegativeIfNeeded(builder);
+      builder.verbChain.add(builder.state.action.pastParticiple);
+      return;
+    }
+
+    if (builder.state.polarity == Polarity.negative) {
+      builder.verbChain
+        ..add(_simpleDo(builder))
+        ..add('not')
+        ..add(builder.state.action.infinitive);
+      return;
+    }
+
+    if (builder.state.sentenceForm == SentenceForm.question) {
+      builder.verbChain
+        ..add(_simpleDo(builder))
+        ..add(builder.state.action.infinitive);
+      return;
+    }
+
+    builder.verbChain.add(_finiteMainVerb(builder));
+  }
+
+  void _applyContinuousVerbChain(_SentenceBuilder builder) {
+    if (_usesModalOrFuture(builder)) {
+      _addModalOrFutureAuxiliary(builder);
+      builder.verbChain.add('be');
+    } else {
+      builder.verbChain.add(_finiteBe(builder));
+      _addNegativeIfNeeded(builder);
+    }
+
+    _addContinuousTail(builder);
+  }
+
+  void _applyPerfectVerbChain(_SentenceBuilder builder) {
+    if (_usesModalOrFuture(builder)) {
+      _addModalOrFutureAuxiliary(builder);
+      builder.verbChain.add('have');
+    } else {
+      builder.verbChain.add(_finiteHave(builder));
+      _addNegativeIfNeeded(builder);
+    }
+
+    _addPerfectTail(builder);
+  }
+
+  void _applyPerfectContinuousVerbChain(_SentenceBuilder builder) {
+    if (_usesModalOrFuture(builder)) {
+      _addModalOrFutureAuxiliary(builder);
+      builder.verbChain
+        ..add('have')
+        ..add('been');
+    } else {
+      builder.verbChain.add(_finiteHave(builder));
+      _addNegativeIfNeeded(builder);
+      builder.verbChain.add('been');
+    }
+
+    _addContinuousTail(builder);
+  }
+
+  bool _usesModalOrFuture(_SentenceBuilder builder) {
+    return !builder.state.modal.isNone || builder.state.tense == Tense.future;
+  }
+
+  void _addModalOrFutureAuxiliary(_SentenceBuilder builder) {
+    builder.verbChain.add(
+      builder.state.modal.isNone ? 'will' : builder.state.modal.text,
+    );
+    _addNegativeIfNeeded(builder);
+  }
+
+  void _addNegativeIfNeeded(_SentenceBuilder builder) {
+    if (builder.state.polarity == Polarity.negative) {
+      builder.verbChain.add('not');
+    }
+  }
+
+  void _addSimpleNonFiniteTail(_SentenceBuilder builder) {
+    if (builder.state.voice == Voice.passive) {
+      builder.verbChain
+        ..add('be')
+        ..add(builder.state.action.pastParticiple);
+    } else {
+      builder.verbChain.add(builder.state.action.infinitive);
+    }
+  }
+
+  void _addContinuousTail(_SentenceBuilder builder) {
+    if (builder.state.voice == Voice.passive) {
+      builder.verbChain
+        ..add('being')
+        ..add(builder.state.action.pastParticiple);
+    } else {
+      builder.verbChain.add(builder.state.action.ingForm);
+    }
+  }
+
+  void _addPerfectTail(_SentenceBuilder builder) {
+    if (builder.state.voice == Voice.passive) {
+      builder.verbChain
+        ..add('been')
+        ..add(builder.state.action.pastParticiple);
+    } else {
+      builder.verbChain.add(builder.state.action.pastParticiple);
+    }
+  }
+
+  String _simpleDo(_SentenceBuilder builder) {
+    return switch (builder.state.tense) {
+      Tense.present =>
+        builder.displaySubject.takesThirdPersonVerb ? 'does' : 'do',
+      Tense.past => 'did',
+      Tense.future => 'will',
+    };
+  }
+
+  String _finiteMainVerb(_SentenceBuilder builder) {
+    return switch (builder.state.tense) {
+      Tense.present =>
+        builder.displaySubject.takesThirdPersonVerb
+            ? builder.state.action.presentThirdPerson
+            : builder.state.action.infinitive,
+      Tense.past => builder.state.action.pastSimple,
+      Tense.future => builder.state.action.infinitive,
+    };
+  }
+
+  String _finiteBe(_SentenceBuilder builder) {
+    return switch (builder.state.tense) {
+      Tense.present => _presentBe(builder.displaySubject),
+      Tense.past => _pastBe(builder.displaySubject),
+      Tense.future => 'will',
+    };
+  }
+
+  String _finiteHave(_SentenceBuilder builder) {
+    return switch (builder.state.tense) {
+      Tense.present =>
+        builder.displaySubject.takesThirdPersonVerb ? 'has' : 'have',
+      Tense.past => 'had',
+      Tense.future => 'will',
+    };
   }
 
   void _applyLexicalBeVerbChain(_SentenceBuilder builder) {
@@ -606,74 +383,54 @@ class GrammarEngine {
     }
 
     if (!builder.state.modal.isNone) {
-      builder.verbChain.add(builder.state.modal.text);
-
-      if (builder.state.polarity == Polarity.negative) {
-        builder.verbChain.add('not');
-      }
-
-      switch (builder.state.aspect) {
-        case Aspect.simple:
-          builder.verbChain.add('be');
-          break;
-        case Aspect.continuous:
-          builder.verbChain
-            ..add('be')
-            ..add('being');
-          break;
-        case Aspect.perfect:
-          builder.verbChain
-            ..add('have')
-            ..add('been');
-          break;
-        case Aspect.perfectContinuous:
-          builder.verbChain
-            ..add('have')
-            ..add('been')
-            ..add('being');
-          break;
-      }
+      _addModalOrFutureAuxiliary(builder);
+      _addLexicalBeNonFiniteTail(builder);
       return;
     }
 
-    switch (builder.state.tense) {
-      case Tense.present:
-        switch (builder.state.aspect) {
-          case Aspect.simple:
-            builder.verbChain.add(_presentBe(builder.displaySubject));
-            break;
-          case Aspect.continuous:
-            builder.verbChain.add(_presentBe(builder.displaySubject));
-            break;
-          case Aspect.perfect:
-          case Aspect.perfectContinuous:
-            builder.verbChain.add(
-              builder.displaySubject.takesThirdPersonVerb ? 'has' : 'have',
-            );
-            break;
-        }
+    _addLexicalBeFiniteAuxiliary(builder);
+    _addNegativeIfNeeded(builder);
+    _addLexicalBeFiniteTail(builder);
+  }
+
+  void _addLexicalBeNonFiniteTail(_SentenceBuilder builder) {
+    switch (builder.state.aspect) {
+      case Aspect.simple:
+        builder.verbChain.add('be');
         break;
-      case Tense.past:
-        switch (builder.state.aspect) {
-          case Aspect.simple:
-          case Aspect.continuous:
-            builder.verbChain.add(_pastBe(builder.displaySubject));
-            break;
-          case Aspect.perfect:
-          case Aspect.perfectContinuous:
-            builder.verbChain.add('had');
-            break;
-        }
+      case Aspect.continuous:
+        builder.verbChain
+          ..add('be')
+          ..add('being');
         break;
-      case Tense.future:
-        builder.verbChain.add('will');
+      case Aspect.perfect:
+        builder.verbChain
+          ..add('have')
+          ..add('been');
+        break;
+      case Aspect.perfectContinuous:
+        builder.verbChain
+          ..add('have')
+          ..add('been')
+          ..add('being');
         break;
     }
+  }
 
-    if (builder.state.polarity == Polarity.negative) {
-      builder.verbChain.add('not');
+  void _addLexicalBeFiniteAuxiliary(_SentenceBuilder builder) {
+    switch (builder.state.aspect) {
+      case Aspect.simple:
+      case Aspect.continuous:
+        builder.verbChain.add(_finiteBe(builder));
+        break;
+      case Aspect.perfect:
+      case Aspect.perfectContinuous:
+        builder.verbChain.add(_finiteHave(builder));
+        break;
     }
+  }
 
+  void _addLexicalBeFiniteTail(_SentenceBuilder builder) {
     switch (builder.state.aspect) {
       case Aspect.simple:
         if (builder.state.tense == Tense.future) {
@@ -992,6 +749,32 @@ class _SentenceBuilder {
   String mannerPhrase = '';
 
   _SentenceBuilder(this.state);
+
+  void setDisplay({
+    required NounPhrase subject,
+    NounPhrase? object,
+    NounPhrase? recipient,
+    NounPhrase? addressee,
+    NounPhrase? companion,
+    NounPhrase? destination,
+    NounPhrase? agent,
+    NounPhrase? objectComplement,
+    Adjective? objectAdjectiveComplement,
+    NounPhrase? complement,
+    Adjective? adjectiveComplement,
+  }) {
+    displaySubject = subject;
+    displayObject = object;
+    displayRecipient = recipient;
+    displayAddressee = addressee;
+    displayCompanion = companion;
+    displayDestination = destination;
+    displayAgent = agent;
+    displayObjectComplement = objectComplement;
+    displayObjectAdjectiveComplement = objectAdjectiveComplement;
+    displayComplement = complement;
+    displayAdjectiveComplement = adjectiveComplement;
+  }
 
   String debugSnapshot({String? sentence}) {
     return [
