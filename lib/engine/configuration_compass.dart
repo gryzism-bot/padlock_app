@@ -417,14 +417,22 @@ class ConfigurationCompass {
                 ),
               ]
             : const <_CompassCandidate>[],
-      ConfigurationCompassSlot.modal => modals.map(
-        (modal) => _CompassCandidate(
-          SetModal(modal),
-          modal.isNone ? 'no modal' : modal.text,
-          _modalPriority(sentence.tense, sentence.modal, modal),
-          isSelected: modal == sentence.modal,
-        ),
-      ),
+      ConfigurationCompassSlot.modal =>
+        modals
+            .where(
+              (modal) =>
+                  sentence.tense != Tense.future || modal != modal_data.will,
+            )
+            .map(
+              (modal) => _CompassCandidate(
+                modal == modal_data.will
+                    ? const SetTense(Tense.future)
+                    : SetModal(modal),
+                modal.isNone ? 'no modal' : modal.text,
+                _modalPriority(sentence.tense, sentence.modal, modal),
+                isSelected: modal == sentence.modal,
+              ),
+            ),
       ConfigurationCompassSlot.placePhrase => [
         _CompassCandidate(
           const SetPlacePhrase(null),
@@ -575,10 +583,10 @@ int _modalPriority(Tense tense, Modal current, Modal modal) {
   }
 
   if (tense == Tense.future) {
-    return modal == modal_data.will ? 100 : 50;
+    return 90;
   }
 
-  return modal == modal_data.will ? 50 : 100;
+  return modal == modal_data.will ? 90 : 100;
 }
 
 int _placePriority(Verb action, PlacePhrase place) {

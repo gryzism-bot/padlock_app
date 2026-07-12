@@ -799,42 +799,39 @@ void main() {
       expect(state.messages.single.text, 'build does not take a complement.');
     });
 
-    test('blocks modal and tense combinations outside their frame', () {
+    test('future tense clears present modals because future supplies will', () {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetModal(can));
-      final previous = state;
       state = engine.applyMove(state, const SetTense(Tense.future));
 
-      expect(state.sentenceState, same(previous.sentenceState));
-      expect(wasBlocked(state), isTrue);
-      expect(
-        state.messages.single.text,
-        'can belongs to the present modal frame.',
-      );
+      expect(state.sentenceState.tense, Tense.future);
+      expect(state.sentenceState.modal, noModal);
+      expect(render(state), 'You will learn.');
+      expect(wasBlocked(state), isFalse);
     });
 
-    test('blocks will outside future frame', () {
-      final previous = ConfigurationState.initial();
-      final state = engine.applyMove(previous, const SetModal(will));
-
-      expect(state.sentenceState, same(previous.sentenceState));
-      expect(wasBlocked(state), isTrue);
-      expect(
-        state.messages.single.text,
-        'Will belongs to the future tense frame.',
+    test('will modal chip is a shortcut to future tense', () {
+      final state = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetModal(will),
       );
+
+      expect(state.sentenceState.tense, Tense.future);
+      expect(state.sentenceState.modal, noModal);
+      expect(render(state), 'You will learn.');
+      expect(wasBlocked(state), isFalse);
     });
 
-    test('accepts will after future frame is selected', () {
+    test('present modal chips exit future tense', () {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetTense(Tense.future));
-      state = engine.applyMove(state, const SetModal(will));
+      state = engine.applyMove(state, const SetModal(should));
 
-      expect(state.sentenceState.tense, Tense.future);
-      expect(state.sentenceState.modal, will);
-      expect(render(state), 'You will learn.');
+      expect(state.sentenceState.tense, Tense.present);
+      expect(state.sentenceState.modal, should);
+      expect(render(state), 'You should learn.');
       expect(wasBlocked(state), isFalse);
     });
 

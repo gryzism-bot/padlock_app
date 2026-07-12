@@ -402,9 +402,24 @@ class ConfigurationEngine {
         state,
         showPassiveAgent: showPassiveAgent,
       ),
-      SetTense(:final tense) => _copy(state, tense: tense),
+      SetTense(:final tense) => _copy(
+        state,
+        tense: tense,
+        modal: tense == Tense.future || state.modal == will
+            ? noModal
+            : state.modal,
+      ),
       SetAspect(:final aspect) => _copy(state, aspect: aspect),
-      SetModal(:final modal) => _copy(state, modal: modal),
+      SetModal(:final modal) =>
+        modal == will
+            ? _copy(state, tense: Tense.future, modal: noModal)
+            : _copy(
+                state,
+                tense: state.tense == Tense.future && !modal.isNone
+                    ? Tense.present
+                    : state.tense,
+                modal: modal,
+              ),
       SetPolarity(:final polarity) => _copy(state, polarity: polarity),
       SetSentenceForm(:final sentenceForm) => _copy(
         state,

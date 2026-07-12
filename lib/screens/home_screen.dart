@@ -790,7 +790,11 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetTense(:final tense) => 'tense -> ${tense.name}',
     SetAspect(:final aspect) => 'aspect -> ${aspect.name}',
     SetModal(:final modal) =>
-      modal.isNone ? 'modal -> none' : 'modal -> ${modal.text}',
+      modal.text == 'will'
+          ? 'tense -> future (will)'
+          : modal.isNone
+          ? 'modal -> none'
+          : 'modal -> ${modal.text}',
     SetPolarity(:final polarity) => 'polarity -> ${polarity.name}',
     SetSentenceForm(:final sentenceForm) => 'form -> ${sentenceForm.name}',
     SetTimePhrase(:final timePhrase) =>

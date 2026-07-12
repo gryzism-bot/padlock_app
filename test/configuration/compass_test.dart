@@ -899,9 +899,17 @@ void main() {
       expect(presentSuggestions.map((suggestion) => suggestion.label), [
         'can',
         'should',
+        'will',
         'no modal',
       ]);
       expect(presentSuggestions.last.isSelected, isTrue);
+      final willSuggestion = presentSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'will',
+      );
+      expect(willSuggestion.move, isA<SetTense>());
+      expect(willSuggestion.preview.sentenceState.tense, Tense.future);
+      expect(willSuggestion.preview.sentenceState.modal, noModal);
+      expect(render(willSuggestion.preview), 'You will learn.');
 
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetTense(Tense.future));
@@ -913,11 +921,13 @@ void main() {
       );
 
       expect(futureSuggestions.map((suggestion) => suggestion.label), [
-        'will',
+        'can',
+        'should',
         'no modal',
       ]);
       expect(futureSuggestions.last.isSelected, isTrue);
-      expect(render(futureSuggestions.first.preview), 'You will learn.');
+      expect(render(futureSuggestions.first.preview), 'You can learn.');
+      expect(render(futureSuggestions.last.preview), 'You will learn.');
     });
 
     test('modal suggestions expose no modal as the exit', () {
