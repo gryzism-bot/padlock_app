@@ -352,11 +352,17 @@ Final UI direction:
 - sentence preview should be copyable plain text
 - SentenceState debug text should remain copyable
 - keep random/reset as development tools
-- consider a UI nightly runner:
-  - press random sentence repeatedly
+- configuration nightly runner:
+  - `tool/night_configuration.dart`
+  - walks Compass-visible moves without opening Flutter or Chrome
+  - probes nearby direct moves against the Lock
+  - reports candidate law messages, Compass leaks, rail wake counts, and guided
+    move distribution
+  - output markdown/jsonl evidence like the engine night runner
+- later UI/browser nightly runner:
+  - press random sentence repeatedly in the developer cockpit
   - collect sentence, state, alerts, and last moves
   - compare against Lock and round-trip expectations
-  - output markdown/jsonl evidence like the engine night runner
 
 ## Later Side Quest: Raw UI / Explorer Workbench
 

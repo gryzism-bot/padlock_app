@@ -72,6 +72,56 @@ Default output:
 - `build/night_contract_report.md`
 - `build/night_contract_findings.jsonl`
 
+## Night Configuration contract runner
+
+The Configuration overnight runner stress-tests the interaction layer. It does
+not click the Flutter UI. Instead, it walks `ConfigurationState` through
+Compass-visible suggestions, checks every accepted move through the Lock, and
+probes nearby direct moves to collect candidate laws.
+
+Use this when the question is closer to:
+
+- did Compass expose a move the Lock rejects?
+- which Lock laws appear near real guided states?
+- which rails wake most often?
+- which laws should be promoted into the Configuration Law Map?
+
+One fixed minute:
+
+```powershell
+dart run tool\night_configuration.dart --minutes=1 --exit-zero
+```
+
+Overnight run:
+
+```powershell
+dart run tool\night_configuration.dart --minutes=480 --exit-zero --report=build\night_configuration_overnight.md --jsonl=build\night_configuration_overnight.jsonl
+```
+
+Useful options:
+
+```powershell
+--seed=20260712
+--max-steps=24
+--checkpoint-every=1000
+--probe-every=3
+--sample-every=250
+--fail-on-compass-leak
+```
+
+Safe interrupt:
+
+- Press `Ctrl+C`.
+- The runner requests a stop, writes the current markdown report, and keeps
+  JSONL events already streamed to disk.
+- If the process is killed hard, JSONL still contains run start, first-seen law
+  probes, Compass leaks, render failures, and periodic guided move samples.
+
+Default output:
+
+- `build/night_configuration_report.md`
+- `build/night_configuration_findings.jsonl`
+
 # ARKITEKCZURALLY
 check poster grammar engine as water treatment system png
 
