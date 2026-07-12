@@ -232,6 +232,76 @@ const plant = Noun(
   pluralTranslations: {Language.pl: 'rosliny'},
 );
 
+const food = Noun(
+  singular: 'food',
+  plural: 'foods',
+  singularTranslations: {Language.pl: 'jedzenie'},
+  pluralTranslations: {Language.pl: 'jedzenia'},
+);
+
+const apple = Noun(
+  singular: 'apple',
+  plural: 'apples',
+  singularTranslations: {Language.pl: 'jablko'},
+  pluralTranslations: {Language.pl: 'jablka'},
+);
+
+const bread = Noun(
+  singular: 'bread',
+  plural: 'breads',
+  singularTranslations: {Language.pl: 'chleb'},
+  pluralTranslations: {Language.pl: 'chleby'},
+);
+
+const sandwich = Noun(
+  singular: 'sandwich',
+  plural: 'sandwiches',
+  singularTranslations: {Language.pl: 'kanapka'},
+  pluralTranslations: {Language.pl: 'kanapki'},
+);
+
+const cheese = Noun(
+  singular: 'cheese',
+  plural: 'cheeses',
+  singularTranslations: {Language.pl: 'ser'},
+  pluralTranslations: {Language.pl: 'sery'},
+);
+
+const meat = Noun(
+  singular: 'meat',
+  plural: 'meats',
+  singularTranslations: {Language.pl: 'mieso'},
+  pluralTranslations: {Language.pl: 'miesa'},
+);
+
+const soup = Noun(
+  singular: 'soup',
+  plural: 'soups',
+  singularTranslations: {Language.pl: 'zupa'},
+  pluralTranslations: {Language.pl: 'zupy'},
+);
+
+const potato = Noun(
+  singular: 'potato',
+  plural: 'potatoes',
+  singularTranslations: {Language.pl: 'ziemniak'},
+  pluralTranslations: {Language.pl: 'ziemniaki'},
+);
+
+const carrot = Noun(
+  singular: 'carrot',
+  plural: 'carrots',
+  singularTranslations: {Language.pl: 'marchewka'},
+  pluralTranslations: {Language.pl: 'marchewki'},
+);
+
+const onion = Noun(
+  singular: 'onion',
+  plural: 'onions',
+  singularTranslations: {Language.pl: 'cebula'},
+  pluralTranslations: {Language.pl: 'cebule'},
+);
+
 const plate = Noun(
   singular: 'plate',
   plural: 'plates',

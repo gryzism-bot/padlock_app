@@ -13,6 +13,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
@@ -160,6 +161,34 @@ void main() {
       );
     });
 
+    test(
+      'object rail keeps selected object visible after object pool changes',
+      () {
+        var state = ConfigurationState.initial();
+        state = lock.applyMove(state, const SetObject(fixed_object.history));
+        expect(render(state), 'You learn history.');
+
+        state = lock.applyMove(state, const SetAction(cooking_data.chop));
+        expect(render(state), 'You chop history.');
+
+        final objectSuggestions = ConfigurationCompass().suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+        final historySuggestion = objectSuggestions.singleWhere(
+          (suggestion) => suggestion.label == 'history',
+        );
+
+        expect(historySuggestion.isSelected, isTrue);
+        expect(render(historySuggestion.preview), 'You chop history.');
+        expect(
+          objectSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['apple', 'bread', 'carrot', 'cheese', 'history']),
+        );
+      },
+    );
+
     test('default vocabulary exposes broader third-person noun surface', () {
       final broadCompass = ConfigurationCompass();
 
@@ -173,7 +202,24 @@ void main() {
 
       expect(
         objectLabels,
-        containsAll(['plant', 'plants', 'cat', 'cats', 'dog', 'dogs']),
+        containsAll([
+          'apple',
+          'bread',
+          'carrot',
+          'cheese',
+          'food',
+          'meat',
+          'onion',
+          'plant',
+          'plants',
+          'potato',
+          'sandwich',
+          'soup',
+          'cat',
+          'cats',
+          'dog',
+          'dogs',
+        ]),
       );
 
       state = lock.applyMove(

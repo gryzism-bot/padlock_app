@@ -185,7 +185,7 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.object => [
         if (sentence.object != null)
           const _CompassCandidate(SetObject(null), 'no object', 120),
-        ..._objectChoicesFor(sentence.action, objects)
+        ..._objectChoicesForState(sentence, objects)
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
@@ -695,6 +695,21 @@ List<NounPhrase> _objectChoicesFor(Verb action, List<NounPhrase> fallback) {
   return fixedChoices.isEmpty ? fallback : fixedChoices;
 }
 
+List<NounPhrase> _objectChoicesForState(
+  SentenceState sentence,
+  List<NounPhrase> fallback,
+) {
+  final choices = [..._objectChoicesFor(sentence.action, fallback)];
+  final current = sentence.object;
+
+  if (current != null &&
+      !choices.any((choice) => _sameNounChoice(choice, current))) {
+    choices.add(current);
+  }
+
+  return choices;
+}
+
 String _nounPhraseLabel(NounPhrase phrase) {
   return [
     if (phrase.determiner != null) phrase.determiner!.text,
@@ -804,6 +819,26 @@ final _defaultObjects = [
   ball.toNounPhrase(Number.plural),
   plant.toNounPhrase(Number.singular),
   plant.toNounPhrase(Number.plural),
+  food.toNounPhrase(Number.singular),
+  food.toNounPhrase(Number.plural),
+  apple.toNounPhrase(Number.singular),
+  apple.toNounPhrase(Number.plural),
+  bread.toNounPhrase(Number.singular),
+  bread.toNounPhrase(Number.plural),
+  sandwich.toNounPhrase(Number.singular),
+  sandwich.toNounPhrase(Number.plural),
+  cheese.toNounPhrase(Number.singular),
+  cheese.toNounPhrase(Number.plural),
+  meat.toNounPhrase(Number.singular),
+  meat.toNounPhrase(Number.plural),
+  soup.toNounPhrase(Number.singular),
+  soup.toNounPhrase(Number.plural),
+  potato.toNounPhrase(Number.singular),
+  potato.toNounPhrase(Number.plural),
+  carrot.toNounPhrase(Number.singular),
+  carrot.toNounPhrase(Number.plural),
+  onion.toNounPhrase(Number.singular),
+  onion.toNounPhrase(Number.plural),
   cat.toNounPhrase(Number.singular),
   cat.toNounPhrase(Number.plural),
   dog.toNounPhrase(Number.singular),
