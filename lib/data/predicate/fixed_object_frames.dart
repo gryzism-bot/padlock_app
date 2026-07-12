@@ -28,6 +28,14 @@ const fixedObjectFrameLabels = {
   'close': 'openable',
 };
 
+const _modifierFriendlyFixedObjectFrames = {
+  'text',
+  'tool',
+  'media',
+  'vehicle',
+  'openable',
+};
+
 final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'play': [football, basketball, volleyball, tennis, golf],
   'learn': [english, grammar, math, history, science],
@@ -104,6 +112,11 @@ bool hasFixedObjectFrame(Verb action) {
 
 String? fixedObjectFrameLabel(Verb action) {
   return fixedObjectFrameLabels[action.infinitive];
+}
+
+bool fixedObjectFrameAllowsModifiers(Verb action) {
+  final label = fixedObjectFrameLabel(action);
+  return label != null && _modifierFriendlyFixedObjectFrames.contains(label);
 }
 
 List<NounPhrase> fixedObjectChoicesFor(Verb action) {

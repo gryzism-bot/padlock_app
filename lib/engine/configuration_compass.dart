@@ -24,6 +24,7 @@ import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 enum ConfigurationCompassSlot {
   action,
@@ -180,8 +181,10 @@ class ConfigurationCompass {
                 isSelected: action == sentence.action,
               ),
             ),
-      ConfigurationCompassSlot.object =>
-        _objectChoicesFor(sentence.action, objects)
+      ConfigurationCompassSlot.object => [
+        if (sentence.object != null)
+          const _CompassCandidate(SetObject(null), 'no object', 90),
+        ..._objectChoicesFor(sentence.action, objects)
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
@@ -202,12 +205,13 @@ class ConfigurationCompass {
                 isSelected: isSelected,
               );
             }),
+      ],
       ConfigurationCompassSlot.objectDeterminer => _determinerCandidates(
-        hasFixedObjectFrame(sentence.action) ? null : sentence.object,
+        _objectCanTakeModifiers(sentence) ? sentence.object : null,
         NounPhraseTarget.object,
       ),
       ConfigurationCompassSlot.objectAdjective => _adjectiveCandidates(
-        hasFixedObjectFrame(sentence.action) ? null : sentence.object,
+        _objectCanTakeModifiers(sentence) ? sentence.object : null,
         NounPhraseTarget.object,
       ),
       ConfigurationCompassSlot.recipient => [
@@ -459,7 +463,7 @@ class ConfigurationCompass {
     NounPhrase? phrase,
     NounPhraseTarget target,
   ) {
-    if (phrase == null) {
+    if (phrase == null || !phrase.canTakeModifiers) {
       return const <_CompassCandidate>[];
     }
 
@@ -485,7 +489,7 @@ class ConfigurationCompass {
     NounPhrase? phrase,
     NounPhraseTarget target,
   ) {
-    if (phrase == null) {
+    if (phrase == null || !phrase.canTakeModifiers) {
       return const <_CompassCandidate>[];
     }
 
@@ -517,6 +521,16 @@ class ConfigurationCompass {
           ),
     ];
   }
+}
+
+bool _objectCanTakeModifiers(SentenceState sentence) {
+  final object = sentence.object;
+  if (object == null || !object.canTakeModifiers) {
+    return false;
+  }
+
+  return !hasFixedObjectFrame(sentence.action) ||
+      fixedObjectFrameAllowsModifiers(sentence.action);
 }
 
 class _CompassCandidate {

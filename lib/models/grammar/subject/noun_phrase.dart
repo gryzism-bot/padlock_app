@@ -42,6 +42,10 @@ class NounPhrase {
 
   bool get isPlural => number == Number.plural;
 
+  bool get isPronoun => _pronounTexts.contains(text.toLowerCase());
+
+  bool get canTakeModifiers => !isPronoun;
+
   bool get takesThirdPersonVerb =>
       person == Person.third && number == Number.singular;
 
@@ -67,3 +71,26 @@ class NounPhrase {
 }
 
 const _unchanged = Object();
+
+const _pronounTexts = {
+  'i',
+  'you',
+  'he',
+  'she',
+  'it',
+  'we',
+  'they',
+  'me',
+  'him',
+  'her',
+  'us',
+  'them',
+  'myself',
+  'yourself',
+  'himself',
+  'herself',
+  'itself',
+  'ourselves',
+  'yourselves',
+  'themselves',
+};

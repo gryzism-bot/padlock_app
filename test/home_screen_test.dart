@@ -196,6 +196,7 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
 
     expect(find.text('Move trace'), findsOneWidget);
+    expect(find.byKey(const Key('move-trace-text')), findsOneWidget);
     expect(find.text('2 moves'), findsOneWidget);
     expect(find.textContaining('verb -> give'), findsOneWidget);
     expect(find.textContaining('object -> book'), findsOneWidget);
@@ -269,6 +270,7 @@ void main() {
     expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
+    expect(find.byTooltip('You catch.'), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
@@ -522,6 +524,20 @@ void main() {
     expect(renderedSentence(tester), 'You buy books.');
     expect(find.text('book', findRichText: true), findsNothing);
     expect(find.text('books', findRichText: true), findsWidgets);
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.singular});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You buy book.');
+
+    await tapAfterScroll(tester, find.text('no object', findRichText: true));
+
+    expect(renderedSentence(tester), 'You buy.');
   });
 
   testWidgets('Change preview highlights whole changed words', (tester) async {

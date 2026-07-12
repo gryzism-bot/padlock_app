@@ -16,6 +16,7 @@ import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 part 'widgets/control_cards.dart';
 part 'widgets/suggestion_chips.dart';
@@ -29,7 +30,11 @@ const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 24;
-const _chipRailMaxHeight = 164.0;
+const _actionSuggestionLimit = 64;
+const _smallRailMaxHeight = 92.0;
+const _mediumRailMaxHeight = 132.0;
+const _largeRailMaxHeight = 176.0;
+const _verbRailMaxHeight = 214.0;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -67,8 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (move is SetAction) {
         expandedRails = const {};
       }
-      if (move case SetObject(:final object?)) {
-        objectNumber = object.number;
+      if (move case SetObject(:final object)) {
+        objectNumber = object?.number ?? Number.singular;
       }
       hoveredConfiguration.value = null;
       moveTrace = _appendMoveTrace(
@@ -153,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final suggestions = compass.suggestionsFor(
       configuration,
       slot,
-      limit: slot == ConfigurationCompassSlot.object ? 0 : _suggestionLimit,
+      limit: _suggestionLimitForSlot(slot),
     );
 
     if (slot != ConfigurationCompassSlot.object) {
@@ -161,12 +166,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return suggestions
-        .where(
-          (suggestion) =>
-              suggestion.preview.sentenceState.object?.number == objectNumber,
-        )
+        .where((suggestion) {
+          final object = suggestion.preview.sentenceState.object;
+          return object == null ||
+              object.number == objectNumber ||
+              suggestion.isSelected;
+        })
         .take(_suggestionLimit)
         .toList();
+  }
+
+  int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
+    return switch (slot) {
+      ConfigurationCompassSlot.action => _actionSuggestionLimit,
+      ConfigurationCompassSlot.object => 0,
+      _ => _suggestionLimit,
+    };
   }
 
   void _changeObjectNumber(ConfigurationCompass compass, Number number) {
@@ -1633,6 +1648,10 @@ class _CompassSlotSection extends StatelessWidget {
       isExpanded: isExpanded,
       onToggle: onToggle,
       collapsedHint: _collapsedRailHint(title),
+      expandedMaxHeight: _railMaxHeightFor(
+        title: title,
+        suggestionCount: suggestions.length,
+      ),
       controls: [
         if (isExpanded &&
             suggestions.isNotEmpty &&
@@ -1667,6 +1686,25 @@ class _CompassSlotSection extends StatelessWidget {
             ],
     );
   }
+}
+
+double _railMaxHeightFor({
+  required String title,
+  required int suggestionCount,
+}) {
+  if (title == 'Verb') {
+    return _verbRailMaxHeight;
+  }
+
+  if (suggestionCount <= 8) {
+    return _smallRailMaxHeight;
+  }
+
+  if (suggestionCount <= 18) {
+    return _mediumRailMaxHeight;
+  }
+
+  return _largeRailMaxHeight;
 }
 
 bool _sameNounPhrase(NounPhrase? left, NounPhrase right) {
@@ -1758,8 +1796,10 @@ String _slotTitle(
     ConfigurationCompassSlot.action => 'Verb',
     ConfigurationCompassSlot.object =>
       _fixedObjectSlotTitle(configuration) ?? 'Object',
-    ConfigurationCompassSlot.objectDeterminer => 'Object determiner',
-    ConfigurationCompassSlot.objectAdjective => 'Object adjective',
+    ConfigurationCompassSlot.objectDeterminer =>
+      '${_fixedObjectSlotTitle(configuration) ?? 'Object'} determiner',
+    ConfigurationCompassSlot.objectAdjective =>
+      '${_fixedObjectSlotTitle(configuration) ?? 'Object'} adjective',
     ConfigurationCompassSlot.recipient => 'Recipient',
     ConfigurationCompassSlot.recipientDeterminer => 'Recipient determiner',
     ConfigurationCompassSlot.recipientAdjective => 'Recipient adjective',
@@ -1848,23 +1888,27 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.timePhrase => true,
     ConfigurationCompassSlot.object => state.object != null,
     ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective =>
-      state.object != null && !hasFixedObjectFrame(state.action),
+    ConfigurationCompassSlot.objectAdjective => _objectModifiersCanWake(state),
     ConfigurationCompassSlot.recipient => state.recipient != null,
     ConfigurationCompassSlot.recipientDeterminer ||
-    ConfigurationCompassSlot.recipientAdjective => state.recipient != null,
+    ConfigurationCompassSlot.recipientAdjective =>
+      state.recipient?.canTakeModifiers ?? false,
     ConfigurationCompassSlot.addressee => state.addressee != null,
     ConfigurationCompassSlot.addresseeDeterminer ||
-    ConfigurationCompassSlot.addresseeAdjective => state.addressee != null,
+    ConfigurationCompassSlot.addresseeAdjective =>
+      state.addressee?.canTakeModifiers ?? false,
     ConfigurationCompassSlot.companion => state.companion != null,
     ConfigurationCompassSlot.companionDeterminer ||
-    ConfigurationCompassSlot.companionAdjective => state.companion != null,
+    ConfigurationCompassSlot.companionAdjective =>
+      state.companion?.canTakeModifiers ?? false,
     ConfigurationCompassSlot.destination => state.destination != null,
     ConfigurationCompassSlot.destinationDeterminer ||
-    ConfigurationCompassSlot.destinationAdjective => state.destination != null,
+    ConfigurationCompassSlot.destinationAdjective =>
+      state.destination?.canTakeModifiers ?? false,
     ConfigurationCompassSlot.complement => state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
-    ConfigurationCompassSlot.complementAdjective => state.complement != null,
+    ConfigurationCompassSlot.complementAdjective =>
+      state.complement?.canTakeModifiers ?? false,
     ConfigurationCompassSlot.adjectiveComplement =>
       state.adjectiveComplement != null,
     ConfigurationCompassSlot.voice ||
@@ -1887,7 +1931,8 @@ String _unlockHint(
           : 'Choose a fixed ${fixedObjectFrameLabel(state.action)} for ${state.action.infinitive}.',
     ConfigurationCompassSlot.objectDeterminer ||
     ConfigurationCompassSlot.objectAdjective =>
-      hasFixedObjectFrame(state.action)
+      hasFixedObjectFrame(state.action) &&
+              !fixedObjectFrameAllowsModifiers(state.action)
           ? '${state.action.infinitive} fixed ${fixedObjectFrameLabel(state.action)} choices stay bare.'
           : 'Choose an object first. Noun phrase modifiers wake after a noun exists.',
     ConfigurationCompassSlot.recipient =>
@@ -1929,6 +1974,16 @@ String _unlockHint(
     ConfigurationCompassSlot.placePhrase ||
     ConfigurationCompassSlot.timePhrase => 'No open move from here.',
   };
+}
+
+bool _objectModifiersCanWake(SentenceState state) {
+  final object = state.object;
+  if (object == null || !object.canTakeModifiers) {
+    return false;
+  }
+
+  return !hasFixedObjectFrame(state.action) ||
+      fixedObjectFrameAllowsModifiers(state.action);
 }
 
 String? _fixedObjectSlotTitle(ConfigurationState configuration) {

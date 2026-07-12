@@ -457,8 +457,20 @@ class ConfigurationEngine {
     NounPhrase? phrase,
     List<ConfigurationMessage> blockers,
   ) {
-    final determiner = phrase?.determiner;
-    if (phrase == null || determiner == null) {
+    if (phrase == null) {
+      return;
+    }
+
+    if (!phrase.canTakeModifiers &&
+        (phrase.determiner != null || phrase.adjectiveList.isNotEmpty)) {
+      blockers.add(
+        ConfigurationMessage.blocked('$label pronouns do not take modifiers.'),
+      );
+      return;
+    }
+
+    final determiner = phrase.determiner;
+    if (determiner == null) {
       return;
     }
 
@@ -640,8 +652,9 @@ class ConfigurationEngine {
         );
       }
 
-      if (state.object!.determiner != null ||
-          state.object!.adjectiveList.isNotEmpty) {
+      if (!fixedObjectFrameAllowsModifiers(state.action) &&
+          (state.object!.determiner != null ||
+              state.object!.adjectiveList.isNotEmpty)) {
         blockers.add(
           ConfigurationMessage.blocked(
             '${state.action.infinitive} fixed $label objects stay bare.',

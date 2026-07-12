@@ -160,6 +160,79 @@ void main() {
       );
     });
 
+    test(
+      'fixed text objects can take object modifiers while pronoun recipients stay bare',
+      () {
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(write),
+        );
+
+        final objectSuggestions = compass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+        final storySuggestion = objectSuggestions.singleWhere(
+          (suggestion) => suggestion.label == 'story',
+        );
+
+        state = storySuggestion.preview;
+        expect(render(state), 'You write story.');
+
+        final objectDeterminers = compass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.objectDeterminer,
+          limit: 0,
+        );
+        expect(
+          objectDeterminers.map((suggestion) => suggestion.label),
+          contains('a'),
+        );
+
+        final aStory = objectDeterminers.singleWhere(
+          (suggestion) => suggestion.label == 'a',
+        );
+        state = aStory.preview;
+        expect(render(state), 'You write a story.');
+
+        state = lock.applyMove(state, const SetRecipient(object_case.us));
+        expect(render(state), 'You write us a story.');
+
+        expect(
+          compass.suggestionsFor(
+            state,
+            ConfigurationCompassSlot.recipientDeterminer,
+            limit: 0,
+          ),
+          isEmpty,
+        );
+        expect(
+          compass.suggestionsFor(
+            state,
+            ConfigurationCompassSlot.recipientAdjective,
+            limit: 0,
+          ),
+          isEmpty,
+        );
+
+        final blocked = lock.applyMove(
+          state,
+          const SetNounPhraseDeterminer(
+            NounPhraseTarget.recipient,
+            manyDeterminer,
+          ),
+        );
+
+        expect(blocked.sentenceState, same(state.sentenceState));
+        expect(wasBlocked(blocked), isTrue);
+        expect(
+          blocked.messages.single.text,
+          'Recipient pronouns do not take modifiers.',
+        );
+      },
+    );
+
     test('guided actions hide flattened fixed object verbs', () {
       final suggestions = ConfigurationCompass().suggestionsFor(
         ConfigurationState.initial(),
@@ -942,10 +1015,7 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), [
-        'give',
-        'use',
-      ]);
+      expect(suggestions.map((suggestion) => suggestion.label), ['give']);
 
       state = lock.applyMove(
         state,
@@ -973,7 +1043,10 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), ['car']);
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        unorderedEquals(['car', 'bus', 'train']),
+      );
     });
 
     test('place suggestions use location meaning for ordinary verbs', () {

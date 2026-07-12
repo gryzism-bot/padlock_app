@@ -589,20 +589,14 @@ class _MoveTracePanel extends StatelessWidget {
             else
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final entry in entries.indexed)
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: entry.$1 == entries.length - 1 ? 0 : 2,
-                          ),
-                          child: _MoveTraceChip(
-                            index: entry.$1 + 1,
-                            entry: entry.$2,
-                          ),
-                        ),
-                    ],
+                  child: SelectableText(
+                    _moveTraceText(entries),
+                    key: const Key('move-trace-text'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurface,
+                      fontSize: 11,
+                      height: 1.25,
+                    ),
                   ),
                 ),
               ),
@@ -613,65 +607,18 @@ class _MoveTracePanel extends StatelessWidget {
   }
 }
 
-class _MoveTraceChip extends StatelessWidget {
-  final int index;
-  final _MoveTraceEntry entry;
+String _moveTraceText(List<_MoveTraceEntry> entries) {
+  return entries.indexed
+      .map((entry) {
+        final statusText = switch (entry.$2.status) {
+          _MoveTraceStatus.accepted => 'accepted',
+          _MoveTraceStatus.blocked => 'blocked',
+          _MoveTraceStatus.random => 'random',
+        };
 
-  const _MoveTraceChip({required this.index, required this.entry});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final foreground = switch (entry.status) {
-      _MoveTraceStatus.accepted => colors.secondary,
-      _MoveTraceStatus.blocked => colors.error,
-      _MoveTraceStatus.random => colors.tertiary,
-    };
-    final icon = switch (entry.status) {
-      _MoveTraceStatus.accepted => Icons.check_circle_outline,
-      _MoveTraceStatus.blocked => Icons.lock_outline,
-      _MoveTraceStatus.random => Icons.shuffle,
-    };
-    final statusText = switch (entry.status) {
-      _MoveTraceStatus.accepted => 'accepted',
-      _MoveTraceStatus.blocked => 'blocked',
-      _MoveTraceStatus.random => 'random',
-    };
-
-    return Tooltip(
-      message: '$statusText: ${entry.label}\n${entry.sentence}',
-      waitDuration: const Duration(milliseconds: 350),
-      child: SizedBox(
-        height: 18,
-        child: Row(
-          children: [
-            Icon(icon, size: 11, color: foreground),
-            const SizedBox(width: 4),
-            Text(
-              '$index.',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: colors.onSurfaceVariant,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                '${entry.label} | ${entry.sentence}',
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colors.onSurface,
-                  fontSize: 11,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+        return '${entry.$1 + 1}. [$statusText] ${entry.$2.label} | ${entry.$2.sentence}';
+      })
+      .join('\n');
 }
 
 class _LockLawAlert {

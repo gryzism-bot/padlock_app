@@ -37,6 +37,7 @@ class _SectionFrame extends StatelessWidget {
   final String? collapsedHint;
   final List<Widget> controls;
   final List<Widget> children;
+  final double? expandedMaxHeight;
 
   const _SectionFrame({
     required this.title,
@@ -44,6 +45,7 @@ class _SectionFrame extends StatelessWidget {
     this.onToggle,
     this.collapsedHint,
     this.controls = const [],
+    this.expandedMaxHeight,
     required this.children,
   });
 
@@ -64,7 +66,9 @@ class _SectionFrame extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: isExpanded ? _chipRailMaxHeight : 56,
+            maxHeight: isExpanded
+                ? expandedMaxHeight ?? _largeRailMaxHeight
+                : 56,
           ),
           child: SingleChildScrollView(
             physics: isExpanded
