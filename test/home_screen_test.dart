@@ -15,6 +15,21 @@ void main() {
       )
       .first;
 
+  test(
+    'object number family key keeps singular and plural variants together',
+    () {
+      expect(objectNumberFamilyKey('bridges'), objectNumberFamilyKey('bridge'));
+      expect(objectNumberFamilyKey('houses'), objectNumberFamilyKey('house'));
+      expect(objectNumberFamilyKey('classes'), objectNumberFamilyKey('class'));
+      expect(objectNumberFamilyKey('boxes'), objectNumberFamilyKey('box'));
+      expect(
+        objectNumberFamilyKey('potatoes'),
+        objectNumberFamilyKey('potato'),
+      );
+      expect(objectNumberFamilyKey('books'), objectNumberFamilyKey('book'));
+    },
+  );
+
   String renderedSentence(WidgetTester tester) {
     return tester
         .widget<SelectableText>(find.byKey(const Key('rendered-sentence')))
@@ -238,6 +253,29 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn.');
     expect(find.text('Move trace'), findsNothing);
+  });
+
+  testWidgets('Translate button toggles the header sentence', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(renderedSentence(tester), 'You learn.');
+
+    await tester.tap(find.byTooltip('Translate sentence'));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You learn.');
+    final translated = tester
+        .widget<SelectableText>(find.byKey(const Key('translation-gloss')))
+        .data!;
+    expect(translated, startsWith('(Ty) '));
+    expect(translated, endsWith('.)'));
+    expect(find.byTooltip('Show English sentence'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Show English sentence'));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You learn.');
+    expect(find.byKey(const Key('translation-gloss')), findsNothing);
   });
 
   testWidgets('Guided UI can exit lexical be through verb suggestions', (
@@ -577,6 +615,51 @@ void main() {
     await tapAfterScroll(tester, find.text('no object', findRichText: true));
 
     expect(renderedSentence(tester), 'You buy.');
+  });
+
+  testWidgets('Fixed openable rail follows the object number switch', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.text('close', findRichText: true));
+    await expandRail(tester, 'Openable');
+
+    expect(find.text('door', findRichText: true), findsOneWidget);
+    expect(find.text('doors', findRichText: true), findsNothing);
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
+    await tester.pumpAndSettle();
+
+    expect(find.text('doors', findRichText: true), findsWidgets);
+    expect(find.text('door', findRichText: true), findsNothing);
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.singular});
+    await tester.pumpAndSettle();
+
+    await tapAfterScroll(tester, find.text('door', findRichText: true));
+    expect(renderedSentence(tester), 'You close door.');
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You close doors.');
   });
 
   testWidgets('Change preview highlights whole changed words', (tester) async {

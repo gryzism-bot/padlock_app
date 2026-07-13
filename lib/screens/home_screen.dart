@@ -10,6 +10,7 @@ import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
+import 'package:padlock_app/engine/crude_translation_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -49,10 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final ConfigurationEngine lock = const ConfigurationEngine();
   final ConfigurationCompass compass = ConfigurationCompass();
   final GrammarEngine grammar = GrammarEngine();
+  final CrudeTranslationEngine translator = const CrudeTranslationEngine();
 
   late ConfigurationState configuration;
   SuggestionDisplayMode? suggestionDisplayMode;
   HeaderPreviewMode? headerPreviewMode;
+  bool showTranslation = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
   );
@@ -208,7 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      final variant = _nounVariant(compass.objects, object, number);
+      final variant = _nounVariant(
+        [
+          ...fixedObjectChoicesFor(configuration.sentenceState.action),
+          ...compass.objects,
+        ],
+        object,
+        number,
+      );
       if (variant == null) {
         return;
       }
@@ -262,6 +272,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 suggestionDisplayMode = mode;
               });
             },
+          ),
+          IconButton(
+            tooltip: showTranslation
+                ? 'Show English sentence'
+                : 'Translate sentence',
+            onPressed: () {
+              setState(() {
+                showTranslation = !showTranslation;
+              });
+            },
+            icon: Icon(showTranslation ? Icons.translate : Icons.g_translate),
           ),
           IconButton(
             tooltip: 'Reset',
@@ -368,10 +389,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   final headerSentence = previewCache.render(
                     headerConfiguration.sentenceState,
                   );
+                  final displayedHeaderSentence = showTranslation
+                      ? translator.translateSentence(
+                          renderedSentence: headerSentence,
+                          state: headerConfiguration.sentenceState,
+                        )
+                      : headerSentence;
 
                   return _StickySentenceHeader(
                     child: _SentencePanel(
                       sentence: headerSentence,
+                      translation: showTranslation
+                          ? displayedHeaderSentence
+                          : null,
                       summary: headerConfiguration.sentenceState.summary,
                     ),
                   );
@@ -937,9 +967,14 @@ class _StickySentenceHeader extends StatelessWidget {
 
 class _SentencePanel extends StatelessWidget {
   final String sentence;
+  final String? translation;
   final String summary;
 
-  const _SentencePanel({required this.sentence, required this.summary});
+  const _SentencePanel({
+    required this.sentence,
+    required this.translation,
+    required this.summary,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -959,9 +994,22 @@ class _SentencePanel extends StatelessWidget {
               sentence,
               key: const Key('rendered-sentence'),
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: translation == null ? 2 : 1,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
+            if (translation != null) ...[
+              const SizedBox(height: 3),
+              SelectableText(
+                translation!,
+                key: const Key('translation-gloss'),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
             const SizedBox(height: 4),
             SelectableText(
               summary,
@@ -1930,10 +1978,10 @@ NounPhrase? _nounVariant(
 }
 
 bool _sameNounFamily(NounPhrase left, NounPhrase right) {
-  return _nounFamilyKey(left.text) == _nounFamilyKey(right.text);
+  return objectNumberFamilyKey(left.text) == objectNumberFamilyKey(right.text);
 }
 
-String _nounFamilyKey(String text) {
+String objectNumberFamilyKey(String text) {
   final lower = text.toLowerCase();
 
   if (lower.endsWith('ies')) {
@@ -1944,12 +1992,24 @@ String _nounFamilyKey(String text) {
     return '${lower.substring(0, lower.length - 3)}fe';
   }
 
+  if (lower.endsWith('sses')) {
+    return lower.substring(0, lower.length - 2);
+  }
+
   if (lower.endsWith('ses')) {
     return lower.substring(0, lower.length - 1);
   }
 
-  if (lower.endsWith('es')) {
+  if (lower.endsWith('ches') ||
+      lower.endsWith('shes') ||
+      lower.endsWith('xes') ||
+      lower.endsWith('zes') ||
+      lower.endsWith('oes')) {
     return lower.substring(0, lower.length - 2);
+  }
+
+  if (lower.endsWith('ss')) {
+    return lower;
   }
 
   if (lower.endsWith('s')) {

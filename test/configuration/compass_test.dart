@@ -163,6 +163,33 @@ void main() {
       );
     });
 
+    test('fixed openable frames offer and accept plural objects', () {
+      final defaultCompass = ConfigurationCompass();
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(close),
+      );
+
+      final objectSuggestions = defaultCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.object,
+        limit: 0,
+      );
+
+      expect(
+        objectSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['door', 'doors', 'window', 'windows']),
+      );
+
+      final doorsSuggestion = objectSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'doors',
+      );
+      state = doorsSuggestion.preview;
+
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'You close doors.');
+    });
+
     test(
       'object rail keeps selected object visible after object pool changes',
       () {
@@ -1295,7 +1322,7 @@ void main() {
 
       expect(
         suggestions.map((suggestion) => suggestion.label),
-        unorderedEquals(['car', 'bus', 'train']),
+        unorderedEquals(['car', 'cars', 'bus', 'buses', 'train', 'trains']),
       );
     });
 

@@ -50,6 +50,44 @@ Postpone for now:
 - browser/UI nightly automation
 - rail virtualization, until paging and render caching are not enough
 
+## Night Configuration Run Takeaways
+
+Latest 6-hour configuration run:
+
+- guided moves accepted: 85,148,753
+- direct law probe attempts: 1,117,577,405
+- Compass leaks: 0
+- render failures: 0
+- Compass collection average: 0.18 ms
+- Lock/render transition average: 0.02 ms
+
+Conclusion:
+
+- C-section architecture held.
+- Guided state space is mechanically coherent.
+- Remaining obvious problems are mostly semantic/presentation, not Lock/Compass
+  correctness failures.
+
+Tasks surfaced by samples:
+
+- semantic object filtering:
+  - avoid `You serve math.`
+  - avoid food/cooking verbs with bridges, streets, schools, etc.
+  - prefer food objects for `eat`, `drink`, `cook`, `boil`, `chop`
+- movement/destination refinement:
+  - avoid doubled path feel such as `You ski to John to the restaurant.`
+  - distinguish destination person from destination place when both can exist
+  - decide whether person destinations should be addressees/companions instead
+- lexical `be` phrase semantics:
+  - `You should be on Saturday.` is mechanically valid but semantically odd
+  - time phrases with lexical `be` need a narrower rule or lower ranking
+- adjective stacking and order restraint:
+  - samples like `white blue key` show that multiple adjectives need semantic
+    or UI-side restraint before presentation
+- right-side non-finite action remains the stronger presentation feature:
+  - it expands what the machine can say
+  - semantic filtering mostly removes wrongness
+
 Use this map when deciding whether a feature is truly done:
 
 | Feature | Grammar | Recognition | Lock | Compass | UI |
@@ -162,9 +200,51 @@ Live UI testing is showing a need for more expressive material to the right of
 the chosen predicate. These features all use another verb-like word, but they do
 not all belong to the same crease.
 
+Architectural rule:
+
+- the sentence still has one finite predicate
+- `action` remains the tense/person/aspect/modal-bearing verb
+- the added verb is inferior:
+  - no tense
+  - no subject agreement
+  - no modal stack of its own
+  - rendered as a non-finite right-side action such as `to go`
+- this is not a second predicate in the Padlock machine; it is another surface
+  unlocked by the predicate
+
+Likely first model:
+
+- add `rightAction` or `nonFiniteAction` to `SentenceState`
+- add `rightActionRole` when the roles begin to diverge
+- add verb-data frame facts such as:
+  - `want` wakes `to` action complement
+  - `try` wakes `to` action complement
+  - `need` wakes `to` action complement
+  - `like` / `love` can wake `to` action complement
+  - `learn` wakes skill/action complement
+- keep choices verb-bound and data-driven, just like fixed object frames and
+  participant rails
+
+First wow target:
+
+- `I want to go.`
+- `You try to learn.`
+- `She needs to work.`
+- `They like to swim.`
+- `You learn to speak.`
+- `I want to watch Netflix.`
+
 Order from safest to most expansive:
 
-1. semi-modal `to` frames:
+1. right action `to` complements:
+   - `I want to go.`
+   - `I try to learn.`
+   - `I need to work.`
+   - `I like to swim.`
+   - `I learn to speak.`
+   - this is the smallest powerful crease because the first verb remains the
+     finite predicate and the second verb stays bare after `to`
+2. semi-modal `to` frames:
    - `I have to go to school.`
    - `I need to learn English.`
    - `He has to work.`
@@ -174,25 +254,13 @@ Order from safest to most expansive:
    - this is closest to the existing modal wheel, but it must conjugate like a
      normal verb and support DO questions/negatives:
      `Does he have to go?`, `He does not have to go.`
-2. ability/permission/expectation frames:
+3. ability/permission/expectation frames:
    - `He is able to go.`
    - `He is allowed to go.`
    - `He is supposed to go.`
    - likely a separate subtype of the same semi-modal surface because these use
      lexical `be` plus adjective/participle plus `to`
-3. attitude/intention `to` frames:
-   - `I want to go.`
-   - `I try to go.`
-   - `I plan to go.`
-   - `I hope to go.`
-   - these are less modal-like because the first verb carries real meaning;
-     they may become an intention/control rail rather than a modal rail
-4. learning/skill `to` frames:
-   - `I learn to swim.`
-   - `She learned to read.`
-   - this overlaps semantic rails for `learn`, but the right side is an action,
-     not a noun subject such as `English`
-5. purpose infinitives:
+4. purpose infinitives:
    - `He walks to exercise.`
    - `I run to forget.`
    - `I listen to visualize.`
@@ -205,17 +273,21 @@ Implementation notes:
 
 - Do not merge these directly into normal `Modal` unless the verb-chain rules
   prove identical. They are not identical: `should go`, but `have to go`.
-- Start with `have to` and `need to` because they provide high everyday value
-  without opening the full purpose/second-action surface.
+- Start with right action `to` complements because they provide the biggest
+  visible expressiveness jump while preserving one finite predicate.
 - Add Grammar and Recognition tests first:
-  - present: `I have to go.` / `He has to go.`
-  - past: `He had to go.`
-  - future: `He will have to go.`
-  - negative: `He does not have to go.`
-  - question: `Does he have to go?`
+  - present: `I want to go.`
+  - third person: `She wants to work.`
+  - past: `They tried to learn.`
+  - future/modal chain: `You will want to watch.`
+  - negative: `He does not want to go.`
+  - question: `Does he want to go?`
+  - skill: `You learn to speak.`
 - In UI, this probably belongs near the modal control, but it should visually
   show that `to` is part of the wrapper and the following verb remains the real
   action.
+- Semantic filtering remains important, but it mostly removes wrongness. This
+  crease expands what the machine can say.
 
 ## Grammar And Recognition Test Growth
 

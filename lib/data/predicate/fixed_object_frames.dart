@@ -2,6 +2,7 @@ import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/verbs/essential.dart' show play;
+import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -44,53 +45,57 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'teach': [english, grammar, math, history, science],
   'speak': [english, polish, spanish],
   'read': [
-    object_data.book.toNounPhrase(Number.singular),
-    object_data.newspaper.toNounPhrase(Number.singular),
-    object_data.letter.toNounPhrase(Number.singular),
-    object_data.story.toNounPhrase(Number.singular),
-    object_data.magazine.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.book),
+    ..._nounForms(object_data.newspaper),
+    ..._nounForms(object_data.letter),
+    ..._nounForms(object_data.story),
+    ..._nounForms(object_data.magazine),
   ],
   'write': [
-    object_data.book.toNounPhrase(Number.singular),
-    object_data.letter.toNounPhrase(Number.singular),
-    object_data.story.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.book),
+    ..._nounForms(object_data.letter),
+    ..._nounForms(object_data.story),
   ],
   'use': [
-    object_data.phone.toNounPhrase(Number.singular),
-    object_data.computer.toNounPhrase(Number.singular),
-    object_data.laptop.toNounPhrase(Number.singular),
-    object_data.keyboard.toNounPhrase(Number.singular),
-    object_data.pen.toNounPhrase(Number.singular),
-    object_data.pencil.toNounPhrase(Number.singular),
-    object_data.key.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.phone),
+    ..._nounForms(object_data.computer),
+    ..._nounForms(object_data.laptop),
+    ..._nounForms(object_data.keyboard),
+    ..._nounForms(object_data.pen),
+    ..._nounForms(object_data.pencil),
+    ..._nounForms(object_data.key),
   ],
   'watch': [
-    object_data.television.toNounPhrase(Number.singular),
-    object_data.story.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.television),
+    ..._nounForms(object_data.story),
   ],
   'drive': [
-    object_data.car.toNounPhrase(Number.singular),
-    object_data.bus.toNounPhrase(Number.singular),
-    object_data.train.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.car),
+    ..._nounForms(object_data.bus),
+    ..._nounForms(object_data.train),
   ],
   'ride': [
-    object_data.bicycle.toNounPhrase(Number.singular),
-    object_data.bus.toNounPhrase(Number.singular),
-    object_data.train.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.bicycle),
+    ..._nounForms(object_data.bus),
+    ..._nounForms(object_data.train),
   ],
   'open': [
-    object_data.book.toNounPhrase(Number.singular),
-    object_data.door.toNounPhrase(Number.singular),
-    object_data.window.toNounPhrase(Number.singular),
-    object_data.bottle.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.book),
+    ..._nounForms(object_data.door),
+    ..._nounForms(object_data.window),
+    ..._nounForms(object_data.bottle),
   ],
   'close': [
-    object_data.book.toNounPhrase(Number.singular),
-    object_data.door.toNounPhrase(Number.singular),
-    object_data.window.toNounPhrase(Number.singular),
-    object_data.bottle.toNounPhrase(Number.singular),
+    ..._nounForms(object_data.book),
+    ..._nounForms(object_data.door),
+    ..._nounForms(object_data.window),
+    ..._nounForms(object_data.bottle),
   ],
 };
+
+List<NounPhrase> _nounForms(Noun noun) {
+  return [noun.toNounPhrase(Number.singular), noun.toNounPhrase(Number.plural)];
+}
 
 const flattenedFixedObjectVerbInfinitives = {
   'play football',
