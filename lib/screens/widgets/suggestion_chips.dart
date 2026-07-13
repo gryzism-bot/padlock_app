@@ -684,9 +684,18 @@ String _moveTraceText(List<_MoveTraceEntry> entries) {
           _MoveTraceStatus.random => 'random',
         };
 
-        return '${entry.$1 + 1}. [$statusText] ${entry.$2.label} | ${entry.$2.sentence}';
+        return '${entry.$1 + 1}. [$statusText, ${_formatMoveTraceElapsed(entry.$2.elapsed)}] ${entry.$2.label} | ${entry.$2.sentence}';
       })
       .join('\n');
+}
+
+String _formatMoveTraceElapsed(Duration elapsed) {
+  final microseconds = elapsed.inMicroseconds;
+  if (microseconds < 1000) {
+    return '<1 ms';
+  }
+
+  return '${elapsed.inMilliseconds} ms';
 }
 
 class _LockLawAlert {

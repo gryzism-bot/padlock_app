@@ -222,6 +222,10 @@ void main() {
     expect(find.text('2 moves'), findsOneWidget);
     expect(find.textContaining('verb -> give'), findsOneWidget);
     expect(find.textContaining('object -> book'), findsOneWidget);
+    expect(
+      find.textContaining(RegExp(r'\[(accepted|blocked), (<1|\d+) ms\]')),
+      findsWidgets,
+    );
 
     for (var index = 0; index < 9; index++) {
       await pressOutlinedText(tester, index.isEven ? 'past' : 'present');

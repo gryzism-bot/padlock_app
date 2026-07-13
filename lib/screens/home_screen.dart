@@ -67,6 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _move(ConfigurationMove move) {
+    final stopwatch = Stopwatch()..start();
+
     setState(() {
       final previousConfiguration = configuration;
       final nextConfiguration = lock.applyMove(configuration, move);
@@ -78,17 +80,22 @@ class _HomeScreenState extends State<HomeScreen> {
         objectNumber = object?.number ?? Number.singular;
       }
       hoveredConfiguration.value = null;
+      final nextSentence = grammar
+          .generate(nextConfiguration.sentenceState)
+          .text;
+      stopwatch.stop();
       moveTrace = _appendMoveTrace(
         moveTrace,
         _MoveTraceEntry.fromMove(
           move: move,
-          sentence: grammar.generate(nextConfiguration.sentenceState).text,
+          sentence: nextSentence,
           wasBlocked: nextConfiguration.messages.any(
             (message) => message.kind == ConfigurationMessageKind.blocked,
           ),
           keptSentence:
               previousConfiguration.sentenceState.summary ==
               nextConfiguration.sentenceState.summary,
+          elapsed: stopwatch.elapsed,
         ),
       );
     });
@@ -105,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _shuffle() {
+    final stopwatch = Stopwatch()..start();
     final random = Random();
     var state = ConfigurationState.initial();
 
@@ -127,8 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = state;
       objectNumber = state.sentenceState.object?.number ?? Number.singular;
       hoveredConfiguration.value = null;
+      final sentence = grammar.generate(state.sentenceState).text;
+      stopwatch.stop();
       moveTrace = [
-        _MoveTraceEntry.random(grammar.generate(state.sentenceState).text),
+        _MoveTraceEntry.random(sentence, elapsed: stopwatch.elapsed),
       ];
       expandedRails = const {};
     });
@@ -187,6 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _changeObjectNumber(ConfigurationCompass compass, Number number) {
+    final stopwatch = Stopwatch()..start();
+
     setState(() {
       objectNumber = number;
       hoveredConfiguration.value = null;
@@ -205,12 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
         configuration,
         SetObject(_carrySafeNounModifiers(object, variant)),
       );
+      final sentence = grammar.generate(configuration.sentenceState).text;
+      stopwatch.stop();
       moveTrace = _appendMoveTrace(
         moveTrace,
         _MoveTraceEntry(
           label: 'object number -> ${number.name}',
-          sentence: grammar.generate(configuration.sentenceState).text,
+          sentence: sentence,
           status: _MoveTraceStatus.accepted,
+          elapsed: stopwatch.elapsed,
         ),
       );
     });
@@ -744,18 +759,21 @@ class _MoveTraceEntry {
   final String label;
   final String sentence;
   final _MoveTraceStatus status;
+  final Duration elapsed;
 
   const _MoveTraceEntry({
     required this.label,
     required this.sentence,
     required this.status,
+    required this.elapsed,
   });
 
-  factory _MoveTraceEntry.random(String sentence) {
+  factory _MoveTraceEntry.random(String sentence, {required Duration elapsed}) {
     return _MoveTraceEntry(
       label: 'random sentence',
       sentence: sentence,
       status: _MoveTraceStatus.random,
+      elapsed: elapsed,
     );
   }
 
@@ -764,11 +782,13 @@ class _MoveTraceEntry {
     required String sentence,
     required bool wasBlocked,
     required bool keptSentence,
+    required Duration elapsed,
   }) {
     return _MoveTraceEntry(
       label: _moveTraceLabel(move),
       sentence: keptSentence && wasBlocked ? 'kept $sentence' : sentence,
       status: wasBlocked ? _MoveTraceStatus.blocked : _MoveTraceStatus.accepted,
+      elapsed: elapsed,
     );
   }
 }
