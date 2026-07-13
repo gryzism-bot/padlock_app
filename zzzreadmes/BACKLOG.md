@@ -486,6 +486,8 @@ Done recently:
   lists just to render a closed rail
 - closed participant rails are now decided from the current `SentenceState`
   shape, and full suggestions are generated only after the rail is expanded
+- Backleg save: rail titles, wake hints, collapsed visibility, and empty-state
+  rendering were folded into one UI rail policy table
 - suggestion chip labels use simple `SelectableText` for common cases, keeping
   `SelectableText.rich` only for changed-word highlighting
 - rendered preview sentences are cached inside a single `HomeScreen` build pass,

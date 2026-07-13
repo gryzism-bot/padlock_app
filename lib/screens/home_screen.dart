@@ -381,8 +381,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 8),
                   for (final section in _visibleSlotSections(compass)) ...[
                     _CompassSlotSection(
-                      title: _slotTitle(section.slot, configuration),
-                      unlockHint: _unlockHint(section.slot, configuration),
+                      title: section.title,
+                      unlockHint: section.unlockHint,
                       isExpanded: section.isExpanded,
                       onToggle: section.canToggle
                           ? () => _toggleRail(section.slot)
@@ -459,11 +459,12 @@ class _HomeScreenState extends State<HomeScreen> {
           slot != ConfigurationCompassSlot.passiveFocus &&
           slot != ConfigurationCompassSlot.passiveAgent,
     )) {
-      final canToggle = _isControlledRail(slot);
+      final policy = _railPolicy(slot);
+      final canToggle = policy.isControlled;
       final isExpanded = !canToggle || expandedRails.contains(slot);
 
       if (canToggle && !isExpanded) {
-        if (!_collapsedControlledRailCanRender(slot, configuration)) {
+        if (!policy.canRenderCollapsed(configuration)) {
           continue;
         }
 
@@ -471,6 +472,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _VisibleCompassSlot(
             slot,
             const [],
+            title: policy.title(configuration),
+            unlockHint: policy.unlockHint(configuration),
             isExpanded: false,
             canToggle: true,
           ),
@@ -479,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final suggestions = _suggestionsForSlot(compass, slot);
-      if (!_shouldRenderSlot(slot, configuration, suggestions)) {
+      if (!policy.shouldRender(configuration, suggestions)) {
         continue;
       }
 
@@ -487,6 +490,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _VisibleCompassSlot(
           slot,
           suggestions,
+          title: policy.title(configuration),
+          unlockHint: policy.unlockHint(configuration),
           isExpanded: isExpanded,
           canToggle: canToggle,
         ),
@@ -738,12 +743,16 @@ class _ParticipantDoorChip extends StatelessWidget {
 class _VisibleCompassSlot {
   final ConfigurationCompassSlot slot;
   final List<ConfigurationSuggestion> suggestions;
+  final String title;
+  final String unlockHint;
   final bool isExpanded;
   final bool canToggle;
 
   const _VisibleCompassSlot(
     this.slot,
     this.suggestions, {
+    required this.title,
+    required this.unlockHint,
     required this.isExpanded,
     required this.canToggle,
   });
@@ -2150,45 +2159,6 @@ Object? _safeDeterminerForNumber(NounPhrase previous, Number number) {
   return determiner;
 }
 
-String _slotTitle(
-  ConfigurationCompassSlot slot,
-  ConfigurationState configuration,
-) {
-  return switch (slot) {
-    ConfigurationCompassSlot.action => 'Verb',
-    ConfigurationCompassSlot.object =>
-      _fixedObjectSlotTitle(configuration) ?? 'Object',
-    ConfigurationCompassSlot.objectDeterminer =>
-      '${_fixedObjectSlotTitle(configuration) ?? 'Object'} determiner',
-    ConfigurationCompassSlot.objectAdjective =>
-      '${_fixedObjectSlotTitle(configuration) ?? 'Object'} adjective',
-    ConfigurationCompassSlot.recipient => 'Recipient',
-    ConfigurationCompassSlot.recipientDeterminer => 'Recipient determiner',
-    ConfigurationCompassSlot.recipientAdjective => 'Recipient adjective',
-    ConfigurationCompassSlot.addressee => 'Addressee',
-    ConfigurationCompassSlot.addresseeDeterminer => 'Addressee determiner',
-    ConfigurationCompassSlot.addresseeAdjective => 'Addressee adjective',
-    ConfigurationCompassSlot.companion => 'Companion',
-    ConfigurationCompassSlot.companionDeterminer => 'Companion determiner',
-    ConfigurationCompassSlot.companionAdjective => 'Companion adjective',
-    ConfigurationCompassSlot.destination => 'Destination',
-    ConfigurationCompassSlot.destinationDeterminer => 'Destination determiner',
-    ConfigurationCompassSlot.destinationAdjective => 'Destination adjective',
-    ConfigurationCompassSlot.rightAction => 'Right action',
-    ConfigurationCompassSlot.complement => 'Noun complement',
-    ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
-    ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
-    ConfigurationCompassSlot.adjectiveComplement => 'Adjective complement',
-    ConfigurationCompassSlot.voice => 'Voice',
-    ConfigurationCompassSlot.passiveFocus => 'Passive focus',
-    ConfigurationCompassSlot.passiveAgent => 'Passive agent',
-    ConfigurationCompassSlot.passiveAgentNoun => 'By-agent',
-    ConfigurationCompassSlot.modal => 'Modal',
-    ConfigurationCompassSlot.placePhrase => 'Place phrase',
-    ConfigurationCompassSlot.timePhrase => 'Time phrase',
-  };
-}
-
 String _coreObjectDoorLabel(ConfigurationState configuration) {
   final state = configuration.sentenceState;
   final fixedLabel = fixedObjectFrameLabel(state.action);
@@ -2200,208 +2170,356 @@ String _coreObjectDoorLabel(ConfigurationState configuration) {
   return fixedLabel == 'subject' ? 'study subject' : fixedLabel;
 }
 
-bool _isControlledRail(ConfigurationCompassSlot slot) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object ||
-    ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective ||
-    ConfigurationCompassSlot.recipient ||
-    ConfigurationCompassSlot.recipientDeterminer ||
-    ConfigurationCompassSlot.recipientAdjective ||
-    ConfigurationCompassSlot.addressee ||
-    ConfigurationCompassSlot.addresseeDeterminer ||
-    ConfigurationCompassSlot.addresseeAdjective ||
-    ConfigurationCompassSlot.companion ||
-    ConfigurationCompassSlot.companionDeterminer ||
-    ConfigurationCompassSlot.companionAdjective ||
-    ConfigurationCompassSlot.destination ||
-    ConfigurationCompassSlot.destinationDeterminer ||
-    ConfigurationCompassSlot.destinationAdjective ||
-    ConfigurationCompassSlot.rightAction ||
-    ConfigurationCompassSlot.passiveAgentNoun ||
-    ConfigurationCompassSlot.complement ||
-    ConfigurationCompassSlot.complementDeterminer ||
-    ConfigurationCompassSlot.complementAdjective ||
-    ConfigurationCompassSlot.adjectiveComplement => true,
-    ConfigurationCompassSlot.action ||
-    ConfigurationCompassSlot.voice ||
-    ConfigurationCompassSlot.passiveFocus ||
-    ConfigurationCompassSlot.passiveAgent ||
-    ConfigurationCompassSlot.modal ||
-    ConfigurationCompassSlot.placePhrase ||
-    ConfigurationCompassSlot.timePhrase => false,
-  };
-}
-
 String _collapsedRailHint(String title) {
   return 'Click to open $title choices.';
 }
 
-bool _shouldRenderSlot(
-  ConfigurationCompassSlot slot,
-  ConfigurationState configuration,
-  List<ConfigurationSuggestion> suggestions,
-) {
-  if (suggestions.isNotEmpty) {
-    return true;
+typedef _RailTitleBuilder = String Function(ConfigurationState configuration);
+typedef _RailHintBuilder = String Function(ConfigurationState configuration);
+typedef _RailStatePredicate = bool Function(SentenceState state);
+
+class _RailPolicy {
+  final ConfigurationCompassSlot slot;
+  final _RailTitleBuilder title;
+  final _RailHintBuilder unlockHint;
+  final bool isControlled;
+  final _RailStatePredicate canRenderCollapsedWhen;
+  final _RailStatePredicate canRenderWhenEmpty;
+
+  const _RailPolicy({
+    required this.slot,
+    required this.title,
+    required this.unlockHint,
+    required this.isControlled,
+    required this.canRenderCollapsedWhen,
+    required this.canRenderWhenEmpty,
+  });
+
+  bool canRenderCollapsed(ConfigurationState configuration) {
+    return canRenderCollapsedWhen(configuration.sentenceState);
   }
 
-  final state = configuration.sentenceState;
-
-  return switch (slot) {
-    ConfigurationCompassSlot.action ||
-    ConfigurationCompassSlot.placePhrase ||
-    ConfigurationCompassSlot.timePhrase => true,
-    ConfigurationCompassSlot.object => state.object != null,
-    ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective => _objectModifiersCanWake(state),
-    ConfigurationCompassSlot.recipient => state.recipient != null,
-    ConfigurationCompassSlot.recipientDeterminer ||
-    ConfigurationCompassSlot.recipientAdjective =>
-      state.recipient?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.addressee => state.addressee != null,
-    ConfigurationCompassSlot.addresseeDeterminer ||
-    ConfigurationCompassSlot.addresseeAdjective =>
-      state.addressee?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.companion => state.companion != null,
-    ConfigurationCompassSlot.companionDeterminer ||
-    ConfigurationCompassSlot.companionAdjective =>
-      state.companion?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.destination => state.destination != null,
-    ConfigurationCompassSlot.destinationDeterminer ||
-    ConfigurationCompassSlot.destinationAdjective =>
-      state.destination?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.rightAction => state.rightAction != null,
-    ConfigurationCompassSlot.passiveAgentNoun =>
-      state.voice == Voice.passive && state.agent != null,
-    ConfigurationCompassSlot.complement => state.complement != null,
-    ConfigurationCompassSlot.complementDeterminer ||
-    ConfigurationCompassSlot.complementAdjective =>
-      state.complement?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.adjectiveComplement =>
-      state.adjectiveComplement != null,
-    ConfigurationCompassSlot.voice ||
-    ConfigurationCompassSlot.passiveFocus ||
-    ConfigurationCompassSlot.passiveAgent ||
-    ConfigurationCompassSlot.modal => false,
-  };
+  bool shouldRender(
+    ConfigurationState configuration,
+    List<ConfigurationSuggestion> suggestions,
+  ) {
+    return suggestions.isNotEmpty ||
+        canRenderWhenEmpty(configuration.sentenceState);
+  }
 }
 
-bool _collapsedControlledRailCanRender(
-  ConfigurationCompassSlot slot,
-  ConfigurationState configuration,
-) {
-  final state = configuration.sentenceState;
+_RailPolicy _railPolicy(ConfigurationCompassSlot slot) {
+  final policy = _railPolicies[slot];
+  if (policy == null) {
+    throw StateError('Missing rail policy for $slot');
+  }
 
-  return switch (slot) {
-    ConfigurationCompassSlot.object =>
-      state.action.takesObject || hasFixedObjectFrame(state.action),
-    ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective => _objectModifiersCanWake(state),
-    ConfigurationCompassSlot.recipient =>
-      (state.action.takesRecipient && state.object != null) ||
-          state.recipient != null,
-    ConfigurationCompassSlot.recipientDeterminer ||
-    ConfigurationCompassSlot.recipientAdjective =>
-      state.recipient?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.addressee =>
-      state.action.takesAddressee || state.addressee != null,
-    ConfigurationCompassSlot.addresseeDeterminer ||
-    ConfigurationCompassSlot.addresseeAdjective =>
-      state.addressee?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.companion =>
-      state.action.infinitive == 'be' ||
-          state.action.takesCompanion ||
-          state.companion != null,
-    ConfigurationCompassSlot.companionDeterminer ||
-    ConfigurationCompassSlot.companionAdjective =>
-      state.companion?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.destination =>
-      state.action.usesDestinationPlace || state.destination != null,
-    ConfigurationCompassSlot.destinationDeterminer ||
-    ConfigurationCompassSlot.destinationAdjective =>
-      state.destination?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.rightAction =>
-      hasRightActionFrame(state.action) || state.rightAction != null,
-    ConfigurationCompassSlot.passiveAgentNoun => state.voice == Voice.passive,
-    ConfigurationCompassSlot.complement =>
-      state.action.infinitive == 'be' || state.complement != null,
-    ConfigurationCompassSlot.complementDeterminer ||
-    ConfigurationCompassSlot.complementAdjective =>
-      state.complement?.canTakeModifiers ?? false,
-    ConfigurationCompassSlot.adjectiveComplement =>
-      state.action.infinitive == 'be' || state.adjectiveComplement != null,
-    ConfigurationCompassSlot.action ||
-    ConfigurationCompassSlot.voice ||
-    ConfigurationCompassSlot.passiveFocus ||
-    ConfigurationCompassSlot.passiveAgent ||
-    ConfigurationCompassSlot.modal ||
-    ConfigurationCompassSlot.placePhrase ||
-    ConfigurationCompassSlot.timePhrase => false,
-  };
+  return policy;
 }
 
-String _unlockHint(
-  ConfigurationCompassSlot slot,
-  ConfigurationState configuration,
-) {
+String _fixedObjectTitle(ConfigurationState configuration) {
+  return _fixedObjectSlotTitle(configuration) ?? 'Object';
+}
+
+String _fixedObjectDeterminerTitle(ConfigurationState configuration) {
+  return '${_fixedObjectTitle(configuration)} determiner';
+}
+
+String _fixedObjectAdjectiveTitle(ConfigurationState configuration) {
+  return '${_fixedObjectTitle(configuration)} adjective';
+}
+
+String _objectUnlockHint(ConfigurationState configuration) {
+  final state = configuration.sentenceState;
+  final fixedLabel = fixedObjectFrameLabel(state.action);
+
+  if (fixedLabel == null) {
+    return 'Choose a verb that can take an object, like build, give, need, see, or use.';
+  }
+
+  return 'Choose a fixed $fixedLabel for ${state.action.infinitive}.';
+}
+
+String _objectModifierUnlockHint(ConfigurationState configuration) {
   final state = configuration.sentenceState;
 
-  return switch (slot) {
-    ConfigurationCompassSlot.object =>
-      fixedObjectFrameLabel(state.action) == null
-          ? 'Choose a verb that can take an object, like build, give, need, see, or use.'
-          : 'Choose a fixed ${fixedObjectFrameLabel(state.action)} for ${state.action.infinitive}.',
-    ConfigurationCompassSlot.objectDeterminer ||
-    ConfigurationCompassSlot.objectAdjective =>
-      hasFixedObjectFrame(state.action) &&
-              !fixedObjectFrameAllowsModifiers(state.action)
-          ? '${state.action.infinitive} fixed ${fixedObjectFrameLabel(state.action)} choices stay bare.'
-          : 'Choose an object first. Noun phrase modifiers wake after a noun exists.',
-    ConfigurationCompassSlot.recipient =>
-      'Choose a ditransitive verb like give, tell, teach, write, or buy, then keep an object active.',
-    ConfigurationCompassSlot.recipientDeterminer ||
-    ConfigurationCompassSlot.recipientAdjective =>
-      'Choose a recipient first. Recipient modifiers wake after that noun exists.',
-    ConfigurationCompassSlot.addressee =>
-      'Choose a verb that can speak, talk, or write to someone.',
-    ConfigurationCompassSlot.addresseeDeterminer ||
-    ConfigurationCompassSlot.addresseeAdjective =>
-      'Choose an addressee first. Addressee modifiers wake after that noun exists.',
-    ConfigurationCompassSlot.companion =>
-      'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
-    ConfigurationCompassSlot.companionDeterminer ||
-    ConfigurationCompassSlot.companionAdjective =>
-      'Choose a companion first. Companion modifiers wake after that noun exists.',
-    ConfigurationCompassSlot.destination =>
-      'Choose a movement verb like go, come, travel, arrive, leave, or return.',
-    ConfigurationCompassSlot.destinationDeterminer ||
-    ConfigurationCompassSlot.destinationAdjective =>
-      'Choose a destination first. Destination modifiers wake after that noun exists.',
-    ConfigurationCompassSlot.rightAction =>
-      'Choose a verb like want, need, like, love, or learn to open a to-action complement.',
-    ConfigurationCompassSlot.complement =>
-      'Choose verb be first. Noun complements belong to the be frame.',
-    ConfigurationCompassSlot.complementDeterminer ||
-    ConfigurationCompassSlot.complementAdjective =>
-      'Choose verb be, then choose a noun complement. Complement modifiers wake after that noun exists.',
-    ConfigurationCompassSlot.adjectiveComplement =>
-      'Choose verb be first. Adjective complements belong to the be frame.',
-    ConfigurationCompassSlot.voice =>
-      'Choose an object-capable verb and an object first. Passive opens after there is something to promote.',
-    ConfigurationCompassSlot.passiveFocus =>
-      'Turn passive voice on first. Recipient focus also needs a recipient-capable verb and a recipient.',
-    ConfigurationCompassSlot.passiveAgent =>
-      'Turn passive voice on first. The by-agent phrase can be hidden while the agent stays in state.',
-    ConfigurationCompassSlot.passiveAgentNoun =>
-      'Turn passive voice on first. This rail changes the remembered by-agent, even when the by-phrase is hidden.',
-    ConfigurationCompassSlot.modal =>
-      'No modal fits this tense/frame from here.',
-    ConfigurationCompassSlot.action ||
-    ConfigurationCompassSlot.placePhrase ||
-    ConfigurationCompassSlot.timePhrase => 'No open move from here.',
-  };
+  if (hasFixedObjectFrame(state.action) &&
+      !fixedObjectFrameAllowsModifiers(state.action)) {
+    return '${state.action.infinitive} fixed ${fixedObjectFrameLabel(state.action)} choices stay bare.';
+  }
+
+  return 'Choose an object first. Noun phrase modifiers wake after a noun exists.';
 }
+
+final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
+  ConfigurationCompassSlot.action: _RailPolicy(
+    slot: ConfigurationCompassSlot.action,
+    title: (_) => 'Verb',
+    unlockHint: (_) => 'No open move from here.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => true,
+  ),
+  ConfigurationCompassSlot.object: _RailPolicy(
+    slot: ConfigurationCompassSlot.object,
+    title: _fixedObjectTitle,
+    unlockHint: _objectUnlockHint,
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.takesObject || hasFixedObjectFrame(state.action),
+    canRenderWhenEmpty: (state) => state.object != null,
+  ),
+  ConfigurationCompassSlot.objectDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectDeterminer,
+    title: _fixedObjectDeterminerTitle,
+    unlockHint: _objectModifierUnlockHint,
+    isControlled: true,
+    canRenderCollapsedWhen: _objectModifiersCanWake,
+    canRenderWhenEmpty: _objectModifiersCanWake,
+  ),
+  ConfigurationCompassSlot.objectAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectAdjective,
+    title: _fixedObjectAdjectiveTitle,
+    unlockHint: _objectModifierUnlockHint,
+    isControlled: true,
+    canRenderCollapsedWhen: _objectModifiersCanWake,
+    canRenderWhenEmpty: _objectModifiersCanWake,
+  ),
+  ConfigurationCompassSlot.recipient: _RailPolicy(
+    slot: ConfigurationCompassSlot.recipient,
+    title: (_) => 'Recipient',
+    unlockHint: (_) =>
+        'Choose a ditransitive verb like give, tell, teach, write, or buy, then keep an object active.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        (state.action.takesRecipient && state.object != null) ||
+        state.recipient != null,
+    canRenderWhenEmpty: (state) => state.recipient != null,
+  ),
+  ConfigurationCompassSlot.recipientDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.recipientDeterminer,
+    title: (_) => 'Recipient determiner',
+    unlockHint: (_) =>
+        'Choose a recipient first. Recipient modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.recipient?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.recipient?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.recipientAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.recipientAdjective,
+    title: (_) => 'Recipient adjective',
+    unlockHint: (_) =>
+        'Choose a recipient first. Recipient modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.recipient?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.recipient?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.addressee: _RailPolicy(
+    slot: ConfigurationCompassSlot.addressee,
+    title: (_) => 'Addressee',
+    unlockHint: (_) =>
+        'Choose a verb that can speak, talk, or write to someone.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.takesAddressee || state.addressee != null,
+    canRenderWhenEmpty: (state) => state.addressee != null,
+  ),
+  ConfigurationCompassSlot.addresseeDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.addresseeDeterminer,
+    title: (_) => 'Addressee determiner',
+    unlockHint: (_) =>
+        'Choose an addressee first. Addressee modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.addressee?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.addressee?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.addresseeAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.addresseeAdjective,
+    title: (_) => 'Addressee adjective',
+    unlockHint: (_) =>
+        'Choose an addressee first. Addressee modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.addressee?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.addressee?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.companion: _RailPolicy(
+    slot: ConfigurationCompassSlot.companion,
+    title: (_) => 'Companion',
+    unlockHint: (_) =>
+        'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.infinitive == 'be' ||
+        state.action.takesCompanion ||
+        state.companion != null,
+    canRenderWhenEmpty: (state) => state.companion != null,
+  ),
+  ConfigurationCompassSlot.companionDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.companionDeterminer,
+    title: (_) => 'Companion determiner',
+    unlockHint: (_) =>
+        'Choose a companion first. Companion modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.companion?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.companion?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.companionAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.companionAdjective,
+    title: (_) => 'Companion adjective',
+    unlockHint: (_) =>
+        'Choose a companion first. Companion modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.companion?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.companion?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.destination: _RailPolicy(
+    slot: ConfigurationCompassSlot.destination,
+    title: (_) => 'Destination',
+    unlockHint: (_) =>
+        'Choose a movement verb like go, come, travel, arrive, leave, or return.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.usesDestinationPlace || state.destination != null,
+    canRenderWhenEmpty: (state) => state.destination != null,
+  ),
+  ConfigurationCompassSlot.destinationDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.destinationDeterminer,
+    title: (_) => 'Destination determiner',
+    unlockHint: (_) =>
+        'Choose a destination first. Destination modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.destination?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.destination?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.destinationAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.destinationAdjective,
+    title: (_) => 'Destination adjective',
+    unlockHint: (_) =>
+        'Choose a destination first. Destination modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.destination?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.destination?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.rightAction: _RailPolicy(
+    slot: ConfigurationCompassSlot.rightAction,
+    title: (_) => 'Right action',
+    unlockHint: (_) =>
+        'Choose a verb like want, need, like, love, or learn to open a to-action complement.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        hasRightActionFrame(state.action) || state.rightAction != null,
+    canRenderWhenEmpty: (state) => state.rightAction != null,
+  ),
+  ConfigurationCompassSlot.complement: _RailPolicy(
+    slot: ConfigurationCompassSlot.complement,
+    title: (_) => 'Noun complement',
+    unlockHint: (_) =>
+        'Choose verb be first. Noun complements belong to the be frame.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.infinitive == 'be' || state.complement != null,
+    canRenderWhenEmpty: (state) => state.complement != null,
+  ),
+  ConfigurationCompassSlot.complementDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.complementDeterminer,
+    title: (_) => 'Complement determiner',
+    unlockHint: (_) =>
+        'Choose verb be, then choose a noun complement. Complement modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.complement?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.complement?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.complementAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.complementAdjective,
+    title: (_) => 'Complement adjective',
+    unlockHint: (_) =>
+        'Choose verb be, then choose a noun complement. Complement modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.complement?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.complement?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.adjectiveComplement: _RailPolicy(
+    slot: ConfigurationCompassSlot.adjectiveComplement,
+    title: (_) => 'Adjective complement',
+    unlockHint: (_) =>
+        'Choose verb be first. Adjective complements belong to the be frame.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.action.infinitive == 'be' || state.adjectiveComplement != null,
+    canRenderWhenEmpty: (state) => state.adjectiveComplement != null,
+  ),
+  ConfigurationCompassSlot.voice: _RailPolicy(
+    slot: ConfigurationCompassSlot.voice,
+    title: (_) => 'Voice',
+    unlockHint: (_) =>
+        'Choose an object-capable verb and an object first. Passive opens after there is something to promote.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => false,
+  ),
+  ConfigurationCompassSlot.passiveFocus: _RailPolicy(
+    slot: ConfigurationCompassSlot.passiveFocus,
+    title: (_) => 'Passive focus',
+    unlockHint: (_) =>
+        'Turn passive voice on first. Recipient focus also needs a recipient-capable verb and a recipient.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => false,
+  ),
+  ConfigurationCompassSlot.passiveAgent: _RailPolicy(
+    slot: ConfigurationCompassSlot.passiveAgent,
+    title: (_) => 'Passive agent',
+    unlockHint: (_) =>
+        'Turn passive voice on first. The by-agent phrase can be hidden while the agent stays in state.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => false,
+  ),
+  ConfigurationCompassSlot.passiveAgentNoun: _RailPolicy(
+    slot: ConfigurationCompassSlot.passiveAgentNoun,
+    title: (_) => 'By-agent',
+    unlockHint: (_) =>
+        'Turn passive voice on first. This rail changes the remembered by-agent, even when the by-phrase is hidden.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) => state.voice == Voice.passive,
+    canRenderWhenEmpty: (state) =>
+        state.voice == Voice.passive && state.agent != null,
+  ),
+  ConfigurationCompassSlot.modal: _RailPolicy(
+    slot: ConfigurationCompassSlot.modal,
+    title: (_) => 'Modal',
+    unlockHint: (_) => 'No modal fits this tense/frame from here.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => false,
+  ),
+  ConfigurationCompassSlot.placePhrase: _RailPolicy(
+    slot: ConfigurationCompassSlot.placePhrase,
+    title: (_) => 'Place phrase',
+    unlockHint: (_) => 'No open move from here.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => true,
+  ),
+  ConfigurationCompassSlot.timePhrase: _RailPolicy(
+    slot: ConfigurationCompassSlot.timePhrase,
+    title: (_) => 'Time phrase',
+    unlockHint: (_) => 'No open move from here.',
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (_) => true,
+  ),
+};
 
 bool _objectModifiersCanWake(SentenceState state) {
   final object = state.object;

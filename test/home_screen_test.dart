@@ -111,6 +111,35 @@ void main() {
     return leftOffset.dy < rightOffset.dy;
   }
 
+  Future<void> runFixedRailRoute(
+    WidgetTester tester,
+    _FixedRailRoute route,
+  ) async {
+    await tapVisible(tester, find.byTooltip('Reset'));
+    await tapVisible(tester, find.text('Word'));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-action-${route.actionKey}')),
+    );
+
+    expect(renderedSentence(tester), route.emptySentence);
+    expect(find.text('${route.railTitle}:'), findsOneWidget);
+    expect(
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+      findsNothing,
+    );
+
+    await expandRail(tester, route.railTitle);
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+    );
+
+    expect(renderedSentence(tester), route.filledSentence);
+    expect(find.text('${route.railTitle}:'), findsOneWidget);
+  }
+
   List<String> highlightedTextForTooltip(WidgetTester tester, String tooltip) {
     final selectableTexts = find
         .descendant(
@@ -544,6 +573,75 @@ void main() {
     expect(find.text('Recipient:'), findsOneWidget);
   });
 
+  testWidgets('Rail policy exposes every fixed semantic object rail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    const routes = [
+      _FixedRailRoute(
+        actionKey: 'play',
+        railTitle: 'Activity',
+        choiceKey: 'volleyball',
+        emptySentence: 'You play.',
+        filledSentence: 'You play volleyball.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'learn',
+        railTitle: 'Subject',
+        choiceKey: 'english',
+        emptySentence: 'You learn.',
+        filledSentence: 'You learn English.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'speak',
+        railTitle: 'Language',
+        choiceKey: 'english',
+        emptySentence: 'You speak.',
+        filledSentence: 'You speak English.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'read',
+        railTitle: 'Text',
+        choiceKey: 'book',
+        emptySentence: 'You read.',
+        filledSentence: 'You read book.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'use',
+        railTitle: 'Tool',
+        choiceKey: 'phone',
+        emptySentence: 'You use.',
+        filledSentence: 'You use phone.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'watch',
+        railTitle: 'Media',
+        choiceKey: 'television',
+        emptySentence: 'You watch.',
+        filledSentence: 'You watch television.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'drive',
+        railTitle: 'Vehicle',
+        choiceKey: 'car',
+        emptySentence: 'You drive.',
+        filledSentence: 'You drive car.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'close',
+        railTitle: 'Openable',
+        choiceKey: 'door',
+        emptySentence: 'You close.',
+        filledSentence: 'You close door.',
+      ),
+    ];
+
+    for (final route in routes) {
+      await runFixedRailRoute(tester, route);
+    }
+  });
+
   testWidgets('Core participant surface maps predicate doors to rails', (
     tester,
   ) async {
@@ -568,6 +666,265 @@ void main() {
     expect(find.text('object: none (open)'), findsOneWidget);
     expect(find.byTooltip('You give book.'), findsWidgets);
   });
+
+  testWidgets(
+    'Rail policy follows a procedural route across predicate frames',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      expect(renderedSentence(tester), 'You learn.');
+      expect(find.text('Subject:'), findsOneWidget);
+      expect(find.text('Right action:'), findsOneWidget);
+      expect(find.text('Object determiner:'), findsNothing);
+      expect(find.text('By-agent:'), findsNothing);
+
+      await tapAfterScroll(tester, find.byTooltip('You want.'));
+
+      expect(find.text('Right action:'), findsOneWidget);
+      await expandRail(tester, 'Right action');
+      await tapAfterScroll(tester, find.byTooltip('You want to go.'));
+      expect(renderedSentence(tester), 'You want to go.');
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(
+        tester,
+        find.text('no right action', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'You want.');
+
+      await tapAfterScroll(tester, find.text('give', findRichText: true));
+
+      expect(renderedSentence(tester), 'You give.');
+      expect(find.text('Object:'), findsOneWidget);
+      expect(find.text('Recipient:'), findsNothing);
+      expect(find.text('Right action:'), findsNothing);
+      expect(find.text('Object determiner:'), findsNothing);
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('book', findRichText: true));
+
+      expect(renderedSentence(tester), 'You give book.');
+      expect(find.text('Object determiner:'), findsOneWidget);
+      expect(find.text('Object adjective:'), findsOneWidget);
+      expect(find.text('Recipient:'), findsOneWidget);
+
+      await tapAfterScroll(tester, find.text('passive'));
+
+      expect(renderedSentence(tester), 'Book is given by you.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(
+        tester,
+        find.text('hide by-agent', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Book is given.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapVisible(tester, find.text('Word'));
+      await expandRail(tester, 'By-agent');
+      await tapAfterScroll(tester, find.text('Mary', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.text('show by-agent', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Book is given by Mary.');
+
+      await tapAfterScroll(tester, find.text('be', findRichText: true));
+
+      expect(renderedSentence(tester), 'Mary is.');
+      expect(find.text('Noun complement:'), findsOneWidget);
+      expect(find.text('Adjective complement:'), findsOneWidget);
+      expect(find.text('By-agent:'), findsNothing);
+      expect(find.text('Recipient:'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'Rail policy keeps hidden passive by-agent reachable across predicate changes',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(tester, find.text('introduce', findRichText: true));
+      await expandRail(tester, 'Addressee');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-addressee-teacher')),
+      );
+      expect(renderedSentence(tester), 'You introduce to teacher.');
+
+      await expandRail(tester, 'Addressee determiner');
+      await tapAfterScroll(tester, find.text('a', findRichText: true));
+      expect(renderedSentence(tester), 'You introduce to a teacher.');
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('dog', findRichText: true));
+      expect(renderedSentence(tester), 'You introduce dog to a teacher.');
+
+      await tapAfterScroll(tester, find.text('passive'));
+      expect(
+        renderedSentence(tester),
+        'Dog is introduced to a teacher by you.',
+      );
+
+      await tapAfterScroll(
+        tester,
+        find.text('hide by-agent', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Dog is introduced to a teacher.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(tester, find.text('future'));
+      expect(renderedSentence(tester), 'Dog will be introduced to a teacher.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(
+        tester,
+        find.text('no determiner', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Dog will be introduced to teacher.');
+
+      await tapAfterScroll(tester, find.text('this', findRichText: true));
+      expect(
+        renderedSentence(tester),
+        'Dog will be introduced to this teacher.',
+      );
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(tester, find.text('see', findRichText: true));
+      expect(renderedSentence(tester), 'Dog will be seen.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('cat', findRichText: true));
+      expect(renderedSentence(tester), 'Cat will be seen.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await expandRail(tester, 'By-agent');
+      await tapAfterScroll(tester, find.text('Mary', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.text('show by-agent', findRichText: true),
+      );
+
+      expect(renderedSentence(tester), 'Cat will be seen by Mary.');
+    },
+  );
+
+  testWidgets(
+    'Rail policy old bread-to-cat route marks future semantic filtering',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(tester, find.text('introduce', findRichText: true));
+      await expandRail(tester, 'Addressee');
+      await tapAfterScroll(tester, find.text('a cat', findRichText: true));
+      expect(renderedSentence(tester), 'You introduce to a cat.');
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('bread', findRichText: true));
+      expect(renderedSentence(tester), 'You introduce bread to a cat.');
+
+      await tapAfterScroll(tester, find.text('passive'));
+      expect(renderedSentence(tester), 'Bread is introduced to a cat by you.');
+
+      await tapAfterScroll(
+        tester,
+        find.text('hide by-agent', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Bread is introduced to a cat.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(tester, find.text('future'));
+      expect(renderedSentence(tester), 'Bread will be introduced to a cat.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await expandRail(tester, 'Addressee determiner');
+      await tapAfterScroll(
+        tester,
+        find.text('no determiner', findRichText: true),
+      );
+      expect(renderedSentence(tester), 'Bread will be introduced to cat.');
+
+      await tapAfterScroll(tester, find.text('this', findRichText: true));
+      expect(renderedSentence(tester), 'Bread will be introduced to this cat.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await tapAfterScroll(tester, find.text('see', findRichText: true));
+      expect(renderedSentence(tester), 'Bread will be seen.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('cat', findRichText: true));
+      expect(renderedSentence(tester), 'Cat will be seen.');
+      expect(find.text('By-agent:'), findsOneWidget);
+
+      await expandRail(tester, 'By-agent');
+      await tapAfterScroll(tester, find.text('Mary', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.text('show by-agent', findRichText: true),
+      );
+
+      expect(renderedSentence(tester), 'Cat will be seen by Mary.');
+    },
+    // Future semantic filtering should block or downgrade introducing bread to a cat.
+    skip: true,
+  );
+
+  testWidgets(
+    'Rail policy keeps filled object recipient and right-action layers reachable',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      expect(find.text('Object:'), findsOneWidget);
+      expect(find.text('Recipient:'), findsNothing);
+
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      expect(renderedSentence(tester), 'You give book.');
+      expect(find.text('Object determiner:'), findsOneWidget);
+      expect(find.text('Object adjective:'), findsOneWidget);
+      expect(find.text('Recipient:'), findsOneWidget);
+
+      await expandRail(tester, 'Object determiner');
+      await tapAfterScroll(tester, find.text('a', findRichText: true));
+      expect(renderedSentence(tester), 'You give a book.');
+      expect(find.text('Object:'), findsOneWidget);
+      expect(find.text('Object determiner:'), findsOneWidget);
+
+      await expandRail(tester, 'Recipient');
+      await tapAfterScroll(tester, find.text('teacher', findRichText: true));
+      expect(renderedSentence(tester), 'You give teacher a book.');
+      expect(find.text('Recipient determiner:'), findsOneWidget);
+      expect(find.text('Recipient adjective:'), findsOneWidget);
+
+      await expandRail(tester, 'Recipient adjective');
+      await tapAfterScroll(tester, find.text('happy', findRichText: true));
+      expect(renderedSentence(tester), 'You give happy teacher a book.');
+      expect(find.text('Recipient:'), findsOneWidget);
+      expect(find.text('Recipient adjective:'), findsOneWidget);
+
+      await tapVisible(tester, find.byTooltip('Reset'));
+      expect(renderedSentence(tester), 'You learn.');
+
+      await tapAfterScroll(tester, find.text('want', findRichText: true));
+      expect(renderedSentence(tester), 'You want.');
+      expect(find.text('Right action:'), findsOneWidget);
+
+      await expandRail(tester, 'Right action');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-rightAction-learn')),
+      );
+
+      expect(renderedSentence(tester), 'You want to learn.');
+      expect(find.text('Right action:'), findsOneWidget);
+    },
+  );
 
   testWidgets('Subject rows can expand into noun subjects', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
@@ -895,6 +1252,22 @@ void main() {
     expect(renderedSentence(tester).endsWith('.'), isTrue);
     expect(find.text('Move trace'), findsOneWidget);
     expect(find.textContaining('random sentence'), findsOneWidget);
+  });
+}
+
+class _FixedRailRoute {
+  final String actionKey;
+  final String railTitle;
+  final String choiceKey;
+  final String emptySentence;
+  final String filledSentence;
+
+  const _FixedRailRoute({
+    required this.actionKey,
+    required this.railTitle,
+    required this.choiceKey,
+    required this.emptySentence,
+    required this.filledSentence,
   });
 }
 
