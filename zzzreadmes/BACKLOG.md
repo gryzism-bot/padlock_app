@@ -14,6 +14,42 @@ ordered from the deepest crease upward:
 UI is not equal to features. UI is the surface where implemented features become
 reachable, understandable, and testable.
 
+## Sorted Next Moves
+
+Use this when the side quests start competing for attention.
+
+Best low-effort / high-value moves for the developer cockpit:
+
+1. Done: avoid full preview rendering in `word` mode.
+   - word chips now render labels directly
+   - full sentence previews stay available for sentence/change modes
+   - this sharpens the current testing UI without changing grammar laws
+2. Done: cache rendered preview sentences for one build pass.
+   - key: `SentenceState` or a stable state signature
+   - target: repeated `GrammarEngine.generate` calls while rendering nearby
+     suggestions
+   - value: likely visible in verb/object/phrase rails
+3. Next: make large rails unrestricted but lazy.
+   - no `show more` gate in the product feeling
+   - keep choices scrollable like faces on a physical object
+   - render only the visible/near-visible chip widgets when a rail becomes big
+   - value: lets vocabulary grow without freezing the cockpit
+4. Soon: add a configuration nightly runner.
+   - no Flutter or Chrome
+   - walk Compass-visible moves and Lock responses
+   - output markdown/jsonl evidence for missing laws and stale paths
+5. Later: path-scoped Compass for the product UI.
+   - one active locus at a time
+   - opening a verb feature narrows the tree until collapsed
+   - this is the bigger design payoff, but it is not the cheapest next step
+
+Postpone for now:
+
+- broad semantic blockers such as `eat street`
+- semi-modal / right-side verb frames such as `have to go`
+- browser/UI nightly automation
+- rail virtualization, until paging and render caching are not enough
+
 Use this map when deciding whether a feature is truly done:
 
 | Feature | Grammar | Recognition | Lock | Compass | UI |
@@ -380,6 +416,8 @@ Done recently:
   shape, and full suggestions are generated only after the rail is expanded
 - suggestion chip labels use simple `SelectableText` for common cases, keeping
   `SelectableText.rich` only for changed-word highlighting
+- rendered preview sentences are cached inside a single `HomeScreen` build pass,
+  so repeated nearby `SentenceState` previews do not call Grammar Engine again
 
 Merged side quests:
 
@@ -400,17 +438,25 @@ Merged side quests:
   - random records a new state and starts collapsed
   - switching from detailed subject/object phrase back to a pronoun may require
     collapsing modifiers first
-- add preview budgets:
-  - show a small nearest set first
-  - render full sentence previews only for visible candidates
-  - defer hidden candidate previews until hover/open/search
+- add preview budgets without hiding vocabulary:
+  - keep the full choice set logically available
+  - render full sentence previews only for visible or near-visible candidates
+  - defer hidden candidate preview strings until hover/open/search/scroll
 - cache rendered preview sentences during one build pass so repeated
   `GrammarEngine.generate` calls do not re-render the same nearby state
 - avoid full preview rendering in `word` mode when the chip only needs a label;
   keep full sentence rendering for tooltip, hover, selected sentence mode, and
   changed-word preview
-- add rail-level paging or `show more` before loading much larger vocabulary
-- virtualize large rail lists only after paging/caching are not enough
+- prefer rail virtualization over `show more`; the user should scroll words,
+  not unlock artificial pages
+- preload data/indexes, not huge widget trees:
+  - data can be ready
+  - Compass candidates can be indexed by frame/category
+  - rendered Flutter chip widgets should stay lazy
+- increasing memory is a last resort, not the main plan:
+  - browser/mobile memory is managed by the runtime and OS
+  - the likely hot spot is widget/render work, not the raw word data
+  - Android `largeHeap` or browser flags should not be needed for this app
 - split developer cockpit from product toy:
   - cockpit can keep broad rails for debugging
   - product UI consumes the same Configuration state through local paths

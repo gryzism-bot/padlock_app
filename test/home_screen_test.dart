@@ -528,7 +528,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('You buy.'));
+    await tapAfterScroll(tester, find.text('buy', findRichText: true));
     await expandRail(tester, 'Object');
 
     await tester.scrollUntilVisible(
@@ -544,7 +544,7 @@ void main() {
     expect(find.text('book', findRichText: true), findsOneWidget);
     expect(find.text('books', findRichText: true), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('You buy book.'));
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
 
     expect(renderedSentence(tester), 'You buy book.');
 
@@ -598,16 +598,16 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.text('give', findRichText: true));
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
     await expandRail(tester, 'Recipient');
-    await tapAfterScroll(tester, find.byTooltip('You give Mary book.'));
+    await tapAfterScroll(tester, find.text('Mary', findRichText: true));
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'Book is given to Mary by you.');
 
-    await tapAfterScroll(tester, find.byTooltip('Mary is given book by you.'));
+    await tapAfterScroll(tester, find.byTooltip('recipient'));
     expect(renderedSentence(tester), 'Mary is given book by you.');
 
     await tapAfterScroll(
@@ -623,11 +623,11 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.text('give', findRichText: true));
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
     await expandRail(tester, 'Recipient');
-    await tapAfterScroll(tester, find.byTooltip('You give him book.'));
+    await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
@@ -653,11 +653,11 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await tapAfterScroll(tester, find.text('give', findRichText: true));
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
     await expandRail(tester, 'Recipient');
-    await tapAfterScroll(tester, find.byTooltip('You give him book.'));
+    await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
@@ -685,7 +685,7 @@ void main() {
     expect(find.text('give', findRichText: true), findsOneWidget);
     expect(find.text('You give.'), findsNothing);
 
-    final giveSuggestion = find.byTooltip('You give.');
+    final giveSuggestion = find.byTooltip('give');
     final hoverRegion = tester.widget<MouseRegion>(
       find
           .ancestor(of: giveSuggestion, matching: find.byType(MouseRegion))

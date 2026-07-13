@@ -4,7 +4,7 @@ class _SuggestionButton extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final String preview;
+  final String? preview;
   final VoidCallback onPressed;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
@@ -26,7 +26,10 @@ class _SuggestionButton extends StatelessWidget {
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
       onExit: (_) => onPreviewChanged?.call(null),
       child: Tooltip(
-        message: suggestion.isSelected ? 'Current: $preview' : preview,
+        message: _suggestionTooltipText(
+          suggestion: suggestion,
+          preview: preview,
+        ),
         child: OutlinedButton(
           style: _compactOutlinedStyle(
             selected: suggestion.isSelected,
@@ -59,7 +62,7 @@ class _SuggestionLabel extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final String preview;
+  final String? preview;
   final VoidCallback onPressed;
 
   const _SuggestionLabel({
@@ -93,11 +96,12 @@ class _SuggestionLabel extends StatelessWidget {
       );
     }
 
+    final renderedPreview = preview ?? suggestion.label;
     if (displayMode == SuggestionDisplayMode.sentence ||
         suggestion.isSelected ||
-        currentSentence == preview) {
+        currentSentence == renderedPreview) {
       return SelectableText(
-        preview,
+        renderedPreview,
         key: key,
         textAlign: TextAlign.center,
         style: baseStyle,
@@ -108,7 +112,7 @@ class _SuggestionLabel extends StatelessWidget {
     return SelectableText.rich(
       _changedSuggestionSpan(
         currentSentence: currentSentence,
-        preview: preview,
+        preview: renderedPreview,
         suggestion: suggestion,
         colors: colors,
         baseStyle: baseStyle,
@@ -118,6 +122,19 @@ class _SuggestionLabel extends StatelessWidget {
       onTap: onPressed,
     );
   }
+}
+
+String _suggestionTooltipText({
+  required ConfigurationSuggestion suggestion,
+  required String? preview,
+}) {
+  if (preview == null) {
+    return suggestion.isSelected
+        ? 'Current: ${suggestion.label}'
+        : suggestion.label;
+  }
+
+  return suggestion.isSelected ? 'Current: $preview' : preview;
 }
 
 class _VerbWakeSignalView extends StatelessWidget {

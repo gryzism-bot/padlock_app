@@ -226,7 +226,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final displayMode = suggestionDisplayMode ?? SuggestionDisplayMode.change;
     final previewMode = headerPreviewMode ?? HeaderPreviewMode.clicked;
-    final sentence = grammar.generate(configuration.sentenceState);
+    final previewCache = _SentencePreviewCache(grammar);
+    final sentenceText = previewCache.render(configuration.sentenceState);
 
     return Scaffold(
       appBar: AppBar(
@@ -279,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _ControlDeck(
-                    currentSentence: sentence.text,
+                    currentSentence: sentenceText,
                     modalSuggestions: compass.suggestionsFor(
                       configuration,
                       ConfigurationCompassSlot.modal,
@@ -295,7 +296,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ConfigurationCompassSlot.passiveAgent,
                       limit: 2,
                     ),
-                    grammar: grammar,
                     configuration: configuration,
                     onMove: _move,
                     onPreviewChanged: previewMode == HeaderPreviewMode.hover
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onToggle: section.canToggle
                           ? () => _toggleRail(section.slot)
                           : null,
-                      currentSentence: sentence.text,
+                      currentSentence: sentenceText,
                       displayMode: displayMode,
                       suggestions: section.suggestions,
                       nounNumber:
@@ -328,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           section.slot == ConfigurationCompassSlot.object
                           ? (number) => _changeObjectNumber(compass, number)
                           : null,
-                      grammar: grammar,
+                      renderPreview: previewCache.render,
                       onMove: _move,
                       onPreviewChanged: previewMode == HeaderPreviewMode.hover
                           ? _setHoveredConfiguration
@@ -350,13 +350,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       previewMode == HeaderPreviewMode.hover && hovered != null
                       ? hovered
                       : configuration;
-                  final headerSentence = grammar.generate(
+                  final headerSentence = previewCache.render(
                     headerConfiguration.sentenceState,
                   );
 
                   return _StickySentenceHeader(
                     child: _SentencePanel(
-                      sentence: headerSentence.text,
+                      sentence: headerSentence,
                       summary: headerConfiguration.sentenceState.summary,
                     ),
                   );
@@ -414,6 +414,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return sections;
+  }
+}
+
+class _SentencePreviewCache {
+  final GrammarEngine grammar;
+  final Map<String, String> _renderedBySummary = {};
+
+  _SentencePreviewCache(this.grammar);
+
+  String render(SentenceState state) {
+    return _renderedBySummary.putIfAbsent(
+      state.summary,
+      () => grammar.generate(state).text,
+    );
   }
 }
 
@@ -947,7 +961,6 @@ class _ControlDeck extends StatelessWidget {
   final List<ConfigurationSuggestion> modalSuggestions;
   final List<ConfigurationSuggestion> passiveFocusSuggestions;
   final List<ConfigurationSuggestion> passiveAgentSuggestions;
-  final GrammarEngine grammar;
   final ConfigurationState configuration;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
@@ -957,7 +970,6 @@ class _ControlDeck extends StatelessWidget {
     required this.modalSuggestions,
     required this.passiveFocusSuggestions,
     required this.passiveAgentSuggestions,
-    required this.grammar,
     required this.configuration,
     required this.onMove,
     required this.onPreviewChanged,
@@ -1014,7 +1026,6 @@ class _ControlDeck extends StatelessWidget {
               child: _ModalSection(
                 currentSentence: currentSentence,
                 modalSuggestions: modalSuggestions,
-                grammar: grammar,
                 onMove: onMove,
                 onPreviewChanged: onPreviewChanged,
               ),
@@ -1026,7 +1037,6 @@ class _ControlDeck extends StatelessWidget {
                 voice: configuration.sentenceState.voice,
                 passiveFocusSuggestions: passiveFocusSuggestions,
                 passiveAgentSuggestions: passiveAgentSuggestions,
-                grammar: grammar,
                 onMove: onMove,
                 onPreviewChanged: onPreviewChanged,
               ),
@@ -1466,14 +1476,12 @@ class _TenseAspectSection extends StatelessWidget {
 class _ModalSection extends StatelessWidget {
   final String currentSentence;
   final List<ConfigurationSuggestion> modalSuggestions;
-  final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
   const _ModalSection({
     required this.currentSentence,
     required this.modalSuggestions,
-    required this.grammar,
     required this.onMove,
     required this.onPreviewChanged,
   });
@@ -1500,7 +1508,6 @@ class _ModalSection extends StatelessWidget {
             primarySuggestions: primarySuggestions,
             secondarySuggestions: secondarySuggestions,
             currentSentence: currentSentence,
-            grammar: grammar,
             onMove: onMove,
             onPreviewChanged: onPreviewChanged,
           ),
@@ -1513,7 +1520,6 @@ class _ModalSuggestionRows extends StatelessWidget {
   final List<ConfigurationSuggestion> primarySuggestions;
   final List<ConfigurationSuggestion> secondarySuggestions;
   final String currentSentence;
-  final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
@@ -1521,7 +1527,6 @@ class _ModalSuggestionRows extends StatelessWidget {
     required this.primarySuggestions,
     required this.secondarySuggestions,
     required this.currentSentence,
-    required this.grammar,
     required this.onMove,
     required this.onPreviewChanged,
   });
@@ -1543,7 +1548,6 @@ class _ModalSuggestionRows extends StatelessWidget {
         _ModalSuggestionWrap(
           suggestions: firstRowSuggestions,
           currentSentence: currentSentence,
-          grammar: grammar,
           onMove: onMove,
           onPreviewChanged: onPreviewChanged,
         ),
@@ -1552,7 +1556,6 @@ class _ModalSuggestionRows extends StatelessWidget {
           _ModalSuggestionWrap(
             suggestions: secondRowSuggestions,
             currentSentence: currentSentence,
-            grammar: grammar,
             onMove: onMove,
             onPreviewChanged: onPreviewChanged,
           ),
@@ -1565,14 +1568,12 @@ class _ModalSuggestionRows extends StatelessWidget {
 class _ModalSuggestionWrap extends StatelessWidget {
   final List<ConfigurationSuggestion> suggestions;
   final String currentSentence;
-  final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
   const _ModalSuggestionWrap({
     required this.suggestions,
     required this.currentSentence,
-    required this.grammar,
     required this.onMove,
     required this.onPreviewChanged,
   });
@@ -1588,7 +1589,7 @@ class _ModalSuggestionWrap extends StatelessWidget {
             suggestion: suggestion,
             currentSentence: currentSentence,
             displayMode: SuggestionDisplayMode.word,
-            preview: grammar.generate(suggestion.preview.sentenceState).text,
+            preview: null,
             onPressed: () => onMove(suggestion.move),
             onPreviewChanged: onPreviewChanged,
           ),
@@ -1627,7 +1628,6 @@ class _VoiceSection extends StatelessWidget {
   final Voice voice;
   final List<ConfigurationSuggestion> passiveFocusSuggestions;
   final List<ConfigurationSuggestion> passiveAgentSuggestions;
-  final GrammarEngine grammar;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
@@ -1636,7 +1636,6 @@ class _VoiceSection extends StatelessWidget {
     required this.voice,
     required this.passiveFocusSuggestions,
     required this.passiveAgentSuggestions,
-    required this.grammar,
     required this.onMove,
     required this.onPreviewChanged,
   });
@@ -1678,9 +1677,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
-                  preview: grammar
-                      .generate(suggestion.preview.sentenceState)
-                      .text,
+                  preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
                 ),
@@ -1697,9 +1694,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
-                  preview: grammar
-                      .generate(suggestion.preview.sentenceState)
-                      .text,
+                  preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
                 ),
@@ -1808,7 +1803,7 @@ class _CompassSlotSection extends StatelessWidget {
   final List<ConfigurationSuggestion> suggestions;
   final Number? nounNumber;
   final ValueChanged<Number>? onNounNumberChanged;
-  final GrammarEngine grammar;
+  final String Function(SentenceState state) renderPreview;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
@@ -1822,7 +1817,7 @@ class _CompassSlotSection extends StatelessWidget {
     required this.suggestions,
     required this.nounNumber,
     required this.onNounNumberChanged,
-    required this.grammar,
+    required this.renderPreview,
     required this.onMove,
     required this.onPreviewChanged,
   });
@@ -1863,9 +1858,9 @@ class _CompassSlotSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: displayMode,
-                  preview: grammar
-                      .generate(suggestion.preview.sentenceState)
-                      .text,
+                  preview: displayMode == SuggestionDisplayMode.word
+                      ? null
+                      : renderPreview(suggestion.preview.sentenceState),
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
                 ),
