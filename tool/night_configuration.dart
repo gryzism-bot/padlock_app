@@ -195,7 +195,10 @@ class _NightConfigurationRunner {
     });
 
     while (!_stopRequested && DateTime.now().isBefore(deadline)) {
+      final collectStopwatch = Stopwatch()..start();
       final suggestions = _collectSuggestions(state, stats);
+      collectStopwatch.stop();
+      stats.compassCollections.record(collectStopwatch.elapsed);
 
       if (stats.guidedMoves % options.probeEvery == 0) {
         _probeLaws(state, stats);
@@ -213,10 +216,13 @@ class _NightConfigurationRunner {
       }
 
       final suggestion = moves[random.nextInt(moves.length)];
+      final moveStopwatch = Stopwatch()..start();
       final next = lock.applyMove(state, suggestion.move);
       final blockers = _blockedMessages(next);
 
       if (blockers.isNotEmpty) {
+        moveStopwatch.stop();
+        stats.lockTransitions.record(moveStopwatch.elapsed);
         stats.compassLeaks++;
         _recordCompassLeak(state, suggestion, blockers, stats);
         state = ConfigurationState.initial();
@@ -225,6 +231,11 @@ class _NightConfigurationRunner {
       }
 
       final render = _render(next.sentenceState);
+      moveStopwatch.stop();
+      stats.lockTransitions.record(moveStopwatch.elapsed);
+      stats.guidedTimingsBySlot
+          .putIfAbsent(suggestion.slot.name, _TimingStats.new)
+          .record(moveStopwatch.elapsed);
       if (!render.ok) {
         stats.renderFailures++;
         _writeJsonl({
@@ -254,6 +265,7 @@ class _NightConfigurationRunner {
           'moveNumber': stats.guidedMoves,
           'slot': suggestion.slot.name,
           'move': _moveLabel(suggestion.move),
+          'elapsedMs': _elapsedMs(moveStopwatch.elapsed),
           'sentence': render.text,
           'state': state.sentenceState.summary,
         });
@@ -276,6 +288,8 @@ class _NightConfigurationRunner {
       'uniqueLawMessages': stats.lawMessages.length,
       'compassLeaks': stats.compassLeaks,
       'renderFailures': stats.renderFailures,
+      'compassCollectionAverageMs': stats.compassCollections.averageMs,
+      'lockTransitionAverageMs': stats.lockTransitions.averageMs,
     });
 
     return _NightConfigurationResult(
@@ -459,6 +473,8 @@ class _NightConfigurationRunner {
       ..sort((left, right) => right.count.compareTo(left.count));
     final guided = stats.guidedMovesBySlot.entries.toList()
       ..sort((left, right) => right.value.compareTo(left.value));
+    final guidedTimings = stats.guidedTimingsBySlot.entries.toList()
+      ..sort((left, right) => right.value.max.compareTo(left.value.max));
     final rails = stats.rails.entries.toList()
       ..sort(
         (left, right) =>
@@ -483,6 +499,12 @@ class _NightConfigurationRunner {
       ..writeln('- Unique law messages: ${stats.lawMessages.length}')
       ..writeln('- Compass exposed blocked moves: ${stats.compassLeaks}')
       ..writeln('- Render failures: ${stats.renderFailures}')
+      ..writeln(
+        '- Compass collection average: ${stats.compassCollections.averageMs.toStringAsFixed(2)} ms',
+      )
+      ..writeln(
+        '- Lock/render transition average: ${stats.lockTransitions.averageMs.toStringAsFixed(2)} ms',
+      )
       ..writeln()
       ..writeln('## Candidate Law Families')
       ..writeln()
@@ -555,6 +577,31 @@ class _NightConfigurationRunner {
 
     buffer
       ..writeln()
+      ..writeln('## Timing')
+      ..writeln()
+      ..writeln('| Layer / slot | Count | Average ms | Max ms |')
+      ..writeln('| --- | ---: | ---: | ---: |')
+      ..writeln(
+        '| Compass collection | ${stats.compassCollections.count} | '
+        '${stats.compassCollections.averageMs.toStringAsFixed(2)} | '
+        '${_elapsedMs(stats.compassCollections.max).toStringAsFixed(2)} |',
+      )
+      ..writeln(
+        '| Lock/render transition | ${stats.lockTransitions.count} | '
+        '${stats.lockTransitions.averageMs.toStringAsFixed(2)} | '
+        '${_elapsedMs(stats.lockTransitions.max).toStringAsFixed(2)} |',
+      );
+
+    for (final entry in guidedTimings.take(20)) {
+      buffer.writeln(
+        '| ${_md(entry.key)} | ${entry.value.count} | '
+        '${entry.value.averageMs.toStringAsFixed(2)} | '
+        '${_elapsedMs(entry.value.max).toStringAsFixed(2)} |',
+      );
+    }
+
+    buffer
+      ..writeln()
       ..writeln('## Rail Observations')
       ..writeln()
       ..writeln(
@@ -606,6 +653,31 @@ class _ConfigurationNightStats {
   final lawFamilies = <String, _LawMessageStats>{};
   final lawMessages = <String, _LawMessageStats>{};
   final compassLeakMessages = <String, _CompassLeakStats>{};
+  final compassCollections = _TimingStats();
+  final lockTransitions = _TimingStats();
+  final guidedTimingsBySlot = <String, _TimingStats>{};
+}
+
+class _TimingStats {
+  var count = 0;
+  var total = Duration.zero;
+  var max = Duration.zero;
+
+  void record(Duration elapsed) {
+    count++;
+    total += elapsed;
+    if (elapsed > max) {
+      max = elapsed;
+    }
+  }
+
+  double get averageMs {
+    if (count == 0) {
+      return 0;
+    }
+
+    return _elapsedMs(total) / count;
+  }
 }
 
 class _RailStats {
@@ -834,6 +906,10 @@ String _adjectivesLabel(List<Adjective> adjectives) {
 
 String _modalLabel(Modal modal) {
   return modal.isNone ? 'no modal' : modal.text;
+}
+
+double _elapsedMs(Duration elapsed) {
+  return elapsed.inMicroseconds / Duration.microsecondsPerMillisecond;
 }
 
 String _md(String text) {
