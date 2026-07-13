@@ -379,17 +379,35 @@ class _HomeScreenState extends State<HomeScreen> {
           slot != ConfigurationCompassSlot.passiveFocus &&
           slot != ConfigurationCompassSlot.passiveAgent,
     )) {
+      final canToggle = _isControlledRail(slot);
+      final isExpanded = !canToggle || expandedRails.contains(slot);
+
+      if (canToggle && !isExpanded) {
+        if (!_collapsedControlledRailCanRender(slot, configuration)) {
+          continue;
+        }
+
+        sections.add(
+          _VisibleCompassSlot(
+            slot,
+            const [],
+            isExpanded: false,
+            canToggle: true,
+          ),
+        );
+        continue;
+      }
+
       final suggestions = _suggestionsForSlot(compass, slot);
       if (!_shouldRenderSlot(slot, configuration, suggestions)) {
         continue;
       }
 
-      final canToggle = _isControlledRail(slot);
       sections.add(
         _VisibleCompassSlot(
           slot,
           suggestions,
-          isExpanded: !canToggle || expandedRails.contains(slot),
+          isExpanded: isExpanded,
           canToggle: canToggle,
         ),
       );
@@ -2083,6 +2101,57 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.passiveFocus ||
     ConfigurationCompassSlot.passiveAgent ||
     ConfigurationCompassSlot.modal => false,
+  };
+}
+
+bool _collapsedControlledRailCanRender(
+  ConfigurationCompassSlot slot,
+  ConfigurationState configuration,
+) {
+  final state = configuration.sentenceState;
+
+  return switch (slot) {
+    ConfigurationCompassSlot.object =>
+      state.action.takesObject || hasFixedObjectFrame(state.action),
+    ConfigurationCompassSlot.objectDeterminer ||
+    ConfigurationCompassSlot.objectAdjective => _objectModifiersCanWake(state),
+    ConfigurationCompassSlot.recipient =>
+      (state.action.takesRecipient && state.object != null) ||
+          state.recipient != null,
+    ConfigurationCompassSlot.recipientDeterminer ||
+    ConfigurationCompassSlot.recipientAdjective =>
+      state.recipient?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.addressee =>
+      state.action.takesAddressee || state.addressee != null,
+    ConfigurationCompassSlot.addresseeDeterminer ||
+    ConfigurationCompassSlot.addresseeAdjective =>
+      state.addressee?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.companion =>
+      state.action.infinitive == 'be' ||
+          state.action.takesCompanion ||
+          state.companion != null,
+    ConfigurationCompassSlot.companionDeterminer ||
+    ConfigurationCompassSlot.companionAdjective =>
+      state.companion?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.destination =>
+      state.action.usesDestinationPlace || state.destination != null,
+    ConfigurationCompassSlot.destinationDeterminer ||
+    ConfigurationCompassSlot.destinationAdjective =>
+      state.destination?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.complement =>
+      state.action.infinitive == 'be' || state.complement != null,
+    ConfigurationCompassSlot.complementDeterminer ||
+    ConfigurationCompassSlot.complementAdjective =>
+      state.complement?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.adjectiveComplement =>
+      state.action.infinitive == 'be' || state.adjectiveComplement != null,
+    ConfigurationCompassSlot.action ||
+    ConfigurationCompassSlot.voice ||
+    ConfigurationCompassSlot.passiveFocus ||
+    ConfigurationCompassSlot.passiveAgent ||
+    ConfigurationCompassSlot.modal ||
+    ConfigurationCompassSlot.placePhrase ||
+    ConfigurationCompassSlot.timePhrase => false,
   };
 }
 
