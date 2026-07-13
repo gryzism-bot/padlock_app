@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/modals.dart' hide need;
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -515,6 +515,42 @@ void main() {
       expect(state.aspect, Aspect.perfect);
       expect(state.object, isNull);
       expect(state.recipient, isNull);
+    });
+
+    test('right action complement recognizes inferior to action', () {
+      final state = engine.recognize('I want to go.');
+
+      expectAgent(state, text: 'i');
+      expect(state.action, want);
+      expect(state.rightAction, go);
+      expect(state.object, isNull);
+      expect(state.destination, isNull);
+    });
+
+    test('right action complement keeps finite agreement on first verb', () {
+      final state = engine.recognize('She needs to work.');
+
+      expectAgent(state, text: 'she');
+      expect(state.action, need);
+      expect(state.rightAction, work);
+      expect(state.tense, Tense.present);
+      expect(state.aspect, Aspect.simple);
+    });
+
+    test('right action complement survives modal and question chains', () {
+      final modalState = engine.recognize('You should learn to speak.');
+
+      expectAgent(modalState, text: 'you');
+      expect(modalState.action, learn);
+      expect(modalState.rightAction, speak);
+      expect(modalState.modal, should);
+
+      final questionState = engine.recognize('Does he want to go?');
+
+      expectAgent(questionState, text: 'he');
+      expect(questionState.action, want);
+      expect(questionState.rightAction, go);
+      expect(questionState.sentenceForm, SentenceForm.question);
     });
 
     test('person destination pronouns recognize object case', () {

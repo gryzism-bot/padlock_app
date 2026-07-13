@@ -113,6 +113,65 @@ void main() {
       expect(wasBlocked(state), isFalse);
     });
 
+    test('accepts right action complement for verbs that wake it', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(want));
+      state = engine.applyMove(state, const SetRightAction(go));
+
+      expect(state.sentenceState.action, want);
+      expect(state.sentenceState.rightAction, go);
+      expect(render(state), 'You want to go.');
+      expect(wasBlocked(state), isFalse);
+    });
+
+    test('blocks right action complement on verbs without that frame', () {
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
+      final state = engine.applyMove(previous, const SetRightAction(go));
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'work does not take a right action complement.',
+      );
+    });
+
+    test('clears right action when changing to an incompatible verb', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(want));
+      state = engine.applyMove(state, const SetRightAction(go));
+      state = engine.applyMove(state, const SetAction(work_data.build));
+
+      expect(state.sentenceState.action, work_data.build);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(render(state), 'You build.');
+      expect(wasBlocked(state), isFalse);
+    });
+
+    test('blocks object and right action in the same frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(want));
+      state = engine.applyMove(state, const SetRightAction(go));
+      final previous = state;
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Right action complement does not combine with an object in this frame.',
+      );
+    });
+
     test('blocks noun phrase determiners that do not match number', () {
       var state = ConfigurationState.initial();
 

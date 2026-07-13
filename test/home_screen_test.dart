@@ -294,6 +294,27 @@ void main() {
     expect(find.byKey(const Key('translation-gloss')), findsNothing);
   });
 
+  testWidgets('Guided UI opens right action rail from a verb that wakes it', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(tester, find.byTooltip('You want.'));
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(tester, find.byTooltip('You want to go.'));
+
+    expect(renderedSentence(tester), 'You want to go.');
+
+    await tester.tap(find.byTooltip('Translate sentence'));
+    await tester.pumpAndSettle();
+
+    final translated = tester
+        .widget<SelectableText>(find.byKey(const Key('translation-gloss')))
+        .data!;
+    expect(translated, contains('(do)'));
+    expect(translated, endsWith('.)'));
+  });
+
   testWidgets('Guided UI can exit lexical be through verb suggestions', (
     tester,
   ) async {
@@ -678,6 +699,34 @@ void main() {
     expect(renderedSentence(tester), 'You close doors.');
   });
 
+  testWidgets('Addressee rail number switch changes the selected addressee', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.text('listen', findRichText: true));
+    await expandRail(tester, 'Addressee');
+
+    expect(find.text('a dog', findRichText: true), findsOneWidget);
+    expect(find.text('dogs', findRichText: true), findsNothing);
+
+    await tapAfterScroll(tester, find.text('a dog', findRichText: true));
+
+    expect(renderedSentence(tester), 'You listen to a dog.');
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You listen to dogs.');
+    expect(find.text('dogs', findRichText: true), findsWidgets);
+  });
+
   testWidgets('Change preview highlights whole changed words', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
@@ -748,6 +797,37 @@ void main() {
     expect(appearsBefore(tester, showByAgent, hideByAgent), isTrue);
 
     expect(renderedSentence(tester), 'Book was given to him.');
+  });
+
+  testWidgets('Passive by-agent rail can change hidden remembered agent', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.text('give', findRichText: true));
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(tester, find.text('past'));
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expect(renderedSentence(tester), 'Book was given by you.');
+
+    await tapAfterScroll(
+      tester,
+      find.text('hide by-agent', findRichText: true),
+    );
+    expect(renderedSentence(tester), 'Book was given.');
+
+    await expandRail(tester, 'By-agent');
+    await tapAfterScroll(tester, find.text('Mary', findRichText: true));
+    expect(renderedSentence(tester), 'Book was given.');
+
+    await tapAfterScroll(
+      tester,
+      find.text('show by-agent', findRichText: true),
+    );
+    expect(renderedSentence(tester), 'Book was given by Mary.');
   });
 
   testWidgets('Recipient rail can clear optional passive to phrase', (

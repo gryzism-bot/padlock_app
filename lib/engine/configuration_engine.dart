@@ -1,5 +1,6 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -168,6 +169,12 @@ class SetDestination extends ConfigurationMove {
   const SetDestination(this.destination);
 }
 
+class SetRightAction extends ConfigurationMove {
+  final Verb? rightAction;
+
+  const SetRightAction(this.rightAction);
+}
+
 class SetComplement extends ConfigurationMove {
   final NounPhrase? complement;
 
@@ -312,6 +319,7 @@ class ConfigurationEngine {
                 recipient: null,
                 addressee: null,
                 destination: null,
+                rightAction: null,
                 voice: Voice.active,
                 passiveFocus: null,
                 showPassiveAgent: true,
@@ -325,6 +333,10 @@ class ConfigurationEngine {
                 destination: action.usesDestinationPlace
                     ? state.destination
                     : null,
+                rightAction: _rightActionAfterActionChange(
+                  state.rightAction,
+                  action,
+                ),
                 complement: null,
                 adjectiveComplement: null,
               ),
@@ -335,6 +347,10 @@ class ConfigurationEngine {
       SetDestination(:final destination) => _copy(
         state,
         destination: destination,
+      ),
+      SetRightAction(:final rightAction) => _copy(
+        state,
+        rightAction: rightAction,
       ),
       SetComplement(:final complement) => _copy(
         state,
@@ -370,6 +386,7 @@ class ConfigurationEngine {
         recipient: null,
         addressee: null,
         destination: null,
+        rightAction: null,
         complement: complement,
         adjectiveComplement: null,
         voice: Voice.active,
@@ -383,6 +400,7 @@ class ConfigurationEngine {
         recipient: null,
         addressee: null,
         destination: null,
+        rightAction: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
         voice: Voice.active,
@@ -454,6 +472,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Companion', state.companion, blockers);
     _validateNounPhrase('Destination', state.destination, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
+    _validateRightAction(state, blockers);
 
     if (state.action.infinitive == 'be') {
       _validateLexicalBe(state, blockers);
@@ -594,6 +613,14 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.rightAction != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take a right action complement.',
+        ),
+      );
+    }
+
     if (state.passiveFocus != null) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -606,6 +633,45 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take passive agent visibility.',
+        ),
+      );
+    }
+  }
+
+  void _validateRightAction(
+    SentenceState state,
+    List<ConfigurationMessage> blockers,
+  ) {
+    final rightAction = state.rightAction;
+    if (rightAction == null) {
+      return;
+    }
+
+    if (state.action == be) {
+      return;
+    }
+
+    if (!hasRightActionFrame(state.action)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${state.action.infinitive} does not take a right action complement.',
+        ),
+      );
+      return;
+    }
+
+    if (!rightActionFitsAction(rightAction, state.action)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${state.action.infinitive} does not take "${rightAction.infinitive}" as a right action.',
+        ),
+      );
+    }
+
+    if (state.object != null) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Right action complement does not combine with an object in this frame.',
         ),
       );
     }
@@ -898,6 +964,14 @@ class ConfigurationEngine {
     return object;
   }
 
+  Verb? _rightActionAfterActionChange(Verb? rightAction, Verb action) {
+    if (rightAction == null) {
+      return null;
+    }
+
+    return rightActionFitsAction(rightAction, action) ? rightAction : null;
+  }
+
   SentenceState _copy(
     SentenceState state, {
     Object? agent = _unchanged,
@@ -909,6 +983,7 @@ class ConfigurationEngine {
     Object? addressee = _unchanged,
     Object? companion = _unchanged,
     Object? destination = _unchanged,
+    Object? rightAction = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
     Voice? voice,
@@ -950,6 +1025,9 @@ class ConfigurationEngine {
       destination: identical(destination, _unchanged)
           ? state.destination
           : destination as NounPhrase?,
+      rightAction: identical(rightAction, _unchanged)
+          ? state.rightAction
+          : rightAction as Verb?,
       recipientPlacement: state.recipientPlacement,
       recipientPreposition: state.recipientPreposition,
       complement: identical(complement, _unchanged)

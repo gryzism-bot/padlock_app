@@ -4,6 +4,7 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
@@ -73,6 +74,10 @@ class RecognitionEngine {
 
       phase = 'voice';
       _recognizeVoice(builder);
+      _logRecognitionPhase(builder, phase);
+
+      phase = 'right action';
+      _recognizeRightAction(builder);
       _logRecognitionPhase(builder, phase);
 
       phase = 'participant boundaries';
@@ -1119,6 +1124,40 @@ class RecognitionEngine {
   // PARTICIPANTS
   // -------------------------------------------------------
 
+  void _recognizeRightAction(_RecognitionBuilder builder) {
+    final action = builder.action;
+    if (action == null || !hasRightActionFrame(action)) {
+      return;
+    }
+
+    final toIndex = builder.verbChainEnd + 1;
+    if (toIndex >= builder.tokens.length ||
+        builder.tokens[toIndex].toLowerCase() != 'to') {
+      return;
+    }
+
+    final actionIndex = toIndex + 1;
+    if (actionIndex >= builder.tokens.length) {
+      return;
+    }
+
+    final match = _lookupVerbAt(builder.tokens, actionIndex);
+    final rightAction = match?.verb;
+    if (rightAction == null ||
+        !_matchesVerbFormAt(
+          builder.tokens,
+          actionIndex,
+          rightAction.infinitive,
+        ) ||
+        !rightActionFitsAction(rightAction, action)) {
+      return;
+    }
+
+    builder.rightAction = rightAction;
+    builder.rightActionStart = toIndex;
+    builder.rightActionEnd = match!.end;
+  }
+
   void _recognizeParticipantBoundaries(_RecognitionBuilder builder) {
     if (builder.verbChainStart < 0 || builder.verbChainEnd < 0) {
       return;
@@ -1172,6 +1211,10 @@ class RecognitionEngine {
   bool _startsNonParticipantPhrase(_RecognitionBuilder builder, int start) {
     if (start >= builder.tokens.length) {
       return false;
+    }
+
+    if (start == builder.rightActionStart) {
+      return true;
     }
 
     final tokens = builder.tokens.sublist(start);
@@ -1488,6 +1531,7 @@ class RecognitionEngine {
       builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
       builder.companionStart > 0 ? builder.companionStart - 1 : -1,
       builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
+      builder.rightActionStart,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
       builder.mannerPhraseStart,
@@ -1612,6 +1656,11 @@ class RecognitionEngine {
     if (builder.destinationStart >= 0 &&
         builder.destinationStart <= frontPhraseEnd) {
       builder.destinationStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.rightActionStart >= 0 &&
+        builder.rightActionStart <= frontPhraseEnd) {
+      builder.rightActionStart = frontPhraseEnd + 1;
     }
 
     if (builder.complementStart >= 0 &&
@@ -1899,21 +1948,34 @@ class RecognitionEngine {
           continue;
         }
 
-        builder.placePhrase = phrase;
-        builder.placeMeaning = meaning;
-
         final phraseLength =
             (preposition != null ? 1 : 0) +
             (phrase.takesArticle ? 1 : 0) +
             phrase.noun.split(' ').length;
 
-        builder.placePhraseStart = builder.verbChainEnd + 1 + wordsBefore;
+        final phraseStart = builder.verbChainEnd + 1 + wordsBefore;
+        final phraseEnd = phraseStart + phraseLength - 1;
 
-        builder.placePhraseEnd = builder.placePhraseStart + phraseLength - 1;
+        if (_overlapsRightAction(builder, phraseStart, phraseEnd)) {
+          continue;
+        }
+
+        builder.placePhrase = phrase;
+        builder.placeMeaning = meaning;
+        builder.placePhraseStart = phraseStart;
+        builder.placePhraseEnd = phraseEnd;
 
         return;
       }
     }
+  }
+
+  bool _overlapsRightAction(_RecognitionBuilder builder, int start, int end) {
+    if (builder.rightActionStart < 0 || builder.rightActionEnd < 0) {
+      return false;
+    }
+
+    return start <= builder.rightActionEnd && end >= builder.rightActionStart;
   }
 
   int _placePhraseWordIndex(
@@ -2020,7 +2082,7 @@ class RecognitionEngine {
       return;
     }
 
-    final wordsBefore = _phraseWordIndex(tokens, 'to');
+    final wordsBefore = _toWordIndexNotAlreadyReserved(builder, tokens);
 
     if (wordsBefore < 0) {
       return;
@@ -2045,7 +2107,7 @@ class RecognitionEngine {
       return;
     }
 
-    final wordsBefore = _toWordIndexNotAlreadyPlace(builder, tokens);
+    final wordsBefore = _toWordIndexNotAlreadyReserved(builder, tokens);
 
     if (wordsBefore < 0) {
       return;
@@ -2062,7 +2124,7 @@ class RecognitionEngine {
     builder.destinationEnd = _nounPhraseEnd(builder, destinationStart);
   }
 
-  int _toWordIndexNotAlreadyPlace(
+  int _toWordIndexNotAlreadyReserved(
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
@@ -2072,7 +2134,8 @@ class RecognitionEngine {
       }
 
       final absoluteIndex = builder.verbChainEnd + 1 + index;
-      if (absoluteIndex == builder.placePhraseStart) {
+      if (absoluteIndex == builder.placePhraseStart ||
+          absoluteIndex == builder.rightActionStart) {
         continue;
       }
 
@@ -2192,6 +2255,9 @@ class _RecognitionBuilder {
   int destinationStart = -1;
   int destinationEnd = -1;
 
+  int rightActionStart = -1;
+  int rightActionEnd = -1;
+
   int complementStart = -1;
   int complementEnd = -1;
 
@@ -2226,6 +2292,7 @@ class _RecognitionBuilder {
   NounPhrase? addressee;
   NounPhrase? companion;
   NounPhrase? destination;
+  Verb? rightAction;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
   NounPhrase? complement;
@@ -2265,6 +2332,7 @@ class _RecognitionBuilder {
       addressee: addressee,
       companion: companion,
       destination: destination,
+      rightAction: rightAction,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
       complement: complement,
@@ -2299,6 +2367,7 @@ class _RecognitionBuilder {
       'addressee: $addresseeStart -> $addresseeEnd (${_tokensBetween(addresseeStart, addresseeEnd)}) = ${addressee?.text}',
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
       'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
+      'rightAction: $rightActionStart -> $rightActionEnd (${_tokensBetween(rightActionStart, rightActionEnd)}) = ${rightAction?.infinitive}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',
       'object: $objectStart -> $objectEnd (${_tokensBetween(objectStart, objectEnd)}) = ${object?.text}',

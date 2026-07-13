@@ -1,5 +1,6 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
@@ -44,6 +45,7 @@ enum ConfigurationCompassSlot {
   destination,
   destinationDeterminer,
   destinationAdjective,
+  rightAction,
   complement,
   complementDeterminer,
   complementAdjective,
@@ -51,6 +53,7 @@ enum ConfigurationCompassSlot {
   voice,
   passiveFocus,
   passiveAgent,
+  passiveAgentNoun,
   modal,
   placePhrase,
   timePhrase,
@@ -172,8 +175,10 @@ class ConfigurationCompass {
             .where(
               (action) =>
                   action == sentence.action ||
-                  _objectFitsAction(sentence.object, action) ||
-                  _canClearObjectIntoAction(sentence.object, action),
+                  (sentence.rightAction != null
+                      ? rightActionFitsAction(sentence.rightAction!, action)
+                      : _objectFitsAction(sentence.object, action) ||
+                            _canClearObjectIntoAction(sentence.object, action)),
             )
             .map(
               (action) => _CompassCandidate(
@@ -332,6 +337,18 @@ class ConfigurationCompass {
         sentence.destination,
         NounPhraseTarget.destination,
       ),
+      ConfigurationCompassSlot.rightAction => [
+        if (sentence.rightAction != null)
+          const _CompassCandidate(SetRightAction(null), 'no right action', 120),
+        ...rightActionChoicesFor(sentence.action).map(
+          (rightAction) => _CompassCandidate(
+            SetRightAction(rightAction),
+            rightAction.infinitive,
+            rightAction == sentence.rightAction ? 110 : 100,
+            isSelected: rightAction == sentence.rightAction,
+          ),
+        ),
+      ],
       ConfigurationCompassSlot.complement =>
         sentence.action == be
             ? complements.map((complement) {
@@ -417,6 +434,24 @@ class ConfigurationCompass {
                   isSelected: !sentence.showPassiveAgent,
                 ),
               ]
+            : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.passiveAgentNoun =>
+        sentence.voice == Voice.passive
+            ? recipients.map((agent) {
+                final isSelected = _sameNounChoice(agent, sentence.agent);
+                final nextAgent = isSelected
+                    ? sentence.agent
+                    : _carryCompatibleNounPhrase(
+                        from: sentence.agent,
+                        to: agent,
+                      );
+                return _CompassCandidate(
+                  SetAgent(nextAgent),
+                  nextAgent == null ? agent.text : _nounPhraseLabel(nextAgent),
+                  isSelected ? 110 : 100,
+                  isSelected: isSelected,
+                );
+              })
             : const <_CompassCandidate>[],
       ConfigurationCompassSlot.modal =>
         modals
@@ -875,7 +910,9 @@ final _defaultRecipients = [
   enemy.toNounPhrase(Number.singular, determiner: thatDeterminer),
   enemy.toNounPhrase(Number.plural),
   cat.toNounPhrase(Number.singular, determiner: aDeterminer),
+  cat.toNounPhrase(Number.plural),
   dog.toNounPhrase(Number.singular, determiner: aDeterminer),
+  dog.toNounPhrase(Number.plural),
 ];
 
 final _defaultComplements = [

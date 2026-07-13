@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
 enum PredicateInfluenceSource { grammarFrame, predicateProperty }
@@ -105,6 +106,14 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
         label: 'destination',
         tooltip: '${action.infinitive} wakes destination',
         rank: 40,
+        source: PredicateInfluenceSource.predicateProperty,
+      ),
+    if (hasRightActionFrame(action))
+      PredicateInfluence(
+        key: 'right-action',
+        label: 'right action',
+        tooltip: '${action.infinitive} wakes to-action',
+        rank: 39,
         source: PredicateInfluenceSource.predicateProperty,
       ),
     if (action.takesObjectComplement)

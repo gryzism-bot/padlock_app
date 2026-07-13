@@ -74,6 +74,11 @@ class CrudeTranslationEngine {
       add(form, actionTranslation);
     }
 
+    if (state.rightAction != null) {
+      final rightActionTranslation = state.rightAction!.translations[language];
+      add(state.rightAction!.infinitive, rightActionTranslation);
+    }
+
     if (!state.modal.isNone) {
       add(state.modal.text, _modalTranslation(state.modal.text, language));
     }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
@@ -60,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     null,
   );
   Number objectNumber = Number.singular;
+  Number addresseeNumber = Number.singular;
   List<_MoveTraceEntry> moveTrace = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
 
@@ -81,6 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       if (move case SetObject(:final object)) {
         objectNumber = object?.number ?? Number.singular;
+      }
+      if (move case SetAddressee(:final addressee)) {
+        addresseeNumber = addressee?.number ?? Number.singular;
       }
       hoveredConfiguration.value = null;
       final nextSentence = grammar
@@ -108,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       configuration = ConfigurationState.initial();
       objectNumber = Number.singular;
+      addresseeNumber = Number.singular;
       hoveredConfiguration.value = null;
       moveTrace = const [];
       expandedRails = const {};
@@ -137,6 +143,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       configuration = state;
       objectNumber = state.sentenceState.object?.number ?? Number.singular;
+      addresseeNumber =
+          state.sentenceState.addressee?.number ?? Number.singular;
       hoveredConfiguration.value = null;
       final sentence = grammar.generate(state.sentenceState).text;
       stopwatch.stop();
@@ -176,15 +184,21 @@ class _HomeScreenState extends State<HomeScreen> {
       limit: _suggestionLimitForSlot(slot),
     );
 
-    if (slot != ConfigurationCompassSlot.object) {
+    if (slot != ConfigurationCompassSlot.object &&
+        slot != ConfigurationCompassSlot.addressee) {
       return suggestions;
     }
 
+    final targetNumber = _nounNumberForSlot(slot);
+
     return suggestions
         .where((suggestion) {
-          final object = suggestion.preview.sentenceState.object;
-          return object == null ||
-              object.number == objectNumber ||
+          final nounPhrase = _nounPhraseForSlot(
+            suggestion.preview.sentenceState,
+            slot,
+          );
+          return nounPhrase == null ||
+              nounPhrase.number == targetNumber ||
               suggestion.isSelected;
         })
         .take(_suggestionLimit)
@@ -194,29 +208,49 @@ class _HomeScreenState extends State<HomeScreen> {
   int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
     return switch (slot) {
       ConfigurationCompassSlot.action => _actionSuggestionLimit,
-      ConfigurationCompassSlot.object => 0,
+      ConfigurationCompassSlot.object ||
+      ConfigurationCompassSlot.addressee => 0,
       _ => _suggestionLimit,
     };
   }
 
-  void _changeObjectNumber(ConfigurationCompass compass, Number number) {
+  Number? _nounNumberForSlot(ConfigurationCompassSlot slot) {
+    return switch (slot) {
+      ConfigurationCompassSlot.object => objectNumber,
+      ConfigurationCompassSlot.addressee => addresseeNumber,
+      _ => null,
+    };
+  }
+
+  void _changeNounNumber(
+    ConfigurationCompass compass,
+    ConfigurationCompassSlot slot,
+    Number number,
+  ) {
     final stopwatch = Stopwatch()..start();
 
     setState(() {
-      objectNumber = number;
+      switch (slot) {
+        case ConfigurationCompassSlot.object:
+          objectNumber = number;
+          break;
+        case ConfigurationCompassSlot.addressee:
+          addresseeNumber = number;
+          break;
+        default:
+          return;
+      }
+
       hoveredConfiguration.value = null;
 
-      final object = configuration.sentenceState.object;
-      if (object == null || object.number == number) {
+      final nounPhrase = _nounPhraseForSlot(configuration.sentenceState, slot);
+      if (nounPhrase == null || nounPhrase.number == number) {
         return;
       }
 
       final variant = _nounVariant(
-        [
-          ...fixedObjectChoicesFor(configuration.sentenceState.action),
-          ...compass.objects,
-        ],
-        object,
+        _nounChoicesForSlot(compass, configuration.sentenceState, slot),
+        nounPhrase,
         number,
       );
       if (variant == null) {
@@ -225,14 +259,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
       configuration = lock.applyMove(
         configuration,
-        SetObject(_carrySafeNounModifiers(object, variant)),
+        _setNounPhraseMove(slot, _carrySafeNounModifiers(nounPhrase, variant)),
       );
       final sentence = grammar.generate(configuration.sentenceState).text;
       stopwatch.stop();
       moveTrace = _appendMoveTrace(
         moveTrace,
         _MoveTraceEntry(
-          label: 'object number -> ${number.name}',
+          label: '${_slotTraceLabel(slot)} number -> ${number.name}',
           sentence: sentence,
           status: _MoveTraceStatus.accepted,
           elapsed: stopwatch.elapsed,
@@ -356,14 +390,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       currentSentence: sentenceText,
                       displayMode: displayMode,
                       suggestions: section.suggestions,
-                      nounNumber:
-                          section.slot == ConfigurationCompassSlot.object
-                          ? objectNumber
-                          : null,
+                      nounNumber: _nounNumberForSlot(section.slot),
                       onNounNumberChanged:
-                          section.slot == ConfigurationCompassSlot.object
-                          ? (number) => _changeObjectNumber(compass, number)
-                          : null,
+                          _nounNumberForSlot(section.slot) == null
+                          ? null
+                          : (number) => _changeNounNumber(
+                              compass,
+                              section.slot,
+                              number,
+                            ),
                       renderPreview: previewCache.render,
                       onMove: _move,
                       onPreviewChanged: previewMode == HeaderPreviewMode.hover
@@ -554,6 +589,25 @@ class _CoreParticipantSurfaceMap extends StatelessWidget {
           isFilled: state.destination != null,
         ),
         slot: ConfigurationCompassSlot.destination,
+      ),
+      _ParticipantDoor(
+        label: 'right action',
+        value: state.rightAction?.infinitive ?? 'none',
+        status: _participantStatus(
+          isAwake:
+              hasRightActionFrame(state.action) || state.rightAction != null,
+          isFilled: state.rightAction != null,
+        ),
+        slot: ConfigurationCompassSlot.rightAction,
+      ),
+      _ParticipantDoor(
+        label: 'by-agent',
+        value: _nounTraceText(state.agent),
+        status: _participantStatus(
+          isAwake: state.voice == Voice.passive,
+          isFilled: state.voice == Voice.passive && state.agent != null,
+        ),
+        slot: ConfigurationCompassSlot.passiveAgentNoun,
       ),
       _ParticipantDoor(
         label: 'noun complement',
@@ -852,6 +906,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       'companion -> ${_nounTraceText(companion)}',
     SetDestination(:final destination) =>
       'destination -> ${_nounTraceText(destination)}',
+    SetRightAction(:final rightAction) =>
+      'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
       'noun complement -> ${_nounTraceText(complement)}',
     SetNounPhraseDeterminer(:final target, :final determiner) =>
@@ -1977,6 +2033,51 @@ NounPhrase? _nounVariant(
   return null;
 }
 
+NounPhrase? _nounPhraseForSlot(
+  SentenceState state,
+  ConfigurationCompassSlot slot,
+) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object => state.object,
+    ConfigurationCompassSlot.addressee => state.addressee,
+    _ => null,
+  };
+}
+
+List<NounPhrase> _nounChoicesForSlot(
+  ConfigurationCompass compass,
+  SentenceState state,
+  ConfigurationCompassSlot slot,
+) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object => [
+      ...fixedObjectChoicesFor(state.action),
+      ...compass.objects,
+    ],
+    ConfigurationCompassSlot.addressee => compass.recipients,
+    _ => const [],
+  };
+}
+
+ConfigurationMove _setNounPhraseMove(
+  ConfigurationCompassSlot slot,
+  NounPhrase nounPhrase,
+) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object => SetObject(nounPhrase),
+    ConfigurationCompassSlot.addressee => SetAddressee(nounPhrase),
+    _ => throw ArgumentError('No noun number switch for ${slot.name}.'),
+  };
+}
+
+String _slotTraceLabel(ConfigurationCompassSlot slot) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object => 'object',
+    ConfigurationCompassSlot.addressee => 'addressee',
+    _ => slot.name,
+  };
+}
+
 bool _sameNounFamily(NounPhrase left, NounPhrase right) {
   return objectNumberFamilyKey(left.text) == objectNumberFamilyKey(right.text);
 }
@@ -2073,6 +2174,7 @@ String _slotTitle(
     ConfigurationCompassSlot.destination => 'Destination',
     ConfigurationCompassSlot.destinationDeterminer => 'Destination determiner',
     ConfigurationCompassSlot.destinationAdjective => 'Destination adjective',
+    ConfigurationCompassSlot.rightAction => 'Right action',
     ConfigurationCompassSlot.complement => 'Noun complement',
     ConfigurationCompassSlot.complementDeterminer => 'Complement determiner',
     ConfigurationCompassSlot.complementAdjective => 'Complement adjective',
@@ -2080,6 +2182,7 @@ String _slotTitle(
     ConfigurationCompassSlot.voice => 'Voice',
     ConfigurationCompassSlot.passiveFocus => 'Passive focus',
     ConfigurationCompassSlot.passiveAgent => 'Passive agent',
+    ConfigurationCompassSlot.passiveAgentNoun => 'By-agent',
     ConfigurationCompassSlot.modal => 'Modal',
     ConfigurationCompassSlot.placePhrase => 'Place phrase',
     ConfigurationCompassSlot.timePhrase => 'Time phrase',
@@ -2114,6 +2217,8 @@ bool _isControlledRail(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.destination ||
     ConfigurationCompassSlot.destinationDeterminer ||
     ConfigurationCompassSlot.destinationAdjective ||
+    ConfigurationCompassSlot.rightAction ||
+    ConfigurationCompassSlot.passiveAgentNoun ||
     ConfigurationCompassSlot.complement ||
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective ||
@@ -2166,6 +2271,9 @@ bool _shouldRenderSlot(
     ConfigurationCompassSlot.destinationDeterminer ||
     ConfigurationCompassSlot.destinationAdjective =>
       state.destination?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.rightAction => state.rightAction != null,
+    ConfigurationCompassSlot.passiveAgentNoun =>
+      state.voice == Voice.passive && state.agent != null,
     ConfigurationCompassSlot.complement => state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
     ConfigurationCompassSlot.complementAdjective =>
@@ -2213,6 +2321,9 @@ bool _collapsedControlledRailCanRender(
     ConfigurationCompassSlot.destinationDeterminer ||
     ConfigurationCompassSlot.destinationAdjective =>
       state.destination?.canTakeModifiers ?? false,
+    ConfigurationCompassSlot.rightAction =>
+      hasRightActionFrame(state.action) || state.rightAction != null,
+    ConfigurationCompassSlot.passiveAgentNoun => state.voice == Voice.passive,
     ConfigurationCompassSlot.complement =>
       state.action.infinitive == 'be' || state.complement != null,
     ConfigurationCompassSlot.complementDeterminer ||
@@ -2267,6 +2378,8 @@ String _unlockHint(
     ConfigurationCompassSlot.destinationDeterminer ||
     ConfigurationCompassSlot.destinationAdjective =>
       'Choose a destination first. Destination modifiers wake after that noun exists.',
+    ConfigurationCompassSlot.rightAction =>
+      'Choose a verb like want, need, like, love, or learn to open a to-action complement.',
     ConfigurationCompassSlot.complement =>
       'Choose verb be first. Noun complements belong to the be frame.',
     ConfigurationCompassSlot.complementDeterminer ||
@@ -2280,6 +2393,8 @@ String _unlockHint(
       'Turn passive voice on first. Recipient focus also needs a recipient-capable verb and a recipient.',
     ConfigurationCompassSlot.passiveAgent =>
       'Turn passive voice on first. The by-agent phrase can be hidden while the agent stays in state.',
+    ConfigurationCompassSlot.passiveAgentNoun =>
+      'Turn passive voice on first. This rail changes the remembered by-agent, even when the by-phrase is hidden.',
     ConfigurationCompassSlot.modal =>
       'No modal fits this tense/frame from here.',
     ConfigurationCompassSlot.action ||

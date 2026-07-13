@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/modals.dart' hide need;
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -24,6 +24,7 @@ import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -646,6 +647,96 @@ void main() {
       );
 
       expect(sentence, 'Mary has travelled to school.');
+    });
+
+    test('right action complement renders as an inferior to action', () {
+      final sentence = render(
+        SentenceState(
+          agent: i,
+          action: want,
+          rightAction: go,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'I want to go.');
+    });
+
+    test(
+      'right action complement keeps finite agreement on the first verb',
+      () {
+        final sentence = render(
+          SentenceState(
+            agent: she,
+            action: need,
+            rightAction: work,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, 'She needs to work.');
+      },
+    );
+
+    test('right action complement survives past tense and modals', () {
+      expect(
+        render(
+          SentenceState(
+            agent: they,
+            action: like,
+            rightAction: swim,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'They liked to swim.',
+      );
+
+      expect(
+        render(
+          SentenceState(
+            agent: you,
+            action: learn,
+            rightAction: speak,
+            modal: should,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'You should learn to speak.',
+      );
+    });
+
+    test('right action complement survives negatives and questions', () {
+      expect(
+        render(
+          SentenceState(
+            agent: he,
+            action: want,
+            rightAction: go,
+            polarity: Polarity.negative,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'He does not want to go.',
+      );
+
+      expect(
+        render(
+          SentenceState(
+            agent: he,
+            action: want,
+            rightAction: go,
+            sentenceForm: SentenceForm.question,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        ),
+        'Does he want to go?',
+      );
     });
 
     test('person destination pronouns render in object case', () {

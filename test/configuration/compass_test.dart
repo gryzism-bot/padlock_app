@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/modals.dart' hide need;
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
@@ -31,7 +31,18 @@ import 'package:padlock_app/models/grammar/voice.dart';
 void main() {
   final lock = ConfigurationEngine();
   final compass = ConfigurationCompass(
-    actions: [learn, work, work_data.build, give, speak, be, go],
+    actions: [
+      learn,
+      want,
+      need,
+      like,
+      work,
+      work_data.build,
+      give,
+      speak,
+      be,
+      go,
+    ],
     objects: [
       book.toNounPhrase(Number.singular),
       bridge.toNounPhrase(Number.singular),
@@ -1025,6 +1036,32 @@ void main() {
 
       expect(hideAgentSuggestion.preview.sentenceState.showPassiveAgent, false);
       expect(render(hideAgentSuggestion.preview), 'Book was given to him.');
+
+      final byAgentSuggestions = ConfigurationCompass().suggestionsFor(
+        hideAgentSuggestion.preview,
+        ConfigurationCompassSlot.passiveAgentNoun,
+        limit: 0,
+      );
+      final maryAgentSuggestion = byAgentSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'Mary',
+      );
+
+      expect(
+        maryAgentSuggestion.preview.sentenceState.showPassiveAgent,
+        isFalse,
+      );
+      expect(maryAgentSuggestion.preview.sentenceState.agent?.text, 'Mary');
+      expect(render(maryAgentSuggestion.preview), 'Book was given to him.');
+
+      final showMaryAgent = ConfigurationCompass()
+          .suggestionsFor(
+            maryAgentSuggestion.preview,
+            ConfigurationCompassSlot.passiveAgent,
+            limit: 0,
+          )
+          .singleWhere((suggestion) => suggestion.label == 'show by-agent');
+
+      expect(render(showMaryAgent.preview), 'Book was given to him by Mary.');
     });
 
     test('offers active voice as an exit from passive recipient focus', () {
@@ -1464,6 +1501,81 @@ void main() {
         'You will learn.',
       );
     });
+
+    test('right action suggestions wake only for right-action verbs', () {
+      final workState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
+
+      expect(
+        compass.suggestionsFor(workState, ConfigurationCompassSlot.rightAction),
+        isEmpty,
+      );
+
+      final wantState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(want),
+      );
+      final labels = compass
+          .suggestionsFor(
+            wantState,
+            ConfigurationCompassSlot.rightAction,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['go', 'work', 'learn', 'swim', 'speak']));
+    });
+
+    test('right action suggestions include clear and selected states', () {
+      var state = ConfigurationState.initial();
+
+      state = lock.applyMove(state, const SetAction(want));
+      state = lock.applyMove(state, const SetRightAction(go));
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.rightAction,
+        limit: 0,
+      );
+
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'go')
+            .isSelected,
+        isTrue,
+      );
+      expect(
+        render(
+          suggestions
+              .singleWhere(
+                (suggestion) => suggestion.label == 'no right action',
+              )
+              .preview,
+        ),
+        'You want.',
+      );
+    });
+
+    test(
+      'action suggestions keep only verbs compatible with current right action',
+      () {
+        var state = ConfigurationState.initial();
+
+        state = lock.applyMove(state, const SetAction(want));
+        state = lock.applyMove(state, const SetRightAction(go));
+
+        final labels = compass
+            .suggestionsFor(state, ConfigurationCompassSlot.action, limit: 0)
+            .map((suggestion) => suggestion.label)
+            .toList();
+
+        expect(labels, containsAll(['want', 'need', 'like']));
+        expect(labels, isNot(contains('learn')));
+        expect(labels, isNot(contains('build')));
+      },
+    );
 
     test('never returns a move blocked by guided mode', () {
       var state = ConfigurationState.initial();

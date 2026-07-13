@@ -237,6 +237,12 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }
+  if (influenceKeys.contains('right-action')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.accountTreeOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
 
   return const [
     PredicateIconSlot(materialIcon: MaterialIconKey.lightbulbOutline),

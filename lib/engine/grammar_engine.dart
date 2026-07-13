@@ -624,6 +624,12 @@ class GrammarEngine {
       parts.add(builder.displayAdjectiveComplement!.text);
     }
 
+    // ---------- RIGHT ACTION ----------
+
+    if (builder.state.rightAction != null) {
+      parts.add('to ${builder.state.rightAction!.infinitive}');
+    }
+
     // ---------- BOUND PARTICIPANT MANNER ----------
 
     if (_mannerBeforeBoundTail(builder)) {
@@ -786,6 +792,7 @@ class _SentenceBuilder {
       'displayAddressee: ${displayAddressee?.text}',
       'displayCompanion: ${displayCompanion?.text}',
       'displayDestination: ${displayDestination?.text}',
+      'rightAction: ${state.rightAction?.infinitive}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',
       'displayObjectAdjectiveComplement: ${displayObjectAdjectiveComplement?.text}',
