@@ -35,7 +35,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('works'), isTrue);
+      expect(sentence.text.endsWith('works.'), isTrue);
       expect(sentence.text.contains(' work work'), isFalse);
     });
 
@@ -50,7 +50,7 @@ void main() {
       );
 
       expect(sentence.text.contains(' is '), isTrue);
-      expect(sentence.text.contains(' working'), isTrue);
+      expect(sentence.text.endsWith('working.'), isTrue);
     });
 
     test('Every Past Continuous sentence contains BE auxiliary', () {
@@ -64,7 +64,7 @@ void main() {
       );
 
       expect(sentence.text.contains(' were '), isTrue);
-      expect(sentence.text.contains(' working'), isTrue);
+      expect(sentence.text.endsWith('working.'), isTrue);
     });
 
     test('Every Perfect sentence contains HAVE auxiliary', () {
@@ -78,7 +78,7 @@ void main() {
       );
 
       expect(sentence.text.contains(' have '), isTrue);
-      expect(sentence.text.contains('built'), isTrue);
+      expect(sentence.text.endsWith('built.'), isTrue);
     });
 
     test('Every Perfect Continuous sentence contains HAVE + BEEN', () {
@@ -92,7 +92,7 @@ void main() {
       );
 
       expect(sentence.text.contains(' have been '), isTrue);
-      expect(sentence.text.contains('working'), isTrue);
+      expect(sentence.text.endsWith('working.'), isTrue);
     });
 
     test('Every Future sentence contains WILL', () {
@@ -105,7 +105,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('will'), isTrue);
+      expect(sentence.text.endsWith('will work.'), isTrue);
     });
 
     test('Every Passive sentence contains BE auxiliary', () {
@@ -120,7 +120,7 @@ void main() {
       );
 
       expect(sentence.text.contains(' is '), isTrue);
-      expect(sentence.text.contains('built'), isTrue);
+      expect(sentence.text.endsWith('built.'), isTrue);
     });
 
     test('Every modal is followed by infinitive', () {
@@ -134,7 +134,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('should build'), isTrue);
+      expect(sentence.text.endsWith('should build.'), isTrue);
       expect(sentence.text.contains('should builds'), isFalse);
       expect(sentence.text.contains('should built'), isFalse);
     });
@@ -149,7 +149,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('building'), isTrue);
+      expect(sentence.text.endsWith('building.'), isTrue);
       expect(sentence.text.contains('built'), isFalse);
     });
 
@@ -163,7 +163,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('built'), isTrue);
+      expect(sentence.text.endsWith('built.'), isTrue);
       expect(sentence.text.contains('building'), isFalse);
     });
 
@@ -221,7 +221,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('working'), isTrue);
+      expect(sentence.text.endsWith('working.'), isTrue);
       expect(sentence.text.contains('work work'), isFalse);
       expect(sentence.text.contains('worked working'), isFalse);
     });
@@ -238,7 +238,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('by them'), isTrue);
+      expect(sentence.text.endsWith('by them.'), isTrue);
       expect(sentence.text.contains('by they'), isFalse);
     });
 
@@ -252,7 +252,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('works'), isTrue);
+      expect(sentence.text.endsWith('works.'), isTrue);
       expect(sentence.text.contains('work.'), isFalse);
     });
 
@@ -267,7 +267,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('can work'), isTrue);
+      expect(sentence.text.endsWith('can work.'), isTrue);
       expect(sentence.text.contains('can works'), isFalse);
     });
 
@@ -281,7 +281,7 @@ void main() {
         ),
       );
 
-      expect(sentence.text.contains('will work'), isTrue);
+      expect(sentence.text.endsWith('will work.'), isTrue);
       expect(sentence.text.contains('will works'), isFalse);
     });
 

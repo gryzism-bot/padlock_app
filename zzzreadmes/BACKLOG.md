@@ -120,6 +120,67 @@ Next crease candidates:
   - `turn on`
   - `look after`
 
+## Right-Side Verb Expansion
+
+Live UI testing is showing a need for more expressive material to the right of
+the chosen predicate. These features all use another verb-like word, but they do
+not all belong to the same crease.
+
+Order from safest to most expansive:
+
+1. semi-modal `to` frames:
+   - `I have to go to school.`
+   - `I need to learn English.`
+   - `He has to work.`
+   - `They needed to leave.`
+   - likely model: the real action stays in `action`, and the wrapper is a new
+     modal-like frame such as `semiModal: haveTo`
+   - this is closest to the existing modal wheel, but it must conjugate like a
+     normal verb and support DO questions/negatives:
+     `Does he have to go?`, `He does not have to go.`
+2. ability/permission/expectation frames:
+   - `He is able to go.`
+   - `He is allowed to go.`
+   - `He is supposed to go.`
+   - likely a separate subtype of the same semi-modal surface because these use
+     lexical `be` plus adjective/participle plus `to`
+3. attitude/intention `to` frames:
+   - `I want to go.`
+   - `I try to go.`
+   - `I plan to go.`
+   - `I hope to go.`
+   - these are less modal-like because the first verb carries real meaning;
+     they may become an intention/control rail rather than a modal rail
+4. learning/skill `to` frames:
+   - `I learn to swim.`
+   - `She learned to read.`
+   - this overlaps semantic rails for `learn`, but the right side is an action,
+     not a noun subject such as `English`
+5. purpose infinitives:
+   - `He walks to exercise.`
+   - `I run to forget.`
+   - `I listen to visualize.`
+   - `I sleep to recover.`
+   - likely model: `action: walk`, `purposeAction: exercise`
+   - this is still one finite sentence, but it is less strictly one-predicate
+     because the purpose slot contains another action
+
+Implementation notes:
+
+- Do not merge these directly into normal `Modal` unless the verb-chain rules
+  prove identical. They are not identical: `should go`, but `have to go`.
+- Start with `have to` and `need to` because they provide high everyday value
+  without opening the full purpose/second-action surface.
+- Add Grammar and Recognition tests first:
+  - present: `I have to go.` / `He has to go.`
+  - past: `He had to go.`
+  - future: `He will have to go.`
+  - negative: `He does not have to go.`
+  - question: `Does he have to go?`
+- In UI, this probably belongs near the modal control, but it should visually
+  show that `to` is part of the wrapper and the following verb remains the real
+  action.
+
 ## Grammar And Recognition Test Growth
 
 Keep adding tests before or beside each crease.
@@ -311,6 +372,15 @@ Current insight:
   the UI should not ask Compass to compute paths the user cannot currently
   choose.
 
+Done recently:
+
+- collapsed controlled rails no longer ask Compass to generate full suggestion
+  lists just to render a closed rail
+- closed participant rails are now decided from the current `SentenceState`
+  shape, and full suggestions are generated only after the rail is expanded
+- suggestion chip labels use simple `SelectableText` for common cases, keeping
+  `SelectableText.rich` only for changed-word highlighting
+
 Merged side quests:
 
 - introduce a single active locus for the final UI:
@@ -334,10 +404,16 @@ Merged side quests:
   - show a small nearest set first
   - render full sentence previews only for visible candidates
   - defer hidden candidate previews until hover/open/search
+- cache rendered preview sentences during one build pass so repeated
+  `GrammarEngine.generate` calls do not re-render the same nearby state
+- avoid full preview rendering in `word` mode when the chip only needs a label;
+  keep full sentence rendering for tooltip, hover, selected sentence mode, and
+  changed-word preview
+- add rail-level paging or `show more` before loading much larger vocabulary
+- virtualize large rail lists only after paging/caching are not enough
 - split developer cockpit from product toy:
   - cockpit can keep broad rails for debugging
   - product UI consumes the same Configuration state through local paths
-- add lazy/virtualized rail lists before loading much larger vocabulary
 - index object candidates by verb frame or semantic category
 - pre-render or cache stable noun/phrase fragments only if profiling shows that
   preview rendering is hot
