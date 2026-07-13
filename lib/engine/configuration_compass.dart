@@ -172,7 +172,8 @@ class ConfigurationCompass {
             .where(
               (action) =>
                   action == sentence.action ||
-                  _objectFitsAction(sentence.object, action),
+                  _objectFitsAction(sentence.object, action) ||
+                  _canClearObjectIntoAction(sentence.object, action),
             )
             .map(
               (action) => _CompassCandidate(
@@ -685,6 +686,10 @@ bool _objectFitsAction(NounPhrase? object, Verb action) {
     'ride' => _rideableObjects.contains(noun),
     _ => true,
   };
+}
+
+bool _canClearObjectIntoAction(NounPhrase? object, Verb action) {
+  return object != null && canClearObjectForFixedSubjectFrame(object, action);
 }
 
 List<Verb> get _defaultActions =>

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -14,6 +15,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
+import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
@@ -376,6 +378,72 @@ void main() {
       );
     });
 
+    test('teach wakes fixed subject objects and rejects unrelated text', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(teach),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.object,
+        limit: 0,
+      );
+
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        containsAll(['English', 'grammar', 'history', 'math', 'science']),
+      );
+
+      final englishSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'English',
+      );
+      expect(render(englishSuggestion.preview), 'You teach English.');
+
+      final blocked = lock.applyMove(
+        state,
+        SetObject(bridge.toNounPhrase(Number.singular)),
+      );
+
+      expect(blocked.sentenceState, same(state.sentenceState));
+      expect(wasBlocked(blocked), isTrue);
+      expect(
+        blocked.messages.single.text,
+        'teach only takes fixed subject objects.',
+      );
+    });
+
+    test(
+      'fixed subject verbs can clear incompatible objects on action change',
+      () {
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(teach),
+        );
+        state = lock.applyMove(state, const SetObject(fixed_object.english));
+        state = lock.applyMove(state, const SetAction(cooking_data.chop));
+        state = lock.applyMove(
+          state,
+          SetObject(bridge.toNounPhrase(Number.singular)),
+        );
+
+        final suggestions = ConfigurationCompass().suggestionsFor(
+          state,
+          ConfigurationCompassSlot.action,
+          limit: 0,
+        );
+        final teachSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'teach',
+        );
+
+        expect(render(state), 'You chop bridge.');
+        expect(teachSuggestion.preview.sentenceState.action, teach);
+        expect(teachSuggestion.preview.sentenceState.object, isNull);
+        expect(wasBlocked(teachSuggestion.preview), isFalse);
+        expect(render(teachSuggestion.preview), 'You teach.');
+      },
+    );
+
     test('object noun phrase modifiers wake after object exists', () {
       expect(
         compass.suggestionsFor(
@@ -584,7 +652,7 @@ void main() {
       final suggestions = ConfigurationCompass().suggestionsFor(
         ConfigurationState.initial(),
         ConfigurationCompassSlot.action,
-        limit: 6,
+        limit: 12,
       );
 
       expect(suggestions.map((suggestion) => suggestion.label), contains('go'));
@@ -609,6 +677,35 @@ void main() {
       expect(labels.indexOf('play'), lessThan(labels.indexOf('get')));
       expect(labels.indexOf('learn'), lessThan(labels.indexOf('get')));
       expect(labels.indexOf('go'), lessThan(labels.indexOf('work')));
+    });
+
+    test('groups predicate doorways by visible output count', () {
+      final suggestions = ConfigurationCompass()
+          .suggestionsFor(
+            ConfigurationState.initial(),
+            ConfigurationCompassSlot.action,
+            limit: 0,
+          )
+          .toList();
+
+      int outputCountFor(String label) {
+        final suggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == label,
+        );
+        final move = suggestion.move as SetAction;
+        return predicateDoorwayOutputCount(move.action);
+      }
+
+      final outputCounts = [
+        for (final suggestion in suggestions)
+          predicateDoorwayOutputCount((suggestion.move as SetAction).action),
+      ];
+      final sortedOutputCounts = [...outputCounts]
+        ..sort((left, right) => right.compareTo(left));
+
+      expect(outputCounts, orderedEquals(sortedOutputCounts));
+      expect(outputCountFor('teach'), greaterThan(outputCountFor('give')));
+      expect(outputCountFor('give'), greaterThan(outputCountFor('get')));
     });
 
     test('noun complement suggestions follow agent number', () {

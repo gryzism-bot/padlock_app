@@ -319,6 +319,7 @@ class ConfigurationEngine {
             : _copy(
                 state,
                 action: action,
+                object: _objectAfterActionChange(state.object, action),
                 addressee: action.takesAddressee ? state.addressee : null,
                 companion: action.takesCompanion ? state.companion : null,
                 destination: action.usesDestinationPlace
@@ -883,6 +884,18 @@ class ConfigurationEngine {
     }
 
     return messages;
+  }
+
+  NounPhrase? _objectAfterActionChange(NounPhrase? object, Verb action) {
+    if (object == null) {
+      return null;
+    }
+
+    if (canClearObjectForFixedSubjectFrame(object, action)) {
+      return null;
+    }
+
+    return object;
   }
 
   SentenceState _copy(

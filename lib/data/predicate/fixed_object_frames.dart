@@ -17,6 +17,7 @@ const fixedObjectFrameLabels = {
   'play': 'activity',
   'learn': 'subject',
   'study': 'subject',
+  'teach': 'subject',
   'speak': 'language',
   'read': 'text',
   'write': 'text',
@@ -40,6 +41,7 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'play': [football, basketball, volleyball, tennis, golf],
   'learn': [english, grammar, math, history, science],
   'study': [english, grammar, math, history, science],
+  'teach': [english, grammar, math, history, science],
   'speak': [english, polish, spanish],
   'read': [
     object_data.book.toNounPhrase(Number.singular),
@@ -127,6 +129,11 @@ bool fixedObjectFitsAction(NounPhrase object, Verb action) {
   return fixedObjectChoicesFor(
     action,
   ).any((choice) => choice.text.toLowerCase() == object.text.toLowerCase());
+}
+
+bool canClearObjectForFixedSubjectFrame(NounPhrase object, Verb action) {
+  return fixedObjectFrameLabel(action) == 'subject' &&
+      !fixedObjectFitsAction(object, action);
 }
 
 bool isFlattenedFixedObjectVerb(Verb action) {

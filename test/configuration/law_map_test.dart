@@ -100,6 +100,7 @@ void main() {
         'play': 'activity',
         'learn': 'subject',
         'study': 'subject',
+        'teach': 'subject',
         'speak': 'language',
         'read': 'text',
         'write': 'text',

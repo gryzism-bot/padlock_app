@@ -97,6 +97,28 @@ void main() {
   }
 
   List<String> highlightedTextForTooltip(WidgetTester tester, String tooltip) {
+    final selectableTexts = find
+        .descendant(
+          of: find.byTooltip(tooltip),
+          matching: find.byType(SelectableText),
+        )
+        .evaluate()
+        .map((element) => element.widget)
+        .cast<SelectableText>();
+
+    for (final selectableText in selectableTexts) {
+      final textSpan =
+          selectableText.textSpan ?? TextSpan(text: selectableText.data);
+      final highlighted = _textSpans(textSpan)
+          .where((span) => span.style?.backgroundColor != null)
+          .map((span) => span.text ?? '')
+          .toList();
+
+      if (highlighted.isNotEmpty) {
+        return highlighted;
+      }
+    }
+
     final richTexts = find
         .descendant(
           of: find.byTooltip(tooltip),
@@ -254,6 +276,19 @@ void main() {
 
     expect(find.text('give', findRichText: true), findsOneWidget);
     expect(find.text('You give.'), findsNothing);
+  });
+
+  testWidgets('Suggestion chips expose selectable text labels', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    final teachLabel = tester.widget<SelectableText>(
+      find.byKey(const Key('suggestion-label-action-teach')),
+    );
+
+    expect(
+      teachLabel.data ?? teachLabel.textSpan?.toPlainText(),
+      contains('teach'),
+    );
   });
 
   testWidgets('Verb chips mark predicate extensions they can wake', (

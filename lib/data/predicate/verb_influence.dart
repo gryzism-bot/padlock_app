@@ -53,6 +53,8 @@ const _popularDoorwayBonusByVerb = {
   'think': 1,
 };
 
+const _visibleOutputCountByVerb = {'be': 2};
+
 List<PredicateInfluence> predicateInfluencesFor(Verb action) {
   final fixedLabel = fixedObjectFrameLabel(action);
 
@@ -130,17 +132,27 @@ int predicateInfluenceRank(Verb action) {
   ).fold(0, (rank, influence) => max(rank, influence.rank));
 }
 
+int predicateDoorwayOutputCount(Verb action) {
+  final influences = predicateInfluencesFor(action);
+  if (influences.isEmpty) {
+    return 0;
+  }
+
+  return _visibleOutputCountByVerb[action.infinitive] ?? influences.length;
+}
+
 int predicateDoorwayPriority(Verb action) {
   final influenceRank = predicateInfluenceRank(action);
   final popularityBonus = _popularDoorwayBonusByVerb[action.infinitive] ?? 0;
+  final outputCount = predicateDoorwayOutputCount(action);
 
-  if (influenceRank == 0 && popularityBonus == 0) {
+  if (outputCount == 0 && popularityBonus == 0) {
     return 80;
   }
 
-  if (influenceRank == 0) {
+  if (outputCount == 0) {
     return 110 + popularityBonus;
   }
 
-  return 90 + influenceRank + popularityBonus;
+  return 200 + (outputCount * 100) + influenceRank + popularityBonus;
 }

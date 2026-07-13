@@ -10,6 +10,8 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart';
+import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -90,6 +92,24 @@ void main() {
       expect(state.sentenceState.action, work_data.build);
       expect(state.sentenceState.object?.text, 'bridge');
       expect(render(state), 'You build bridge.');
+      expect(wasBlocked(state), isFalse);
+    });
+
+    test('fixed subject verbs clear incompatible current objects', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(teach));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
+      state = engine.applyMove(state, const SetAction(chop));
+      state = engine.applyMove(
+        state,
+        SetObject(bridge.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetAction(teach));
+
+      expect(state.sentenceState.action, teach);
+      expect(state.sentenceState.object, isNull);
+      expect(render(state), 'You teach.');
       expect(wasBlocked(state), isFalse);
     });
 

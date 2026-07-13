@@ -40,19 +40,82 @@ class _SuggestionButton extends StatelessWidget {
                 _VerbWakeSignalView(signal: wakeSignal),
                 const SizedBox(height: 1),
               ],
-              Text.rich(
-                _suggestionSpan(
-                  currentSentence: currentSentence,
-                  preview: preview,
-                  suggestion: suggestion,
-                  displayMode: displayMode,
-                  colors: colors,
-                ),
+              _SuggestionLabel(
+                suggestion: suggestion,
+                currentSentence: currentSentence,
+                displayMode: displayMode,
+                preview: preview,
+                onPressed: onPressed,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SuggestionLabel extends StatelessWidget {
+  final ConfigurationSuggestion suggestion;
+  final String currentSentence;
+  final SuggestionDisplayMode displayMode;
+  final String preview;
+  final VoidCallback onPressed;
+
+  const _SuggestionLabel({
+    required this.suggestion,
+    required this.currentSentence,
+    required this.displayMode,
+    required this.preview,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final baseStyle = TextStyle(
+      color: suggestion.isSelected ? colors.primary : colors.onSurface,
+      fontWeight: displayMode == SuggestionDisplayMode.word
+          ? suggestion.isSelected
+                ? FontWeight.w700
+                : FontWeight.w500
+          : null,
+    );
+    final key = Key(_suggestionLabelKey(suggestion));
+
+    if (displayMode == SuggestionDisplayMode.word) {
+      return SelectableText(
+        suggestion.label,
+        key: key,
+        textAlign: TextAlign.center,
+        style: baseStyle,
+        onTap: onPressed,
+      );
+    }
+
+    if (displayMode == SuggestionDisplayMode.sentence ||
+        suggestion.isSelected ||
+        currentSentence == preview) {
+      return SelectableText(
+        preview,
+        key: key,
+        textAlign: TextAlign.center,
+        style: baseStyle,
+        onTap: onPressed,
+      );
+    }
+
+    return SelectableText.rich(
+      _changedSuggestionSpan(
+        currentSentence: currentSentence,
+        preview: preview,
+        suggestion: suggestion,
+        colors: colors,
+        baseStyle: baseStyle,
+      ),
+      key: key,
+      textAlign: TextAlign.center,
+      onTap: onPressed,
     );
   }
 }
@@ -261,34 +324,22 @@ Color _verbWakeSignalColor(
   };
 }
 
-TextSpan _suggestionSpan({
+String _suggestionLabelKey(ConfigurationSuggestion suggestion) {
+  final safeLabel = suggestion.label
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-|-$'), '');
+
+  return 'suggestion-label-${suggestion.slot.name}-$safeLabel';
+}
+
+TextSpan _changedSuggestionSpan({
   required String currentSentence,
   required String preview,
   required ConfigurationSuggestion suggestion,
-  required SuggestionDisplayMode displayMode,
   required ColorScheme colors,
+  required TextStyle baseStyle,
 }) {
-  final baseStyle = TextStyle(
-    color: suggestion.isSelected ? colors.primary : colors.onSurface,
-  );
-
-  if (displayMode == SuggestionDisplayMode.word) {
-    return TextSpan(
-      text: suggestion.label,
-      style: baseStyle.copyWith(
-        fontWeight: suggestion.isSelected ? FontWeight.w700 : FontWeight.w500,
-      ),
-    );
-  }
-
-  if (displayMode == SuggestionDisplayMode.sentence) {
-    return TextSpan(text: preview, style: baseStyle);
-  }
-
-  if (suggestion.isSelected || currentSentence == preview) {
-    return TextSpan(text: preview, style: baseStyle);
-  }
-
   final change = _changedRange(currentSentence, preview);
   final highlightStyle = TextStyle(
     color: colors.onTertiaryContainer,
