@@ -560,9 +560,9 @@ class _GuidedMessageChip extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Flexible(
-                      child: Text(
+                      child: SelectableText(
                         lawAlert.label,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(
                               color: foreground,
@@ -585,9 +585,9 @@ class _GuidedMessageChip extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Flexible(
-                      child: Text(
+                      child: SelectableText(
                         message.text,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: colors.onSurface,
                         ),

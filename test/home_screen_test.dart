@@ -209,6 +209,22 @@ void main() {
       findsOneWidget,
     );
     expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SelectableText &&
+            widget.data == 'work cannot be passive in this frame.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is SelectableText &&
+            widget.data == 'Passive object focus requires an object.',
+      ),
+      findsOneWidget,
+    );
+    expect(
       find.byTooltip(
         const ConfigurationMessage.blocked(
           'work cannot be passive in this frame.',
