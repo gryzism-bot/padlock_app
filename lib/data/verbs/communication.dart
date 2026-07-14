@@ -92,6 +92,7 @@ const write = Verb(
   takesObject: true,
   takesRecipient: true,
   takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'pisać'},
 );
 

@@ -432,6 +432,20 @@ void main() {
       expect(render(state), 'You speak with Mary.');
     });
 
+    test('accepts companion on writing frame', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(write));
+      state = engine.applyMove(
+        state,
+        SetCompanion(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.companion?.text, 'Mary');
+      expect(render(state), 'You write with Mary.');
+    });
+
     test('blocks companion on verbs without companion frame', () {
       final previous = engine.applyMove(
         ConfigurationState.initial(),
@@ -679,25 +693,58 @@ void main() {
     });
 
     test(
-      'active voice restores subject-form agent after passive object pronoun by-agent',
+      'active voice restores subject-form agents after passive object pronoun by-agents',
       () {
-        var state = ConfigurationState.initial();
+        final cases = [
+          (
+            byAgent: object_data.me,
+            activeAgent: 'i',
+            sentence: 'I am cleaning cat.',
+          ),
+          (
+            byAgent: object_data.him,
+            activeAgent: 'he',
+            sentence: 'He is cleaning cat.',
+          ),
+          (
+            byAgent: object_data.her,
+            activeAgent: 'she',
+            sentence: 'She is cleaning cat.',
+          ),
+          (
+            byAgent: object_data.us,
+            activeAgent: 'we',
+            sentence: 'We are cleaning cat.',
+          ),
+          (
+            byAgent: object_data.them,
+            activeAgent: 'they',
+            sentence: 'They are cleaning cat.',
+          ),
+        ];
 
-        state = engine.applyMove(state, const SetAction(work_data.clean));
-        state = engine.applyMove(
-          state,
-          SetObject(cat.toNounPhrase(Number.singular)),
-        );
-        state = engine.applyMove(state, const SetAspect(Aspect.continuous));
-        state = engine.applyMove(state, const SetVoice(Voice.passive));
-        state = engine.applyMove(state, const SetAgent(object_data.me));
-        state = engine.applyMove(state, const SetPassiveAgentVisibility(false));
-        state = engine.applyMove(state, const SetVoice(Voice.active));
+        for (final currentCase in cases) {
+          var state = ConfigurationState.initial();
 
-        expect(state.sentenceState.voice, Voice.active);
-        expect(state.sentenceState.agent, i);
-        expect(wasBlocked(state), isFalse);
-        expect(render(state), 'I am cleaning cat.');
+          state = engine.applyMove(state, const SetAction(work_data.clean));
+          state = engine.applyMove(
+            state,
+            SetObject(cat.toNounPhrase(Number.singular)),
+          );
+          state = engine.applyMove(state, const SetAspect(Aspect.continuous));
+          state = engine.applyMove(state, const SetVoice(Voice.passive));
+          state = engine.applyMove(state, SetAgent(currentCase.byAgent));
+          state = engine.applyMove(
+            state,
+            const SetPassiveAgentVisibility(false),
+          );
+          state = engine.applyMove(state, const SetVoice(Voice.active));
+
+          expect(state.sentenceState.voice, Voice.active);
+          expect(state.sentenceState.agent?.text, currentCase.activeAgent);
+          expect(wasBlocked(state), isFalse);
+          expect(render(state), currentCase.sentence);
+        }
       },
     );
 
