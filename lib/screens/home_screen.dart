@@ -517,16 +517,31 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _SentencePreviewCache {
+  static const defaultMaxEntries = 500;
+
   final GrammarEngine grammar;
+  final int maxEntries;
   final Map<String, String> _renderedBySummary = {};
 
-  _SentencePreviewCache(this.grammar);
+  _SentencePreviewCache(this.grammar, {this.maxEntries = defaultMaxEntries})
+    : assert(maxEntries > 0);
 
   String render(SentenceState state) {
-    return _renderedBySummary.putIfAbsent(
-      state.summary,
-      () => grammar.generate(state).text,
-    );
+    final key = state.summary;
+    final cached = _renderedBySummary.remove(key);
+    if (cached != null) {
+      _renderedBySummary[key] = cached;
+      return cached;
+    }
+
+    final rendered = grammar.generate(state).text;
+    _renderedBySummary[key] = rendered;
+
+    while (_renderedBySummary.length > maxEntries) {
+      _renderedBySummary.remove(_renderedBySummary.keys.first);
+    }
+
+    return rendered;
   }
 }
 
