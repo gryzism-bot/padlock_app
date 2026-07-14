@@ -127,6 +127,9 @@ Default output:
 # ARKITEKCZURALLY
 check poster grammar engine as water treatment system png
 
+See also: `zzzreadmes/ARCHITECTURE.md` for the Predicate Paths / good
+hardcoding keepsake.
+
 ## Grammar Engine renders a frame. Recognition Engine reconstructs a frame from sentence. Configuration Engine governs the movie.
 
 ## Engine question map

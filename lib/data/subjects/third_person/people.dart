@@ -165,6 +165,118 @@ const girl = Noun(
   pluralTranslations: {Language.pl: 'dziewczynki'},
 );
 
+const parent = Noun(
+  singular: 'parent',
+  plural: 'parents',
+  singularTranslations: {Language.pl: 'rodzic'},
+  pluralTranslations: {Language.pl: 'rodzice'},
+);
+
+const mother = Noun(
+  singular: 'mother',
+  plural: 'mothers',
+  singularTranslations: {Language.pl: 'matka'},
+  pluralTranslations: {Language.pl: 'matki'},
+);
+
+const father = Noun(
+  singular: 'father',
+  plural: 'fathers',
+  singularTranslations: {Language.pl: 'ojciec'},
+  pluralTranslations: {Language.pl: 'ojcowie'},
+);
+
+const sister = Noun(
+  singular: 'sister',
+  plural: 'sisters',
+  singularTranslations: {Language.pl: 'siostra'},
+  pluralTranslations: {Language.pl: 'siostry'},
+);
+
+const brother = Noun(
+  singular: 'brother',
+  plural: 'brothers',
+  singularTranslations: {Language.pl: 'brat'},
+  pluralTranslations: {Language.pl: 'bracia'},
+);
+
+const boss = Noun(
+  singular: 'boss',
+  plural: 'bosses',
+  singularTranslations: {Language.pl: 'szef'},
+  pluralTranslations: {Language.pl: 'szefowie'},
+);
+
+const colleague = Noun(
+  singular: 'colleague',
+  plural: 'colleagues',
+  singularTranslations: {Language.pl: 'kolega'},
+  pluralTranslations: {Language.pl: 'koledzy'},
+);
+
+const classmate = Noun(
+  singular: 'classmate',
+  plural: 'classmates',
+  singularTranslations: {Language.pl: 'kolega z klasy'},
+  pluralTranslations: {Language.pl: 'koledzy z klasy'},
+);
+
+const musician = Noun(
+  singular: 'musician',
+  plural: 'musicians',
+  singularTranslations: {Language.pl: 'muzyk'},
+  pluralTranslations: {Language.pl: 'muzycy'},
+);
+
+const artist = Noun(
+  singular: 'artist',
+  plural: 'artists',
+  singularTranslations: {Language.pl: 'artysta'},
+  pluralTranslations: {Language.pl: 'artysci'},
+);
+
+const writer = Noun(
+  singular: 'writer',
+  plural: 'writers',
+  singularTranslations: {Language.pl: 'pisarz'},
+  pluralTranslations: {Language.pl: 'pisarze'},
+);
+
+const driver = Noun(
+  singular: 'driver',
+  plural: 'drivers',
+  singularTranslations: {Language.pl: 'kierowca'},
+  pluralTranslations: {Language.pl: 'kierowcy'},
+);
+
+const cook = Noun(
+  singular: 'cook',
+  plural: 'cooks',
+  singularTranslations: {Language.pl: 'kucharz'},
+  pluralTranslations: {Language.pl: 'kucharze'},
+);
+
+const baker = Noun(
+  singular: 'baker',
+  plural: 'bakers',
+  singularTranslations: {Language.pl: 'piekarz'},
+  pluralTranslations: {Language.pl: 'piekarze'},
+);
+
+const farmer = Noun(
+  singular: 'farmer',
+  plural: 'farmers',
+  singularTranslations: {Language.pl: 'rolnik'},
+  pluralTranslations: {Language.pl: 'rolnicy'},
+);
+
+const policeOfficer = Noun(
+  singular: 'police officer',
+  plural: 'police officers',
+  singularTranslations: {Language.pl: 'policjant'},
+  pluralTranslations: {Language.pl: 'policjanci'},
+);
+
 const someone = NounPhrase(
   text: 'someone',
   person: Person.third,
@@ -192,3 +304,58 @@ const everyone = NounPhrase(
   number: Number.singular,
   translations: {Language.pl: 'wszyscy'},
 );
+
+const peopleNouns = [
+  john,
+  mary,
+  tom,
+  anna,
+  choir,
+  person,
+  teacher,
+  student,
+  doctor,
+  nurse,
+  engineer,
+  worker,
+  programmer,
+  friend,
+  enemy,
+  neighbour,
+  customer,
+  manager,
+  child,
+  man,
+  woman,
+  boy,
+  girl,
+  parent,
+  mother,
+  father,
+  sister,
+  brother,
+  boss,
+  colleague,
+  classmate,
+  musician,
+  artist,
+  writer,
+  driver,
+  cook,
+  baker,
+  farmer,
+  policeOfficer,
+];
+
+const indefinitePeople = [someone, anyone, nobody, everyone];
+
+final singularPeople = [
+  for (final noun in peopleNouns) noun.toNounPhrase(Number.singular),
+  ...indefinitePeople,
+];
+
+final pluralPeople = [
+  for (final noun in peopleNouns) noun.toNounPhrase(Number.plural),
+];
+
+final peopleNounPhrases = [...singularPeople, ...pluralPeople];

@@ -1,5 +1,7 @@
 import 'package:padlock_app/models/language.dart';
 import 'package:padlock_app/models/grammar/subject/noun.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 
 const cat = Noun(
   singular: 'cat',
@@ -168,3 +170,168 @@ const butterfly = Noun(
   singularTranslations: {Language.pl: 'motyl'},
   pluralTranslations: {Language.pl: 'motyle'},
 );
+
+const puppy = Noun(
+  singular: 'puppy',
+  plural: 'puppies',
+  singularTranslations: {Language.pl: 'szczeniak'},
+  pluralTranslations: {Language.pl: 'szczeniaki'},
+);
+
+const kitten = Noun(
+  singular: 'kitten',
+  plural: 'kittens',
+  singularTranslations: {Language.pl: 'kociak'},
+  pluralTranslations: {Language.pl: 'kociaki'},
+);
+
+const donkey = Noun(
+  singular: 'donkey',
+  plural: 'donkeys',
+  singularTranslations: {Language.pl: 'osiol'},
+  pluralTranslations: {Language.pl: 'osly'},
+);
+
+const camel = Noun(
+  singular: 'camel',
+  plural: 'camels',
+  singularTranslations: {Language.pl: 'wielblad'},
+  pluralTranslations: {Language.pl: 'wielblady'},
+);
+
+const deer = Noun(
+  singular: 'deer',
+  plural: 'deer',
+  singularTranslations: {Language.pl: 'jelen'},
+  pluralTranslations: {Language.pl: 'jelenie'},
+);
+
+const frog = Noun(
+  singular: 'frog',
+  plural: 'frogs',
+  singularTranslations: {Language.pl: 'zaba'},
+  pluralTranslations: {Language.pl: 'zaby'},
+);
+
+const spider = Noun(
+  singular: 'spider',
+  plural: 'spiders',
+  singularTranslations: {Language.pl: 'pajak'},
+  pluralTranslations: {Language.pl: 'pajaki'},
+);
+
+const ant = Noun(
+  singular: 'ant',
+  plural: 'ants',
+  singularTranslations: {Language.pl: 'mrowka'},
+  pluralTranslations: {Language.pl: 'mrowki'},
+);
+
+const giraffe = Noun(
+  singular: 'giraffe',
+  plural: 'giraffes',
+  singularTranslations: {Language.pl: 'zyrafa'},
+  pluralTranslations: {Language.pl: 'zyrafy'},
+);
+
+const zebra = Noun(
+  singular: 'zebra',
+  plural: 'zebras',
+  singularTranslations: {Language.pl: 'zebra'},
+  pluralTranslations: {Language.pl: 'zebry'},
+);
+
+const dolphin = Noun(
+  singular: 'dolphin',
+  plural: 'dolphins',
+  singularTranslations: {Language.pl: 'delfin'},
+  pluralTranslations: {Language.pl: 'delfiny'},
+);
+
+const whale = Noun(
+  singular: 'whale',
+  plural: 'whales',
+  singularTranslations: {Language.pl: 'wieloryb'},
+  pluralTranslations: {Language.pl: 'wieloryby'},
+);
+
+const shark = Noun(
+  singular: 'shark',
+  plural: 'sharks',
+  singularTranslations: {Language.pl: 'rekin'},
+  pluralTranslations: {Language.pl: 'rekiny'},
+);
+
+const owl = Noun(
+  singular: 'owl',
+  plural: 'owls',
+  singularTranslations: {Language.pl: 'sowa'},
+  pluralTranslations: {Language.pl: 'sowy'},
+);
+
+const eagle = Noun(
+  singular: 'eagle',
+  plural: 'eagles',
+  singularTranslations: {Language.pl: 'orzel'},
+  pluralTranslations: {Language.pl: 'orly'},
+);
+
+const parrot = Noun(
+  singular: 'parrot',
+  plural: 'parrots',
+  singularTranslations: {Language.pl: 'papuga'},
+  pluralTranslations: {Language.pl: 'papugi'},
+);
+
+const animalNouns = [
+  cat,
+  dog,
+  horse,
+  cow,
+  pig,
+  sheep,
+  goat,
+  chicken,
+  duck,
+  bird,
+  fish,
+  rabbit,
+  mouse,
+  bear,
+  wolf,
+  fox,
+  lion,
+  tiger,
+  elephant,
+  monkey,
+  snake,
+  turtle,
+  bee,
+  butterfly,
+  puppy,
+  kitten,
+  donkey,
+  camel,
+  deer,
+  frog,
+  spider,
+  ant,
+  giraffe,
+  zebra,
+  dolphin,
+  whale,
+  shark,
+  owl,
+  eagle,
+  parrot,
+];
+
+final List<NounPhrase> singularAnimals = [
+  for (final noun in animalNouns) noun.toNounPhrase(Number.singular),
+];
+
+final List<NounPhrase> pluralAnimals = [
+  for (final noun in animalNouns) noun.toNounPhrase(Number.plural),
+];
+
+final animalNounPhrases = [...singularAnimals, ...pluralAnimals];

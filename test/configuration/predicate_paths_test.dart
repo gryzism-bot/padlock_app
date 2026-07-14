@@ -1,0 +1,302 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
+    as animal_categories;
+import 'package:padlock_app/data/subjects/third_person/animals.dart'
+    as animal_data;
+import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
+    as object_categories;
+import 'package:padlock_app/data/subjects/third_person/objects.dart'
+    as object_data;
+import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
+    as people_categories;
+import 'package:padlock_app/data/subjects/third_person/people.dart'
+    as people_data;
+import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/engine/configuration_engine.dart';
+import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
+
+void main() {
+  final lock = ConfigurationEngine();
+  final grammar = GrammarEngine();
+
+  bool wasBlocked(ConfigurationState state) {
+    return state.messages.any(
+      (message) => message.kind == ConfigurationMessageKind.blocked,
+    );
+  }
+
+  ConfigurationMove firstMoveFor(PredicatePath path) {
+    return switch (path.kind) {
+      PredicatePathKind.directObject => SetObject(path.nouns.first),
+      PredicatePathKind.toRightAction => SetRightAction(path.verbs.first),
+      PredicatePathKind.toAddressee => SetAddressee(path.nouns.first),
+      PredicatePathKind.withCompanion => SetCompanion(path.nouns.first),
+      PredicatePathKind.toDestination => SetDestination(path.nouns.first),
+    };
+  }
+
+  group('Predicate paths', () {
+    test('predicate path mode is explicit and switchable', () {
+      expect(
+        PredicatePathMode.values,
+        containsAll([
+          PredicatePathMode.authoredTracks,
+          PredicatePathMode.legacyCompassFallback,
+        ]),
+      );
+    });
+
+    test('guided predicate unlocks are authored per visible verb', () {
+      final verbs = guidedPredicateUnlocks
+          .map((unlocks) => unlocks.verb.infinitive)
+          .toList();
+
+      expect(verbs, containsAll(['learn', 'talk', 'write', 'go']));
+      expect(verbs.toSet(), hasLength(verbs.length));
+    });
+
+    test('predicate paths consume reusable noun pools from data files', () {
+      expect(
+        people_data.singularPeople.map((noun) => noun.text),
+        containsAll(['John', 'Mary', 'friend', 'someone', 'boss', 'mother']),
+      );
+      expect(
+        animal_data.singularAnimals.map((noun) => noun.text),
+        containsAll(['cat', 'dog', 'puppy', 'dolphin']),
+      );
+      expect(
+        object_data.singularTextObjects.map((noun) => noun.text),
+        containsAll([
+          'book',
+          'newspaper',
+          'letter',
+          'story',
+          'magazine',
+          'email',
+          'message',
+        ]),
+      );
+
+      final talkAddressees = predicatePathsFor(talk)
+          .where((path) => path.kind == PredicatePathKind.toAddressee)
+          .single
+          .nouns
+          .map((noun) => noun.text);
+
+      expect(
+        talkAddressees,
+        containsAll(['John', 'Mary', 'boss', 'cat', 'dog', 'dolphin']),
+      );
+    });
+
+    test('predicate path shelves expose semantic noun categories', () {
+      expect(
+        people_categories.singularWorkPeople.map((noun) => noun.text),
+        containsAll(['boss', 'colleague', 'programmer', 'police officer']),
+      );
+      expect(
+        people_categories.singularFamilyPeople.map((noun) => noun.text),
+        containsAll(['mother', 'father', 'sister', 'brother']),
+      );
+      expect(
+        animal_categories.singularPetAnimals.map((noun) => noun.text),
+        containsAll(['cat', 'dog', 'puppy', 'kitten', 'parrot']),
+      );
+      expect(
+        animal_categories.singularWaterAnimals.map((noun) => noun.text),
+        containsAll(['fish', 'dolphin', 'whale', 'shark']),
+      );
+      expect(
+        object_categories.singularFoodObjects.map((noun) => noun.text),
+        containsAll(['apple', 'bread', 'rice', 'egg', 'coffee', 'juice']),
+      );
+      expect(
+        object_categories.singularToolObjects.map((noun) => noun.text),
+        containsAll(['pen', 'keyboard', 'camera', 'knife']),
+      );
+      expect(
+        object_categories.singularOpenableObjects.map((noun) => noun.text),
+        containsAll(['door', 'window', 'box', 'wallet']),
+      );
+      expect(
+        object_categories.singularMediaObjects.map((noun) => noun.text),
+        containsAll(['movie', 'song', 'photo', 'painting']),
+      );
+    });
+
+    test('fixed object frames consume semantic category shelves', () {
+      final examples = [
+        (action: write, object: object_data.email),
+        (action: write, object: object_data.message),
+        (action: read, object: object_data.document),
+        (action: use, object: object_data.camera),
+        (action: open, object: object_data.box),
+        (action: close, object: object_data.wallet),
+        (action: watch, object: object_data.movie),
+        (action: watch, object: object_data.photo),
+      ];
+
+      for (final example in examples) {
+        expect(
+          fixedObjectFitsAction(
+            example.object.toNounPhrase(Number.singular),
+            example.action,
+          ),
+          isTrue,
+          reason: '${example.action.infinitive} ${example.object.singular}',
+        );
+      }
+    });
+
+    test('every essential verb has a predicate path migration decision', () {
+      final expected = essentialVerbs.map((verb) => verb.infinitive).toSet();
+      final actual = essentialPredicatePathMigration
+          .map((decision) => decision.verb.infinitive)
+          .toSet();
+
+      expect(actual, expected);
+      expect(
+        essentialPredicatePathMigration,
+        everyElement(
+          predicate<PredicatePathMigrationDecision>(
+            (decision) => decision.note.isNotEmpty,
+            'has a migration note',
+          ),
+        ),
+      );
+    });
+
+    test('seeded migration decisions match authored unlock data', () {
+      final seeded = essentialPredicatePathMigration
+          .where(
+            (decision) => decision.readiness == PredicatePathReadiness.seeded,
+          )
+          .map((decision) => decision.verb.infinitive)
+          .toSet();
+      final authored = guidedPredicateUnlocks
+          .map((unlocks) => unlocks.verb.infinitive)
+          .where(essentialVerbs.map((verb) => verb.infinitive).contains)
+          .toSet();
+
+      expect(seeded, authored);
+      expect(seeded, containsAll(['learn', 'go']));
+    });
+
+    test(
+      'authored direct objects are not inferred from broad object grammar',
+      () {
+        final learnDirectObjects = predicatePathsFor(learn)
+            .where((path) => path.kind == PredicatePathKind.directObject)
+            .single
+            .nouns
+            .map((noun) => noun.text)
+            .toList();
+
+        expect(learn.takesObject, isTrue);
+        expect(
+          learnDirectObjects,
+          containsAll(['English', 'grammar', 'history']),
+        );
+        expect(learnDirectObjects, isNot(contains('book')));
+      },
+    );
+
+    test('authored paths fit lower structural laws', () {
+      for (final unlocks in guidedPredicateUnlocks) {
+        for (final path in unlocks.paths) {
+          final reason = '${unlocks.verb.infinitive} ${path.kind}';
+
+          switch (path.kind) {
+            case PredicatePathKind.directObject:
+              expect(
+                unlocks.verb.takesObject || hasFixedObjectFrame(unlocks.verb),
+                isTrue,
+                reason: reason,
+              );
+              expect(path.nouns, isNotEmpty, reason: reason);
+              for (final noun in path.nouns) {
+                if (hasFixedObjectFrame(unlocks.verb)) {
+                  expect(
+                    fixedObjectFitsAction(noun, unlocks.verb),
+                    isTrue,
+                    reason: '$reason -> ${noun.text}',
+                  );
+                }
+              }
+            case PredicatePathKind.toRightAction:
+              expect(hasRightActionFrame(unlocks.verb), isTrue, reason: reason);
+              expect(path.verbs, isNotEmpty, reason: reason);
+              for (final rightAction in path.verbs) {
+                expect(
+                  rightActionFitsAction(rightAction, unlocks.verb),
+                  isTrue,
+                  reason: '$reason -> ${rightAction.infinitive}',
+                );
+              }
+            case PredicatePathKind.toAddressee:
+              expect(unlocks.verb.takesAddressee, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.withCompanion:
+              expect(unlocks.verb.takesCompanion, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.toDestination:
+              expect(unlocks.verb.usesDestinationPlace, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+          }
+        }
+      }
+    });
+
+    test('authored paths translate into Lock moves and render', () {
+      for (final unlocks in guidedPredicateUnlocks) {
+        for (final path in unlocks.paths) {
+          var state = ConfigurationState.initial();
+          state = lock.applyMove(state, SetAction(unlocks.verb));
+          state = lock.applyMove(state, firstMoveFor(path));
+
+          expect(
+            wasBlocked(state),
+            isFalse,
+            reason: '${unlocks.verb.infinitive} ${path.kind}',
+          );
+          expect(grammar.generate(state.sentenceState).text, isNotEmpty);
+        }
+      }
+    });
+
+    test('seed paths document the intended first product tracks', () {
+      final examples = <Verb, List<String>>{
+        learn: [
+          'You learn English.',
+          'You learn to speak.',
+          'You learn with John.',
+        ],
+        talk: ['You talk to John.', 'You talk with John.'],
+        write: [
+          'You write book.',
+          'You write to John.',
+          'You write with John.',
+        ],
+        go: ['You go to John.', 'You go with John.'],
+      };
+
+      for (final entry in examples.entries) {
+        final unlocks = predicateUnlocksFor(entry.key)!;
+        final rendered = unlocks.paths.map((path) {
+          var state = ConfigurationState.initial();
+          state = lock.applyMove(state, SetAction(unlocks.verb));
+          state = lock.applyMove(state, firstMoveFor(path));
+          return grammar.generate(state.sentenceState).text;
+        }).toList();
+
+        expect(rendered, entry.value);
+      }
+    });
+  });
+}

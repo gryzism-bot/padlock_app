@@ -1,4 +1,6 @@
 import 'package:padlock_app/models/grammar/subject/noun.dart';
+import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/language.dart';
 
 const house = Noun(
@@ -329,3 +331,364 @@ const knife = Noun(
   singularTranslations: {Language.pl: 'nóż'},
   pluralTranslations: {Language.pl: 'noże'},
 );
+
+const schoolbag = Noun(
+  singular: 'schoolbag',
+  plural: 'schoolbags',
+  singularTranslations: {Language.pl: 'plecak'},
+  pluralTranslations: {Language.pl: 'plecaki'},
+);
+
+const bag = Noun(
+  singular: 'bag',
+  plural: 'bags',
+  singularTranslations: {Language.pl: 'torba'},
+  pluralTranslations: {Language.pl: 'torby'},
+);
+
+const box = Noun(
+  singular: 'box',
+  plural: 'boxes',
+  singularTranslations: {Language.pl: 'pudelko'},
+  pluralTranslations: {Language.pl: 'pudelka'},
+);
+
+const ticket = Noun(
+  singular: 'ticket',
+  plural: 'tickets',
+  singularTranslations: {Language.pl: 'bilet'},
+  pluralTranslations: {Language.pl: 'bilety'},
+);
+
+const map = Noun(
+  singular: 'map',
+  plural: 'maps',
+  singularTranslations: {Language.pl: 'mapa'},
+  pluralTranslations: {Language.pl: 'mapy'},
+);
+
+const camera = Noun(
+  singular: 'camera',
+  plural: 'cameras',
+  singularTranslations: {Language.pl: 'aparat'},
+  pluralTranslations: {Language.pl: 'aparaty'},
+);
+
+const guitar = Noun(
+  singular: 'guitar',
+  plural: 'guitars',
+  singularTranslations: {Language.pl: 'gitara'},
+  pluralTranslations: {Language.pl: 'gitary'},
+);
+
+const piano = Noun(
+  singular: 'piano',
+  plural: 'pianos',
+  singularTranslations: {Language.pl: 'pianino'},
+  pluralTranslations: {Language.pl: 'pianina'},
+);
+
+const drum = Noun(
+  singular: 'drum',
+  plural: 'drums',
+  singularTranslations: {Language.pl: 'beben'},
+  pluralTranslations: {Language.pl: 'bebny'},
+);
+
+const game = Noun(
+  singular: 'game',
+  plural: 'games',
+  singularTranslations: {Language.pl: 'gra'},
+  pluralTranslations: {Language.pl: 'gry'},
+);
+
+const toy = Noun(
+  singular: 'toy',
+  plural: 'toys',
+  singularTranslations: {Language.pl: 'zabawka'},
+  pluralTranslations: {Language.pl: 'zabawki'},
+);
+
+const painting = Noun(
+  singular: 'painting',
+  plural: 'paintings',
+  singularTranslations: {Language.pl: 'obraz'},
+  pluralTranslations: {Language.pl: 'obrazy'},
+);
+
+const photo = Noun(
+  singular: 'photo',
+  plural: 'photos',
+  singularTranslations: {Language.pl: 'zdjecie'},
+  pluralTranslations: {Language.pl: 'zdjecia'},
+);
+
+const movie = Noun(
+  singular: 'movie',
+  plural: 'movies',
+  singularTranslations: {Language.pl: 'film'},
+  pluralTranslations: {Language.pl: 'filmy'},
+);
+
+const song = Noun(
+  singular: 'song',
+  plural: 'songs',
+  singularTranslations: {Language.pl: 'piosenka'},
+  pluralTranslations: {Language.pl: 'piosenki'},
+);
+
+const screen = Noun(
+  singular: 'screen',
+  plural: 'screens',
+  singularTranslations: {Language.pl: 'ekran'},
+  pluralTranslations: {Language.pl: 'ekrany'},
+);
+
+const desk = Noun(
+  singular: 'desk',
+  plural: 'desks',
+  singularTranslations: {Language.pl: 'biurko'},
+  pluralTranslations: {Language.pl: 'biurka'},
+);
+
+const sofa = Noun(
+  singular: 'sofa',
+  plural: 'sofas',
+  singularTranslations: {Language.pl: 'sofa'},
+  pluralTranslations: {Language.pl: 'sofy'},
+);
+
+const lamp = Noun(
+  singular: 'lamp',
+  plural: 'lamps',
+  singularTranslations: {Language.pl: 'lampa'},
+  pluralTranslations: {Language.pl: 'lampy'},
+);
+
+const lock = Noun(
+  singular: 'lock',
+  plural: 'locks',
+  singularTranslations: {Language.pl: 'zamek'},
+  pluralTranslations: {Language.pl: 'zamki'},
+);
+
+const coin = Noun(
+  singular: 'coin',
+  plural: 'coins',
+  singularTranslations: {Language.pl: 'moneta'},
+  pluralTranslations: {Language.pl: 'monety'},
+);
+
+const wallet = Noun(
+  singular: 'wallet',
+  plural: 'wallets',
+  singularTranslations: {Language.pl: 'portfel'},
+  pluralTranslations: {Language.pl: 'portfele'},
+);
+
+const document = Noun(
+  singular: 'document',
+  plural: 'documents',
+  singularTranslations: {Language.pl: 'dokument'},
+  pluralTranslations: {Language.pl: 'dokumenty'},
+);
+
+const email = Noun(
+  singular: 'email',
+  plural: 'emails',
+  singularTranslations: {Language.pl: 'email'},
+  pluralTranslations: {Language.pl: 'emaile'},
+);
+
+const message = Noun(
+  singular: 'message',
+  plural: 'messages',
+  singularTranslations: {Language.pl: 'wiadomosc'},
+  pluralTranslations: {Language.pl: 'wiadomosci'},
+);
+
+const shirt = Noun(
+  singular: 'shirt',
+  plural: 'shirts',
+  singularTranslations: {Language.pl: 'koszula'},
+  pluralTranslations: {Language.pl: 'koszule'},
+);
+
+const coat = Noun(
+  singular: 'coat',
+  plural: 'coats',
+  singularTranslations: {Language.pl: 'plaszcz'},
+  pluralTranslations: {Language.pl: 'plaszcze'},
+);
+
+const shoe = Noun(
+  singular: 'shoe',
+  plural: 'shoes',
+  singularTranslations: {Language.pl: 'but'},
+  pluralTranslations: {Language.pl: 'buty'},
+);
+
+const hat = Noun(
+  singular: 'hat',
+  plural: 'hats',
+  singularTranslations: {Language.pl: 'kapelusz'},
+  pluralTranslations: {Language.pl: 'kapelusze'},
+);
+
+const rice = Noun(
+  singular: 'rice',
+  plural: 'rices',
+  singularTranslations: {Language.pl: 'ryz'},
+  pluralTranslations: {Language.pl: 'ryze'},
+);
+
+const egg = Noun(
+  singular: 'egg',
+  plural: 'eggs',
+  singularTranslations: {Language.pl: 'jajko'},
+  pluralTranslations: {Language.pl: 'jajka'},
+);
+
+const cake = Noun(
+  singular: 'cake',
+  plural: 'cakes',
+  singularTranslations: {Language.pl: 'ciasto'},
+  pluralTranslations: {Language.pl: 'ciasta'},
+);
+
+const coffee = Noun(
+  singular: 'coffee',
+  plural: 'coffees',
+  singularTranslations: {Language.pl: 'kawa'},
+  pluralTranslations: {Language.pl: 'kawy'},
+);
+
+const tea = Noun(
+  singular: 'tea',
+  plural: 'teas',
+  singularTranslations: {Language.pl: 'herbata'},
+  pluralTranslations: {Language.pl: 'herbaty'},
+);
+
+const juice = Noun(
+  singular: 'juice',
+  plural: 'juices',
+  singularTranslations: {Language.pl: 'sok'},
+  pluralTranslations: {Language.pl: 'soki'},
+);
+
+const objectNouns = [
+  house,
+  apartment,
+  car,
+  bridge,
+  bus,
+  train,
+  bicycle,
+  phone,
+  computer,
+  laptop,
+  keyboard,
+  mouseDevice,
+  monitor,
+  television,
+  book,
+  newspaper,
+  letter,
+  story,
+  gift,
+  magazine,
+  pen,
+  pencil,
+  table,
+  chair,
+  bed,
+  door,
+  window,
+  key,
+  bottle,
+  cup,
+  glass,
+  ball,
+  plant,
+  food,
+  apple,
+  bread,
+  sandwich,
+  cheese,
+  meat,
+  soup,
+  potato,
+  carrot,
+  onion,
+  plate,
+  spoon,
+  fork,
+  knife,
+  schoolbag,
+  bag,
+  box,
+  ticket,
+  map,
+  camera,
+  guitar,
+  piano,
+  drum,
+  game,
+  toy,
+  painting,
+  photo,
+  movie,
+  song,
+  screen,
+  desk,
+  sofa,
+  lamp,
+  lock,
+  coin,
+  wallet,
+  document,
+  email,
+  message,
+  shirt,
+  coat,
+  shoe,
+  hat,
+  rice,
+  egg,
+  cake,
+  coffee,
+  tea,
+  juice,
+];
+
+const textObjectNouns = [
+  book,
+  newspaper,
+  letter,
+  story,
+  magazine,
+  document,
+  email,
+  message,
+];
+
+final List<NounPhrase> singularObjects = [
+  for (final noun in objectNouns) noun.toNounPhrase(Number.singular),
+];
+
+final List<NounPhrase> pluralObjects = [
+  for (final noun in objectNouns) noun.toNounPhrase(Number.plural),
+];
+
+final objectNounPhrases = [...singularObjects, ...pluralObjects];
+
+final List<NounPhrase> singularTextObjects = [
+  for (final noun in textObjectNouns) noun.toNounPhrase(Number.singular),
+];
+
+final List<NounPhrase> pluralTextObjects = [
+  for (final noun in textObjectNouns) noun.toNounPhrase(Number.plural),
+];
+
+final textObjectNounPhrases = [...singularTextObjects, ...pluralTextObjects];

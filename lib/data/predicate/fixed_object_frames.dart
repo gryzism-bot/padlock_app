@@ -1,4 +1,6 @@
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
+import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
+    as object_categories;
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/verbs/essential.dart' show play;
@@ -45,34 +47,20 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'teach': [english, grammar, math, history, science],
   'speak': [english, polish, spanish],
   'read': [
-    ..._nounForms(object_data.book),
-    ..._nounForms(object_data.newspaper),
-    ..._nounForms(object_data.letter),
-    ..._nounForms(object_data.story),
-    ..._nounForms(object_data.magazine),
+    for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),
   ],
   'write': [
-    ..._nounForms(object_data.book),
-    ..._nounForms(object_data.letter),
-    ..._nounForms(object_data.story),
+    for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),
   ],
   'use': [
-    ..._nounForms(object_data.phone),
-    ..._nounForms(object_data.computer),
-    ..._nounForms(object_data.laptop),
-    ..._nounForms(object_data.keyboard),
-    ..._nounForms(object_data.pen),
-    ..._nounForms(object_data.pencil),
-    ..._nounForms(object_data.key),
+    for (final noun in object_categories.toolObjectNouns) ..._nounForms(noun),
   ],
   'watch': [
-    ..._nounForms(object_data.television),
-    ..._nounForms(object_data.story),
+    for (final noun in object_categories.mediaObjectNouns) ..._nounForms(noun),
   ],
   'drive': [
-    ..._nounForms(object_data.car),
-    ..._nounForms(object_data.bus),
-    ..._nounForms(object_data.train),
+    for (final noun in object_categories.vehicleObjectNouns)
+      ..._nounForms(noun),
   ],
   'ride': [
     ..._nounForms(object_data.bicycle),
@@ -80,16 +68,12 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
     ..._nounForms(object_data.train),
   ],
   'open': [
-    ..._nounForms(object_data.book),
-    ..._nounForms(object_data.door),
-    ..._nounForms(object_data.window),
-    ..._nounForms(object_data.bottle),
+    for (final noun in object_categories.openableObjectNouns)
+      ..._nounForms(noun),
   ],
   'close': [
-    ..._nounForms(object_data.book),
-    ..._nounForms(object_data.door),
-    ..._nounForms(object_data.window),
-    ..._nounForms(object_data.bottle),
+    for (final noun in object_categories.openableObjectNouns)
+      ..._nounForms(noun),
   ],
 };
 
