@@ -409,6 +409,9 @@ class ConfigurationEngine {
       ),
       SetVoice(:final voice) => _copy(
         state,
+        agent: voice == Voice.active
+            ? _activeAgentAfterVoiceChange(state.agent)
+            : state.agent,
         voice: voice,
         passiveFocus: voice == Voice.active ? null : state.passiveFocus,
         showPassiveAgent: voice == Voice.active ? true : state.showPassiveAgent,
@@ -1103,6 +1106,17 @@ class ConfigurationEngine {
 }
 
 const _unchanged = Object();
+
+NounPhrase? _activeAgentAfterVoiceChange(NounPhrase? agent) {
+  return switch (agent?.text.toLowerCase()) {
+    'me' => i,
+    'him' => he,
+    'her' => she,
+    'us' => we,
+    'them' => they,
+    _ => agent,
+  };
+}
 
 const _singularDeterminers = {'a', 'an', 'this', 'that', 'each', 'every'};
 

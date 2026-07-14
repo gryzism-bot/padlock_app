@@ -1283,6 +1283,32 @@ void main() {
     expect(renderedSentence(tester), 'Book was given by Mary.');
   });
 
+  testWidgets(
+    'Active voice restores subject-form pronoun from hidden passive by-agent',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(tester, find.text('past'));
+      await tapAfterScroll(tester, find.text('passive'));
+
+      expect(renderedSentence(tester), 'Book was given by you.');
+
+      await tapAfterScroll(
+        tester,
+        find.text('hide by-agent', findRichText: true),
+      );
+      await expandRail(tester, 'By-agent');
+      await tapAfterScroll(tester, find.text('me', findRichText: true));
+      await tapAfterScroll(tester, find.text('active'));
+
+      expect(renderedSentence(tester), 'I gave book.');
+    },
+  );
+
   testWidgets('Recipient rail can clear optional passive to phrase', (
     tester,
   ) async {

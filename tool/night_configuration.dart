@@ -4,6 +4,13 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:padlock_app/data/modals.dart' as modal_data;
+import 'package:padlock_app/data/phrases/frequency_phrases.dart'
+    as frequency_data;
+import 'package:padlock_app/data/phrases/manner_phrases.dart' as manner_data;
+import 'package:padlock_app/data/phrases/place_phrases.dart' as place_data;
+import 'package:padlock_app/data/phrases/time_phrases.dart' as time_data;
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as fixed_object_data;
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart' as object_data;
@@ -11,6 +18,11 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/subjects/third_person/people.dart'
     as people_data;
+import 'package:padlock_app/data/verbs/communication.dart'
+    as communication_data;
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
+import 'package:padlock_app/data/verbs/essential.dart' as verb_data;
+import 'package:padlock_app/data/verbs/movement.dart' as movement_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -27,6 +39,8 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
+
+const _routeTraceLimit = 10;
 
 Future<void> main(List<String> args) async {
   final options = _NightConfigurationOptions.parse(args);
@@ -183,6 +197,7 @@ class _NightConfigurationRunner {
     final stats = _ConfigurationNightStats();
     var state = ConfigurationState.initial();
     var stepsInWalk = 0;
+    var route = <String>[];
 
     _prepareOutputFiles(startedAt);
     _writeJsonl({
@@ -201,7 +216,7 @@ class _NightConfigurationRunner {
       stats.compassCollections.record(collectStopwatch.elapsed);
 
       if (stats.guidedMoves % options.probeEvery == 0) {
-        _probeLaws(state, stats);
+        _probeLaws(state, stats, route);
       }
 
       final moves = suggestions
@@ -212,6 +227,7 @@ class _NightConfigurationRunner {
         stats.resets++;
         stepsInWalk = 0;
         state = ConfigurationState.initial();
+        route = const [];
         continue;
       }
 
@@ -224,9 +240,10 @@ class _NightConfigurationRunner {
         moveStopwatch.stop();
         stats.lockTransitions.record(moveStopwatch.elapsed);
         stats.compassLeaks++;
-        _recordCompassLeak(state, suggestion, blockers, stats);
+        _recordCompassLeak(state, suggestion, blockers, stats, route);
         state = ConfigurationState.initial();
         stepsInWalk = 0;
+        route = const [];
         continue;
       }
 
@@ -247,12 +264,17 @@ class _NightConfigurationRunner {
         });
         state = ConfigurationState.initial();
         stepsInWalk = 0;
+        route = const [];
         continue;
       }
 
       state = next;
       stepsInWalk++;
       stats.guidedMoves++;
+      route = _appendRoute(
+        route,
+        '${suggestion.slot.name}: ${_moveLabel(suggestion.move)} -> ${render.text}',
+      );
       stats.guidedMovesBySlot.update(
         suggestion.slot.name,
         (count) => count + 1,
@@ -268,6 +290,7 @@ class _NightConfigurationRunner {
           'elapsedMs': _elapsedMs(moveStopwatch.elapsed),
           'sentence': render.text,
           'state': state.sentenceState.summary,
+          'route': route,
         });
       }
 
@@ -276,7 +299,7 @@ class _NightConfigurationRunner {
       }
     }
 
-    _probeLaws(state, stats);
+    _probeLaws(state, stats, route);
     _writeReport(startedAt, stats, interrupted: _stopRequested);
     _writeJsonl({
       'type': 'run_finished',
@@ -336,7 +359,11 @@ class _NightConfigurationRunner {
     return suggestions;
   }
 
-  void _probeLaws(ConfigurationState state, _ConfigurationNightStats stats) {
+  void _probeLaws(
+    ConfigurationState state,
+    _ConfigurationNightStats stats,
+    List<String> route,
+  ) {
     final sentenceBefore = _render(state.sentenceState).text;
 
     for (final probe in _lawProbes) {
@@ -363,6 +390,7 @@ class _NightConfigurationRunner {
             firstMove: probe.label,
             firstSentence: sentenceBefore,
             firstState: state.sentenceState.summary,
+            firstRoute: route,
           ),
         );
         stat.count++;
@@ -377,6 +405,7 @@ class _NightConfigurationRunner {
             firstMove: probe.label,
             firstSentence: sentenceBefore,
             firstState: state.sentenceState.summary,
+            firstRoute: route,
           ),
         );
         family.count++;
@@ -389,6 +418,7 @@ class _NightConfigurationRunner {
             'move': probe.label,
             'sentenceBefore': sentenceBefore,
             'stateBefore': state.sentenceState.summary,
+            'route': route,
           });
         }
       }
@@ -400,6 +430,7 @@ class _NightConfigurationRunner {
     ConfigurationSuggestion suggestion,
     List<ConfigurationMessage> blockers,
     _ConfigurationNightStats stats,
+    List<String> route,
   ) {
     for (final message in blockers) {
       final key =
@@ -412,6 +443,7 @@ class _NightConfigurationRunner {
           firstMove: _moveLabel(suggestion.move),
           firstSentence: _render(state.sentenceState).text,
           firstState: state.sentenceState.summary,
+          firstRoute: route,
         ),
       );
       leak.count++;
@@ -424,6 +456,7 @@ class _NightConfigurationRunner {
       'move': _moveLabel(suggestion.move),
       'sentenceBefore': _render(state.sentenceState).text,
       'stateBefore': state.sentenceState.summary,
+      'route': route,
       'messages': blockers
           .map(
             (message) => {
@@ -509,37 +542,41 @@ class _NightConfigurationRunner {
       ..writeln('## Candidate Law Families')
       ..writeln()
       ..writeln(
-        '| Count | Source | Law family | First probe | First sentence |',
+        '| Count | Source | Law family | First probe | First sentence | First route |',
       )
-      ..writeln('| ---: | --- | --- | --- | --- |');
+      ..writeln('| ---: | --- | --- | --- | --- | --- |');
 
     for (final law in lawFamilies.take(40)) {
       buffer.writeln(
         '| ${law.count} | ${_md(law.source)} | ${_md(law.text)} | '
-        '${_md(law.firstMove)} | ${_md(law.firstSentence)} |',
+        '${_md(law.firstMove)} | ${_md(law.firstSentence)} | '
+        '${_md(_routeSummary(law.firstRoute))} |',
       );
     }
 
     if (lawFamilies.isEmpty) {
-      buffer.writeln('| 0 | - | No blocked law probes observed. | - | - |');
+      buffer.writeln('| 0 | - | No blocked law probes observed. | - | - | - |');
     }
 
     buffer
       ..writeln()
       ..writeln('## Candidate Law Messages')
       ..writeln()
-      ..writeln('| Count | Source | Message | First probe | First sentence |')
-      ..writeln('| ---: | --- | --- | --- | --- |');
+      ..writeln(
+        '| Count | Source | Message | First probe | First sentence | First route |',
+      )
+      ..writeln('| ---: | --- | --- | --- | --- | --- |');
 
     for (final law in laws.take(40)) {
       buffer.writeln(
         '| ${law.count} | ${_md(law.source)} | ${_md(law.text)} | '
-        '${_md(law.firstMove)} | ${_md(law.firstSentence)} |',
+        '${_md(law.firstMove)} | ${_md(law.firstSentence)} | '
+        '${_md(_routeSummary(law.firstRoute))} |',
       );
     }
 
     if (laws.isEmpty) {
-      buffer.writeln('| 0 | - | No blocked law probes observed. | - | - |');
+      buffer.writeln('| 0 | - | No blocked law probes observed. | - | - | - |');
     }
 
     buffer
@@ -550,18 +587,21 @@ class _NightConfigurationRunner {
         'These are bugs: Compass offered a move that the Lock rejected.',
       )
       ..writeln()
-      ..writeln('| Count | Slot | Message | First move | First sentence |')
-      ..writeln('| ---: | --- | --- | --- | --- |');
+      ..writeln(
+        '| Count | Slot | Message | First move | First sentence | First route |',
+      )
+      ..writeln('| ---: | --- | --- | --- | --- | --- |');
 
     for (final leak in leaks.take(20)) {
       buffer.writeln(
         '| ${leak.count} | ${_md(leak.slot)} | ${_md(leak.message)} | '
-        '${_md(leak.firstMove)} | ${_md(leak.firstSentence)} |',
+        '${_md(leak.firstMove)} | ${_md(leak.firstSentence)} | '
+        '${_md(_routeSummary(leak.firstRoute))} |',
       );
     }
 
     if (leaks.isEmpty) {
-      buffer.writeln('| 0 | - | No Compass leaks observed. | - | - |');
+      buffer.writeln('| 0 | - | No Compass leaks observed. | - | - | - |');
     }
 
     buffer
@@ -694,6 +734,7 @@ class _LawMessageStats {
   final String firstMove;
   final String firstSentence;
   final String firstState;
+  final List<String> firstRoute;
   var count = 0;
 
   _LawMessageStats({
@@ -702,7 +743,8 @@ class _LawMessageStats {
     required this.firstMove,
     required this.firstSentence,
     required this.firstState,
-  });
+    required List<String> firstRoute,
+  }) : firstRoute = List.unmodifiable(firstRoute);
 }
 
 class _CompassLeakStats {
@@ -711,6 +753,7 @@ class _CompassLeakStats {
   final String firstMove;
   final String firstSentence;
   final String firstState;
+  final List<String> firstRoute;
   var count = 0;
 
   _CompassLeakStats({
@@ -719,7 +762,8 @@ class _CompassLeakStats {
     required this.firstMove,
     required this.firstSentence,
     required this.firstState,
-  });
+    required List<String> firstRoute,
+  }) : firstRoute = List.unmodifiable(firstRoute);
 }
 
 class _LawProbe {
@@ -750,7 +794,19 @@ class _NightConfigurationResult {
 
 final _lawProbes = <_LawProbe>[
   _LawProbe('agent -> no agent', const SetAgent(null)),
+  _LawProbe('verb -> be', const SetAction(verb_data.be)),
+  _LawProbe('verb -> learn', const SetAction(verb_data.learn)),
+  _LawProbe('verb -> play', const SetAction(verb_data.play)),
+  _LawProbe('verb -> read', const SetAction(verb_data.read)),
+  _LawProbe('verb -> write', const SetAction(communication_data.write)),
+  _LawProbe('verb -> close', const SetAction(verb_data.close)),
+  _LawProbe('verb -> chop', const SetAction(cooking_data.chop)),
   _LawProbe('object -> book', SetObject(_object(object_data.book))),
+  _LawProbe('object -> books', SetObject(_objectPlural(object_data.book))),
+  _LawProbe('object -> apple', SetObject(_object(object_data.apple))),
+  _LawProbe('object -> bridge', SetObject(_object(object_data.bridge))),
+  _LawProbe('object -> English', const SetObject(fixed_object_data.english)),
+  _LawProbe('object -> football', const SetObject(fixed_object_data.football)),
   _LawProbe('object -> no object', const SetObject(null)),
   _LawProbe('recipient -> Mary', SetRecipient(_person(people_data.mary))),
   _LawProbe('recipient -> us', const SetRecipient(object_data.us)),
@@ -770,6 +826,13 @@ final _lawProbes = <_LawProbe>[
     'adjective complement -> happy',
     SetAdjectiveComplement(_adjective('happy')),
   ),
+  _LawProbe('right action -> go', const SetRightAction(verb_data.go)),
+  _LawProbe(
+    'right action -> speak',
+    const SetRightAction(communication_data.speak),
+  ),
+  _LawProbe('right action -> swim', const SetRightAction(movement_data.swim)),
+  _LawProbe('right action -> none', const SetRightAction(null)),
   _LawProbe(
     'object determiner -> a',
     const SetNounPhraseDeterminer(NounPhraseTarget.object, aDeterminer),
@@ -779,8 +842,24 @@ final _lawProbes = <_LawProbe>[
     const SetNounPhraseDeterminer(NounPhraseTarget.object, manyDeterminer),
   ),
   _LawProbe(
+    'object determiner -> all',
+    const SetNounPhraseDeterminer(NounPhraseTarget.object, allDeterminer),
+  ),
+  _LawProbe(
     'object determiner -> none',
     const SetNounPhraseDeterminer(NounPhraseTarget.object, null),
+  ),
+  _LawProbe(
+    'object adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.object, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'agent determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.agent, theDeterminer),
+  ),
+  _LawProbe(
+    'agent adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.agent, [_adjective('calm')]),
   ),
   _LawProbe(
     'recipient determiner -> the',
@@ -789,6 +868,38 @@ final _lawProbes = <_LawProbe>[
   _LawProbe(
     'recipient adjective -> calm',
     SetNounPhraseAdjectives(NounPhraseTarget.recipient, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'addressee determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.addressee, theDeterminer),
+  ),
+  _LawProbe(
+    'addressee adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.addressee, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'companion determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.companion, theDeterminer),
+  ),
+  _LawProbe(
+    'companion adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.companion, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'destination determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.destination, theDeterminer),
+  ),
+  _LawProbe(
+    'destination adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.destination, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'complement determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.complement, theDeterminer),
+  ),
+  _LawProbe(
+    'complement adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.complement, [_adjective('calm')]),
   ),
   _LawProbe('voice -> passive', const SetVoice(Voice.passive)),
   _LawProbe('voice -> active', const SetVoice(Voice.active)),
@@ -814,10 +925,34 @@ final _lawProbes = <_LawProbe>[
     const SetSentenceForm(SentenceForm.imperative),
   ),
   _LawProbe('form -> statement', const SetSentenceForm(SentenceForm.statement)),
+  _LawProbe(
+    'place phrase -> school',
+    const SetPlacePhrase(place_data.schoolPlacePhrase),
+  ),
+  _LawProbe('place phrase -> none', const SetPlacePhrase(null)),
+  _LawProbe(
+    'time phrase -> tomorrow',
+    const SetTimePhrase(time_data.tomorrowTimePhrase),
+  ),
+  _LawProbe('time phrase -> none', const SetTimePhrase(null)),
+  _LawProbe(
+    'frequency phrase -> always',
+    const SetFrequencyPhrase(frequency_data.alwaysFrequencyPhrase),
+  ),
+  _LawProbe('frequency phrase -> none', const SetFrequencyPhrase(null)),
+  _LawProbe(
+    'manner phrase -> carefully',
+    const SetMannerPhrase(manner_data.carefullyMannerPhrase),
+  ),
+  _LawProbe('manner phrase -> none', const SetMannerPhrase(null)),
 ];
 
 NounPhrase _object(Noun noun) {
   return noun.toNounPhrase(Number.singular);
+}
+
+NounPhrase _objectPlural(Noun noun) {
+  return noun.toNounPhrase(Number.plural);
 }
 
 NounPhrase _person(Noun noun) {
@@ -910,6 +1045,18 @@ String _modalLabel(Modal modal) {
   return modal.isNone ? 'no modal' : modal.text;
 }
 
+List<String> _appendRoute(List<String> route, String entry) {
+  return [...route, entry].takeLast(_routeTraceLimit).toList();
+}
+
+String _routeSummary(List<String> route) {
+  if (route.isEmpty) {
+    return '-';
+  }
+
+  return route.join(' -> ');
+}
+
 double _elapsedMs(Duration elapsed) {
   return elapsed.inMicroseconds / Duration.microsecondsPerMillisecond;
 }
@@ -946,4 +1093,13 @@ String _lawFamily(String text) {
   }
 
   return text;
+}
+
+extension _TakeLastExtension<T> on List<T> {
+  Iterable<T> takeLast(int count) sync* {
+    final start = length > count ? length - count : 0;
+    for (var index = start; index < length; index++) {
+      yield this[index];
+    }
+  }
 }

@@ -6,7 +6,9 @@ import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
+import 'package:padlock_app/data/subjects/object_pronouns.dart' as object_data;
 import 'package:padlock_app/data/subjects/pronouns.dart';
+import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
@@ -675,6 +677,29 @@ void main() {
       expect(wasBlocked(state), isFalse);
       expect(render(state), 'You give Mary book.');
     });
+
+    test(
+      'active voice restores subject-form agent after passive object pronoun by-agent',
+      () {
+        var state = ConfigurationState.initial();
+
+        state = engine.applyMove(state, const SetAction(work_data.clean));
+        state = engine.applyMove(
+          state,
+          SetObject(cat.toNounPhrase(Number.singular)),
+        );
+        state = engine.applyMove(state, const SetAspect(Aspect.continuous));
+        state = engine.applyMove(state, const SetVoice(Voice.passive));
+        state = engine.applyMove(state, const SetAgent(object_data.me));
+        state = engine.applyMove(state, const SetPassiveAgentVisibility(false));
+        state = engine.applyMove(state, const SetVoice(Voice.active));
+
+        expect(state.sentenceState.voice, Voice.active);
+        expect(state.sentenceState.agent, i);
+        expect(wasBlocked(state), isFalse);
+        expect(render(state), 'I am cleaning cat.');
+      },
+    );
 
     test('selects lexical be as a bare verb frame', () {
       final state = engine.applyMove(
