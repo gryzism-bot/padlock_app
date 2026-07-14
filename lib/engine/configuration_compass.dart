@@ -6,6 +6,7 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
+import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart';
@@ -651,7 +652,7 @@ int _determinerPriority(NounPhrase phrase, Determiner determiner) {
 
   if (phrase.isPlural) {
     return switch (text) {
-      'the' || 'some' || 'many' => 110,
+      'the' || 'some' || 'all' || 'many' => 110,
       'these' || 'those' => 105,
       _ => 80,
     };
@@ -954,5 +955,6 @@ final _coreModals = [
 final _defaultNounAdjectives = [
   ...sizeAdjectives,
   ...colorAdjectives,
+  ...qualityAdjectives,
   ...emotionsAdjectives,
 ];

@@ -1011,6 +1011,63 @@ void main() {
     expect(renderedSentence(tester), 'You buy.');
   });
 
+  testWidgets('Fixed text rail keeps plural determiner and adjective surface', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await tapAfterScroll(tester, find.text('read', findRichText: true));
+    await pressOutlinedText(tester, 'future');
+    await expandRail(tester, 'Text');
+    await tapAfterScroll(tester, find.text('book', findRichText: true));
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You will read books.');
+    expect(find.text('Text determiner:'), findsOneWidget);
+    expect(find.text('Text adjective:'), findsOneWidget);
+
+    await tapVisible(tester, find.text('Change'));
+    await expandRail(tester, 'Text determiner');
+
+    expect(
+      find.byKey(const Key('suggestion-label-objectDeterminer-some')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-objectDeterminer-all')),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('You will read all books.'), findsOneWidget);
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectDeterminer-some')),
+    );
+
+    expect(renderedSentence(tester), 'You will read some books.');
+
+    await expandRail(tester, 'Text adjective');
+
+    expect(
+      find.byKey(const Key('suggestion-label-objectAdjective-full')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-objectAdjective-free')),
+      findsOneWidget,
+    );
+    expect(find.byTooltip('You will read some full books.'), findsOneWidget);
+    expect(find.byTooltip('You will read some free books.'), findsOneWidget);
+  });
+
   testWidgets('Fixed openable rail follows the object number switch', (
     tester,
   ) async {

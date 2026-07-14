@@ -201,6 +201,31 @@ void main() {
 
       expect(wasBlocked(state), isFalse);
       expect(render(state), 'You build many books.');
+
+      state = engine.applyMove(
+        previous,
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, allDeterminer),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'You build all books.');
+
+      state = engine.applyMove(
+        previous,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      final singularPrevious = state;
+      state = engine.applyMove(
+        state,
+        const SetNounPhraseDeterminer(NounPhraseTarget.object, allDeterminer),
+      );
+
+      expect(state.sentenceState, same(singularPrevious.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'Object determiner "all" requires a plural noun.',
+      );
     });
 
     test('blocks noun phrase articles that do not match noun sound', () {

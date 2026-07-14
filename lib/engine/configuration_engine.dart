@@ -1106,7 +1106,7 @@ const _unchanged = Object();
 
 const _singularDeterminers = {'a', 'an', 'this', 'that', 'each', 'every'};
 
-const _pluralDeterminers = {'these', 'those', 'many'};
+const _pluralDeterminers = {'these', 'those', 'all', 'many'};
 
 bool _startsWithVowelLetter(String text) {
   if (text.isEmpty) {

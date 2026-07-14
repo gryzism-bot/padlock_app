@@ -88,19 +88,19 @@ class SentenceState {
 
   String get summary {
     return [
-      'agent=${agent?.text}',
+      'agent=${_nounPhraseSummary(agent)}',
       'action=${action.infinitive}',
-      'object=${object?.text}',
-      'recipient=${recipient?.text}',
-      'addressee=${addressee?.text}',
-      'companion=${companion?.text}',
-      'destination=${destination?.text}',
+      'object=${_nounPhraseSummary(object)}',
+      'recipient=${_nounPhraseSummary(recipient)}',
+      'addressee=${_nounPhraseSummary(addressee)}',
+      'companion=${_nounPhraseSummary(companion)}',
+      'destination=${_nounPhraseSummary(destination)}',
       'rightAction=${rightAction?.infinitive}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
-      'objectComplement=${objectComplement?.text}',
+      'objectComplement=${_nounPhraseSummary(objectComplement)}',
       'objectAdjectiveComplement=${objectAdjectiveComplement?.text}',
-      'complement=${complement?.text}',
+      'complement=${_nounPhraseSummary(complement)}',
       'adjectiveComplement=${adjectiveComplement?.text}',
       'voice=$voice',
       'passiveFocus=$passiveFocus',
@@ -149,4 +149,18 @@ Place Meaning: ${placeMeaning?.name}
 Frequency Phrase: ${frequencyPhrase?.text}
 ''';
   }
+}
+
+String? _nounPhraseSummary(NounPhrase? phrase) {
+  if (phrase == null) {
+    return null;
+  }
+
+  return [
+    phrase.text,
+    'person=${phrase.person}',
+    'number=${phrase.number}',
+    'determiner=${phrase.determiner?.text}',
+    'adjectives=${phrase.adjectiveList.map((adjective) => adjective.text).join('|')}',
+  ].join('/');
 }

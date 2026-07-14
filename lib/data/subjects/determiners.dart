@@ -41,6 +41,11 @@ const someDeterminer = Determiner(
   translations: {Language.pl: 'kilka'},
 );
 
+const allDeterminer = Determiner(
+  text: 'all',
+  translations: {Language.pl: 'wszystkie'},
+);
+
 const anyDeterminer = Determiner(
   text: 'any',
   translations: {Language.pl: 'jakiekolwiek'},
@@ -102,6 +107,7 @@ List<Determiner> allDeterminers = [
   theseDeterminer,
   thoseDeterminer,
   someDeterminer,
+  allDeterminer,
   anyDeterminer,
   eachDeterminer,
   everyDeterminer,
