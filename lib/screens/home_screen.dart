@@ -31,6 +31,8 @@ enum SuggestionDisplayMode { sentence, change, word }
 
 enum HeaderPreviewMode { clicked, hover }
 
+enum PreviewCacheMode { unbounded, bounded }
+
 const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
@@ -56,8 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final CrudeTranslationEngine translator = const CrudeTranslationEngine();
 
   late ConfigurationState configuration;
+  late final _SentencePreviewCache previewCache;
   SuggestionDisplayMode? suggestionDisplayMode;
   HeaderPreviewMode? headerPreviewMode;
+  PreviewCacheMode? previewCacheMode;
   bool showTranslation = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
@@ -65,11 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
+  int previewCacheEntryCount = 0;
 
   @override
   void initState() {
     super.initState();
     configuration = ConfigurationState.initial();
+    previewCache = _SentencePreviewCache(grammar, maxEntries: null);
   }
 
   void _move(ConfigurationMove move) {
@@ -132,6 +138,21 @@ class _HomeScreenState extends State<HomeScreen> {
       hoveredConfiguration.value = null;
       moveTrace = const [];
       expandedRails = const {};
+    });
+  }
+
+  void _setPreviewCacheMode(PreviewCacheMode mode) {
+    setState(() {
+      previewCacheMode = mode;
+      previewCache.setMaxEntries(_cacheEntryLimitForMode(mode));
+      previewCacheEntryCount = previewCache.size;
+    });
+  }
+
+  void _clearPreviewCache() {
+    setState(() {
+      previewCache.clear();
+      previewCacheEntryCount = 0;
     });
   }
 
@@ -299,8 +320,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final displayMode = suggestionDisplayMode ?? SuggestionDisplayMode.change;
     final previewMode = headerPreviewMode ?? HeaderPreviewMode.clicked;
-    final previewCache = _SentencePreviewCache(grammar);
+    final cacheMode = previewCacheMode ?? PreviewCacheMode.unbounded;
+    previewCache.setMaxEntries(_cacheEntryLimitForMode(cacheMode));
     final sentenceText = previewCache.render(configuration.sentenceState);
+    _syncPreviewCacheSizeAfterFrame();
 
     return Scaffold(
       appBar: AppBar(
@@ -348,6 +371,11 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
         moveTrace: moveTrace,
+        cacheMode: cacheMode,
+        cacheEntryCount: previewCacheEntryCount,
+        cacheEntryLimit: previewCache.maxEntries,
+        onCacheModeChanged: _setPreviewCacheMode,
+        onClearCache: _clearPreviewCache,
       ),
       body: SafeArea(
         child: Stack(
@@ -514,17 +542,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return sections;
   }
+
+  void _syncPreviewCacheSizeAfterFrame() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || previewCacheEntryCount == previewCache.size) {
+        return;
+      }
+
+      setState(() {
+        previewCacheEntryCount = previewCache.size;
+      });
+    });
+  }
+}
+
+int? _cacheEntryLimitForMode(PreviewCacheMode mode) {
+  return switch (mode) {
+    PreviewCacheMode.unbounded => null,
+    PreviewCacheMode.bounded => _SentencePreviewCache.defaultMaxEntries,
+  };
 }
 
 class _SentencePreviewCache {
   static const defaultMaxEntries = 500;
 
   final GrammarEngine grammar;
-  final int maxEntries;
+  int? _maxEntries;
   final Map<String, String> _renderedBySummary = {};
 
-  _SentencePreviewCache(this.grammar, {this.maxEntries = defaultMaxEntries})
-    : assert(maxEntries > 0);
+  _SentencePreviewCache(this.grammar, {int? maxEntries = defaultMaxEntries})
+    : assert(maxEntries == null || maxEntries > 0),
+      _maxEntries = maxEntries;
+
+  int get size => _renderedBySummary.length;
+
+  int? get maxEntries => _maxEntries;
+
+  void clear() {
+    _renderedBySummary.clear();
+  }
+
+  void setMaxEntries(int? maxEntries) {
+    assert(maxEntries == null || maxEntries > 0);
+    _maxEntries = maxEntries;
+    _trim();
+  }
 
   String render(SentenceState state) {
     final key = state.summary;
@@ -536,12 +598,16 @@ class _SentencePreviewCache {
 
     final rendered = grammar.generate(state).text;
     _renderedBySummary[key] = rendered;
-
-    while (_renderedBySummary.length > maxEntries) {
-      _renderedBySummary.remove(_renderedBySummary.keys.first);
-    }
+    _trim();
 
     return rendered;
+  }
+
+  void _trim() {
+    final limit = _maxEntries;
+    while (limit != null && _renderedBySummary.length > limit) {
+      _renderedBySummary.remove(_renderedBySummary.keys.first);
+    }
   }
 }
 
@@ -832,8 +898,21 @@ class _AppBarTools extends StatelessWidget {
 class _BottomDock extends StatelessWidget {
   final List<ConfigurationMessage> messages;
   final List<_MoveTraceEntry> moveTrace;
+  final PreviewCacheMode cacheMode;
+  final ValueChanged<PreviewCacheMode> onCacheModeChanged;
+  final VoidCallback onClearCache;
+  final int cacheEntryCount;
+  final int? cacheEntryLimit;
 
-  const _BottomDock({required this.messages, required this.moveTrace});
+  const _BottomDock({
+    required this.messages,
+    required this.moveTrace,
+    required this.cacheMode,
+    required this.onCacheModeChanged,
+    required this.onClearCache,
+    required this.cacheEntryCount,
+    required this.cacheEntryLimit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -842,33 +921,103 @@ class _BottomDock extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (messages.isNotEmpty || moveTrace.isNotEmpty)
-          Material(
-            color: colors.surface.withValues(alpha: 0.96),
-            elevation: 2,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxHeight: _diagnosticsDockReserveHeight,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: _GuidedMessages(messages: messages),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 5,
-                      child: _MoveTracePanel(entries: moveTrace),
-                    ),
-                  ],
-                ),
+        Material(
+          color: colors.surface.withValues(alpha: 0.96),
+          elevation: 2,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: _diagnosticsDockReserveHeight,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final hasLanguageAlerts = messages.isNotEmpty;
+                  final hasMoveTrace = moveTrace.isNotEmpty;
+                  final compact = constraints.maxWidth < 1100;
+                  final cacheStrip = _PreviewCacheDiagnosticsPanel(
+                    mode: cacheMode,
+                    entryCount: cacheEntryCount,
+                    entryLimit: cacheEntryLimit,
+                    onModeChanged: onCacheModeChanged,
+                    onClear: onClearCache,
+                  );
+
+                  if (compact) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: SizedBox(
+                            width: min(constraints.maxWidth, 560),
+                            child: cacheStrip,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (hasLanguageAlerts) ...[
+                                  SizedBox(
+                                    height: 142,
+                                    child: _GuidedMessages(messages: messages),
+                                  ),
+                                  const SizedBox(height: 8),
+                                ],
+                                if (hasMoveTrace) ...[
+                                  SizedBox(
+                                    height: 86,
+                                    child: _MoveTracePanel(entries: moveTrace),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: SizedBox(width: 560, child: cacheStrip),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (hasLanguageAlerts) ...[
+                              Expanded(
+                                flex: 6,
+                                child: _GuidedMessages(messages: messages),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            if (hasMoveTrace) ...[
+                              Expanded(
+                                flex: 5,
+                                child: _MoveTracePanel(entries: moveTrace),
+                              ),
+                            ],
+                            if (!hasLanguageAlerts && !hasMoveTrace)
+                              const Spacer(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
+        ),
         const _StickyFooter(),
       ],
     );
@@ -1895,6 +2044,114 @@ class _DisplayModeSection extends StatelessWidget {
       ],
       selected: {value},
       onSelectionChanged: (selection) => onChanged(selection.single),
+    );
+  }
+}
+
+class _PreviewCacheModeSection extends StatelessWidget {
+  final PreviewCacheMode value;
+  final ValueChanged<PreviewCacheMode> onChanged;
+
+  const _PreviewCacheModeSection({
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<PreviewCacheMode>(
+      segments: const [
+        ButtonSegment(
+          value: PreviewCacheMode.unbounded,
+          label: Text('Full cache'),
+          icon: Icon(Icons.all_inclusive),
+        ),
+        ButtonSegment(
+          value: PreviewCacheMode.bounded,
+          label: Text('Bounded'),
+          icon: Icon(Icons.memory),
+        ),
+      ],
+      selected: {value},
+      onSelectionChanged: (selection) => onChanged(selection.single),
+    );
+  }
+}
+
+class _PreviewCacheDiagnosticsPanel extends StatelessWidget {
+  final PreviewCacheMode mode;
+  final ValueChanged<PreviewCacheMode> onModeChanged;
+  final VoidCallback onClear;
+  final int entryCount;
+  final int? entryLimit;
+
+  const _PreviewCacheDiagnosticsPanel({
+    required this.mode,
+    required this.onModeChanged,
+    required this.onClear,
+    required this.entryCount,
+    required this.entryLimit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final limitText = entryLimit == null ? 'full' : entryLimit.toString();
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.34),
+        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerRight,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.memory, size: 16, color: colors.primary),
+              const SizedBox(width: 6),
+              Text(
+                'Preview cache',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 10),
+              SelectableText(
+                '$entryCount / $limitText',
+                key: const Key('preview-cache-size'),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 10),
+              _PreviewCacheModeSection(value: mode, onChanged: onModeChanged),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                key: const Key('wipe-preview-cache-button'),
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  minimumSize: const Size(0, 30),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                ),
+                onPressed: onClear,
+                icon: const Icon(Icons.cleaning_services_outlined, size: 16),
+                label: const Text('Wipe cache'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

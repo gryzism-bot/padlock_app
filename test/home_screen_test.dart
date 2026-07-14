@@ -215,6 +215,11 @@ void main() {
     expect(find.text('question'), findsOneWidget);
     expect(find.text('exclamation'), findsOneWidget);
     expect(find.text('imperative'), findsOneWidget);
+    expect(find.text('Full cache'), findsOneWidget);
+    expect(find.text('Bounded'), findsOneWidget);
+    expect(find.text('Preview cache'), findsOneWidget);
+    expect(find.byKey(const Key('preview-cache-size')), findsOneWidget);
+    expect(find.byKey(const Key('wipe-preview-cache-button')), findsOneWidget);
     expect(find.text('no agent'), findsNothing);
     expect(renderedSentence(tester), 'You learn.');
   });
