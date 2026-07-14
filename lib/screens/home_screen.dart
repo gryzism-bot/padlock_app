@@ -60,8 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
   );
-  Number objectNumber = Number.singular;
-  Number addresseeNumber = Number.singular;
+  Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
 
@@ -82,10 +81,25 @@ class _HomeScreenState extends State<HomeScreen> {
         expandedRails = const {};
       }
       if (move case SetObject(:final object)) {
-        objectNumber = object?.number ?? Number.singular;
+        nounNumbers = _updatedNounNumbers(
+          nounNumbers,
+          ConfigurationCompassSlot.object,
+          object,
+        );
       }
       if (move case SetAddressee(:final addressee)) {
-        addresseeNumber = addressee?.number ?? Number.singular;
+        nounNumbers = _updatedNounNumbers(
+          nounNumbers,
+          ConfigurationCompassSlot.addressee,
+          addressee,
+        );
+      }
+      nounNumbers = _updatedNounNumbersFromMove(nounNumbers, move);
+      if (move is SetAction) {
+        nounNumbers = _syncNounNumbersWithState(
+          nounNumbers,
+          nextConfiguration.sentenceState,
+        );
       }
       hoveredConfiguration.value = null;
       final nextSentence = grammar
@@ -112,8 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _reset() {
     setState(() {
       configuration = ConfigurationState.initial();
-      objectNumber = Number.singular;
-      addresseeNumber = Number.singular;
+      nounNumbers = const {};
       hoveredConfiguration.value = null;
       moveTrace = const [];
       expandedRails = const {};
@@ -142,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       configuration = state;
-      objectNumber = state.sentenceState.object?.number ?? Number.singular;
-      addresseeNumber =
-          state.sentenceState.addressee?.number ?? Number.singular;
+      nounNumbers = _syncNounNumbersWithState(nounNumbers, state.sentenceState);
       hoveredConfiguration.value = null;
       final sentence = grammar.generate(state.sentenceState).text;
       stopwatch.stop();
@@ -184,8 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
       limit: _suggestionLimitForSlot(slot),
     );
 
-    if (slot != ConfigurationCompassSlot.object &&
-        slot != ConfigurationCompassSlot.addressee) {
+    if (!_slotHasNounNumberSwitch(slot)) {
       return suggestions;
     }
 
@@ -208,18 +218,17 @@ class _HomeScreenState extends State<HomeScreen> {
   int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
     return switch (slot) {
       ConfigurationCompassSlot.action => _actionSuggestionLimit,
-      ConfigurationCompassSlot.object ||
-      ConfigurationCompassSlot.addressee => 0,
+      _ when _slotHasNounNumberSwitch(slot) => 0,
       _ => _suggestionLimit,
     };
   }
 
   Number? _nounNumberForSlot(ConfigurationCompassSlot slot) {
-    return switch (slot) {
-      ConfigurationCompassSlot.object => objectNumber,
-      ConfigurationCompassSlot.addressee => addresseeNumber,
-      _ => null,
-    };
+    if (!_slotHasNounNumberSwitch(slot)) {
+      return null;
+    }
+
+    return nounNumbers[slot] ?? Number.singular;
   }
 
   void _changeNounNumber(
@@ -232,14 +241,17 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       switch (slot) {
         case ConfigurationCompassSlot.object:
-          objectNumber = number;
-          break;
         case ConfigurationCompassSlot.addressee:
-          addresseeNumber = number;
+        case ConfigurationCompassSlot.recipient:
+        case ConfigurationCompassSlot.companion:
+        case ConfigurationCompassSlot.destination:
+        case ConfigurationCompassSlot.passiveAgentNoun:
+        case ConfigurationCompassSlot.complement:
           break;
         default:
           return;
       }
+      nounNumbers = {...nounNumbers, slot: number};
 
       hoveredConfiguration.value = null;
 
@@ -2048,7 +2060,12 @@ NounPhrase? _nounPhraseForSlot(
 ) {
   return switch (slot) {
     ConfigurationCompassSlot.object => state.object,
+    ConfigurationCompassSlot.recipient => state.recipient,
     ConfigurationCompassSlot.addressee => state.addressee,
+    ConfigurationCompassSlot.companion => state.companion,
+    ConfigurationCompassSlot.destination => state.destination,
+    ConfigurationCompassSlot.passiveAgentNoun => state.agent,
+    ConfigurationCompassSlot.complement => state.complement,
     _ => null,
   };
 }
@@ -2063,7 +2080,12 @@ List<NounPhrase> _nounChoicesForSlot(
       ...fixedObjectChoicesFor(state.action),
       ...compass.objects,
     ],
+    ConfigurationCompassSlot.recipient => compass.recipients,
     ConfigurationCompassSlot.addressee => compass.recipients,
+    ConfigurationCompassSlot.companion => compass.recipients,
+    ConfigurationCompassSlot.destination => compass.recipients,
+    ConfigurationCompassSlot.passiveAgentNoun => compass.recipients,
+    ConfigurationCompassSlot.complement => compass.complements,
     _ => const [],
   };
 }
@@ -2074,7 +2096,12 @@ ConfigurationMove _setNounPhraseMove(
 ) {
   return switch (slot) {
     ConfigurationCompassSlot.object => SetObject(nounPhrase),
+    ConfigurationCompassSlot.recipient => SetRecipient(nounPhrase),
     ConfigurationCompassSlot.addressee => SetAddressee(nounPhrase),
+    ConfigurationCompassSlot.companion => SetCompanion(nounPhrase),
+    ConfigurationCompassSlot.destination => SetDestination(nounPhrase),
+    ConfigurationCompassSlot.passiveAgentNoun => SetAgent(nounPhrase),
+    ConfigurationCompassSlot.complement => SetComplement(nounPhrase),
     _ => throw ArgumentError('No noun number switch for ${slot.name}.'),
   };
 }
@@ -2082,9 +2109,98 @@ ConfigurationMove _setNounPhraseMove(
 String _slotTraceLabel(ConfigurationCompassSlot slot) {
   return switch (slot) {
     ConfigurationCompassSlot.object => 'object',
+    ConfigurationCompassSlot.recipient => 'recipient',
     ConfigurationCompassSlot.addressee => 'addressee',
+    ConfigurationCompassSlot.companion => 'companion',
+    ConfigurationCompassSlot.destination => 'destination',
+    ConfigurationCompassSlot.passiveAgentNoun => 'by-agent',
+    ConfigurationCompassSlot.complement => 'noun complement',
     _ => slot.name,
   };
+}
+
+bool _slotHasNounNumberSwitch(ConfigurationCompassSlot slot) {
+  return switch (slot) {
+    ConfigurationCompassSlot.object ||
+    ConfigurationCompassSlot.recipient ||
+    ConfigurationCompassSlot.addressee ||
+    ConfigurationCompassSlot.companion ||
+    ConfigurationCompassSlot.destination ||
+    ConfigurationCompassSlot.passiveAgentNoun ||
+    ConfigurationCompassSlot.complement => true,
+    _ => false,
+  };
+}
+
+Map<ConfigurationCompassSlot, Number> _updatedNounNumbers(
+  Map<ConfigurationCompassSlot, Number> current,
+  ConfigurationCompassSlot slot,
+  NounPhrase? nounPhrase,
+) {
+  if (!_slotHasNounNumberSwitch(slot)) {
+    return current;
+  }
+
+  return {...current, slot: nounPhrase?.number ?? Number.singular};
+}
+
+Map<ConfigurationCompassSlot, Number> _updatedNounNumbersFromMove(
+  Map<ConfigurationCompassSlot, Number> current,
+  ConfigurationMove move,
+) {
+  return switch (move) {
+    SetObject(:final object) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.object,
+      object,
+    ),
+    SetRecipient(:final recipient) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.recipient,
+      recipient,
+    ),
+    SetAddressee(:final addressee) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.addressee,
+      addressee,
+    ),
+    SetCompanion(:final companion) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.companion,
+      companion,
+    ),
+    SetDestination(:final destination) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.destination,
+      destination,
+    ),
+    SetAgent(:final agent) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.passiveAgentNoun,
+      agent,
+    ),
+    SetComplement(:final complement) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.complement,
+      complement,
+    ),
+    _ => current,
+  };
+}
+
+Map<ConfigurationCompassSlot, Number> _syncNounNumbersWithState(
+  Map<ConfigurationCompassSlot, Number> current,
+  SentenceState state,
+) {
+  var next = current;
+
+  for (final slot in ConfigurationCompassSlot.values.where(
+    _slotHasNounNumberSwitch,
+  )) {
+    next = _updatedNounNumbers(next, slot, _nounPhraseForSlot(state, slot));
+  }
+
+  return next;
 }
 
 bool _sameNounFamily(NounPhrase left, NounPhrase right) {

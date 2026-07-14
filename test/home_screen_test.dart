@@ -1065,8 +1065,8 @@ void main() {
     await tapAfterScroll(tester, find.text('listen', findRichText: true));
     await expandRail(tester, 'Addressee');
 
-    expect(find.text('a dog', findRichText: true), findsOneWidget);
-    expect(find.text('dogs', findRichText: true), findsNothing);
+    expect(find.text('person', findRichText: true), findsOneWidget);
+    expect(find.text('people', findRichText: true), findsNothing);
 
     await tapAfterScroll(tester, find.text('a dog', findRichText: true));
 
@@ -1083,6 +1083,40 @@ void main() {
     expect(renderedSentence(tester), 'You listen to dogs.');
     expect(find.text('dogs', findRichText: true), findsWidgets);
   });
+
+  testWidgets(
+    'Passive by-agent rail number switch changes the remembered agent',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await expandRail(tester, 'Object');
+      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(tester, find.text('passive'));
+      await expandRail(tester, 'By-agent');
+
+      expect(find.text('sg'), findsWidgets);
+      expect(find.text('pl'), findsWidgets);
+      expect(find.text('person', findRichText: true), findsOneWidget);
+      expect(find.text('people', findRichText: true), findsNothing);
+
+      tester
+          .widget<SegmentedButton<Number>>(
+            find.byType(SegmentedButton<Number>).last,
+          )
+          .onSelectionChanged
+          ?.call({Number.plural});
+      await tester.pumpAndSettle();
+
+      expect(find.text('people', findRichText: true), findsWidgets);
+      expect(find.text('person', findRichText: true), findsNothing);
+
+      await tapAfterScroll(tester, find.text('people', findRichText: true));
+
+      expect(renderedSentence(tester), 'Book is given by people.');
+    },
+  );
 
   testWidgets('Change preview highlights whole changed words', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
