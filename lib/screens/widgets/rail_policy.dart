@@ -191,6 +191,8 @@ List<_ParticipantDoor> _coreParticipantDoors(ConfigurationState configuration) {
 
 const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.object,
+  ConfigurationCompassSlot.objectComplement,
+  ConfigurationCompassSlot.objectAdjectiveComplement,
   ConfigurationCompassSlot.recipient,
   ConfigurationCompassSlot.addressee,
   ConfigurationCompassSlot.companion,
@@ -248,6 +250,62 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: true,
     canRenderCollapsedWhen: _objectModifiersCanWake,
     canRenderWhenEmpty: _objectModifiersCanWake,
+  ),
+  ConfigurationCompassSlot.objectComplement: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectComplement,
+    title: (_) => 'Object complement',
+    unlockHint: (_) =>
+        'Choose a verb like make or call, then choose an object first.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        (state.action.takesObjectComplement && state.object != null) ||
+        state.objectComplement != null,
+    canRenderWhenEmpty: (state) => state.objectComplement != null,
+    participantLabel: (_) => 'object complement',
+    participantValue: (state) => _nounTraceText(state.objectComplement),
+    participantAwakeWhen: (state) =>
+        state.action.takesObjectComplement || state.objectComplement != null,
+    participantFilledWhen: (state) => state.objectComplement != null,
+  ),
+  ConfigurationCompassSlot.objectComplementDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectComplementDeterminer,
+    title: (_) => 'Object complement determiner',
+    unlockHint: (_) =>
+        'Choose an object noun complement first. Object complement modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.objectComplement?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) =>
+        state.objectComplement?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.objectComplementAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectComplementAdjective,
+    title: (_) => 'Object complement adjective',
+    unlockHint: (_) =>
+        'Choose an object noun complement first. Object complement modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.objectComplement?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) =>
+        state.objectComplement?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.objectAdjectiveComplement: _RailPolicy(
+    slot: ConfigurationCompassSlot.objectAdjectiveComplement,
+    title: (_) => 'Object adjective complement',
+    unlockHint: (_) =>
+        'Choose a verb like make or call, then choose an object first.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        (state.action.takesObjectComplement && state.object != null) ||
+        state.objectAdjectiveComplement != null,
+    canRenderWhenEmpty: (state) => state.objectAdjectiveComplement != null,
+    participantLabel: (_) => 'object adjective complement',
+    participantValue: (state) =>
+        state.objectAdjectiveComplement?.text ?? 'none',
+    participantAwakeWhen: (state) =>
+        state.action.takesObjectComplement ||
+        state.objectAdjectiveComplement != null,
+    participantFilledWhen: (state) => state.objectAdjectiveComplement != null,
   ),
   ConfigurationCompassSlot.recipient: _RailPolicy(
     slot: ConfigurationCompassSlot.recipient,

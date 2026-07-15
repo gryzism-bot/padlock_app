@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/screens/home_screen.dart';
 
 void main() {
@@ -671,6 +674,102 @@ void main() {
     }
   });
 
+  testWidgets('Essential verb chips expose their expected cockpit rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    for (final verb in essentialVerbs) {
+      await tapVisible(tester, find.byTooltip('Reset'));
+      await tapAfterScroll(
+        tester,
+        find.byKey(Key('suggestion-label-action-${verb.infinitive}')),
+      );
+
+      expect(
+        renderedSentence(tester),
+        isNotEmpty,
+        reason: '${verb.infinitive} should render after its action chip.',
+      );
+      expect(
+        find.textContaining('[blocked'),
+        findsNothing,
+        reason: '${verb.infinitive} should be directly selectable.',
+      );
+
+      for (final title in _expectedImmediateRailTitlesFor(verb)) {
+        expect(
+          find.text('$title:'),
+          findsOneWidget,
+          reason:
+              '${verb.infinitive} advertises ${title.toLowerCase()} and should expose that rail.',
+        );
+      }
+    }
+  });
+
+  testWidgets('Object complement rails open after object-complement verbs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-make')),
+    );
+    expect(find.text('Object complement:'), findsNothing);
+    expect(find.text('Object adjective complement:'), findsNothing);
+
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
+
+    expect(renderedSentence(tester), 'You make book.');
+    expect(find.text('Object complement:'), findsOneWidget);
+    expect(find.text('Object adjective complement:'), findsOneWidget);
+
+    await expandRail(tester, 'Object adjective complement');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectAdjectiveComplement-calm')),
+    );
+
+    expect(renderedSentence(tester), 'You make book calm.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(
+        const Key(
+          'suggestion-label-objectAdjectiveComplement-no-object-adjective-complement',
+        ),
+      ),
+    );
+    expect(renderedSentence(tester), 'You make book.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-call')),
+    );
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-cat')),
+    );
+    await expandRail(tester, 'Object complement');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectComplement-a-teacher')),
+    );
+
+    expect(renderedSentence(tester), 'You call cat a teacher.');
+    expect(find.text('Object complement determiner:'), findsOneWidget);
+    expect(find.text('Object complement adjective:'), findsOneWidget);
+  });
+
   testWidgets('Core participant surface maps predicate doors to rails', (
     tester,
   ) async {
@@ -732,7 +831,10 @@ void main() {
       );
       expect(renderedSentence(tester), 'You want.');
 
-      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-give')),
+      );
 
       expect(renderedSentence(tester), 'You give.');
       expect(find.text('Object:'), findsOneWidget);
@@ -741,7 +843,10 @@ void main() {
       expect(find.text('Object determiner:'), findsNothing);
 
       await expandRail(tester, 'Object');
-      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-object-book')),
+      );
 
       expect(renderedSentence(tester), 'You give book.');
       expect(find.text('Object determiner:'), findsOneWidget);
@@ -769,7 +874,10 @@ void main() {
       );
       expect(renderedSentence(tester), 'Book is given by Mary.');
 
-      await tapAfterScroll(tester, find.text('be', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-be')),
+      );
 
       expect(renderedSentence(tester), 'Mary is.');
       expect(find.text('Noun complement:'), findsOneWidget);
@@ -785,7 +893,10 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(tester, find.text('introduce', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-introduce')),
+      );
       await expandRail(tester, 'Addressee');
       await tapAfterScroll(
         tester,
@@ -831,7 +942,10 @@ void main() {
       );
       expect(find.text('By-agent:'), findsOneWidget);
 
-      await tapAfterScroll(tester, find.text('see', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-see')),
+      );
       expect(renderedSentence(tester), 'Dog will be seen.');
       expect(find.text('By-agent:'), findsOneWidget);
 
@@ -860,7 +974,10 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(tester, find.text('introduce', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-introduce')),
+      );
       await expandRail(tester, 'Addressee');
       await tapAfterScroll(tester, find.text('a cat', findRichText: true));
       expect(renderedSentence(tester), 'You introduce to a cat.');
@@ -894,7 +1011,10 @@ void main() {
       expect(renderedSentence(tester), 'Bread will be introduced to this cat.');
       expect(find.text('By-agent:'), findsOneWidget);
 
-      await tapAfterScroll(tester, find.text('see', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-see')),
+      );
       expect(renderedSentence(tester), 'Bread will be seen.');
       expect(find.text('By-agent:'), findsOneWidget);
 
@@ -922,12 +1042,18 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-give')),
+      );
       expect(find.text('Object:'), findsOneWidget);
       expect(find.text('Recipient:'), findsNothing);
 
       await expandRail(tester, 'Object');
-      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-object-book')),
+      );
       expect(renderedSentence(tester), 'You give book.');
       expect(find.text('Object determiner:'), findsOneWidget);
       expect(find.text('Object adjective:'), findsOneWidget);
@@ -954,7 +1080,10 @@ void main() {
       await tapVisible(tester, find.byTooltip('Reset'));
       expect(renderedSentence(tester), 'You learn.');
 
-      await tapAfterScroll(tester, find.text('want', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-want')),
+      );
       expect(renderedSentence(tester), 'You want.');
       expect(find.text('Right action:'), findsOneWidget);
 
@@ -1007,7 +1136,10 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('buy', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-buy')),
+    );
     await expandRail(tester, 'Object');
 
     await tester.scrollUntilVisible(
@@ -1020,10 +1152,19 @@ void main() {
 
     expect(find.text('sg'), findsOneWidget);
     expect(find.text('pl'), findsOneWidget);
-    expect(find.text('book', findRichText: true), findsOneWidget);
-    expect(find.text('books', findRichText: true), findsNothing);
+    expect(
+      find.byKey(const Key('suggestion-label-object-book')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-object-books')),
+      findsNothing,
+    );
 
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
 
     expect(renderedSentence(tester), 'You buy book.');
 
@@ -1036,8 +1177,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You buy books.');
-    expect(find.text('book', findRichText: true), findsNothing);
-    expect(find.text('books', findRichText: true), findsWidgets);
+    expect(find.byKey(const Key('suggestion-label-object-book')), findsNothing);
+    expect(
+      find.byKey(const Key('suggestion-label-object-books')),
+      findsWidgets,
+    );
 
     tester
         .widget<SegmentedButton<Number>>(
@@ -1060,10 +1204,16 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('read', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-read')),
+    );
     await pressOutlinedText(tester, 'future');
     await expandRail(tester, 'Text');
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
 
     tester
         .widget<SegmentedButton<Number>>(
@@ -1117,7 +1267,10 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('close', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-close')),
+    );
     await expandRail(tester, 'Openable');
 
     expect(find.text('door', findRichText: true), findsOneWidget);
@@ -1162,7 +1315,10 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('listen', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-listen')),
+    );
     await expandRail(tester, 'Addressee');
 
     expect(find.text('person', findRichText: true), findsOneWidget);
@@ -1184,15 +1340,84 @@ void main() {
     expect(find.text('dogs', findRichText: true), findsWidgets);
   });
 
+  testWidgets('Companion rail number switch changes the selected companion', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await expandRail(tester, 'Companion');
+    await tapAfterScroll(tester, find.text('girl', findRichText: true));
+
+    expect(renderedSentence(tester), 'You learn with girl.');
+    expect(find.text('girl', findRichText: true), findsWidgets);
+    expect(find.text('girls', findRichText: true), findsNothing);
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.plural});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You learn with girls.');
+    expect(find.text('girls', findRichText: true), findsWidgets);
+    expect(find.text('girl', findRichText: true), findsNothing);
+
+    tester
+        .widget<SegmentedButton<Number>>(
+          find.byType(SegmentedButton<Number>).last,
+        )
+        .onSelectionChanged
+        ?.call({Number.singular});
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You learn with girl.');
+    expect(find.text('girl', findRichText: true), findsWidgets);
+  });
+
+  testWidgets(
+    'Fixed subject rail stays visible when number switch has no plural variant',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await expandRail(tester, 'Subject');
+      await tapAfterScroll(tester, find.text('science', findRichText: true));
+
+      expect(renderedSentence(tester), 'You learn science.');
+      expect(find.text('Subject:'), findsOneWidget);
+
+      tester
+          .widget<SegmentedButton<Number>>(
+            find.byType(SegmentedButton<Number>).last,
+          )
+          .onSelectionChanged
+          ?.call({Number.plural});
+      await tester.pumpAndSettle();
+
+      expect(renderedSentence(tester), 'You learn science.');
+      expect(find.text('Subject:'), findsOneWidget);
+      expect(find.text('science', findRichText: true), findsWidgets);
+    },
+  );
+
   testWidgets(
     'Passive by-agent rail number switch changes the remembered agent',
     (tester) async {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-give')),
+      );
       await expandRail(tester, 'Object');
-      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-object-book')),
+      );
       await tapAfterScroll(tester, find.text('passive'));
       await expandRail(tester, 'By-agent');
 
@@ -1241,9 +1466,15 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('give', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
     await expandRail(tester, 'Recipient');
     await tapAfterScroll(tester, find.text('Mary', findRichText: true));
     await tapAfterScroll(tester, find.text('passive'));
@@ -1266,9 +1497,15 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('give', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
     await expandRail(tester, 'Recipient');
     await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
@@ -1296,9 +1533,15 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('give', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
@@ -1327,9 +1570,15 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(tester, find.text('give', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-give')),
+      );
       await expandRail(tester, 'Object');
-      await tapAfterScroll(tester, find.text('book', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-object-book')),
+      );
       await tapAfterScroll(tester, find.text('past'));
       await tapAfterScroll(tester, find.text('passive'));
 
@@ -1353,9 +1602,15 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(tester, find.text('give', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.text('book', findRichText: true));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
     await expandRail(tester, 'Recipient');
     await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
@@ -1429,6 +1684,48 @@ class _FixedRailRoute {
     required this.emptySentence,
     required this.filledSentence,
   });
+}
+
+Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
+  final titles = <String>{};
+
+  for (final influence in predicateInfluencesFor(verb)) {
+    switch (influence.key) {
+      case 'activity':
+        titles.add('Activity');
+      case 'subject':
+        titles.add('Subject');
+      case 'language':
+        titles.add('Language');
+      case 'text':
+        titles.add('Text');
+      case 'tool':
+        titles.add('Tool');
+      case 'media':
+        titles.add('Media');
+      case 'vehicle':
+        titles.add('Vehicle');
+      case 'openable':
+        titles.add('Openable');
+      case 'object':
+        titles.add('Object');
+      case 'addressee':
+        titles.add('Addressee');
+      case 'companion':
+        titles.add('Companion');
+      case 'destination':
+        titles.add('Destination');
+      case 'right-action':
+        titles.add('Right action');
+      case 'complement':
+        titles.addAll(['Noun complement', 'Adjective complement']);
+      case 'recipient':
+      case 'object-complement':
+        break;
+    }
+  }
+
+  return titles;
 }
 
 Iterable<TextSpan> _textSpans(InlineSpan span) sync* {

@@ -986,12 +986,16 @@ String _moveLabel(ConfigurationMove move) {
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
       'complement -> ${_nounPhraseLabel(complement)}',
+    SetObjectComplement(:final objectComplement) =>
+      'object complement -> ${_nounPhraseLabel(objectComplement)}',
     SetNounPhraseDeterminer(:final target, :final determiner) =>
       '${target.name} determiner -> ${_determinerLabel(determiner)}',
     SetNounPhraseAdjectives(:final target, :final adjectives) =>
       '${target.name} adjective -> ${_adjectivesLabel(adjectives)}',
     SetAdjectiveComplement(:final adjectiveComplement) =>
       'adjective complement -> ${adjectiveComplement?.text ?? 'none'}',
+    SetObjectAdjectiveComplement(:final objectAdjectiveComplement) =>
+      'object adjective complement -> ${objectAdjectiveComplement?.text ?? 'none'}',
     SetLexicalBeComplement(:final complement) =>
       'be complement -> ${_nounPhraseLabel(complement)}',
     SetLexicalBeAdjectiveComplement(:final adjectiveComplement) =>

@@ -39,7 +39,7 @@ const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
-const _actionSuggestionLimit = 64;
+const _actionSuggestionLimit = 192;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
@@ -267,6 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       switch (slot) {
         case ConfigurationCompassSlot.object:
+        case ConfigurationCompassSlot.objectComplement:
         case ConfigurationCompassSlot.addressee:
         case ConfigurationCompassSlot.recipient:
         case ConfigurationCompassSlot.companion:
@@ -287,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       final variant = _nounVariant(
-        _nounChoicesForSlot(compass, configuration.sentenceState, slot),
+        _nounChoicesForConfigurationSlot(compass, configuration, slot),
         nounPhrase,
         number,
       );
@@ -928,6 +929,8 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetAgent(:final agent) => 'subject -> ${_nounTraceText(agent)}',
     SetAction(:final action) => 'verb -> ${action.infinitive}',
     SetObject(:final object) => 'object -> ${_nounTraceText(object)}',
+    SetObjectComplement(:final objectComplement) =>
+      'object complement -> ${_nounTraceText(objectComplement)}',
     SetRecipient(:final recipient) =>
       'recipient -> ${_nounTraceText(recipient)}',
     SetAddressee(:final addressee) =>
@@ -946,6 +949,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       '${_nounPhraseTargetTraceText(target)} adjective -> ${adjectives.isEmpty ? 'none' : adjectives.map((adjective) => adjective.text).join(' ')}',
     SetAdjectiveComplement(:final adjectiveComplement) =>
       'adjective complement -> ${adjectiveComplement?.text ?? 'none'}',
+    SetObjectAdjectiveComplement(:final objectAdjectiveComplement) =>
+      'object adjective complement -> ${objectAdjectiveComplement?.text ?? 'none'}',
     SetLexicalBeComplement(:final complement) =>
       'noun complement -> ${complement.text}',
     SetLexicalBeAdjectiveComplement(:final adjectiveComplement) =>
@@ -992,6 +997,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
   return switch (target) {
     NounPhraseTarget.agent => 'subject',
     NounPhraseTarget.object => 'object',
+    NounPhraseTarget.objectComplement => 'object complement',
     NounPhraseTarget.recipient => 'recipient',
     NounPhraseTarget.addressee => 'addressee',
     NounPhraseTarget.companion => 'companion',

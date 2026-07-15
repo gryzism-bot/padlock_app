@@ -27,6 +27,7 @@ NounPhrase? _nounPhraseForSlot(
 ) {
   return switch (slot) {
     ConfigurationCompassSlot.object => state.object,
+    ConfigurationCompassSlot.objectComplement => state.objectComplement,
     ConfigurationCompassSlot.recipient => state.recipient,
     ConfigurationCompassSlot.addressee => state.addressee,
     ConfigurationCompassSlot.companion => state.companion,
@@ -47,6 +48,7 @@ List<NounPhrase> _nounChoicesForSlot(
       ...fixedObjectChoicesFor(state.action),
       ...compass.objects,
     ],
+    ConfigurationCompassSlot.objectComplement => compass.complements,
     ConfigurationCompassSlot.recipient => compass.recipients,
     ConfigurationCompassSlot.addressee => compass.recipients,
     ConfigurationCompassSlot.companion => compass.recipients,
@@ -57,12 +59,51 @@ List<NounPhrase> _nounChoicesForSlot(
   };
 }
 
+List<NounPhrase> _nounChoicesForConfigurationSlot(
+  ConfigurationCompass compass,
+  ConfigurationState configuration,
+  ConfigurationCompassSlot slot,
+) {
+  final choices = [
+    for (final suggestion in compass.suggestionsFor(
+      configuration,
+      slot,
+      limit: 0,
+    ))
+      ?_nounPhraseForSlot(suggestion.preview.sentenceState, slot),
+    ..._nounChoicesForSlot(compass, configuration.sentenceState, slot),
+  ];
+
+  return _uniqueNounChoicesForRail(choices);
+}
+
+List<NounPhrase> _uniqueNounChoicesForRail(List<NounPhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(
+        [
+          choice.person.name,
+          choice.number.name,
+          choice.determiner?.text ?? '',
+          for (final adjective in choice.adjectiveList) adjective.text,
+          choice.text.toLowerCase(),
+        ].join(':'),
+      ))
+        choice,
+  ];
+}
+
 ConfigurationMove _setNounPhraseMove(
   ConfigurationCompassSlot slot,
   NounPhrase nounPhrase,
 ) {
   return switch (slot) {
     ConfigurationCompassSlot.object => SetObject(nounPhrase),
+    ConfigurationCompassSlot.objectComplement => SetObjectComplement(
+      nounPhrase,
+    ),
     ConfigurationCompassSlot.recipient => SetRecipient(nounPhrase),
     ConfigurationCompassSlot.addressee => SetAddressee(nounPhrase),
     ConfigurationCompassSlot.companion => SetCompanion(nounPhrase),
@@ -76,6 +117,7 @@ ConfigurationMove _setNounPhraseMove(
 String _slotTraceLabel(ConfigurationCompassSlot slot) {
   return switch (slot) {
     ConfigurationCompassSlot.object => 'object',
+    ConfigurationCompassSlot.objectComplement => 'object complement',
     ConfigurationCompassSlot.recipient => 'recipient',
     ConfigurationCompassSlot.addressee => 'addressee',
     ConfigurationCompassSlot.companion => 'companion',
@@ -89,6 +131,7 @@ String _slotTraceLabel(ConfigurationCompassSlot slot) {
 bool _slotHasNounNumberSwitch(ConfigurationCompassSlot slot) {
   return switch (slot) {
     ConfigurationCompassSlot.object ||
+    ConfigurationCompassSlot.objectComplement ||
     ConfigurationCompassSlot.recipient ||
     ConfigurationCompassSlot.addressee ||
     ConfigurationCompassSlot.companion ||
@@ -120,6 +163,11 @@ Map<ConfigurationCompassSlot, Number> _updatedNounNumbersFromMove(
       current,
       ConfigurationCompassSlot.object,
       object,
+    ),
+    SetObjectComplement(:final objectComplement) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.objectComplement,
+      objectComplement,
     ),
     SetRecipient(:final recipient) => _updatedNounNumbers(
       current,

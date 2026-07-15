@@ -27,6 +27,7 @@ enum ConfigurationMode { guided }
 enum NounPhraseTarget {
   agent,
   object,
+  objectComplement,
   recipient,
   addressee,
   companion,
@@ -232,6 +233,12 @@ class SetComplement extends ConfigurationMove {
   const SetComplement(this.complement);
 }
 
+class SetObjectComplement extends ConfigurationMove {
+  final NounPhrase? objectComplement;
+
+  const SetObjectComplement(this.objectComplement);
+}
+
 class SetNounPhraseDeterminer extends ConfigurationMove {
   final NounPhraseTarget target;
   final Determiner? determiner;
@@ -250,6 +257,12 @@ class SetAdjectiveComplement extends ConfigurationMove {
   final Adjective? adjectiveComplement;
 
   const SetAdjectiveComplement(this.adjectiveComplement);
+}
+
+class SetObjectAdjectiveComplement extends ConfigurationMove {
+  final Adjective? objectAdjectiveComplement;
+
+  const SetObjectAdjectiveComplement(this.objectAdjectiveComplement);
 }
 
 class SetLexicalBeComplement extends ConfigurationMove {
@@ -367,6 +380,8 @@ class ConfigurationEngine {
                 state,
                 action: action,
                 object: null,
+                objectComplement: null,
+                objectAdjectiveComplement: null,
                 recipient: null,
                 addressee: null,
                 destination: null,
@@ -379,6 +394,17 @@ class ConfigurationEngine {
                 state,
                 action: action,
                 object: _objectAfterActionChange(state.object, action),
+                objectComplement: _objectComplementAfterActionChange(
+                  state.objectComplement,
+                  state.object,
+                  action,
+                ),
+                objectAdjectiveComplement:
+                    _objectAdjectiveComplementAfterActionChange(
+                      state.objectAdjectiveComplement,
+                      state.object,
+                      action,
+                    ),
                 addressee: action.takesAddressee ? state.addressee : null,
                 companion: action.takesCompanion ? state.companion : null,
                 destination: action.usesDestinationPlace
@@ -391,7 +417,14 @@ class ConfigurationEngine {
                 complement: null,
                 adjectiveComplement: null,
               ),
-      SetObject(:final object) => _copy(state, object: object),
+      SetObject(:final object) => _copy(
+        state,
+        object: object,
+        objectComplement: object == null ? null : state.objectComplement,
+        objectAdjectiveComplement: object == null
+            ? null
+            : state.objectAdjectiveComplement,
+      ),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetAddressee(:final addressee) => _copy(state, addressee: addressee),
       SetCompanion(:final companion) => _copy(state, companion: companion),
@@ -408,6 +441,13 @@ class ConfigurationEngine {
         complement: complement,
         adjectiveComplement: complement == null
             ? state.adjectiveComplement
+            : null,
+      ),
+      SetObjectComplement(:final objectComplement) => _copy(
+        state,
+        objectComplement: objectComplement,
+        objectAdjectiveComplement: objectComplement == null
+            ? state.objectAdjectiveComplement
             : null,
       ),
       SetNounPhraseDeterminer(:final target, :final determiner) =>
@@ -429,6 +469,13 @@ class ConfigurationEngine {
         state,
         complement: adjectiveComplement == null ? state.complement : null,
         adjectiveComplement: adjectiveComplement,
+      ),
+      SetObjectAdjectiveComplement(:final objectAdjectiveComplement) => _copy(
+        state,
+        objectComplement: objectAdjectiveComplement == null
+            ? state.objectComplement
+            : null,
+        objectAdjectiveComplement: objectAdjectiveComplement,
       ),
       SetLexicalBeComplement(:final complement) => _copy(
         state,
@@ -1069,6 +1116,36 @@ class ConfigurationEngine {
     return object;
   }
 
+  NounPhrase? _objectComplementAfterActionChange(
+    NounPhrase? objectComplement,
+    NounPhrase? object,
+    Verb action,
+  ) {
+    if (objectComplement == null) {
+      return null;
+    }
+
+    return action.takesObjectComplement &&
+            _objectAfterActionChange(object, action) != null
+        ? objectComplement
+        : null;
+  }
+
+  Adjective? _objectAdjectiveComplementAfterActionChange(
+    Adjective? objectAdjectiveComplement,
+    NounPhrase? object,
+    Verb action,
+  ) {
+    if (objectAdjectiveComplement == null) {
+      return null;
+    }
+
+    return action.takesObjectComplement &&
+            _objectAfterActionChange(object, action) != null
+        ? objectAdjectiveComplement
+        : null;
+  }
+
   Verb? _rightActionAfterActionChange(Verb? rightAction, Verb action) {
     if (rightAction == null) {
       return null;
@@ -1183,6 +1260,13 @@ class ConfigurationEngine {
         state.object == null
             ? state
             : _copy(state, object: transform(state.object!)),
+      NounPhraseTarget.objectComplement =>
+        state.objectComplement == null
+            ? state
+            : _copy(
+                state,
+                objectComplement: transform(state.objectComplement!),
+              ),
       NounPhraseTarget.recipient =>
         state.recipient == null
             ? state

@@ -35,6 +35,10 @@ enum ConfigurationCompassSlot {
   object,
   objectDeterminer,
   objectAdjective,
+  objectComplement,
+  objectComplementDeterminer,
+  objectComplementAdjective,
+  objectAdjectiveComplement,
   recipient,
   recipientDeterminer,
   recipientAdjective,
@@ -235,6 +239,66 @@ class ConfigurationCompass {
         _objectCanTakeModifiers(sentence) ? sentence.object : null,
         NounPhraseTarget.object,
       ),
+      ConfigurationCompassSlot.objectComplement =>
+        sentence.action.takesObjectComplement && sentence.object != null
+            ? [
+                if (sentence.objectComplement != null)
+                  const _CompassCandidate(
+                    SetObjectComplement(null),
+                    'no object complement',
+                    120,
+                  ),
+                ...complements.map((complement) {
+                  final isSelected = _sameNounChoice(
+                    complement,
+                    sentence.objectComplement,
+                  );
+                  final nextComplement = isSelected
+                      ? sentence.objectComplement
+                      : _carryCompatibleNounPhrase(
+                          from: sentence.objectComplement,
+                          to: complement,
+                        );
+                  return _CompassCandidate(
+                    SetObjectComplement(nextComplement),
+                    nextComplement == null
+                        ? complement.text
+                        : _nounPhraseLabel(nextComplement),
+                    100,
+                    isSelected: isSelected,
+                  );
+                }),
+              ]
+            : const <_CompassCandidate>[],
+      ConfigurationCompassSlot.objectComplementDeterminer =>
+        _determinerCandidates(
+          sentence.objectComplement,
+          NounPhraseTarget.objectComplement,
+        ),
+      ConfigurationCompassSlot.objectComplementAdjective =>
+        _adjectiveCandidates(
+          sentence.objectComplement,
+          NounPhraseTarget.objectComplement,
+        ),
+      ConfigurationCompassSlot.objectAdjectiveComplement =>
+        sentence.action.takesObjectComplement && sentence.object != null
+            ? [
+                if (sentence.objectAdjectiveComplement != null)
+                  const _CompassCandidate(
+                    SetObjectAdjectiveComplement(null),
+                    'no object adjective complement',
+                    120,
+                  ),
+                ...adjectiveComplements.map(
+                  (adjective) => _CompassCandidate(
+                    SetObjectAdjectiveComplement(adjective),
+                    adjective.text,
+                    100,
+                    isSelected: adjective == sentence.objectAdjectiveComplement,
+                  ),
+                ),
+              ]
+            : const <_CompassCandidate>[],
       ConfigurationCompassSlot.recipient => [
         if (sentence.recipient != null)
           const _CompassCandidate(SetRecipient(null), 'no recipient', 120),
