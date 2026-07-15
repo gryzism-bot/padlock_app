@@ -1,5 +1,6 @@
 import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
@@ -90,6 +91,7 @@ class ConfigurationCompass {
   final List<Modal> modals;
   final List<PlacePhrase> places;
   final List<TimePhrase> times;
+  final PredicatePathMode predicatePathMode;
 
   ConfigurationCompass({
     this.lock = const ConfigurationEngine(),
@@ -103,6 +105,7 @@ class ConfigurationCompass {
     List<Modal>? modals,
     List<PlacePhrase>? places,
     List<TimePhrase>? times,
+    this.predicatePathMode = PredicatePathMode.legacyCompassFallback,
   }) : actions = actions ?? _defaultActions,
        objects = objects ?? _defaultObjects,
        recipients = recipients ?? _defaultRecipients,
@@ -192,7 +195,17 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.object => [
         if (sentence.object != null)
           const _CompassCandidate(SetObject(null), 'no object', 120),
-        ..._objectChoicesForState(sentence, objects)
+        ...() {
+              final authoredObjects = _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.directObject,
+              );
+              return _objectChoicesForState(
+                sentence,
+                authoredObjects ?? objects,
+                preferGivenChoices: authoredObjects != null,
+              );
+            }()
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
@@ -225,7 +238,11 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.recipient => [
         if (sentence.recipient != null)
           const _CompassCandidate(SetRecipient(null), 'no recipient', 120),
-        ...recipients.map((recipient) {
+        ..._nounChoicesForState(
+          sentence.recipient,
+          _nounChoicesForPath(sentence, PredicatePathKind.toRecipient) ??
+              recipients,
+        ).map((recipient) {
           final isSelected = _sameNounChoice(recipient, sentence.recipient);
           final nextRecipient = isSelected
               ? sentence.recipient
@@ -254,7 +271,11 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.addressee => [
         if (sentence.addressee != null)
           const _CompassCandidate(SetAddressee(null), 'no addressee', 120),
-        ...recipients.map((addressee) {
+        ..._nounChoicesForState(
+          sentence.addressee,
+          _nounChoicesForPath(sentence, PredicatePathKind.toAddressee) ??
+              recipients,
+        ).map((addressee) {
           final isSelected = _sameNounChoice(addressee, sentence.addressee);
           final nextAddressee = isSelected
               ? sentence.addressee
@@ -283,7 +304,11 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.companion => [
         if (sentence.companion != null)
           const _CompassCandidate(SetCompanion(null), 'no companion', 120),
-        ...recipients.map((companion) {
+        ..._nounChoicesForState(
+          sentence.companion,
+          _nounChoicesForPath(sentence, PredicatePathKind.withCompanion) ??
+              recipients,
+        ).map((companion) {
           final isSelected = _sameNounChoice(companion, sentence.companion);
           final nextCompanion = isSelected
               ? sentence.companion
@@ -312,7 +337,11 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.destination => [
         if (sentence.destination != null)
           const _CompassCandidate(SetDestination(null), 'no destination', 120),
-        ...recipients.map((destination) {
+        ..._nounChoicesForState(
+          sentence.destination,
+          _nounChoicesForPath(sentence, PredicatePathKind.toDestination) ??
+              recipients,
+        ).map((destination) {
           final isSelected = _sameNounChoice(destination, sentence.destination);
           final nextDestination = isSelected
               ? sentence.destination
@@ -341,7 +370,11 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)
           const _CompassCandidate(SetRightAction(null), 'no right action', 120),
-        ...rightActionChoicesFor(sentence.action).map(
+        ..._verbChoicesForState(
+          sentence.rightAction,
+          _verbChoicesForPath(sentence, PredicatePathKind.toRightAction) ??
+              rightActionChoicesFor(sentence.action),
+        ).map(
           (rightAction) => _CompassCandidate(
             SetRightAction(rightAction),
             rightAction.infinitive,
@@ -438,7 +471,7 @@ class ConfigurationCompass {
             : const <_CompassCandidate>[],
       ConfigurationCompassSlot.passiveAgentNoun =>
         sentence.voice == Voice.passive
-            ? recipients.map((agent) {
+            ? _nounChoicesForState(sentence.agent, recipients).map((agent) {
                 final isSelected = _sameNounChoice(agent, sentence.agent);
                 final nextAgent = isSelected
                     ? sentence.agent
@@ -566,6 +599,44 @@ class ConfigurationCompass {
             ),
           ),
     ];
+  }
+
+  List<NounPhrase>? _nounChoicesForPath(
+    SentenceState sentence,
+    PredicatePathKind kind,
+  ) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final paths = predicatePathsFor(
+      sentence.action,
+    ).where((path) => path.kind == kind).toList();
+
+    if (paths.isEmpty) {
+      return null;
+    }
+
+    return _uniqueNounChoices([for (final path in paths) ...path.nouns]);
+  }
+
+  List<Verb>? _verbChoicesForPath(
+    SentenceState sentence,
+    PredicatePathKind kind,
+  ) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final paths = predicatePathsFor(
+      sentence.action,
+    ).where((path) => path.kind == kind).toList();
+
+    if (paths.isEmpty) {
+      return null;
+    }
+
+    return _uniqueVerbChoices([for (final path in paths) ...path.verbs]);
   }
 }
 
@@ -738,17 +809,74 @@ List<NounPhrase> _objectChoicesFor(Verb action, List<NounPhrase> fallback) {
 
 List<NounPhrase> _objectChoicesForState(
   SentenceState sentence,
-  List<NounPhrase> fallback,
-) {
-  final choices = [..._objectChoicesFor(sentence.action, fallback)];
+  List<NounPhrase> choices, {
+  bool preferGivenChoices = false,
+}) {
+  final nextChoices = [
+    ...(preferGivenChoices
+        ? choices
+        : _objectChoicesFor(sentence.action, choices)),
+  ];
   final current = sentence.object;
 
   if (current != null &&
-      !choices.any((choice) => _sameNounChoice(choice, current))) {
-    choices.add(current);
+      !nextChoices.any((choice) => _sameNounChoice(choice, current))) {
+    nextChoices.add(current);
   }
 
-  return choices;
+  return nextChoices;
+}
+
+List<NounPhrase> _nounChoicesForState(
+  NounPhrase? current,
+  List<NounPhrase> choices,
+) {
+  final nextChoices = _uniqueNounChoices(choices);
+
+  if (current != null &&
+      !nextChoices.any((choice) => _sameNounChoice(choice, current))) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
+List<Verb> _verbChoicesForState(Verb? current, List<Verb> choices) {
+  final nextChoices = _uniqueVerbChoices(choices);
+
+  if (current != null &&
+      !nextChoices.any((choice) => choice.infinitive == current.infinitive)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
+List<NounPhrase> _uniqueNounChoices(List<NounPhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(
+        [
+          choice.person.name,
+          choice.number.name,
+          choice.determiner?.text ?? '',
+          for (final adjective in choice.adjectiveList) adjective.text,
+          choice.text.toLowerCase(),
+        ].join(':'),
+      ))
+        choice,
+  ];
+}
+
+List<Verb> _uniqueVerbChoices(List<Verb> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.infinitive)) choice,
+  ];
 }
 
 String _nounPhraseLabel(NounPhrase phrase) {

@@ -1,8 +1,6 @@
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
-import 'package:padlock_app/data/subjects/third_person/objects.dart'
-    as object_data;
 import 'package:padlock_app/data/verbs/essential.dart' show play;
 import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
@@ -59,13 +57,12 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
     for (final noun in object_categories.mediaObjectNouns) ..._nounForms(noun),
   ],
   'drive': [
-    for (final noun in object_categories.vehicleObjectNouns)
+    for (final noun in object_categories.drivableObjectNouns)
       ..._nounForms(noun),
   ],
   'ride': [
-    ..._nounForms(object_data.bicycle),
-    ..._nounForms(object_data.bus),
-    ..._nounForms(object_data.train),
+    for (final noun in object_categories.rideableObjectNouns)
+      ..._nounForms(noun),
   ],
   'open': [
     for (final noun in object_categories.openableObjectNouns)

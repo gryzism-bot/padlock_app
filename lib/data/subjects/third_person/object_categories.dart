@@ -34,6 +34,9 @@ const textObjectNouns = [
 ];
 
 const toolObjectNouns = [
+  objects.phone,
+  objects.computer,
+  objects.laptop,
   objects.pen,
   objects.pencil,
   objects.keyboard,
@@ -74,6 +77,10 @@ const vehicleObjectNouns = [
   objects.train,
   objects.bicycle,
 ];
+
+const drivableObjectNouns = [objects.car, objects.bus, objects.train];
+
+const rideableObjectNouns = [objects.bicycle, objects.bus, objects.train];
 
 const mediaObjectNouns = [
   objects.television,
@@ -144,6 +151,12 @@ final pluralOpenableObjects = _plural(openableObjectNouns);
 
 final singularVehicleObjects = _singular(vehicleObjectNouns);
 final pluralVehicleObjects = _plural(vehicleObjectNouns);
+
+final singularDrivableObjects = _singular(drivableObjectNouns);
+final pluralDrivableObjects = _plural(drivableObjectNouns);
+
+final singularRideableObjects = _singular(rideableObjectNouns);
+final pluralRideableObjects = _plural(rideableObjectNouns);
 
 final singularMediaObjects = _singular(mediaObjectNouns);
 final pluralMediaObjects = _plural(mediaObjectNouns);

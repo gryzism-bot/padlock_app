@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
@@ -37,7 +38,7 @@ const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
 const _moveTraceLimit = 10;
-const _suggestionLimit = 24;
+const _suggestionLimit = 96;
 const _actionSuggestionLimit = 64;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
@@ -53,7 +54,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ConfigurationEngine lock = const ConfigurationEngine();
-  final ConfigurationCompass compass = ConfigurationCompass();
+  final ConfigurationCompass compass = ConfigurationCompass(
+    predicatePathMode: PredicatePathMode.authoredTracks,
+  );
   final GrammarEngine grammar = GrammarEngine();
   final CrudeTranslationEngine translator = const CrudeTranslationEngine();
 

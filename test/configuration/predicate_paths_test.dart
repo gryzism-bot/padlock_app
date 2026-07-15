@@ -16,6 +16,7 @@ import 'package:padlock_app/data/subjects/third_person/people.dart'
     as people_data;
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
@@ -35,10 +36,34 @@ void main() {
     return switch (path.kind) {
       PredicatePathKind.directObject => SetObject(path.nouns.first),
       PredicatePathKind.toRightAction => SetRightAction(path.verbs.first),
+      PredicatePathKind.toRecipient => SetRecipient(path.nouns.first),
       PredicatePathKind.toAddressee => SetAddressee(path.nouns.first),
       PredicatePathKind.withCompanion => SetCompanion(path.nouns.first),
       PredicatePathKind.toDestination => SetDestination(path.nouns.first),
     };
+  }
+
+  ConfigurationState stateAfterPath(
+    PredicateUnlocks unlocks,
+    PredicatePath path,
+  ) {
+    var state = ConfigurationState.initial();
+    state = lock.applyMove(state, SetAction(unlocks.verb));
+
+    if (path.kind == PredicatePathKind.toRecipient) {
+      PredicatePath? directObjectPath;
+      for (final candidate in unlocks.paths) {
+        if (candidate.kind == PredicatePathKind.directObject) {
+          directObjectPath = candidate;
+          break;
+        }
+      }
+      if (directObjectPath != null) {
+        state = lock.applyMove(state, firstMoveFor(directObjectPath));
+      }
+    }
+
+    return lock.applyMove(state, firstMoveFor(path));
   }
 
   group('Predicate paths', () {
@@ -118,7 +143,14 @@ void main() {
       );
       expect(
         object_categories.singularToolObjects.map((noun) => noun.text),
-        containsAll(['pen', 'keyboard', 'camera', 'knife']),
+        containsAll([
+          'phone',
+          'computer',
+          'pen',
+          'keyboard',
+          'camera',
+          'knife',
+        ]),
       );
       expect(
         object_categories.singularOpenableObjects.map((noun) => noun.text),
@@ -127,6 +159,22 @@ void main() {
       expect(
         object_categories.singularMediaObjects.map((noun) => noun.text),
         containsAll(['movie', 'song', 'photo', 'painting']),
+      );
+      expect(
+        object_categories.singularVehicleObjects.map((noun) => noun.text),
+        containsAll(['car', 'bus', 'train', 'bicycle']),
+      );
+      expect(
+        object_categories.singularDrivableObjects.map((noun) => noun.text),
+        containsAll(['car', 'bus', 'train']),
+      );
+      expect(
+        object_categories.singularDrivableObjects.map((noun) => noun.text),
+        isNot(contains('bicycle')),
+      );
+      expect(
+        object_categories.singularRideableObjects.map((noun) => noun.text),
+        containsAll(['bicycle', 'bus', 'train']),
       );
     });
 
@@ -152,6 +200,79 @@ void main() {
           reason: '${example.action.infinitive} ${example.object.singular}',
         );
       }
+    });
+
+    test('authored Compass mode narrows rails to predicate paths', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        objects: [
+          object_data.book.toNounPhrase(Number.singular),
+          object_data.bridge.toNounPhrase(Number.singular),
+        ],
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        ConfigurationState.initial(),
+        ConfigurationCompassSlot.object,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label).toList();
+
+      expect(labels, ['English', 'grammar', 'history', 'math', 'science']);
+      expect(labels, isNot(contains('book')));
+      expect(
+        grammar.generate(suggestions.first.preview.sentenceState).text,
+        'You learn English.',
+      );
+    });
+
+    test(
+      'authored Compass mode pulls addressees from predicate path shelves',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+          recipients: [people_data.john.toNounPhrase(Number.singular)],
+        );
+        var state = ConfigurationState.initial();
+        state = lock.applyMove(state, const SetAction(talk));
+
+        final suggestions = authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.addressee,
+          limit: 0,
+        );
+        final labels = suggestions
+            .map((suggestion) => suggestion.label)
+            .toList();
+        final johnSuggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == 'John',
+        );
+
+        expect(labels, containsAll(['John', 'Mary', 'boss', 'cat', 'dolphin']));
+        expect(
+          grammar.generate(johnSuggestion.preview.sentenceState).text,
+          'You talk to John.',
+        );
+      },
+    );
+
+    test('legacy Compass mode remains available as broad fallback', () {
+      final legacyCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.legacyCompassFallback,
+        recipients: [people_data.john.toNounPhrase(Number.singular)],
+      );
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(talk));
+
+      final suggestions = legacyCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.addressee,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label).toList();
+
+      expect(labels, ['John']);
+      expect(labels, isNot(contains('cat')));
     });
 
     test('every essential verb has a predicate path migration decision', () {
@@ -201,7 +322,7 @@ void main() {
         expect(learn.takesObject, isTrue);
         expect(
           learnDirectObjects,
-          containsAll(['English', 'grammar', 'history']),
+          containsAll(['English', 'grammar', 'math', 'history', 'science']),
         );
         expect(learnDirectObjects, isNot(contains('book')));
       },
@@ -239,6 +360,9 @@ void main() {
                   reason: '$reason -> ${rightAction.infinitive}',
                 );
               }
+            case PredicatePathKind.toRecipient:
+              expect(unlocks.verb.takesRecipient, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.toAddressee:
               expect(unlocks.verb.takesAddressee, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
@@ -257,8 +381,7 @@ void main() {
       for (final unlocks in guidedPredicateUnlocks) {
         for (final path in unlocks.paths) {
           var state = ConfigurationState.initial();
-          state = lock.applyMove(state, SetAction(unlocks.verb));
-          state = lock.applyMove(state, firstMoveFor(path));
+          state = stateAfterPath(unlocks, path);
 
           expect(
             wasBlocked(state),
@@ -280,6 +403,7 @@ void main() {
         talk: ['You talk to John.', 'You talk with John.'],
         write: [
           'You write book.',
+          'You write John book.',
           'You write to John.',
           'You write with John.',
         ],
@@ -289,9 +413,7 @@ void main() {
       for (final entry in examples.entries) {
         final unlocks = predicateUnlocksFor(entry.key)!;
         final rendered = unlocks.paths.map((path) {
-          var state = ConfigurationState.initial();
-          state = lock.applyMove(state, SetAction(unlocks.verb));
-          state = lock.applyMove(state, firstMoveFor(path));
+          final state = stateAfterPath(unlocks, path);
           return grammar.generate(state.sentenceState).text;
         }).toList();
 

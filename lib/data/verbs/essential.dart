@@ -62,6 +62,7 @@ const breakVerb = Verb(
   pastSimple: 'broke',
   pastParticiple: 'broken',
   ingForm: 'breaking',
+  takesObject: true,
   translations: {Language.pl: 'złamać'},
 );
 
@@ -305,6 +306,7 @@ const play = Verb(
   pastParticiple: 'played',
   ingForm: 'playing',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'grać'},
 );
 

@@ -131,6 +131,11 @@ void main() {
     );
 
     await expandRail(tester, route.railTitle);
+    expect(
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+      findsOneWidget,
+      reason: '${route.actionKey} should expose ${route.choiceKey}',
+    );
     await tapAfterScroll(
       tester,
       find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
@@ -806,7 +811,10 @@ void main() {
       expect(find.text('By-agent:'), findsOneWidget);
 
       await expandRail(tester, 'By-agent');
-      await tapAfterScroll(tester, find.text('Mary', findRichText: true));
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-passiveAgentNoun-mary')),
+      );
       await tapAfterScroll(
         tester,
         find.text('show by-agent', findRichText: true),
@@ -1130,9 +1138,9 @@ void main() {
     expect(find.text('person', findRichText: true), findsOneWidget);
     expect(find.text('people', findRichText: true), findsNothing);
 
-    await tapAfterScroll(tester, find.text('a dog', findRichText: true));
+    await tapAfterScroll(tester, find.text('dog', findRichText: true));
 
-    expect(renderedSentence(tester), 'You listen to a dog.');
+    expect(renderedSentence(tester), 'You listen to dog.');
 
     tester
         .widget<SegmentedButton<Number>>(

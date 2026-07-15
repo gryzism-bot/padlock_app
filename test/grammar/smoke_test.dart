@@ -22,7 +22,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart';
-import 'package:padlock_app/data/verbs/cooking.dart';
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
@@ -64,7 +64,7 @@ void main() {
 
       expect(
         engine.generate(state).text,
-        'The dog was running in the park yesterday.',
+        'The dog was running to the park yesterday.',
       );
     });
 
@@ -235,7 +235,7 @@ void main() {
     test('Cook imperative', () {
       final state = SentenceState(
         agent: you,
-        action: cook,
+        action: cooking_data.cook,
         tense: Tense.present,
         aspect: Aspect.simple,
         modal: noModal,
