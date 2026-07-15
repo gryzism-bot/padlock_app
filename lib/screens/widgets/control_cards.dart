@@ -52,8 +52,47 @@ class _SectionFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final railContent = Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Wrap(
+          spacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text('$title:', style: Theme.of(context).textTheme.titleMedium),
+            if (onToggle != null) ...[
+              IconButton(
+                tooltip: isExpanded ? 'Close $title rail' : 'Open $title rail',
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 24,
+                  height: 24,
+                ),
+                iconSize: 18,
+                onPressed: onToggle,
+                color: isExpanded ? colors.onSurfaceVariant : colors.primary,
+                icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+              ),
+            ],
+          ],
+        ),
+        if (!isExpanded && collapsedHint != null)
+          Text(
+            collapsedHint!,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+          ),
+        if (isExpanded) ...[if (controls.isNotEmpty) ...controls, ...children],
+      ],
+    );
+    final usePageScroll = isExpanded && _railUsesPageScroll(context);
 
     final content = DecoratedBox(
+      key: ValueKey('section-frame-$title'),
       decoration: BoxDecoration(
         border: Border.all(
           color: onToggle == null || isExpanded
@@ -64,67 +103,21 @@ class _SectionFrame extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: isExpanded
-                ? expandedMaxHeight ?? _largeRailMaxHeight
-                : 56,
-          ),
-          child: SingleChildScrollView(
-            physics: isExpanded
-                ? const ClampingScrollPhysics()
-                : const NeverScrollableScrollPhysics(),
-            child: Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '$title:',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    if (onToggle != null) ...[
-                      const SizedBox(width: 4),
-                      IconButton(
-                        tooltip: isExpanded
-                            ? 'Close $title rail'
-                            : 'Open $title rail',
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(
-                          width: 24,
-                          height: 24,
-                        ),
-                        iconSize: 18,
-                        onPressed: onToggle,
-                        color: isExpanded
-                            ? colors.onSurfaceVariant
-                            : colors.primary,
-                        icon: Icon(
-                          isExpanded ? Icons.expand_less : Icons.expand_more,
-                        ),
-                      ),
-                    ],
-                  ],
+        child: usePageScroll
+            ? railContent
+            : ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: isExpanded
+                      ? expandedMaxHeight ?? _largeRailMaxHeight
+                      : 56,
                 ),
-                if (!isExpanded && collapsedHint != null)
-                  Text(
-                    collapsedHint!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                if (isExpanded) ...[
-                  if (controls.isNotEmpty) ...controls,
-                  ...children,
-                ],
-              ],
-            ),
-          ),
-        ),
+                child: SingleChildScrollView(
+                  physics: isExpanded
+                      ? const ClampingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  child: railContent,
+                ),
+              ),
       ),
     );
 
@@ -141,6 +134,11 @@ class _SectionFrame extends StatelessWidget {
       ),
     );
   }
+}
+
+bool _railUsesPageScroll(BuildContext context) {
+  final size = MediaQuery.sizeOf(context);
+  return size.height > size.width || size.width < 700;
 }
 
 class _InlineExpandableChipCluster extends StatefulWidget {

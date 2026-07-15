@@ -523,6 +523,25 @@ void main() {
     expect(titleTops.reduce(max) - titleTops.reduce(min), lessThan(2));
   });
 
+  testWidgets(
+    'Portrait rails expand into the page instead of tiny rail scrolls',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 930);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpAndSettle();
+
+      final verbRailSize = tester.getSize(
+        find.byKey(const ValueKey('section-frame-Verb')),
+      );
+
+      expect(verbRailSize.height, greaterThan(300));
+    },
+  );
+
   testWidgets('Predicate extension rails appear only when their frame opens', (
     tester,
   ) async {
