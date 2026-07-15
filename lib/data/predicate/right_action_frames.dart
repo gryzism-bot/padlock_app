@@ -1,3 +1,4 @@
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/verbs/communication.dart' show speak;
 import 'package:padlock_app/data/verbs/essential.dart'
     show go, learn, sleep, watch, work;
@@ -13,10 +14,22 @@ final Map<String, List<Verb>> rightActionChoicesByVerb = {
 };
 
 bool hasRightActionFrame(Verb action) {
-  return rightActionChoicesByVerb.containsKey(action.infinitive);
+  return predicateVerbChoicesFor(
+        action,
+        PredicatePathKind.toRightAction,
+      ).isNotEmpty ||
+      rightActionChoicesByVerb.containsKey(action.infinitive);
 }
 
 List<Verb> rightActionChoicesFor(Verb action) {
+  final authoredChoices = predicateVerbChoicesFor(
+    action,
+    PredicatePathKind.toRightAction,
+  );
+  if (authoredChoices.isNotEmpty) {
+    return authoredChoices;
+  }
+
   return rightActionChoicesByVerb[action.infinitive] ?? const [];
 }
 

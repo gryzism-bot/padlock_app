@@ -328,6 +328,37 @@ void main() {
       },
     );
 
+    test(
+      'authored word-opening queries stay separate from structural helpers',
+      () {
+        final learnObjects = predicateNounChoicesFor(
+          learn,
+          PredicatePathKind.directObject,
+        ).map((noun) => noun.text).toList();
+
+        expect(learnObjects, containsAll(['English', 'grammar', 'history']));
+        expect(learnObjects, isNot(contains('book')));
+        expect(fixedObjectChoicesFor(learn).map((noun) => noun.text), [
+          'English',
+          'grammar',
+          'math',
+          'history',
+          'science',
+        ]);
+
+        final learnRightActions = predicateVerbChoicesFor(
+          learn,
+          PredicatePathKind.toRightAction,
+        ).map((verb) => verb.infinitive).toList();
+        final helperRightActions = rightActionChoicesFor(
+          learn,
+        ).map((verb) => verb.infinitive).toList();
+
+        expect(helperRightActions, learnRightActions);
+        expect(helperRightActions, ['speak', 'swim', 'work']);
+      },
+    );
+
     test('authored paths fit lower structural laws', () {
       for (final unlocks in guidedPredicateUnlocks) {
         for (final path in unlocks.paths) {

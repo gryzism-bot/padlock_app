@@ -609,15 +609,13 @@ class ConfigurationCompass {
       return null;
     }
 
-    final paths = predicatePathsFor(
-      sentence.action,
-    ).where((path) => path.kind == kind).toList();
+    final choices = predicateNounChoicesFor(sentence.action, kind);
 
-    if (paths.isEmpty) {
+    if (choices.isEmpty) {
       return null;
     }
 
-    return _uniqueNounChoices([for (final path in paths) ...path.nouns]);
+    return choices;
   }
 
   List<Verb>? _verbChoicesForPath(
@@ -628,15 +626,13 @@ class ConfigurationCompass {
       return null;
     }
 
-    final paths = predicatePathsFor(
-      sentence.action,
-    ).where((path) => path.kind == kind).toList();
+    final choices = predicateVerbChoicesFor(sentence.action, kind);
 
-    if (paths.isEmpty) {
+    if (choices.isEmpty) {
       return null;
     }
 
-    return _uniqueVerbChoices([for (final path in paths) ...path.verbs]);
+    return choices;
   }
 }
 

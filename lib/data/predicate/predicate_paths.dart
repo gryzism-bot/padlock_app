@@ -777,6 +777,27 @@ List<PredicatePath> predicatePathsFor(Verb verb) {
   return predicateUnlocksFor(verb)?.paths ?? const [];
 }
 
+List<NounPhrase> predicateNounChoicesFor(Verb verb, PredicatePathKind kind) {
+  return _uniqueByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      ...path.nouns,
+  ]);
+}
+
+List<Verb> predicateVerbChoicesFor(Verb verb, PredicatePathKind kind) {
+  final seen = <String>{};
+
+  return [
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      for (final choice in path.verbs)
+        if (seen.add(choice.infinitive)) choice,
+  ];
+}
+
 PredicatePathMigrationDecision? predicatePathMigrationFor(Verb verb) {
   for (final decision in essentialPredicatePathMigration) {
     if (decision.verb.infinitive == verb.infinitive) {

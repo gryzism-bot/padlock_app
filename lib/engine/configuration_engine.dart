@@ -3,6 +3,7 @@ import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/engine/configuration_laws.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
@@ -477,7 +478,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Complement', state.complement, blockers);
     _validateRightAction(state, blockers);
 
-    if (state.action.infinitive == 'be') {
+    if (isLexicalBeFrame(state)) {
       _validateLexicalBe(state, blockers);
     } else {
       _validatePredicateFrame(state, blockers);
@@ -553,21 +554,19 @@ class ConfigurationEngine {
     SentenceState state,
     List<ConfigurationMessage> blockers,
   ) {
-    if (state.agent == null) {
+    if (lexicalBeNeedsAgent(state)) {
       blockers.add(
         const ConfigurationMessage.blocked('Lexical be requires an agent.'),
       );
     }
 
-    if (state.voice != Voice.active) {
+    if (lexicalBeNeedsActiveVoice(state)) {
       blockers.add(
         const ConfigurationMessage.blocked('Lexical be is active-only.'),
       );
     }
 
-    if (state.agent != null &&
-        state.complement != null &&
-        state.agent!.isPlural != state.complement!.isPlural) {
+    if (!lexicalBeNounComplementMatchesAgentNumber(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be noun complement must match agent number.',
@@ -575,7 +574,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.object != null) {
+    if (lexicalBeRejectsObjectSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an object.',
@@ -583,8 +582,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.objectComplement != null ||
-        state.objectAdjectiveComplement != null) {
+    if (lexicalBeRejectsObjectComplementSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an object complement.',
@@ -592,7 +590,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.recipient != null) {
+    if (lexicalBeRejectsRecipientSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a recipient.',
@@ -600,7 +598,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.addressee != null) {
+    if (lexicalBeRejectsAddresseeSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an addressee.',
@@ -608,7 +606,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.destination != null) {
+    if (lexicalBeRejectsDestinationSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a destination.',
@@ -616,7 +614,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.rightAction != null) {
+    if (lexicalBeRejectsRightActionSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a right action complement.',
@@ -624,7 +622,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.passiveFocus != null) {
+    if (lexicalBeRejectsPassiveFocus(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take passive focus.',
@@ -632,7 +630,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (!state.showPassiveAgent) {
+    if (lexicalBeRejectsPassiveAgentVisibility(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take passive agent visibility.',
@@ -694,7 +692,7 @@ class ConfigurationEngine {
 
     if (state.objectComplement != null ||
         state.objectAdjectiveComplement != null) {
-      if (!state.action.takesObjectComplement) {
+      if (!objectComplementsNeedObjectCapablePredicate(state)) {
         blockers.add(
           ConfigurationMessage.blocked(
             '${state.action.infinitive} does not take an object complement.',
@@ -702,7 +700,7 @@ class ConfigurationEngine {
         );
       }
 
-      if (state.object == null) {
+      if (!objectComplementsNeedObject(state)) {
         blockers.add(
           const ConfigurationMessage.blocked(
             'Object complements require an object.',
@@ -750,7 +748,7 @@ class ConfigurationEngine {
 
     switch (state.voice) {
       case Voice.active:
-        if (state.agent == null) {
+        if (activeVoiceNeedsAgent(state)) {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Active voice requires an agent.',
@@ -758,7 +756,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.passiveFocus != null) {
+        if (!passiveFocusBelongsToPassiveVoice(state)) {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive focus belongs to passive voice.',
@@ -766,7 +764,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (!state.showPassiveAgent) {
+        if (!passiveAgentVisibilityBelongsToPassiveVoice(state)) {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive agent visibility belongs to passive voice.',
@@ -774,7 +772,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.recipient != null && !state.action.takesRecipient) {
+        if (!activeRecipientNeedsRecipientCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take a recipient.',
@@ -782,7 +780,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.addressee != null && !state.action.takesAddressee) {
+        if (!activeAddresseeNeedsAddresseeCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an addressee.',
@@ -790,7 +788,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.object != null && !state.action.takesObject) {
+        if (!activeObjectNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an object.',
@@ -798,7 +796,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (state.recipient != null && state.object == null) {
+        if (!recipientFrameNeedsObject(state)) {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Recipient frames require an object.',
@@ -817,7 +815,7 @@ class ConfigurationEngine {
           );
         }
 
-        if (!state.action.takesObject) {
+        if (!passiveVoiceNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} cannot be passive in this frame.',
@@ -825,39 +823,36 @@ class ConfigurationEngine {
           );
         }
 
-        final focus = state.passiveFocus ?? PassiveFocus.object;
-        switch (focus) {
-          case PassiveFocus.object:
-            if (state.object == null) {
-              blockers.add(
-                const ConfigurationMessage.blocked(
-                  'Passive object focus requires an object.',
-                ),
-              );
-            }
-            break;
-          case PassiveFocus.recipient:
-            if (!state.action.takesRecipient) {
-              blockers.add(
-                ConfigurationMessage.blocked(
-                  '${state.action.infinitive} has no recipient focus.',
-                ),
-              );
-            }
-            if (state.recipient == null) {
-              blockers.add(
-                const ConfigurationMessage.blocked(
-                  'Passive recipient focus requires a recipient.',
-                ),
-              );
-            }
-            if (state.object == null) {
-              blockers.add(
-                const ConfigurationMessage.blocked(
-                  'Passive recipient focus still requires an object.',
-                ),
-              );
-            }
+        if (!passiveObjectFocusNeedsObject(state)) {
+          blockers.add(
+            const ConfigurationMessage.blocked(
+              'Passive object focus requires an object.',
+            ),
+          );
+        }
+
+        if (!passiveRecipientFocusNeedsRecipientCapablePredicate(state)) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} has no recipient focus.',
+            ),
+          );
+        }
+
+        if (!passiveRecipientFocusNeedsRecipient(state)) {
+          blockers.add(
+            const ConfigurationMessage.blocked(
+              'Passive recipient focus requires a recipient.',
+            ),
+          );
+        }
+
+        if (!passiveRecipientFocusNeedsObject(state)) {
+          blockers.add(
+            const ConfigurationMessage.blocked(
+              'Passive recipient focus still requires an object.',
+            ),
+          );
         }
     }
   }
@@ -870,13 +865,13 @@ class ConfigurationEngine {
       return;
     }
 
-    if (state.sentenceForm == SentenceForm.imperative) {
+    if (!modalAllowedInSentenceForm(state)) {
       blockers.add(
         const ConfigurationMessage.blocked('Imperatives cannot take a modal.'),
       );
     }
 
-    if (state.modal == will && state.tense != Tense.future) {
+    if (state.modal == will && !modalMatchesTenseFrame(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Will belongs to the future tense frame.',
@@ -884,7 +879,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.modal != will && state.tense == Tense.future) {
+    if (state.modal != will && !modalMatchesTenseFrame(state)) {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.modal.text} belongs to the present modal frame.',
@@ -901,13 +896,13 @@ class ConfigurationEngine {
       return;
     }
 
-    if (state.tense != Tense.present || state.aspect != Aspect.simple) {
+    if (!imperativeUsesPresentSimple(state)) {
       blockers.add(
         const ConfigurationMessage.blocked('Imperatives use present simple.'),
       );
     }
 
-    if (state.voice != Voice.active) {
+    if (!imperativeUsesActiveVoice(state)) {
       blockers.add(
         const ConfigurationMessage.blocked('Imperatives use active voice.'),
       );
