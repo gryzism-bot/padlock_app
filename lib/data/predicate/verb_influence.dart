@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
@@ -58,81 +59,146 @@ const _visibleOutputCountByVerb = {'be': 2};
 
 List<PredicateInfluence> predicateInfluencesFor(Verb action) {
   final fixedLabel = fixedObjectFrameLabel(action);
+  final influences = <PredicateInfluence>[];
+  final seenKeys = <String>{};
 
-  return [
-    if (action.infinitive == 'be')
-      PredicateInfluence(
-        key: 'complement',
-        label: 'complement',
-        tooltip: '${action.infinitive} wakes complements',
-        rank: 60,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (action.takesRecipient)
-      PredicateInfluence(
-        key: 'recipient',
-        label: 'recipient',
-        tooltip: '${action.infinitive} wakes recipient',
-        rank: 50,
-        source: PredicateInfluenceSource.grammarFrame,
-      ),
-    if (action.takesAddressee)
-      PredicateInfluence(
-        key: 'addressee',
-        label: 'addressee',
-        tooltip: '${action.infinitive} wakes addressee',
-        rank: 48,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (action.takesCompanion)
-      PredicateInfluence(
-        key: 'companion',
-        label: 'companion',
-        tooltip: '${action.infinitive} wakes companion',
-        rank: 46,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (fixedLabel != null)
-      PredicateInfluence(
-        key: fixedLabel,
-        label: fixedLabel,
-        tooltip: '${action.infinitive} wakes $fixedLabel',
-        rank: 45,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (action.usesDestinationPlace)
-      PredicateInfluence(
-        key: 'destination',
-        label: 'destination',
-        tooltip: '${action.infinitive} wakes destination',
-        rank: 40,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (hasRightActionFrame(action))
-      PredicateInfluence(
-        key: 'right-action',
-        label: 'right action',
-        tooltip: '${action.infinitive} wakes to-action',
-        rank: 39,
-        source: PredicateInfluenceSource.predicateProperty,
-      ),
-    if (action.takesObjectComplement)
-      PredicateInfluence(
-        key: 'object-complement',
-        label: 'object complement',
-        tooltip: '${action.infinitive} wakes object complement',
-        rank: 38,
-        source: PredicateInfluenceSource.grammarFrame,
-      ),
-    if (action.takesObject && fixedLabel == null)
-      PredicateInfluence(
-        key: 'object',
-        label: 'object',
-        tooltip: '${action.infinitive} wakes object',
-        rank: 30,
-        source: PredicateInfluenceSource.grammarFrame,
-      ),
-  ];
+  void add(PredicateInfluence influence) {
+    if (seenKeys.add(influence.key)) {
+      influences.add(influence);
+    }
+  }
+
+  for (final path in predicatePathsFor(action)) {
+    add(_influenceForPath(action, path.kind, fixedLabel));
+  }
+
+  if (action.infinitive == 'be') {
+    add(_predicateProperty(action, 'complement', 'complement', 60));
+  }
+
+  if (action.takesRecipient) {
+    add(_grammarFrame(action, 'recipient', 'recipient', 50));
+  }
+
+  if (action.takesAddressee) {
+    add(_predicateProperty(action, 'addressee', 'addressee', 48));
+  }
+
+  if (action.takesCompanion) {
+    add(_predicateProperty(action, 'companion', 'companion', 46));
+  }
+
+  if (fixedLabel != null) {
+    add(_predicateProperty(action, fixedLabel, fixedLabel, 45));
+  }
+
+  if (action.usesDestinationPlace) {
+    add(_predicateProperty(action, 'destination', 'destination', 40));
+  }
+
+  if (hasRightActionFrame(action)) {
+    add(_predicateProperty(action, 'right-action', 'right action', 39));
+  }
+
+  if (action.takesObjectComplement) {
+    add(_grammarFrame(action, 'object-complement', 'object complement', 38));
+  }
+
+  if (action.takesObject && fixedLabel == null) {
+    add(_grammarFrame(action, 'object', 'object', 30));
+  }
+
+  influences.sort((left, right) => right.rank.compareTo(left.rank));
+  return influences;
+}
+
+PredicateInfluence _influenceForPath(
+  Verb action,
+  PredicatePathKind kind,
+  String? fixedLabel,
+) {
+  return switch (kind) {
+    PredicatePathKind.directObject =>
+      fixedLabel == null
+          ? _grammarFrame(action, 'object', 'object', 30)
+          : _predicateProperty(action, fixedLabel, fixedLabel, 45),
+    PredicatePathKind.toRightAction => _predicateProperty(
+      action,
+      'right-action',
+      'right action',
+      39,
+    ),
+    PredicatePathKind.toRecipient => _grammarFrame(
+      action,
+      'recipient',
+      'recipient',
+      50,
+    ),
+    PredicatePathKind.toAddressee => _predicateProperty(
+      action,
+      'addressee',
+      'addressee',
+      48,
+    ),
+    PredicatePathKind.withCompanion => _predicateProperty(
+      action,
+      'companion',
+      'companion',
+      46,
+    ),
+    PredicatePathKind.toDestination => _predicateProperty(
+      action,
+      'destination',
+      'destination',
+      40,
+    ),
+  };
+}
+
+PredicateInfluence _grammarFrame(
+  Verb action,
+  String key,
+  String label,
+  int rank,
+) {
+  return _influence(
+    action,
+    key,
+    label,
+    rank,
+    PredicateInfluenceSource.grammarFrame,
+  );
+}
+
+PredicateInfluence _predicateProperty(
+  Verb action,
+  String key,
+  String label,
+  int rank,
+) {
+  return _influence(
+    action,
+    key,
+    label,
+    rank,
+    PredicateInfluenceSource.predicateProperty,
+  );
+}
+
+PredicateInfluence _influence(
+  Verb action,
+  String key,
+  String label,
+  int rank,
+  PredicateInfluenceSource source,
+) {
+  return PredicateInfluence(
+    key: key,
+    label: label,
+    tooltip: '${action.infinitive} wakes $label',
+    rank: rank,
+    source: source,
+  );
 }
 
 int predicateInfluenceRank(Verb action) {

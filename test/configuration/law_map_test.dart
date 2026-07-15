@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 
@@ -127,6 +128,31 @@ void main() {
           ),
           isNotEmpty,
         );
+      }
+    });
+
+    test('authored predicate paths surface as predicate influences', () {
+      for (final unlocks in guidedPredicateUnlocks) {
+        final influences = predicateInfluencesFor(unlocks.verb);
+        final influenceKeys = influences.map((influence) => influence.key);
+
+        for (final path in unlocks.paths) {
+          final expectedKey = switch (path.kind) {
+            PredicatePathKind.directObject =>
+              fixedObjectFrameLabel(unlocks.verb) ?? 'object',
+            PredicatePathKind.toRightAction => 'right-action',
+            PredicatePathKind.toRecipient => 'recipient',
+            PredicatePathKind.toAddressee => 'addressee',
+            PredicatePathKind.withCompanion => 'companion',
+            PredicatePathKind.toDestination => 'destination',
+          };
+
+          expect(
+            influenceKeys,
+            contains(expectedKey),
+            reason: '${unlocks.verb.infinitive} ${path.kind}',
+          );
+        }
       }
     });
   });

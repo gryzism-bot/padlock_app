@@ -115,3 +115,112 @@ Predicate paths also prepare better translations. A path can carry meaning:
 
 That makes the same authored track useful for UI, translation, testing, and
 eventual educational explanations.
+
+## Keepsake Pt 2: Careful Comb-Downs
+
+The system is now being refined by small comb-down passes. Each pass gathers a
+scattered responsibility into the lowest layer that can own it without turning
+the app into a larger, fuzzier engine.
+
+### Comb-Down 1: Configuration Laws
+
+Question:
+
+Is this `SentenceState` legal?
+
+The Lock already knew many laws, but some of them lived as inline conditions.
+They were extracted into named predicates in `configuration_laws.dart`.
+
+Examples:
+
+- lexical `be` is active and needs an agent
+- active voice needs an agent
+- passive object focus needs an object
+- passive recipient focus needs recipient plus object
+- future tense owns `will`
+- imperative uses active present simple
+
+This pass did not change Predicate Paths or word choice. It only made language
+shape laws explicit and reusable.
+
+### Comb-Down 2: Predicate Path Queries
+
+Question:
+
+What authored words can this predicate open?
+
+Predicate Paths became the explicit source for handcrafted word openings. The
+data layer now exposes reusable queries:
+
+- `predicateNounChoicesFor(verb, pathKind)`
+- `predicateVerbChoicesFor(verb, pathKind)`
+
+Compass uses those queries in authored mode instead of scanning path objects
+itself. Right-action helpers can safely prefer authored path data because they
+answer the same narrow question: which bare verb can follow `to`.
+
+Fixed object frames were deliberately kept separate as structural compatibility
+helpers. A focused test caught that globally replacing them with authored paths
+would leak Guided Mode narrowing into Explorer/legacy behavior.
+
+This pass drew the boundary:
+
+- Predicate Paths are authored product tracks.
+- Fixed object frames are structural/legacy support.
+- Compass adapts the active mode into suggestions.
+
+### Comb-Down 3: Predicate Influence
+
+Question:
+
+What should verb chips claim they can wake?
+
+`verb_influence.dart` used to independently infer badges and output counts from
+verb flags, fixed frames, and right-action frames. It now collects authored
+Predicate Paths first, then fills missing influence from structural fallback
+rules.
+
+That makes the UI badges describe the same tracks that Guided Mode uses.
+
+Examples:
+
+- `give` wakes `recipient` and `object`
+- `learn` wakes `subject`, `right action`, and `companion`
+- `go` wakes `destination` and `companion`
+- `read` wakes `text`
+
+Influences are sorted by rank before the UI sees them, so stronger signals such
+as recipient still lead the tooltip and icon color even when path data is
+authored in another order.
+
+The split after this pass:
+
+- Verb structural flags say what the grammar permits.
+- Predicate Paths say what authored tracks exist.
+- Predicate Influence says how those openings should be signaled on verb chips.
+
+### Next Comb-Down Candidates
+
+Diagnostics labels are the next clean candidate.
+
+Current diagnostic UI classifies Lock messages by reading message text. That is
+useful, but it is still text-sniffing. A future pass should let
+`ConfigurationMessage` carry a stable law category directly:
+
+- noun phrase shape violation
+- predicate frame violation
+- passive shape violation
+- modal tense frame violation
+- imperative frame violation
+- phrase compatibility violation
+
+Rail Policy is the next larger candidate after that.
+
+Rails already have an implicit state machine: asleep, awake, open, filled,
+hidden-but-backreachable. Some of that lives in Compass, some in UI, and some in
+tests. A future pass can gather it into a small policy layer:
+
+`SentenceState + mode + Predicate Paths + Lock -> rail visibility states`
+
+That would make disappearing rails, remembered passive agents, and open/closed
+predicate surfaces easier to test and reason about.
