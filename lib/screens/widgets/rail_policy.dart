@@ -8,6 +8,8 @@ typedef _RailTitleBuilder = String Function(ConfigurationState configuration);
 typedef _RailHintBuilder = String Function(ConfigurationState configuration);
 typedef _RailStatePredicate = bool Function(SentenceState state);
 typedef _RailValueBuilder = String Function(SentenceState state);
+typedef _RailSurfaceBuilder =
+    String? Function(ConfigurationState configuration);
 typedef _RailSuggestionsBuilder =
     List<ConfigurationSuggestion> Function(ConfigurationCompassSlot slot);
 
@@ -18,6 +20,7 @@ class _RailPolicy {
   final bool isControlled;
   final _RailStatePredicate canRenderCollapsedWhen;
   final _RailStatePredicate canRenderWhenEmpty;
+  final _RailSurfaceBuilder surfaceMarker;
   final _RailTitleBuilder? participantLabel;
   final _RailValueBuilder? participantValue;
   final _RailStatePredicate? participantAwakeWhen;
@@ -30,6 +33,7 @@ class _RailPolicy {
     required this.isControlled,
     required this.canRenderCollapsedWhen,
     required this.canRenderWhenEmpty,
+    this.surfaceMarker = _noRailSurfaceMarker,
     this.participantLabel,
     this.participantValue,
     this.participantAwakeWhen,
@@ -101,6 +105,7 @@ List<_VisibleCompassSlot> _visibleRailSections({
           const [],
           title: policy.title(configuration),
           unlockHint: policy.unlockHint(configuration),
+          surfaceMarker: policy.surfaceMarker(configuration),
           isExpanded: false,
           canToggle: true,
         ),
@@ -119,6 +124,7 @@ List<_VisibleCompassSlot> _visibleRailSections({
         suggestions,
         title: policy.title(configuration),
         unlockHint: policy.unlockHint(configuration),
+        surfaceMarker: policy.surfaceMarker(configuration),
         isExpanded: isExpanded,
         canToggle: canToggle,
       ),
@@ -127,6 +133,8 @@ List<_VisibleCompassSlot> _visibleRailSections({
 
   return sections;
 }
+
+String? _noRailSurfaceMarker(ConfigurationState configuration) => null;
 
 bool _isBodyRailSlot(ConfigurationCompassSlot slot) {
   return slot != ConfigurationCompassSlot.voice &&
@@ -227,6 +235,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     slot: ConfigurationCompassSlot.object,
     title: _fixedObjectTitle,
     unlockHint: _objectUnlockHint,
+    surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.takesObject || hasFixedObjectFrame(state.action),
@@ -256,6 +265,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Object complement',
     unlockHint: (_) =>
         'Choose a verb like make or call, then choose an object first.',
+    surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         (state.action.takesObjectComplement && state.object != null) ||
@@ -294,6 +304,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Object adjective complement',
     unlockHint: (_) =>
         'Choose a verb like make or call, then choose an object first.',
+    surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         (state.action.takesObjectComplement && state.object != null) ||
@@ -312,6 +323,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Recipient',
     unlockHint: (_) =>
         'Choose a ditransitive verb like give, tell, teach, write, or buy, then keep an object active.',
+    surfaceMarker: (_) => 'to/for/-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         (state.action.takesRecipient && state.object != null) ||
@@ -348,6 +360,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Addressee',
     unlockHint: (_) =>
         'Choose a verb that can speak, talk, or write to someone.',
+    surfaceMarker: (_) => 'to',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.takesAddressee || state.addressee != null,
@@ -381,6 +394,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Companion',
     unlockHint: (_) =>
         'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
+    surfaceMarker: (_) => 'with',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' ||
@@ -416,6 +430,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Destination',
     unlockHint: (_) =>
         'Choose a movement verb like go, come, travel, arrive, leave, or return.',
+    surfaceMarker: (_) => 'to',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.usesDestinationPlace || state.destination != null,
@@ -449,6 +464,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Right action',
     unlockHint: (_) =>
         'Choose a verb like want, need, like, love, or learn to open a to-action complement.',
+    surfaceMarker: (_) => 'to',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         hasRightActionFrame(state.action) || state.rightAction != null,
@@ -462,6 +478,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Noun complement',
     unlockHint: (_) =>
         'Choose verb be first. Noun complements belong to the be frame.',
+    surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' || state.complement != null,
@@ -495,6 +512,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Adjective complement',
     unlockHint: (_) =>
         'Choose verb be first. Adjective complements belong to the be frame.',
+    surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' || state.adjectiveComplement != null,
@@ -535,6 +553,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'By-agent',
     unlockHint: (_) =>
         'Turn passive voice on first. This rail changes the remembered by-agent, even when the by-phrase is hidden.',
+    surfaceMarker: (_) => 'by',
     isControlled: true,
     canRenderCollapsedWhen: (state) => state.voice == Voice.passive,
     canRenderWhenEmpty: (state) =>

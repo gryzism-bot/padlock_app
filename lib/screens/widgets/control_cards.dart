@@ -35,17 +35,21 @@ class _SectionFrame extends StatelessWidget {
   final bool isExpanded;
   final VoidCallback? onToggle;
   final String? collapsedHint;
+  final String? surfaceMarker;
   final List<Widget> controls;
   final List<Widget> children;
   final double? expandedMaxHeight;
+  final bool expandIntoPage;
 
   const _SectionFrame({
     required this.title,
     this.isExpanded = true,
     this.onToggle,
     this.collapsedHint,
+    this.surfaceMarker,
     this.controls = const [],
     this.expandedMaxHeight,
+    this.expandIntoPage = false,
     required this.children,
   });
 
@@ -62,6 +66,18 @@ class _SectionFrame extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text('$title:', style: Theme.of(context).textTheme.titleMedium),
+            if (surfaceMarker != null)
+              Tooltip(
+                message: 'Surface connector: $surfaceMarker',
+                child: Text(
+                  '($surfaceMarker)',
+                  key: Key('rail-surface-marker-$title'),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             if (onToggle != null) ...[
               IconButton(
                 tooltip: isExpanded ? 'Close $title rail' : 'Open $title rail',
@@ -89,7 +105,8 @@ class _SectionFrame extends StatelessWidget {
         if (isExpanded) ...[if (controls.isNotEmpty) ...controls, ...children],
       ],
     );
-    final usePageScroll = isExpanded && _railUsesPageScroll(context);
+    final usePageScroll =
+        isExpanded && (expandIntoPage || _railUsesPageScroll(context));
 
     final content = DecoratedBox(
       key: ValueKey('section-frame-$title'),

@@ -37,6 +37,7 @@ enum PreviewCacheMode { unbounded, bounded }
 const _stickyHeaderHeight = 120.0;
 const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
+const _diagnosticsDockCollapsedHeight = 52.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
 const _actionSuggestionLimit = 192;
@@ -66,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
   HeaderPreviewMode? headerPreviewMode;
   PreviewCacheMode? previewCacheMode;
   bool showTranslation = false;
+  bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
   );
@@ -135,11 +137,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _reset() {
+    final sentence = grammar
+        .generate(ConfigurationState.initial().sentenceState)
+        .text;
+
     setState(() {
       configuration = ConfigurationState.initial();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
-      moveTrace = const [];
+      moveTrace = [_MoveTraceEntry.reset(sentence)];
       expandedRails = const {};
     });
   }
@@ -331,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Padlock Guided Mode'),
+        title: const Text('Padlock Developer Console'),
         actions: [
           _AppBarTools(
             previewMode: previewMode,
@@ -375,6 +381,12 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
         moveTrace: moveTrace,
+        isCollapsed: diagnosticsCollapsed,
+        onCollapsedChanged: (value) {
+          setState(() {
+            diagnosticsCollapsed = value;
+          });
+        },
         cacheMode: cacheMode,
         cacheEntryCount: previewCacheEntryCount,
         cacheEntryLimit: previewCache.maxEntries,
@@ -429,6 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _CompassSlotSection(
                       title: section.title,
                       unlockHint: section.unlockHint,
+                      surfaceMarker: section.surfaceMarker,
                       isExpanded: section.isExpanded,
                       onToggle: section.canToggle
                           ? () => _toggleRail(section.slot)
@@ -684,6 +697,7 @@ class _VisibleCompassSlot {
   final List<ConfigurationSuggestion> suggestions;
   final String title;
   final String unlockHint;
+  final String? surfaceMarker;
   final bool isExpanded;
   final bool canToggle;
 
@@ -692,6 +706,7 @@ class _VisibleCompassSlot {
     this.suggestions, {
     required this.title,
     required this.unlockHint,
+    required this.surfaceMarker,
     required this.isExpanded,
     required this.canToggle,
   });
@@ -742,6 +757,8 @@ class _AppBarTools extends StatelessWidget {
 class _BottomDock extends StatelessWidget {
   final List<ConfigurationMessage> messages;
   final List<_MoveTraceEntry> moveTrace;
+  final bool isCollapsed;
+  final ValueChanged<bool> onCollapsedChanged;
   final PreviewCacheMode cacheMode;
   final ValueChanged<PreviewCacheMode> onCacheModeChanged;
   final VoidCallback onClearCache;
@@ -751,6 +768,8 @@ class _BottomDock extends StatelessWidget {
   const _BottomDock({
     required this.messages,
     required this.moveTrace,
+    required this.isCollapsed,
+    required this.onCollapsedChanged,
     required this.cacheMode,
     required this.onCacheModeChanged,
     required this.onClearCache,
@@ -761,6 +780,13 @@ class _BottomDock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final cacheStrip = _PreviewCacheDiagnosticsPanel(
+      mode: cacheMode,
+      entryCount: cacheEntryCount,
+      entryLimit: cacheEntryLimit,
+      onModeChanged: onCacheModeChanged,
+      onClear: onClearCache,
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -769,54 +795,48 @@ class _BottomDock extends StatelessWidget {
           color: colors.surface.withValues(alpha: 0.96),
           elevation: 2,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: _diagnosticsDockReserveHeight,
+            constraints: BoxConstraints(
+              maxHeight: isCollapsed
+                  ? _diagnosticsDockCollapsedHeight
+                  : _diagnosticsDockReserveHeight,
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final hasLanguageAlerts = messages.isNotEmpty;
-                  final hasMoveTrace = moveTrace.isNotEmpty;
                   final compact = constraints.maxWidth < 1100;
-                  final cacheStrip = _PreviewCacheDiagnosticsPanel(
-                    mode: cacheMode,
-                    entryCount: cacheEntryCount,
-                    entryLimit: cacheEntryLimit,
-                    onModeChanged: onCacheModeChanged,
-                    onClear: onClearCache,
+                  final header = _DiagnosticsDockHeader(
+                    messages: messages,
+                    moveTrace: moveTrace,
+                    isCollapsed: isCollapsed,
+                    onCollapsedChanged: onCollapsedChanged,
+                    cacheStrip: cacheStrip,
                   );
+
+                  if (isCollapsed) {
+                    return header;
+                  }
 
                   if (compact) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: SizedBox(
-                            width: min(constraints.maxWidth, 560),
-                            child: cacheStrip,
-                          ),
-                        ),
+                        header,
                         const SizedBox(height: 8),
                         Expanded(
                           child: SingleChildScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                if (hasLanguageAlerts) ...[
-                                  SizedBox(
-                                    height: 142,
-                                    child: _GuidedMessages(messages: messages),
-                                  ),
-                                  const SizedBox(height: 8),
-                                ],
-                                if (hasMoveTrace) ...[
-                                  SizedBox(
-                                    height: 86,
-                                    child: _MoveTracePanel(entries: moveTrace),
-                                  ),
-                                ],
+                                SizedBox(
+                                  height: 142,
+                                  child: _GuidedMessages(messages: messages),
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  height: 86,
+                                  child: _MoveTracePanel(entries: moveTrace),
+                                ),
                               ],
                             ),
                           ),
@@ -828,30 +848,21 @@ class _BottomDock extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(width: 560, child: cacheStrip),
-                      ),
+                      header,
                       const SizedBox(height: 8),
                       Expanded(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (hasLanguageAlerts) ...[
-                              Expanded(
-                                flex: 6,
-                                child: _GuidedMessages(messages: messages),
-                              ),
-                              const SizedBox(width: 8),
-                            ],
-                            if (hasMoveTrace) ...[
-                              Expanded(
-                                flex: 5,
-                                child: _MoveTracePanel(entries: moveTrace),
-                              ),
-                            ],
-                            if (!hasLanguageAlerts && !hasMoveTrace)
-                              const Spacer(),
+                            Expanded(
+                              flex: 6,
+                              child: _GuidedMessages(messages: messages),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 5,
+                              child: _MoveTracePanel(entries: moveTrace),
+                            ),
                           ],
                         ),
                       ),
@@ -868,7 +879,84 @@ class _BottomDock extends StatelessWidget {
   }
 }
 
-enum _MoveTraceStatus { accepted, blocked, random }
+class _DiagnosticsDockHeader extends StatelessWidget {
+  final List<ConfigurationMessage> messages;
+  final List<_MoveTraceEntry> moveTrace;
+  final bool isCollapsed;
+  final ValueChanged<bool> onCollapsedChanged;
+  final Widget cacheStrip;
+
+  const _DiagnosticsDockHeader({
+    required this.messages,
+    required this.moveTrace,
+    required this.isCollapsed,
+    required this.onCollapsedChanged,
+    required this.cacheStrip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        IconButton(
+          tooltip: isCollapsed
+              ? 'Expand diagnostics bar'
+              : 'Collapse diagnostics bar',
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+          onPressed: () => onCollapsedChanged(!isCollapsed),
+          icon: Icon(
+            isCollapsed ? Icons.expand_less : Icons.expand_more,
+            size: 18,
+          ),
+        ),
+        const SizedBox(width: 4),
+        Icon(Icons.notifications_none, size: 16, color: colors.primary),
+        const SizedBox(width: 5),
+        Text(
+          'Language alert ${messages.length}',
+          key: const Key('diagnostics-collapsed-alert-count'),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: colors.primary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        if (isCollapsed) ...[
+          const SizedBox(width: 14),
+          Icon(Icons.route_outlined, size: 16, color: colors.secondary),
+          const SizedBox(width: 5),
+          Flexible(
+            child: SelectableText(
+              moveTrace.isEmpty ? 'No moves yet.' : moveTrace.last.line,
+              key: const Key('diagnostics-collapsed-move-text'),
+              maxLines: 1,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
+          ),
+        ],
+        if (!isCollapsed) ...[
+          const SizedBox(width: 12),
+          Flexible(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: cacheStrip,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+enum _MoveTraceStatus { accepted, blocked, random, reset }
 
 class _MoveTraceEntry {
   final String label;
@@ -892,6 +980,15 @@ class _MoveTraceEntry {
     );
   }
 
+  factory _MoveTraceEntry.reset(String sentence) {
+    return _MoveTraceEntry(
+      label: 'reset',
+      sentence: sentence,
+      status: _MoveTraceStatus.reset,
+      elapsed: Duration.zero,
+    );
+  }
+
   factory _MoveTraceEntry.fromMove({
     required ConfigurationMove move,
     required String sentence,
@@ -905,6 +1002,17 @@ class _MoveTraceEntry {
       status: wasBlocked ? _MoveTraceStatus.blocked : _MoveTraceStatus.accepted,
       elapsed: elapsed,
     );
+  }
+
+  String get line {
+    final statusText = switch (status) {
+      _MoveTraceStatus.accepted => 'accepted',
+      _MoveTraceStatus.blocked => 'blocked',
+      _MoveTraceStatus.random => 'random',
+      _MoveTraceStatus.reset => 'reset',
+    };
+
+    return '[$statusText, ${_formatMoveTraceElapsed(elapsed)}] $label | $sentence';
   }
 }
 
@@ -1078,7 +1186,7 @@ class _SentencePanel extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1102,12 +1210,14 @@ class _SentencePanel extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             SelectableText(
               summary,
               textAlign: TextAlign.center,
-              maxLines: 1,
-              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 2,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(height: 1.15, fontSize: 11),
             ),
           ],
         ),
@@ -2064,6 +2174,7 @@ class _NounNumberSwitch extends StatelessWidget {
 class _CompassSlotSection extends StatelessWidget {
   final String title;
   final String unlockHint;
+  final String? surfaceMarker;
   final bool isExpanded;
   final VoidCallback? onToggle;
   final String currentSentence;
@@ -2078,6 +2189,7 @@ class _CompassSlotSection extends StatelessWidget {
   const _CompassSlotSection({
     required this.title,
     required this.unlockHint,
+    required this.surfaceMarker,
     required this.isExpanded,
     required this.onToggle,
     required this.currentSentence,
@@ -2094,9 +2206,11 @@ class _CompassSlotSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return _SectionFrame(
       title: title,
+      surfaceMarker: surfaceMarker,
       isExpanded: isExpanded,
       onToggle: onToggle,
       collapsedHint: _collapsedRailHint(title),
+      expandIntoPage: title == 'Verb',
       expandedMaxHeight: _railMaxHeightFor(
         title: title,
         suggestionCount: suggestions.length,

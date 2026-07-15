@@ -103,6 +103,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  void expectRailSurfaceMarker(
+    WidgetTester tester,
+    String railTitle,
+    String marker,
+  ) {
+    final markerFinder = find.byKey(Key('rail-surface-marker-$railTitle'));
+
+    expect(markerFinder, findsOneWidget);
+    expect(tester.widget<Text>(markerFinder).data, '($marker)');
+  }
+
   bool appearsBefore(WidgetTester tester, Finder left, Finder right) {
     final leftOffset = tester.getTopLeft(left);
     final rightOffset = tester.getTopLeft(right);
@@ -198,7 +209,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(renderedSentence(tester), 'You learn.');
-    expect(find.text('Padlock Guided Mode'), findsOneWidget);
+    expect(find.text('Padlock Developer Console'), findsOneWidget);
     expect(find.byKey(const Key('app-footer-brand')), findsOneWidget);
     expect(find.text('Logos Dynamics 2026'), findsOneWidget);
     expect(find.text('Verb:'), findsOneWidget);
@@ -284,7 +295,9 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    expect(find.text('Move trace'), findsNothing);
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.text('0 moves'), findsOneWidget);
+    expect(find.text('No moves since reset.'), findsOneWidget);
 
     await tapAfterScroll(tester, find.byTooltip('You give.'));
     await expandRail(tester, 'Object');
@@ -310,7 +323,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You learn.');
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.text('1 move'), findsOneWidget);
+    expect(find.textContaining('reset | You learn.'), findsOneWidget);
+  });
+
+  testWidgets('Diagnostics bar collapses while keeping latest move visible', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+
+    expect(find.text('Move trace'), findsOneWidget);
+    expect(find.textContaining('verb -> give'), findsWidgets);
+
+    await tester.tap(find.byTooltip('Collapse diagnostics bar'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Move trace'), findsNothing);
+    final alertCount = tester.widget<Text>(
+      find.byKey(const Key('diagnostics-collapsed-alert-count')),
+    );
+    expect(alertCount.data, startsWith('Language alert '));
+    expect(
+      find.byKey(const Key('diagnostics-collapsed-move-text')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('verb -> give'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Expand diagnostics bar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Move trace'), findsOneWidget);
   });
 
   testWidgets('Translate button toggles the header sentence', (tester) async {
@@ -545,6 +590,24 @@ void main() {
     },
   );
 
+  testWidgets('Wide verb rail expands into the page for full vocabulary', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2048, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+
+    final verbRailSize = tester.getSize(
+      find.byKey(const ValueKey('section-frame-Verb')),
+    );
+
+    expect(verbRailSize.height, greaterThan(300));
+  });
+
   testWidgets('Predicate extension rails appear only when their frame opens', (
     tester,
   ) async {
@@ -672,6 +735,48 @@ void main() {
     for (final route in routes) {
       await runFixedRailRoute(tester, route);
     }
+  });
+
+  testWidgets('Rails label their surface connector words', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    expectRailSurfaceMarker(tester, 'Subject', '-');
+    expectRailSurfaceMarker(tester, 'Companion', 'with');
+    expectRailSurfaceMarker(tester, 'Right action', 'to');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-introduce')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Object', '-');
+    expectRailSurfaceMarker(tester, 'Addressee', 'to');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Object', '-');
+    expectRailSurfaceMarker(tester, 'Recipient', 'to/for/-');
+
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expectRailSurfaceMarker(tester, 'By-agent', 'by');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-be')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Noun complement', '-');
+    expectRailSurfaceMarker(tester, 'Adjective complement', '-');
   });
 
   testWidgets('Essential verb chips expose their expected cockpit rails', (

@@ -678,13 +678,7 @@ class _MoveTracePanel extends StatelessWidget {
 String _moveTraceText(List<_MoveTraceEntry> entries) {
   return entries.indexed
       .map((entry) {
-        final statusText = switch (entry.$2.status) {
-          _MoveTraceStatus.accepted => 'accepted',
-          _MoveTraceStatus.blocked => 'blocked',
-          _MoveTraceStatus.random => 'random',
-        };
-
-        return '${entry.$1 + 1}. [$statusText, ${_formatMoveTraceElapsed(entry.$2.elapsed)}] ${entry.$2.label} | ${entry.$2.sentence}';
+        return '${entry.$1 + 1}. ${entry.$2.line}';
       })
       .join('\n');
 }
