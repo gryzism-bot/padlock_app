@@ -65,6 +65,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'Active voice requires an agent.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.activeVoiceShape,
+      );
     });
 
     test('blocks object on intransitive verb', () {
@@ -80,6 +84,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'work does not take an object.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('accepts object once verb frame supports it', () {
@@ -140,6 +148,10 @@ void main() {
         state.messages.single.text,
         'work does not take a right action complement.',
       );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('clears right action when changing to an incompatible verb', () {
@@ -172,6 +184,10 @@ void main() {
         state.messages.single.text,
         'Right action complement does not combine with an object in this frame.',
       );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('blocks noun phrase determiners that do not match number', () {
@@ -194,6 +210,10 @@ void main() {
       expect(
         state.messages.single.text,
         'Object determiner "a" requires a singular noun.',
+      );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.nounPhraseShape,
       );
 
       state = engine.applyMove(
@@ -301,6 +321,10 @@ void main() {
       expect(
         state.messages.single.text,
         'Place phrase cannot repeat the verb word "work".',
+      );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.phraseCompatibility,
       );
     });
 
@@ -504,6 +528,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'speak does not take a destination.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('changing action clears incompatible destination frame', () {
@@ -534,6 +562,13 @@ void main() {
       expect(
         state.messages.map((message) => message.text),
         contains('work cannot be passive in this frame.'),
+      );
+      expect(
+        state.messages.map((message) => message.lawCategory),
+        containsAll([
+          ConfigurationLawCategory.predicateFrameType,
+          ConfigurationLawCategory.passiveConfigurationShape,
+        ]),
       );
     });
 
@@ -571,6 +606,10 @@ void main() {
         state.messages.single.text,
         'Passive object focus requires an object.',
       );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.passiveConfigurationShape,
+      );
     });
 
     test('blocks passive focus while voice is active', () {
@@ -593,6 +632,10 @@ void main() {
       expect(
         state.messages.single.text,
         'Passive focus belongs to passive voice.',
+      );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.passiveConfigurationShape,
       );
     });
 
@@ -617,6 +660,10 @@ void main() {
       expect(
         state.messages.map((message) => message.text),
         contains('build has no recipient focus.'),
+      );
+      expect(
+        state.messages.map((message) => message.lawCategory),
+        contains(ConfigurationLawCategory.passiveConfigurationShape),
       );
     });
 
@@ -943,6 +990,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'Lexical be is active-only.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.lexicalBeFrame,
+      );
     });
 
     test('blocks complements on non-be verbs', () {
@@ -955,6 +1006,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'learn does not take a complement.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('blocks complements on passive non-be verbs', () {
@@ -973,6 +1028,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'build does not take a complement.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
     });
 
     test('future tense clears present modals because future supplies will', () {
@@ -1041,6 +1100,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'Imperatives cannot take a modal.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.imperativeFrame,
+      );
     });
 
     test('blocks passive imperative frame', () {
@@ -1062,6 +1125,10 @@ void main() {
       expect(state.sentenceState, same(previous.sentenceState));
       expect(wasBlocked(state), isTrue);
       expect(state.messages.single.text, 'Imperatives use active voice.');
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.imperativeFrame,
+      );
     });
 
     test('blocks non-simple imperative frame', () {
@@ -1079,6 +1146,10 @@ void main() {
       expect(blocked.sentenceState, same(state.sentenceState));
       expect(wasBlocked(blocked), isTrue);
       expect(blocked.messages.single.text, 'Imperatives use present simple.');
+      expect(
+        blocked.messages.single.lawCategory,
+        ConfigurationLawCategory.imperativeFrame,
+      );
     });
   });
 }

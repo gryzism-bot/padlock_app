@@ -705,57 +705,5 @@ class _LockLawAlert {
 }
 
 _LockLawAlert _lockLawAlertFor(ConfigurationMessage message) {
-  if (message.kind == ConfigurationMessageKind.info) {
-    return const _LockLawAlert('state update');
-  }
-
-  final text = message.text;
-
-  if (text.contains('determiner') ||
-      text.contains('consonant sound') ||
-      text.contains('vowel sound')) {
-    return const _LockLawAlert('noun phrase shape violation');
-  }
-
-  if (text.startsWith('Lexical be')) {
-    return const _LockLawAlert('lexical be frame violation');
-  }
-
-  if (text.contains('cannot be passive in this frame') ||
-      text.contains('does not take an object') ||
-      text.contains('does not take a recipient') ||
-      text.contains('does not take a complement') ||
-      text.contains('only takes fixed') ||
-      text.contains('fixed ') ||
-      text.contains('Recipient frames require an object')) {
-    return const _LockLawAlert('verb predicate frame type violation');
-  }
-
-  if (text.contains('Passive object focus') ||
-      text.contains('Passive recipient focus') ||
-      text.contains('Passive focus belongs') ||
-      text.contains('Passive agent visibility belongs') ||
-      text.contains('has no recipient focus')) {
-    return const _LockLawAlert('passive configuration shape violation');
-  }
-
-  if (text.contains('modal') ||
-      text.contains('Will belongs') ||
-      text.contains('present modal frame')) {
-    return const _LockLawAlert('modal tense frame violation');
-  }
-
-  if (text.contains('Imperatives')) {
-    return const _LockLawAlert('imperative frame violation');
-  }
-
-  if (text.contains('Place phrase')) {
-    return const _LockLawAlert('phrase compatibility violation');
-  }
-
-  if (text.contains('Active voice requires an agent')) {
-    return const _LockLawAlert('active voice shape violation');
-  }
-
-  return const _LockLawAlert('configuration law violation');
+  return _LockLawAlert(message.lawCategory.label);
 }

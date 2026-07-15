@@ -38,26 +38,54 @@ enum ConfigurationMessageKind { blocked, info }
 
 enum ConfigurationMessageSource { lock, compass, ui }
 
+enum ConfigurationLawCategory {
+  stateUpdate,
+  nounPhraseShape,
+  lexicalBeFrame,
+  predicateFrameType,
+  passiveConfigurationShape,
+  modalTenseFrame,
+  imperativeFrame,
+  phraseCompatibility,
+  activeVoiceShape,
+  configurationLaw,
+}
+
 class ConfigurationMessage {
   final ConfigurationMessageKind kind;
   final ConfigurationMessageSource source;
+  final ConfigurationLawCategory lawCategory;
   final String text;
 
   const ConfigurationMessage(
     this.text, {
     required this.kind,
     this.source = ConfigurationMessageSource.lock,
+    this.lawCategory = ConfigurationLawCategory.configurationLaw,
   });
 
   const ConfigurationMessage.blocked(
     String text, {
     ConfigurationMessageSource source = ConfigurationMessageSource.lock,
-  }) : this(text, kind: ConfigurationMessageKind.blocked, source: source);
+    ConfigurationLawCategory lawCategory =
+        ConfigurationLawCategory.configurationLaw,
+  }) : this(
+         text,
+         kind: ConfigurationMessageKind.blocked,
+         source: source,
+         lawCategory: lawCategory,
+       );
 
   const ConfigurationMessage.info(
     String text, {
     ConfigurationMessageSource source = ConfigurationMessageSource.lock,
-  }) : this(text, kind: ConfigurationMessageKind.info, source: source);
+    ConfigurationLawCategory lawCategory = ConfigurationLawCategory.stateUpdate,
+  }) : this(
+         text,
+         kind: ConfigurationMessageKind.info,
+         source: source,
+         lawCategory: lawCategory,
+       );
 
   String get title {
     return switch (kind) {
@@ -89,6 +117,28 @@ extension ConfigurationMessageSourceLabel on ConfigurationMessageSource {
       ConfigurationMessageSource.lock => 'Lock',
       ConfigurationMessageSource.compass => 'Compass',
       ConfigurationMessageSource.ui => 'UI',
+    };
+  }
+}
+
+extension ConfigurationLawCategoryLabel on ConfigurationLawCategory {
+  String get label {
+    return switch (this) {
+      ConfigurationLawCategory.stateUpdate => 'state update',
+      ConfigurationLawCategory.nounPhraseShape => 'noun phrase shape violation',
+      ConfigurationLawCategory.lexicalBeFrame => 'lexical be frame violation',
+      ConfigurationLawCategory.predicateFrameType =>
+        'verb predicate frame type violation',
+      ConfigurationLawCategory.passiveConfigurationShape =>
+        'passive configuration shape violation',
+      ConfigurationLawCategory.modalTenseFrame => 'modal tense frame violation',
+      ConfigurationLawCategory.imperativeFrame => 'imperative frame violation',
+      ConfigurationLawCategory.phraseCompatibility =>
+        'phrase compatibility violation',
+      ConfigurationLawCategory.activeVoiceShape =>
+        'active voice shape violation',
+      ConfigurationLawCategory.configurationLaw =>
+        'configuration law violation',
     };
   }
 }
@@ -503,7 +553,10 @@ class ConfigurationEngine {
     if (!phrase.canTakeModifiers &&
         (phrase.determiner != null || phrase.adjectiveList.isNotEmpty)) {
       blockers.add(
-        ConfigurationMessage.blocked('$label pronouns do not take modifiers.'),
+        ConfigurationMessage.blocked(
+          '$label pronouns do not take modifiers.',
+          lawCategory: ConfigurationLawCategory.nounPhraseShape,
+        ),
       );
       return;
     }
@@ -517,6 +570,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "${determiner.text}" requires a singular noun.',
+          lawCategory: ConfigurationLawCategory.nounPhraseShape,
         ),
       );
     }
@@ -525,6 +579,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "${determiner.text}" requires a plural noun.',
+          lawCategory: ConfigurationLawCategory.nounPhraseShape,
         ),
       );
     }
@@ -537,6 +592,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "a" requires a consonant sound.',
+          lawCategory: ConfigurationLawCategory.nounPhraseShape,
         ),
       );
     }
@@ -545,6 +601,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '$label determiner "an" requires a vowel sound.',
+          lawCategory: ConfigurationLawCategory.nounPhraseShape,
         ),
       );
     }
@@ -556,13 +613,19 @@ class ConfigurationEngine {
   ) {
     if (lexicalBeNeedsAgent(state)) {
       blockers.add(
-        const ConfigurationMessage.blocked('Lexical be requires an agent.'),
+        const ConfigurationMessage.blocked(
+          'Lexical be requires an agent.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+        ),
       );
     }
 
     if (lexicalBeNeedsActiveVoice(state)) {
       blockers.add(
-        const ConfigurationMessage.blocked('Lexical be is active-only.'),
+        const ConfigurationMessage.blocked(
+          'Lexical be is active-only.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+        ),
       );
     }
 
@@ -570,6 +633,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be noun complement must match agent number.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -578,6 +642,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an object.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -586,6 +651,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an object complement.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -594,6 +660,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a recipient.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -602,6 +669,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take an addressee.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -610,6 +678,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a destination.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -618,6 +687,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take a right action complement.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -626,6 +696,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take passive focus.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -634,6 +705,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Lexical be does not take passive agent visibility.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
         ),
       );
     }
@@ -656,6 +728,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take a right action complement.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
       return;
@@ -665,6 +738,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take "${rightAction.infinitive}" as a right action.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
@@ -673,6 +747,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Right action complement does not combine with an object in this frame.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
@@ -686,6 +761,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take a complement.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
@@ -696,6 +772,7 @@ class ConfigurationEngine {
         blockers.add(
           ConfigurationMessage.blocked(
             '${state.action.infinitive} does not take an object complement.',
+            lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
       }
@@ -704,6 +781,7 @@ class ConfigurationEngine {
         blockers.add(
           const ConfigurationMessage.blocked(
             'Object complements require an object.',
+            lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
       }
@@ -713,6 +791,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take a companion.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
@@ -721,6 +800,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.action.infinitive} does not take a destination.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
@@ -731,6 +811,7 @@ class ConfigurationEngine {
         blockers.add(
           ConfigurationMessage.blocked(
             '${state.action.infinitive} only takes fixed $label objects.',
+            lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
       }
@@ -741,6 +822,7 @@ class ConfigurationEngine {
         blockers.add(
           ConfigurationMessage.blocked(
             '${state.action.infinitive} fixed $label objects stay bare.',
+            lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
       }
@@ -752,6 +834,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Active voice requires an agent.',
+              lawCategory: ConfigurationLawCategory.activeVoiceShape,
             ),
           );
         }
@@ -760,6 +843,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive focus belongs to passive voice.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -768,6 +852,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive agent visibility belongs to passive voice.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -776,6 +861,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take a recipient.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -784,6 +870,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an addressee.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -792,6 +879,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an object.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -800,6 +888,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Recipient frames require an object.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -811,6 +900,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an addressee.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -819,6 +909,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} cannot be passive in this frame.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
         }
@@ -827,6 +918,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive object focus requires an object.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -835,6 +927,7 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} has no recipient focus.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -843,6 +936,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive recipient focus requires a recipient.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -851,6 +945,7 @@ class ConfigurationEngine {
           blockers.add(
             const ConfigurationMessage.blocked(
               'Passive recipient focus still requires an object.',
+              lawCategory: ConfigurationLawCategory.passiveConfigurationShape,
             ),
           );
         }
@@ -867,7 +962,10 @@ class ConfigurationEngine {
 
     if (!modalAllowedInSentenceForm(state)) {
       blockers.add(
-        const ConfigurationMessage.blocked('Imperatives cannot take a modal.'),
+        const ConfigurationMessage.blocked(
+          'Imperatives cannot take a modal.',
+          lawCategory: ConfigurationLawCategory.imperativeFrame,
+        ),
       );
     }
 
@@ -875,6 +973,7 @@ class ConfigurationEngine {
       blockers.add(
         const ConfigurationMessage.blocked(
           'Will belongs to the future tense frame.',
+          lawCategory: ConfigurationLawCategory.modalTenseFrame,
         ),
       );
     }
@@ -883,6 +982,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           '${state.modal.text} belongs to the present modal frame.',
+          lawCategory: ConfigurationLawCategory.modalTenseFrame,
         ),
       );
     }
@@ -898,13 +998,19 @@ class ConfigurationEngine {
 
     if (!imperativeUsesPresentSimple(state)) {
       blockers.add(
-        const ConfigurationMessage.blocked('Imperatives use present simple.'),
+        const ConfigurationMessage.blocked(
+          'Imperatives use present simple.',
+          lawCategory: ConfigurationLawCategory.imperativeFrame,
+        ),
       );
     }
 
     if (!imperativeUsesActiveVoice(state)) {
       blockers.add(
-        const ConfigurationMessage.blocked('Imperatives use active voice.'),
+        const ConfigurationMessage.blocked(
+          'Imperatives use active voice.',
+          lawCategory: ConfigurationLawCategory.imperativeFrame,
+        ),
       );
     }
   }
@@ -922,6 +1028,7 @@ class ConfigurationEngine {
       blockers.add(
         ConfigurationMessage.blocked(
           'Place phrase cannot repeat the verb word "${place.noun}".',
+          lawCategory: ConfigurationLawCategory.phraseCompatibility,
         ),
       );
     }
