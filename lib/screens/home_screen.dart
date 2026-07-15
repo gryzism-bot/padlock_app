@@ -495,55 +495,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   List<_VisibleCompassSlot> _visibleSlotSections(ConfigurationCompass compass) {
-    final sections = <_VisibleCompassSlot>[];
-
-    for (final slot in ConfigurationCompassSlot.values.where(
-      (slot) =>
-          slot != ConfigurationCompassSlot.voice &&
-          slot != ConfigurationCompassSlot.modal &&
-          slot != ConfigurationCompassSlot.passiveFocus &&
-          slot != ConfigurationCompassSlot.passiveAgent,
-    )) {
-      final policy = _railPolicy(slot);
-      final canToggle = policy.isControlled;
-      final isExpanded = !canToggle || expandedRails.contains(slot);
-
-      if (canToggle && !isExpanded) {
-        if (!policy.canRenderCollapsed(configuration)) {
-          continue;
-        }
-
-        sections.add(
-          _VisibleCompassSlot(
-            slot,
-            const [],
-            title: policy.title(configuration),
-            unlockHint: policy.unlockHint(configuration),
-            isExpanded: false,
-            canToggle: true,
-          ),
-        );
-        continue;
-      }
-
-      final suggestions = _suggestionsForSlot(compass, slot);
-      if (!policy.shouldRender(configuration, suggestions)) {
-        continue;
-      }
-
-      sections.add(
-        _VisibleCompassSlot(
-          slot,
-          suggestions,
-          title: policy.title(configuration),
-          unlockHint: policy.unlockHint(configuration),
-          isExpanded: isExpanded,
-          canToggle: canToggle,
-        ),
-      );
-    }
-
-    return sections;
+    return _visibleRailSections(
+      configuration: configuration,
+      expandedRails: expandedRails,
+      suggestionsForSlot: (slot) => _suggestionsForSlot(compass, slot),
+    );
   }
 
   void _syncPreviewCacheSizeAfterFrame() {
@@ -627,112 +583,7 @@ class _CoreParticipantSurfaceMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = configuration.sentenceState;
-    final participantDoors = [
-      _ParticipantDoor(
-        label: 'predicate',
-        value: state.action.infinitive,
-        status: _ParticipantDoorStatus.filled,
-      ),
-      _ParticipantDoor(
-        label: 'subject',
-        value: _nounTraceText(state.agent),
-        status: state.agent == null
-            ? _ParticipantDoorStatus.asleep
-            : _ParticipantDoorStatus.filled,
-      ),
-      _ParticipantDoor(
-        label: _coreObjectDoorLabel(configuration),
-        value: _nounTraceText(state.object),
-        status: _participantStatus(
-          isAwake:
-              state.action.takesObject ||
-              hasFixedObjectFrame(state.action) ||
-              state.object != null,
-          isFilled: state.object != null,
-        ),
-        slot: ConfigurationCompassSlot.object,
-      ),
-      _ParticipantDoor(
-        label: 'recipient',
-        value: _nounTraceText(state.recipient),
-        status: _participantStatus(
-          isAwake: state.action.takesRecipient || state.recipient != null,
-          isFilled: state.recipient != null,
-        ),
-        slot: ConfigurationCompassSlot.recipient,
-      ),
-      _ParticipantDoor(
-        label: 'addressee',
-        value: _nounTraceText(state.addressee),
-        status: _participantStatus(
-          isAwake: state.action.takesAddressee || state.addressee != null,
-          isFilled: state.addressee != null,
-        ),
-        slot: ConfigurationCompassSlot.addressee,
-      ),
-      _ParticipantDoor(
-        label: 'companion',
-        value: _nounTraceText(state.companion),
-        status: _participantStatus(
-          isAwake:
-              state.action.infinitive == 'be' ||
-              state.action.takesCompanion ||
-              state.companion != null,
-          isFilled: state.companion != null,
-        ),
-        slot: ConfigurationCompassSlot.companion,
-      ),
-      _ParticipantDoor(
-        label: 'destination',
-        value: _nounTraceText(state.destination),
-        status: _participantStatus(
-          isAwake:
-              state.action.usesDestinationPlace || state.destination != null,
-          isFilled: state.destination != null,
-        ),
-        slot: ConfigurationCompassSlot.destination,
-      ),
-      _ParticipantDoor(
-        label: 'right action',
-        value: state.rightAction?.infinitive ?? 'none',
-        status: _participantStatus(
-          isAwake:
-              hasRightActionFrame(state.action) || state.rightAction != null,
-          isFilled: state.rightAction != null,
-        ),
-        slot: ConfigurationCompassSlot.rightAction,
-      ),
-      _ParticipantDoor(
-        label: 'by-agent',
-        value: _nounTraceText(state.agent),
-        status: _participantStatus(
-          isAwake: state.voice == Voice.passive,
-          isFilled: state.voice == Voice.passive && state.agent != null,
-        ),
-        slot: ConfigurationCompassSlot.passiveAgentNoun,
-      ),
-      _ParticipantDoor(
-        label: 'noun complement',
-        value: _nounTraceText(state.complement),
-        status: _participantStatus(
-          isAwake: state.action.infinitive == 'be' || state.complement != null,
-          isFilled: state.complement != null,
-        ),
-        slot: ConfigurationCompassSlot.complement,
-      ),
-      _ParticipantDoor(
-        label: 'adjective complement',
-        value: state.adjectiveComplement?.text ?? 'none',
-        status: _participantStatus(
-          isAwake:
-              state.action.infinitive == 'be' ||
-              state.adjectiveComplement != null,
-          isFilled: state.adjectiveComplement != null,
-        ),
-        slot: ConfigurationCompassSlot.adjectiveComplement,
-      ),
-    ];
+    final participantDoors = _coreParticipantDoors(configuration);
 
     return _SectionFrame(
       title: 'Core participant surface',
@@ -767,17 +618,6 @@ class _ParticipantDoor {
 }
 
 enum _ParticipantDoorStatus { asleep, awake, filled }
-
-_ParticipantDoorStatus _participantStatus({
-  required bool isAwake,
-  required bool isFilled,
-}) {
-  if (isFilled) {
-    return _ParticipantDoorStatus.filled;
-  }
-
-  return isAwake ? _ParticipantDoorStatus.awake : _ParticipantDoorStatus.asleep;
-}
 
 class _ParticipantDoorChip extends StatelessWidget {
   final _ParticipantDoor door;
@@ -2308,15 +2148,4 @@ double _railMaxHeightFor({
   }
 
   return _largeRailMaxHeight;
-}
-
-String _coreObjectDoorLabel(ConfigurationState configuration) {
-  final state = configuration.sentenceState;
-  final fixedLabel = fixedObjectFrameLabel(state.action);
-
-  if (fixedLabel == null) {
-    return 'object';
-  }
-
-  return fixedLabel == 'subject' ? 'study subject' : fixedLabel;
 }

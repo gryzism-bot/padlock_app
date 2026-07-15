@@ -7,6 +7,9 @@ String _collapsedRailHint(String title) {
 typedef _RailTitleBuilder = String Function(ConfigurationState configuration);
 typedef _RailHintBuilder = String Function(ConfigurationState configuration);
 typedef _RailStatePredicate = bool Function(SentenceState state);
+typedef _RailValueBuilder = String Function(SentenceState state);
+typedef _RailSuggestionsBuilder =
+    List<ConfigurationSuggestion> Function(ConfigurationCompassSlot slot);
 
 class _RailPolicy {
   final ConfigurationCompassSlot slot;
@@ -15,6 +18,10 @@ class _RailPolicy {
   final bool isControlled;
   final _RailStatePredicate canRenderCollapsedWhen;
   final _RailStatePredicate canRenderWhenEmpty;
+  final _RailTitleBuilder? participantLabel;
+  final _RailValueBuilder? participantValue;
+  final _RailStatePredicate? participantAwakeWhen;
+  final _RailStatePredicate? participantFilledWhen;
 
   const _RailPolicy({
     required this.slot,
@@ -23,6 +30,10 @@ class _RailPolicy {
     required this.isControlled,
     required this.canRenderCollapsedWhen,
     required this.canRenderWhenEmpty,
+    this.participantLabel,
+    this.participantValue,
+    this.participantAwakeWhen,
+    this.participantFilledWhen,
   });
 
   bool canRenderCollapsed(ConfigurationState configuration) {
@@ -36,6 +47,26 @@ class _RailPolicy {
     return suggestions.isNotEmpty ||
         canRenderWhenEmpty(configuration.sentenceState);
   }
+
+  _ParticipantDoor? participantDoor(ConfigurationState configuration) {
+    final valueBuilder = participantValue;
+    final filledWhen = participantFilledWhen;
+    if (valueBuilder == null || filledWhen == null) {
+      return null;
+    }
+
+    return _ParticipantDoor(
+      label: participantLabel?.call(configuration) ?? title(configuration),
+      value: valueBuilder(configuration.sentenceState),
+      status: _participantStatus(
+        isAwake:
+            participantAwakeWhen?.call(configuration.sentenceState) ??
+            canRenderCollapsed(configuration),
+        isFilled: filledWhen(configuration.sentenceState),
+      ),
+      slot: slot,
+    );
+  }
 }
 
 _RailPolicy _railPolicy(ConfigurationCompassSlot slot) {
@@ -45,6 +76,63 @@ _RailPolicy _railPolicy(ConfigurationCompassSlot slot) {
   }
 
   return policy;
+}
+
+List<_VisibleCompassSlot> _visibleRailSections({
+  required ConfigurationState configuration,
+  required Set<ConfigurationCompassSlot> expandedRails,
+  required _RailSuggestionsBuilder suggestionsForSlot,
+}) {
+  final sections = <_VisibleCompassSlot>[];
+
+  for (final slot in ConfigurationCompassSlot.values.where(_isBodyRailSlot)) {
+    final policy = _railPolicy(slot);
+    final canToggle = policy.isControlled;
+    final isExpanded = !canToggle || expandedRails.contains(slot);
+
+    if (canToggle && !isExpanded) {
+      if (!policy.canRenderCollapsed(configuration)) {
+        continue;
+      }
+
+      sections.add(
+        _VisibleCompassSlot(
+          slot,
+          const [],
+          title: policy.title(configuration),
+          unlockHint: policy.unlockHint(configuration),
+          isExpanded: false,
+          canToggle: true,
+        ),
+      );
+      continue;
+    }
+
+    final suggestions = suggestionsForSlot(slot);
+    if (!policy.shouldRender(configuration, suggestions)) {
+      continue;
+    }
+
+    sections.add(
+      _VisibleCompassSlot(
+        slot,
+        suggestions,
+        title: policy.title(configuration),
+        unlockHint: policy.unlockHint(configuration),
+        isExpanded: isExpanded,
+        canToggle: canToggle,
+      ),
+    );
+  }
+
+  return sections;
+}
+
+bool _isBodyRailSlot(ConfigurationCompassSlot slot) {
+  return slot != ConfigurationCompassSlot.voice &&
+      slot != ConfigurationCompassSlot.modal &&
+      slot != ConfigurationCompassSlot.passiveFocus &&
+      slot != ConfigurationCompassSlot.passiveAgent;
 }
 
 String _fixedObjectTitle(ConfigurationState configuration) {
@@ -81,6 +169,49 @@ String _objectModifierUnlockHint(ConfigurationState configuration) {
   return 'Choose an object first. Noun phrase modifiers wake after a noun exists.';
 }
 
+List<_ParticipantDoor> _coreParticipantDoors(ConfigurationState configuration) {
+  final state = configuration.sentenceState;
+  return [
+    _ParticipantDoor(
+      label: 'predicate',
+      value: state.action.infinitive,
+      status: _ParticipantDoorStatus.filled,
+    ),
+    _ParticipantDoor(
+      label: 'subject',
+      value: _nounTraceText(state.agent),
+      status: state.agent == null
+          ? _ParticipantDoorStatus.asleep
+          : _ParticipantDoorStatus.filled,
+    ),
+    for (final slot in _coreParticipantRailSlots)
+      _railPolicy(slot).participantDoor(configuration)!,
+  ];
+}
+
+const _coreParticipantRailSlots = [
+  ConfigurationCompassSlot.object,
+  ConfigurationCompassSlot.recipient,
+  ConfigurationCompassSlot.addressee,
+  ConfigurationCompassSlot.companion,
+  ConfigurationCompassSlot.destination,
+  ConfigurationCompassSlot.rightAction,
+  ConfigurationCompassSlot.passiveAgentNoun,
+  ConfigurationCompassSlot.complement,
+  ConfigurationCompassSlot.adjectiveComplement,
+];
+
+_ParticipantDoorStatus _participantStatus({
+  required bool isAwake,
+  required bool isFilled,
+}) {
+  if (isFilled) {
+    return _ParticipantDoorStatus.filled;
+  }
+
+  return isAwake ? _ParticipantDoorStatus.awake : _ParticipantDoorStatus.asleep;
+}
+
 final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
   ConfigurationCompassSlot.action: _RailPolicy(
     slot: ConfigurationCompassSlot.action,
@@ -98,6 +229,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.action.takesObject || hasFixedObjectFrame(state.action),
     canRenderWhenEmpty: (state) => state.object != null,
+    participantLabel: _coreObjectDoorLabel,
+    participantValue: (state) => _nounTraceText(state.object),
+    participantFilledWhen: (state) => state.object != null,
   ),
   ConfigurationCompassSlot.objectDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.objectDeterminer,
@@ -125,6 +259,11 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
         (state.action.takesRecipient && state.object != null) ||
         state.recipient != null,
     canRenderWhenEmpty: (state) => state.recipient != null,
+    participantLabel: (_) => 'recipient',
+    participantValue: (state) => _nounTraceText(state.recipient),
+    participantAwakeWhen: (state) =>
+        state.action.takesRecipient || state.recipient != null,
+    participantFilledWhen: (state) => state.recipient != null,
   ),
   ConfigurationCompassSlot.recipientDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.recipientDeterminer,
@@ -155,6 +294,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.action.takesAddressee || state.addressee != null,
     canRenderWhenEmpty: (state) => state.addressee != null,
+    participantLabel: (_) => 'addressee',
+    participantValue: (state) => _nounTraceText(state.addressee),
+    participantFilledWhen: (state) => state.addressee != null,
   ),
   ConfigurationCompassSlot.addresseeDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.addresseeDeterminer,
@@ -187,6 +329,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
         state.action.takesCompanion ||
         state.companion != null,
     canRenderWhenEmpty: (state) => state.companion != null,
+    participantLabel: (_) => 'companion',
+    participantValue: (state) => _nounTraceText(state.companion),
+    participantFilledWhen: (state) => state.companion != null,
   ),
   ConfigurationCompassSlot.companionDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.companionDeterminer,
@@ -217,6 +362,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.action.usesDestinationPlace || state.destination != null,
     canRenderWhenEmpty: (state) => state.destination != null,
+    participantLabel: (_) => 'destination',
+    participantValue: (state) => _nounTraceText(state.destination),
+    participantFilledWhen: (state) => state.destination != null,
   ),
   ConfigurationCompassSlot.destinationDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.destinationDeterminer,
@@ -247,6 +395,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         hasRightActionFrame(state.action) || state.rightAction != null,
     canRenderWhenEmpty: (state) => state.rightAction != null,
+    participantLabel: (_) => 'right action',
+    participantValue: (state) => state.rightAction?.infinitive ?? 'none',
+    participantFilledWhen: (state) => state.rightAction != null,
   ),
   ConfigurationCompassSlot.complement: _RailPolicy(
     slot: ConfigurationCompassSlot.complement,
@@ -257,6 +408,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' || state.complement != null,
     canRenderWhenEmpty: (state) => state.complement != null,
+    participantLabel: (_) => 'noun complement',
+    participantValue: (state) => _nounTraceText(state.complement),
+    participantFilledWhen: (state) => state.complement != null,
   ),
   ConfigurationCompassSlot.complementDeterminer: _RailPolicy(
     slot: ConfigurationCompassSlot.complementDeterminer,
@@ -287,6 +441,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' || state.adjectiveComplement != null,
     canRenderWhenEmpty: (state) => state.adjectiveComplement != null,
+    participantLabel: (_) => 'adjective complement',
+    participantValue: (state) => state.adjectiveComplement?.text ?? 'none',
+    participantFilledWhen: (state) => state.adjectiveComplement != null,
   ),
   ConfigurationCompassSlot.voice: _RailPolicy(
     slot: ConfigurationCompassSlot.voice,
@@ -323,6 +480,10 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: true,
     canRenderCollapsedWhen: (state) => state.voice == Voice.passive,
     canRenderWhenEmpty: (state) =>
+        state.voice == Voice.passive && state.agent != null,
+    participantLabel: (_) => 'by-agent',
+    participantValue: (state) => _nounTraceText(state.agent),
+    participantFilledWhen: (state) =>
         state.voice == Voice.passive && state.agent != null,
   ),
   ConfigurationCompassSlot.modal: _RailPolicy(
@@ -368,4 +529,14 @@ String? _fixedObjectSlotTitle(ConfigurationState configuration) {
   }
 
   return '${label[0].toUpperCase()}${label.substring(1)}';
+}
+
+String _coreObjectDoorLabel(ConfigurationState configuration) {
+  final fixedLabel = fixedObjectFrameLabel(configuration.sentenceState.action);
+
+  if (fixedLabel == null) {
+    return 'object';
+  }
+
+  return fixedLabel == 'subject' ? 'study subject' : fixedLabel;
 }

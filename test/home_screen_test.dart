@@ -669,12 +669,23 @@ void main() {
     expect(find.text('object: none (awake)'), findsOneWidget);
     expect(find.text('recipient: none (awake)'), findsOneWidget);
     expect(find.text('Object:'), findsOneWidget);
+    expect(find.text('Recipient:'), findsNothing);
     expect(find.byTooltip('You give book.'), findsNothing);
+
+    await tapAfterScroll(tester, find.text('recipient: none (awake)'));
+
+    expect(find.text('recipient: none (open)'), findsOneWidget);
+    expect(find.text('Recipient:'), findsNothing);
 
     await tapAfterScroll(tester, find.text('object: none (awake)'));
 
     expect(find.text('object: none (open)'), findsOneWidget);
     expect(find.byTooltip('You give book.'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+
+    expect(renderedSentence(tester), 'You give book.');
+    expect(find.text('Recipient:'), findsOneWidget);
   });
 
   testWidgets(
