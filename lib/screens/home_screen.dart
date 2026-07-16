@@ -1652,8 +1652,8 @@ class _PronounSection extends StatelessWidget {
                       ),
                       _MoveButton(
                         label: 'you',
-                        selected: _sameNounPhrase(agent, you),
-                        onPressed: () => onMove(const SetAgent(you)),
+                        selected: _sameNounPhrase(agent, youPlural),
+                        onPressed: () => onMove(const SetAgent(youPlural)),
                       ),
                       _InlineExpandableChipCluster(
                         expandedLabel: '3rd person plural nouns',

@@ -67,6 +67,26 @@ const you = NounPhrase(
   },
 );
 
+const youPlural = NounPhrase(
+  text: 'you',
+  person: Person.second,
+  number: Number.plural,
+  translations: {
+    Language.pl: 'wy',
+    Language.es: 'vosotros',
+    Language.fr: 'vous',
+    Language.de: 'ihr',
+    Language.it: 'voi',
+    Language.pt: 'vocês',
+    Language.sv: 'ni',
+    Language.no: 'dere',
+    Language.da: 'I',
+    Language.fi: 'te',
+    Language.tr: 'siz',
+    Language.tl: 'kayo',
+  },
+);
+
 const he = NounPhrase(
   text: 'he',
   person: Person.third,
@@ -227,4 +247,4 @@ const they = NounPhrase(
   },
 );
 
-const subjects = [i, you, he, she, it, we, they];
+const subjects = [i, you, he, she, it, we, youPlural, they];
