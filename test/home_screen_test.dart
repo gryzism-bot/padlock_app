@@ -309,7 +309,9 @@ void main() {
     expect(find.textContaining('verb -> give'), findsOneWidget);
     expect(find.textContaining('object -> book'), findsOneWidget);
     expect(
-      find.textContaining(RegExp(r'\[(accepted|blocked), (<1|\d+) ms\]')),
+      find.textContaining(
+        RegExp(r'\[(accepted|blocked), logic (<1|\d+) ms, ui (<1|\d+) ms\]'),
+      ),
       findsWidgets,
     );
 
@@ -362,11 +364,6 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(renderedSentence(tester), 'You learn.');
-
-    await tester.tap(find.byTooltip('Translate sentence'));
-    await tester.pumpAndSettle();
-
-    expect(renderedSentence(tester), 'You learn.');
     final translated = tester
         .widget<SelectableText>(find.byKey(const Key('translation-gloss')))
         .data!;
@@ -379,6 +376,11 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn.');
     expect(find.byKey(const Key('translation-gloss')), findsNothing);
+
+    await tester.tap(find.byTooltip('Translate sentence'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('translation-gloss')), findsOneWidget);
   });
 
   testWidgets('Guided UI opens right action rail from a verb that wakes it', (
@@ -391,9 +393,6 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You want to go.'));
 
     expect(renderedSentence(tester), 'You want to go.');
-
-    await tester.tap(find.byTooltip('Translate sentence'));
-    await tester.pumpAndSettle();
 
     final translated = tester
         .widget<SelectableText>(find.byKey(const Key('translation-gloss')))

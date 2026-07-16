@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
   SuggestionDisplayMode? suggestionDisplayMode;
   HeaderPreviewMode? headerPreviewMode;
   PreviewCacheMode? previewCacheMode;
-  bool showTranslation = false;
+  bool showTranslation = true;
   bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
@@ -84,7 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _move(ConfigurationMove move) {
-    final stopwatch = Stopwatch()..start();
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
 
     setState(() {
       final previousConfiguration = configuration;
@@ -118,9 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final nextSentence = grammar
           .generate(nextConfiguration.sentenceState)
           .text;
-      stopwatch.stop();
-      moveTrace = _appendMoveTrace(
-        moveTrace,
+      logicStopwatch.stop();
+      _appendTraceEntry(
         _MoveTraceEntry.fromMove(
           move: move,
           sentence: nextSentence,
@@ -130,22 +130,30 @@ class _HomeScreenState extends State<HomeScreen> {
           keptSentence:
               previousConfiguration.sentenceState.summary ==
               nextConfiguration.sentenceState.summary,
-          elapsed: stopwatch.elapsed,
+          elapsed: logicStopwatch.elapsed,
         ),
+        uiStopwatch,
       );
     });
   }
 
   void _reset() {
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
     final sentence = grammar
         .generate(ConfigurationState.initial().sentenceState)
         .text;
+    logicStopwatch.stop();
 
     setState(() {
       configuration = ConfigurationState.initial();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
-      moveTrace = [_MoveTraceEntry.reset(sentence)];
+      moveTrace = const [];
+      _appendTraceEntry(
+        _MoveTraceEntry.reset(sentence, elapsed: logicStopwatch.elapsed),
+        uiStopwatch,
+      );
       expandedRails = const {};
     });
   }
@@ -166,7 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _shuffle() {
-    final stopwatch = Stopwatch()..start();
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
     final random = Random();
     var state = ConfigurationState.initial();
 
@@ -190,10 +199,12 @@ class _HomeScreenState extends State<HomeScreen> {
       nounNumbers = _syncNounNumbersWithState(nounNumbers, state.sentenceState);
       hoveredConfiguration.value = null;
       final sentence = grammar.generate(state.sentenceState).text;
-      stopwatch.stop();
-      moveTrace = [
-        _MoveTraceEntry.random(sentence, elapsed: stopwatch.elapsed),
-      ];
+      logicStopwatch.stop();
+      moveTrace = const [];
+      _appendTraceEntry(
+        _MoveTraceEntry.random(sentence, elapsed: logicStopwatch.elapsed),
+        uiStopwatch,
+      );
       expandedRails = const {};
     });
   }
@@ -268,7 +279,8 @@ class _HomeScreenState extends State<HomeScreen> {
     ConfigurationCompassSlot slot,
     Number number,
   ) {
-    final stopwatch = Stopwatch()..start();
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
 
     setState(() {
       switch (slot) {
@@ -307,16 +319,36 @@ class _HomeScreenState extends State<HomeScreen> {
         _setNounPhraseMove(slot, _carrySafeNounModifiers(nounPhrase, variant)),
       );
       final sentence = grammar.generate(configuration.sentenceState).text;
-      stopwatch.stop();
-      moveTrace = _appendMoveTrace(
-        moveTrace,
+      logicStopwatch.stop();
+      _appendTraceEntry(
         _MoveTraceEntry(
           label: '${_slotTraceLabel(slot)} number -> ${number.name}',
           sentence: sentence,
           status: _MoveTraceStatus.accepted,
-          elapsed: stopwatch.elapsed,
+          elapsed: logicStopwatch.elapsed,
         ),
+        uiStopwatch,
       );
+    });
+  }
+
+  void _appendTraceEntry(_MoveTraceEntry entry, Stopwatch uiStopwatch) {
+    moveTrace = _appendMoveTrace(moveTrace, entry);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      uiStopwatch.stop();
+      setState(() {
+        moveTrace = [
+          for (final current in moveTrace)
+            if (identical(current, entry))
+              current.withUiElapsed(uiStopwatch.elapsed)
+            else
+              current,
+        ];
+      });
     });
   }
 
@@ -963,12 +995,14 @@ class _MoveTraceEntry {
   final String sentence;
   final _MoveTraceStatus status;
   final Duration elapsed;
+  final Duration? uiElapsed;
 
   const _MoveTraceEntry({
     required this.label,
     required this.sentence,
     required this.status,
     required this.elapsed,
+    this.uiElapsed,
   });
 
   factory _MoveTraceEntry.random(String sentence, {required Duration elapsed}) {
@@ -980,12 +1014,12 @@ class _MoveTraceEntry {
     );
   }
 
-  factory _MoveTraceEntry.reset(String sentence) {
+  factory _MoveTraceEntry.reset(String sentence, {required Duration elapsed}) {
     return _MoveTraceEntry(
       label: 'reset',
       sentence: sentence,
       status: _MoveTraceStatus.reset,
-      elapsed: Duration.zero,
+      elapsed: elapsed,
     );
   }
 
@@ -1011,8 +1045,21 @@ class _MoveTraceEntry {
       _MoveTraceStatus.random => 'random',
       _MoveTraceStatus.reset => 'reset',
     };
+    final uiText = uiElapsed == null
+        ? 'pending'
+        : _formatMoveTraceElapsed(uiElapsed!);
 
-    return '[$statusText, ${_formatMoveTraceElapsed(elapsed)}] $label | $sentence';
+    return '[$statusText, logic ${_formatMoveTraceElapsed(elapsed)}, ui $uiText] $label | $sentence';
+  }
+
+  _MoveTraceEntry withUiElapsed(Duration elapsed) {
+    return _MoveTraceEntry(
+      label: label,
+      sentence: sentence,
+      status: status,
+      elapsed: this.elapsed,
+      uiElapsed: elapsed,
+    );
   }
 }
 
