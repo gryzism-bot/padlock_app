@@ -637,6 +637,23 @@ void main() {
     expect(verbRailSize.height, greaterThan(300));
   });
 
+  testWidgets(
+    'Verb rail hydrates late vocabulary without a show-more control',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('suggestion-label-action-practice')),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('show more', findRichText: true),
+        findsNothing,
+      );
+    },
+  );
+
   testWidgets('Predicate extension rails appear only when their frame opens', (
     tester,
   ) async {

@@ -43,6 +43,10 @@ const _diagnosticsDockCollapsedHeight = 52.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
 const _actionSuggestionLimit = 192;
+const _initialSuggestionPaintCount = 36;
+const _suggestionPaintBatchSize = 36;
+const _initialVerbPaintCount = 72;
+const _verbPaintBatchSize = 48;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
@@ -2277,7 +2281,7 @@ class _NounNumberSwitch extends StatelessWidget {
   }
 }
 
-class _CompassSlotSection extends StatelessWidget {
+class _CompassSlotSection extends StatefulWidget {
   final String title;
   final String unlockHint;
   final String? surfaceMarker;
@@ -2309,52 +2313,137 @@ class _CompassSlotSection extends StatelessWidget {
   });
 
   @override
+  State<_CompassSlotSection> createState() => _CompassSlotSectionState();
+}
+
+class _CompassSlotSectionState extends State<_CompassSlotSection> {
+  late String _suggestionsSignature;
+  late int _visibleSuggestionCount;
+  bool _paintBatchQueued = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _suggestionsSignature = _suggestionsSignatureFor(widget.suggestions);
+    _visibleSuggestionCount = _initialVisibleSuggestionCount();
+    _queueNextPaintBatch();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CompassSlotSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final nextSignature = _suggestionsSignatureFor(widget.suggestions);
+    if (oldWidget.isExpanded != widget.isExpanded ||
+        oldWidget.title != widget.title ||
+        nextSignature != _suggestionsSignature) {
+      _suggestionsSignature = nextSignature;
+      _visibleSuggestionCount = _initialVisibleSuggestionCount();
+      _paintBatchQueued = false;
+    }
+
+    _queueNextPaintBatch();
+  }
+
+  int _initialVisibleSuggestionCount() {
+    if (!widget.isExpanded) {
+      return 0;
+    }
+
+    final initialCount = widget.title == 'Verb'
+        ? _initialVerbPaintCount
+        : _initialSuggestionPaintCount;
+    return min(initialCount, widget.suggestions.length);
+  }
+
+  int get _currentPaintBatchSize =>
+      widget.title == 'Verb' ? _verbPaintBatchSize : _suggestionPaintBatchSize;
+
+  void _queueNextPaintBatch() {
+    if (!widget.isExpanded ||
+        _paintBatchQueued ||
+        _visibleSuggestionCount >= widget.suggestions.length) {
+      return;
+    }
+
+    _paintBatchQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _paintBatchQueued = false;
+        _visibleSuggestionCount = min(
+          widget.suggestions.length,
+          _visibleSuggestionCount + _currentPaintBatchSize,
+        );
+      });
+
+      _queueNextPaintBatch();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final visibleSuggestions = widget.suggestions.take(_visibleSuggestionCount);
+
     return _SectionFrame(
-      title: title,
-      surfaceMarker: surfaceMarker,
-      isExpanded: isExpanded,
-      onToggle: onToggle,
-      collapsedHint: _collapsedRailHint(title),
-      expandIntoPage: title == 'Verb',
+      title: widget.title,
+      surfaceMarker: widget.surfaceMarker,
+      isExpanded: widget.isExpanded,
+      onToggle: widget.onToggle,
+      collapsedHint: _collapsedRailHint(widget.title),
+      expandIntoPage: widget.title == 'Verb',
       expandedMaxHeight: _railMaxHeightFor(
-        title: title,
-        suggestionCount: suggestions.length,
+        title: widget.title,
+        suggestionCount: widget.suggestions.length,
       ),
       controls: [
-        if (isExpanded &&
-            suggestions.isNotEmpty &&
-            nounNumber != null &&
-            onNounNumberChanged != null)
+        if (widget.isExpanded &&
+            widget.suggestions.isNotEmpty &&
+            widget.nounNumber != null &&
+            widget.onNounNumberChanged != null)
           _NounNumberSwitch(
-            value: nounNumber!,
-            onChanged: onNounNumberChanged!,
+            value: widget.nounNumber!,
+            onChanged: widget.onNounNumberChanged!,
           ),
       ],
-      children: !isExpanded
+      children: !widget.isExpanded
           ? const []
-          : suggestions.isEmpty
+          : widget.suggestions.isEmpty
           ? [
               Text(
-                unlockHint,
+                widget.unlockHint,
                 style: TextStyle(color: Theme.of(context).disabledColor),
               ),
             ]
           : [
-              for (final suggestion in suggestions)
+              for (final suggestion in visibleSuggestions)
                 _SuggestionButton(
                   suggestion: suggestion,
-                  currentSentence: currentSentence,
-                  displayMode: displayMode,
-                  preview: displayMode == SuggestionDisplayMode.word
+                  currentSentence: widget.currentSentence,
+                  displayMode: widget.displayMode,
+                  preview: widget.displayMode == SuggestionDisplayMode.word
                       ? null
-                      : renderPreview(suggestion.preview.sentenceState),
-                  onPressed: () => onMove(suggestion.move),
-                  onPreviewChanged: onPreviewChanged,
+                      : widget.renderPreview(suggestion.preview.sentenceState),
+                  onPressed: () => widget.onMove(suggestion.move),
+                  onPreviewChanged: widget.onPreviewChanged,
                 ),
             ],
     );
   }
+}
+
+String _suggestionsSignatureFor(List<ConfigurationSuggestion> suggestions) {
+  final buffer = StringBuffer(suggestions.length);
+  for (final suggestion in suggestions) {
+    buffer
+      ..write('|')
+      ..write(suggestion.label)
+      ..write(suggestion.isSelected ? '*' : '');
+  }
+  return buffer.toString();
 }
 
 double _railMaxHeightFor({

@@ -50,9 +50,18 @@ guardrails.
 Predicate paths are intentionally modular. They should be possible to turn on
 or off per interaction mode.
 
-In a strict Guided or Assisted product mode, authored tracks can be the visible
-source of next moves. The learner sees only handcrafted paths such as
-`learn -> English`, `talk -> to Mary`, or `write -> with Mary`.
+In Guided Mode, authored tracks are the visible source of next moves. This is
+the mode that clarified what Predicate Paths are: handwritten semantic routes
+turned on. The learner sees handcrafted paths such as `learn -> English`,
+`talk -> to Mary`, or `write -> with Mary`.
+
+Assisted and Manual modes can still keep Predicate Paths on, but change the
+friction around them:
+
+- Assisted can explain more, preview blocked edges, and use more educational
+  tooltips.
+- Manual can be plainer and stricter, with fewer teaching gestures and more
+  direct lock feedback.
 
 In Manual, Explorer, or developer cockpit modes, broader structural behavior can
 remain available. Turning authored tracks off may allow rough states such as
@@ -66,6 +75,69 @@ decides how much semantic/path curation the user sees.
 Short formula:
 
 Grammar is the lock. Predicate paths are the tracks.
+
+## Lid Off: Grammar Decision Trees
+
+Lid Off is not the software pipeline view.
+
+It should not mainly show:
+
+`data -> PredicatePaths -> Compass -> Lock -> SentenceState -> GrammarEngine`
+
+That chain is useful to developers, but it is app plumbing. Lid Off is the
+educational view of the grammar machinery itself.
+
+For Grammar Engine, Lid Off starts after Configuration has already produced a
+trusted `SentenceState`. It is almost `grammar_engine.dart` rewritten from Dart
+syntax into educational English:
+
+`SentenceState -> verb chain -> participant placement -> phrase placement -> punctuation -> sentence`
+
+Example:
+
+- `SentenceState`: agent `John`, action `give`, recipient `Mary`, object
+  `book`, passive recipient focus, modal `should`
+- verb chain decision: modal + passive + past participle -> `should be given`
+- participant placement: recipient focus becomes subject -> `Mary`
+- object placement: object stays after the verb chain -> `a book`
+- passive agent surface: agent becomes `by John`
+- sentence form: statement adds `.`
+- result: `Mary should be given a book by John.`
+
+For Recognition Engine, Lid Off is the mirrored route. It is almost
+`recognition_engine.dart` rewritten into educational English:
+
+`sentence -> sentence form -> verb chain recognition -> participant recognition -> phrase recognition -> SentenceState`
+
+Example:
+
+- input: `Mary should be given a book by John.`
+- sentence form: statement
+- verb chain recognition: `should be given` -> modal passive `give`
+- subject role: `Mary` -> passive recipient focus
+- object role: `a book` -> object
+- by-phrase: `by John` -> agent
+- result: `SentenceState(...)`
+
+Visually, Lid Off can feel like white-character source code, but not plain Dart.
+The inactive grammar tree stays pale. The exact grammatical path used for the
+current sentence turns dark, grouped, and electrified. It is a decision tree of
+English, not a stack trace of implementation calls.
+
+Translations can sit on top of the same tree later. They should stay bracketed
+and ingredient-like when they are crude:
+
+`You learn.`
+
+`(Ty) (uczyć się).`
+
+So Lid Off answers:
+
+How did this `SentenceState` become this sentence?
+
+And for recognition:
+
+How did this sentence become this `SentenceState`?
 
 ## Migration Plan
 

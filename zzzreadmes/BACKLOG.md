@@ -498,6 +498,12 @@ Done recently:
   - Move trace updates use a listenable dock repaint
   - preview cache counter updates use a listenable dock repaint
   - rail chips no longer get rebuilt just because UI timing text changed
+- large rails now hydrate suggestion chips progressively:
+  - verb rails paint a useful first batch, then fill the rest over following
+    frames
+  - object, recipient, companion, destination, and phrase rails use the same
+    transparent batching
+  - vocabulary stays unrestricted; there is no `show more` interaction
 - closed participant rails are now decided from the current `SentenceState`
   shape, and full suggestions are generated only after the rail is expanded
 - Backleg save: rail titles, wake hints, collapsed visibility, and empty-state
