@@ -203,29 +203,28 @@ void main() {
     });
 
     test(
-      'object rail keeps selected object visible after object pool changes',
+      'object rail drops selected object after incompatible object pool change',
       () {
         var state = ConfigurationState.initial();
         state = lock.applyMove(state, const SetObject(fixed_object.history));
         expect(render(state), 'You learn history.');
 
         state = lock.applyMove(state, const SetAction(cooking_data.chop));
-        expect(render(state), 'You chop history.');
+        expect(render(state), 'You chop.');
 
         final objectSuggestions = ConfigurationCompass().suggestionsFor(
           state,
           ConfigurationCompassSlot.object,
           limit: 0,
         );
-        final historySuggestion = objectSuggestions.singleWhere(
-          (suggestion) => suggestion.label == 'history',
-        );
 
-        expect(historySuggestion.isSelected, isTrue);
-        expect(render(historySuggestion.preview), 'You chop history.');
         expect(
           objectSuggestions.map((suggestion) => suggestion.label),
-          containsAll(['apple', 'bread', 'carrot', 'cheese', 'history']),
+          isNot(contains('history')),
+        );
+        expect(
+          objectSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['apple', 'bread', 'carrot', 'cheese']),
         );
       },
     );
@@ -1308,7 +1307,7 @@ void main() {
       },
     );
 
-    test('does not carry narrow object choices into incompatible verbs', () {
+    test('guided action previews shave incompatible narrow objects', () {
       final semanticCompass = ConfigurationCompass(
         actions: [give, drive, use],
         objects: [
@@ -1330,7 +1329,16 @@ void main() {
         limit: 0,
       );
 
-      expect(suggestions.map((suggestion) => suggestion.label), ['give']);
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        containsAll(['give', 'drive', 'use']),
+      );
+
+      final driveFromHouse = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'drive',
+      );
+      expect(driveFromHouse.preview.sentenceState.object, isNull);
+      expect(render(driveFromHouse.preview), 'You drive.');
 
       state = lock.applyMove(
         state,
@@ -1584,15 +1592,41 @@ void main() {
       },
     );
 
+    test('guided action suggestions stay reachable through tail shaving', () {
+      var state = ConfigurationState.initial();
+
+      state = lock.applyMove(state, const SetAction(want));
+      state = lock.applyMove(state, const SetRightAction(go));
+
+      final labels = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.action, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(labels, containsAll(['want', 'need', 'like', 'learn', 'build']));
+
+      final buildSuggestion = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.action, limit: 0)
+          .singleWhere((suggestion) => suggestion.label == 'build');
+
+      expect(render(buildSuggestion.preview), 'You build.');
+      expect(buildSuggestion.preview.sentenceState.rightAction, isNull);
+    });
+
     test(
-      'action suggestions keep only verbs compatible with current right action',
+      'manual action suggestions keep only verbs compatible with current tail',
       () {
+        final manualLock = ConfigurationEngine(mode: ConfigurationMode.manual);
+        final manualCompass = ConfigurationCompass(
+          lock: manualLock,
+          actions: compass.actions,
+        );
         var state = ConfigurationState.initial();
 
-        state = lock.applyMove(state, const SetAction(want));
-        state = lock.applyMove(state, const SetRightAction(go));
+        state = manualLock.applyMove(state, const SetAction(want));
+        state = manualLock.applyMove(state, const SetRightAction(go));
 
-        final labels = compass
+        final labels = manualCompass
             .suggestionsFor(state, ConfigurationCompassSlot.action, limit: 0)
             .map((suggestion) => suggestion.label)
             .toList();

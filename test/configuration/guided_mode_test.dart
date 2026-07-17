@@ -167,15 +167,119 @@ void main() {
       expect(wasBlocked(state), isFalse);
     });
 
+    test('guided verb switch shaves incompatible right-side tail', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(learn));
+      state = engine.applyMove(state, const SetRightAction(speak));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
+      state = engine.applyMove(state, const SetCompanion(anyone));
+
+      state = engine.applyMove(state, const SetAction(work_data.build));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, work_data.build);
+      expect(state.sentenceState.object, isNull);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(state.sentenceState.companion, isNull);
+      expect(render(state), 'You build.');
+      expect(
+        state.messages.map((message) => message.text),
+        contains(
+          'Verb switch removed incompatible object, companion and right action.',
+        ),
+      );
+    });
+
+    test('guided verb switch keeps compatible object and companion', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(speak));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
+      state = engine.applyMove(state, const SetCompanion(anyone));
+
+      state = engine.applyMove(state, const SetAction(teach));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, teach);
+      expect(state.sentenceState.object, fixed_object.english);
+      expect(state.sentenceState.companion, anyone);
+      expect(state.sentenceState.recipient, isNull);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(render(state), 'You teach English with anyone.');
+    });
+
+    test('guided verb switch shaves only incompatible right-action tail', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(learn));
+      state = engine.applyMove(state, const SetRightAction(speak));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
+      state = engine.applyMove(state, const SetCompanion(anyone));
+
+      state = engine.applyMove(state, const SetAction(teach));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, teach);
+      expect(state.sentenceState.object, fixed_object.english);
+      expect(state.sentenceState.companion, anyone);
+      expect(state.sentenceState.recipient, isNull);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(render(state), 'You teach English with anyone.');
+    });
+
+    test('assisted verb switch previews the same shaved sentence', () {
+      final assistedEngine = ConfigurationEngine(
+        mode: ConfigurationMode.assisted,
+      );
+      var state = ConfigurationState.initial();
+
+      state = assistedEngine.applyMove(state, const SetAction(learn));
+      state = assistedEngine.applyMove(state, const SetRightAction(speak));
+      state = assistedEngine.applyMove(
+        state,
+        const SetObject(fixed_object.english),
+      );
+      state = assistedEngine.applyMove(state, const SetCompanion(anyone));
+
+      state = assistedEngine.applyMove(state, const SetAction(work_data.build));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, work_data.build);
+      expect(state.sentenceState.object, isNull);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(state.sentenceState.companion, isNull);
+      expect(render(state), 'You build.');
+    });
+
+    test('manual verb switch blocks instead of shaving incompatible tail', () {
+      final manualEngine = ConfigurationEngine(mode: ConfigurationMode.manual);
+      var state = ConfigurationState.initial();
+
+      state = manualEngine.applyMove(state, const SetAction(learn));
+      state = manualEngine.applyMove(state, const SetRightAction(speak));
+      state = manualEngine.applyMove(state, const SetCompanion(anyone));
+
+      final previous = state;
+      state = manualEngine.applyMove(state, const SetAction(work_data.build));
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.first.text,
+        'build does not take a right action complement.',
+      );
+    });
+
     test('right action can own object and companion rails', () {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetAction(learn));
       state = engine.applyMove(state, const SetRightAction(speak));
-      state = engine.applyMove(state, const SetObject(fixed_object.science));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
       state = engine.applyMove(state, const SetCompanion(anyone));
 
-      expect(render(state), 'You learn to speak science with anyone.');
+      expect(render(state), 'You learn to speak English with anyone.');
       expect(wasBlocked(state), isFalse);
     });
 
@@ -317,7 +421,7 @@ void main() {
       );
     });
 
-    test('blocks moving to an intransitive verb while object is present', () {
+    test('moving to an intransitive verb shaves current object', () {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetAction(work_data.build));
@@ -326,12 +430,12 @@ void main() {
         SetObject(bridge.toNounPhrase(Number.singular)),
       );
 
-      final previous = state;
       state = engine.applyMove(state, const SetAction(work));
 
-      expect(state.sentenceState, same(previous.sentenceState));
-      expect(wasBlocked(state), isTrue);
-      expect(state.messages.single.text, 'work does not take an object.');
+      expect(state.sentenceState.action, work);
+      expect(state.sentenceState.object, isNull);
+      expect(wasBlocked(state), isFalse);
+      expect(render(state), 'You work.');
     });
 
     test('blocks active recipient without object', () {

@@ -1,5 +1,6 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
@@ -22,7 +23,52 @@ import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-enum ConfigurationMode { guided }
+enum ConfigurationMode { guided, assisted, manual, explorer }
+
+enum IncompatibleTailPolicy { shave, previewShave, blockWithExplanation, allow }
+
+class ConfigurationModePolicy {
+  final PredicatePathMode predicatePathMode;
+  final IncompatibleTailPolicy incompatibleTailPolicy;
+  final bool showEducationalTooltips;
+  final bool showDeveloperDiagnostics;
+
+  const ConfigurationModePolicy({
+    required this.predicatePathMode,
+    required this.incompatibleTailPolicy,
+    required this.showEducationalTooltips,
+    required this.showDeveloperDiagnostics,
+  });
+
+  factory ConfigurationModePolicy.forMode(ConfigurationMode mode) {
+    return switch (mode) {
+      ConfigurationMode.guided => const ConfigurationModePolicy(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        incompatibleTailPolicy: IncompatibleTailPolicy.shave,
+        showEducationalTooltips: true,
+        showDeveloperDiagnostics: false,
+      ),
+      ConfigurationMode.assisted => const ConfigurationModePolicy(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        incompatibleTailPolicy: IncompatibleTailPolicy.previewShave,
+        showEducationalTooltips: true,
+        showDeveloperDiagnostics: true,
+      ),
+      ConfigurationMode.manual => const ConfigurationModePolicy(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        incompatibleTailPolicy: IncompatibleTailPolicy.blockWithExplanation,
+        showEducationalTooltips: false,
+        showDeveloperDiagnostics: true,
+      ),
+      ConfigurationMode.explorer => const ConfigurationModePolicy(
+        predicatePathMode: PredicatePathMode.legacyCompassFallback,
+        incompatibleTailPolicy: IncompatibleTailPolicy.allow,
+        showEducationalTooltips: false,
+        showDeveloperDiagnostics: true,
+      ),
+    };
+  }
+}
 
 enum NounPhraseTarget {
   agent,
@@ -354,69 +400,121 @@ class ConfigurationEngine {
 
   const ConfigurationEngine({this.mode = ConfigurationMode.guided});
 
+  ConfigurationModePolicy get modePolicy =>
+      ConfigurationModePolicy.forMode(mode);
+
   ConfigurationState applyMove(
     ConfigurationState current,
     ConfigurationMove move,
   ) {
-    final candidate = _applyMove(current.sentenceState, move);
+    final candidate = _candidateForMode(current.sentenceState, move);
     final blockers = _validate(candidate);
 
-    if (mode == ConfigurationMode.guided && blockers.isNotEmpty) {
+    if (modePolicy.incompatibleTailPolicy != IncompatibleTailPolicy.allow &&
+        blockers.isNotEmpty) {
       return current.copyWith(messages: blockers);
     }
 
     return ConfigurationState(
       sentenceState: candidate,
-      messages: _collectMessages(current.sentenceState, candidate),
+      messages: [
+        if (modePolicy.incompatibleTailPolicy == IncompatibleTailPolicy.allow)
+          ...blockers,
+        ..._collectMessages(current.sentenceState, candidate),
+      ],
+    );
+  }
+
+  SentenceState _candidateForMode(SentenceState state, ConfigurationMove move) {
+    if (move is! SetAction) {
+      return _applyMove(state, move);
+    }
+
+    return switch (modePolicy.incompatibleTailPolicy) {
+      IncompatibleTailPolicy.shave || IncompatibleTailPolicy.previewShave =>
+        _actionChangeWithShavedTail(state, move.action),
+      IncompatibleTailPolicy.blockWithExplanation ||
+      IncompatibleTailPolicy.allow => _rawActionChange(state, move.action),
+    };
+  }
+
+  SentenceState _rawActionChange(SentenceState state, Verb action) {
+    return _copy(state, action: action);
+  }
+
+  SentenceState _actionChangeWithShavedTail(SentenceState state, Verb action) {
+    if (action == be) {
+      return _copy(
+        state,
+        action: action,
+        object: null,
+        objectComplement: null,
+        objectAdjectiveComplement: null,
+        recipient: null,
+        addressee: null,
+        companion: state.companion,
+        destination: null,
+        rightAction: null,
+        complement: null,
+        adjectiveComplement: null,
+        voice: Voice.active,
+        passiveFocus: null,
+        showPassiveAgent: true,
+      );
+    }
+
+    final rightAction = _rightActionAfterActionChange(
+      state.rightAction,
+      action,
+    );
+    final tailOwner = rightAction ?? action;
+    final object = _objectAfterActionChange(state.object, tailOwner);
+    final recipient = action.takesRecipient && object != null
+        ? state.recipient
+        : null;
+    final addressee = tailOwner.takesAddressee ? state.addressee : null;
+    final companion = _companionAfterActionChange(state.companion, tailOwner);
+    final destination = tailOwner.usesDestinationPlace
+        ? state.destination
+        : null;
+    final canKeepPassive =
+        state.voice == Voice.passive && action.takesObject && object != null;
+    final voice = canKeepPassive ? state.voice : Voice.active;
+    final passiveFocus = voice == Voice.passive
+        ? _passiveFocusAfterActionChange(state.passiveFocus, action, recipient)
+        : null;
+
+    return _copy(
+      state,
+      action: action,
+      object: object,
+      objectComplement: _objectComplementAfterActionChange(
+        state.objectComplement,
+        object,
+        action,
+      ),
+      objectAdjectiveComplement: _objectAdjectiveComplementAfterActionChange(
+        state.objectAdjectiveComplement,
+        object,
+        action,
+      ),
+      recipient: recipient,
+      addressee: addressee,
+      companion: companion,
+      destination: destination,
+      rightAction: rightAction,
+      complement: null,
+      adjectiveComplement: null,
+      voice: voice,
+      passiveFocus: passiveFocus,
+      showPassiveAgent: voice == Voice.passive ? state.showPassiveAgent : true,
     );
   }
 
   SentenceState _applyMove(SentenceState state, ConfigurationMove move) {
     return switch (move) {
       SetAgent(:final agent) => _copy(state, agent: agent),
-      SetAction(:final action) =>
-        action == be
-            ? _copy(
-                state,
-                action: action,
-                object: null,
-                objectComplement: null,
-                objectAdjectiveComplement: null,
-                recipient: null,
-                addressee: null,
-                destination: null,
-                rightAction: null,
-                voice: Voice.active,
-                passiveFocus: null,
-                showPassiveAgent: true,
-              )
-            : _copy(
-                state,
-                action: action,
-                object: _objectAfterActionChange(state.object, action),
-                objectComplement: _objectComplementAfterActionChange(
-                  state.objectComplement,
-                  state.object,
-                  action,
-                ),
-                objectAdjectiveComplement:
-                    _objectAdjectiveComplementAfterActionChange(
-                      state.objectAdjectiveComplement,
-                      state.object,
-                      action,
-                    ),
-                addressee: action.takesAddressee ? state.addressee : null,
-                companion: action.takesCompanion ? state.companion : null,
-                destination: action.usesDestinationPlace
-                    ? state.destination
-                    : null,
-                rightAction: _rightActionAfterActionChange(
-                  state.rightAction,
-                  action,
-                ),
-                complement: null,
-                adjectiveComplement: null,
-              ),
+      SetAction(:final action) => _actionChangeWithShavedTail(state, action),
       SetObject(:final object) => _copy(
         state,
         object: object,
@@ -1099,9 +1197,74 @@ class ConfigurationEngine {
           'Verb changed to ${current.action.infinitive}.',
         ),
       );
+
+      final shavedFields = _shavedTailFields(previous, current);
+      if (shavedFields.isNotEmpty) {
+        messages.add(
+          ConfigurationMessage.info(
+            'Verb switch removed incompatible ${_joinLabels(shavedFields)}.',
+            lawCategory: ConfigurationLawCategory.stateUpdate,
+          ),
+        );
+      }
     }
 
     return messages;
+  }
+
+  List<String> _shavedTailFields(
+    SentenceState previous,
+    SentenceState current,
+  ) {
+    final fields = <String>[];
+
+    if (previous.object != null && current.object == null) {
+      fields.add('object');
+    }
+    if (previous.objectComplement != null && current.objectComplement == null) {
+      fields.add('object complement');
+    }
+    if (previous.objectAdjectiveComplement != null &&
+        current.objectAdjectiveComplement == null) {
+      fields.add('object adjective complement');
+    }
+    if (previous.recipient != null && current.recipient == null) {
+      fields.add('recipient');
+    }
+    if (previous.addressee != null && current.addressee == null) {
+      fields.add('addressee');
+    }
+    if (previous.companion != null && current.companion == null) {
+      fields.add('companion');
+    }
+    if (previous.destination != null && current.destination == null) {
+      fields.add('destination');
+    }
+    if (previous.rightAction != null && current.rightAction == null) {
+      fields.add('right action');
+    }
+    if (previous.complement != null && current.complement == null) {
+      fields.add('complement');
+    }
+    if (previous.adjectiveComplement != null &&
+        current.adjectiveComplement == null) {
+      fields.add('adjective complement');
+    }
+    if (previous.voice == Voice.passive && current.voice == Voice.active) {
+      fields.add('passive voice');
+    } else if (previous.passiveFocus != null && current.passiveFocus == null) {
+      fields.add('passive focus');
+    }
+
+    return fields;
+  }
+
+  String _joinLabels(List<String> labels) {
+    if (labels.length == 1) {
+      return labels.single;
+    }
+
+    return '${labels.take(labels.length - 1).join(', ')} and ${labels.last}';
   }
 
   NounPhrase? _objectAfterActionChange(NounPhrase? object, Verb action) {
@@ -1109,11 +1272,75 @@ class ConfigurationEngine {
       return null;
     }
 
+    if (!action.takesObject) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsNoun(
+      action,
+      PredicatePathKind.directObject,
+      object,
+    )) {
+      return null;
+    }
+
     if (canClearObjectForFixedSubjectFrame(object, action)) {
       return null;
     }
 
+    if (hasFixedObjectFrame(action)) {
+      if (!fixedObjectFitsAction(object, action)) {
+        return null;
+      }
+
+      if (!fixedObjectFrameAllowsModifiers(action) &&
+          (object.determiner != null || object.adjectiveList.isNotEmpty)) {
+        return null;
+      }
+    }
+
     return object;
+  }
+
+  NounPhrase? _companionAfterActionChange(NounPhrase? companion, Verb action) {
+    if (companion == null) {
+      return null;
+    }
+
+    if (!action.takesCompanion) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsNoun(
+      action,
+      PredicatePathKind.withCompanion,
+      companion,
+    )) {
+      return null;
+    }
+
+    return companion;
+  }
+
+  bool _predicatePathAcceptsNoun(
+    Verb action,
+    PredicatePathKind kind,
+    NounPhrase noun,
+  ) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateNounChoicesFor(action, kind);
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) =>
+          choice.text.toLowerCase() == noun.text.toLowerCase() &&
+          choice.number == noun.number,
+    );
   }
 
   NounPhrase? _objectComplementAfterActionChange(
@@ -1152,6 +1379,19 @@ class ConfigurationEngine {
     }
 
     return rightActionFitsAction(rightAction, action) ? rightAction : null;
+  }
+
+  PassiveFocus? _passiveFocusAfterActionChange(
+    PassiveFocus? passiveFocus,
+    Verb action,
+    NounPhrase? recipient,
+  ) {
+    if ((passiveFocus ?? PassiveFocus.object) == PassiveFocus.recipient &&
+        (!action.takesRecipient || recipient == null)) {
+      return null;
+    }
+
+    return passiveFocus;
   }
 
   SentenceState _copy(

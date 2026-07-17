@@ -93,9 +93,7 @@ class _SuggestionLabel extends StatelessWidget {
     }
 
     final renderedPreview = preview ?? suggestion.label;
-    if (displayMode == SuggestionDisplayMode.sentence ||
-        suggestion.isSelected ||
-        currentSentence == renderedPreview) {
+    if (suggestion.isSelected || currentSentence == renderedPreview) {
       return Text(
         renderedPreview,
         key: key,
@@ -490,13 +488,17 @@ class _GuidedMessagePanel extends StatelessWidget {
                 ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
               )
             else
-              Wrap(
-                spacing: 8,
-                runSpacing: 5,
-                children: [
-                  for (final message in messages)
-                    _GuidedMessageChip(message: message),
-                ],
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 5,
+                    children: [
+                      for (final message in messages)
+                        _GuidedMessageChip(message: message),
+                    ],
+                  ),
+                ),
               ),
           ],
         ),

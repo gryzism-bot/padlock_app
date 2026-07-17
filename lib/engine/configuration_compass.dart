@@ -180,14 +180,7 @@ class ConfigurationCompass {
     return switch (slot) {
       ConfigurationCompassSlot.action =>
         actions
-            .where(
-              (action) =>
-                  action == sentence.action ||
-                  (sentence.rightAction != null
-                      ? rightActionFitsAction(sentence.rightAction!, action)
-                      : _objectFitsAction(sentence.object, action) ||
-                            _canClearObjectIntoAction(sentence.object, action)),
-            )
+            .where((action) => _actionCanBeSuggested(sentence, action, lock))
             .map(
               (action) => _CompassCandidate(
                 SetAction(action),
@@ -761,6 +754,27 @@ int _actionPriority(Verb current, Verb candidate) {
   }
 
   return priority;
+}
+
+bool _actionCanBeSuggested(
+  SentenceState sentence,
+  Verb action,
+  ConfigurationEngine lock,
+) {
+  if (action == sentence.action) {
+    return true;
+  }
+
+  return switch (lock.modePolicy.incompatibleTailPolicy) {
+    IncompatibleTailPolicy.shave ||
+    IncompatibleTailPolicy.previewShave ||
+    IncompatibleTailPolicy.allow => true,
+    IncompatibleTailPolicy.blockWithExplanation =>
+      sentence.rightAction != null
+          ? rightActionFitsAction(sentence.rightAction!, action)
+          : _objectFitsAction(sentence.object, action) ||
+                _canClearObjectIntoAction(sentence.object, action),
+  };
 }
 
 int _modalPriority(Tense tense, Modal current, Modal modal) {

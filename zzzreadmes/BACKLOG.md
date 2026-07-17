@@ -359,16 +359,16 @@ Current direction:
 Next Compass side quests:
 
 - keep current verb exits visible from every special frame
-- Guided verb switching should be able to shave incompatible optional tail
-  state before changing the predicate:
+- Done: mode policy for incompatible verb-switch tails:
   - example discovered in UI:
     `You learn to speak with me.` narrowed the verb list until `to speak` was
     cleared
-  - Guided Mode should switch verb and remove incompatible right-action,
-    companion, recipient, object, or addressee state as needed
-  - Assisted Mode may block and explain instead
-  - Manual Mode may keep the harder block
-  - Explorer Mode may expose the impossible state intentionally
+  - Guided Mode switches verb and removes incompatible right-action, companion,
+    recipient, object, addressee, object complement, destination, and passive
+    shape as needed
+  - Assisted Mode uses the same shaved preview path
+  - Manual Mode keeps the harder block-with-explanation behavior
+  - Explorer Mode is policy-ready to allow rough states intentionally
 - show disabled-but-visible verbs in an Explorer-ish mode, with explanations
 - rank object choices by verb frame
 - rank recipients for recipient-capable verbs

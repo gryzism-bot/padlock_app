@@ -30,7 +30,7 @@ part 'widgets/noun_rail_state.dart';
 part 'widgets/rail_policy.dart';
 part 'widgets/suggestion_chips.dart';
 
-enum SuggestionDisplayMode { sentence, change, word }
+enum SuggestionDisplayMode { change, word }
 
 enum HeaderPreviewMode { clicked, hover }
 
@@ -2095,11 +2095,6 @@ class _DisplayModeSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return SegmentedButton<SuggestionDisplayMode>(
       segments: const [
-        ButtonSegment(
-          value: SuggestionDisplayMode.sentence,
-          label: Text('Sentence'),
-          icon: Icon(Icons.subject),
-        ),
         ButtonSegment(
           value: SuggestionDisplayMode.change,
           label: Text('Change'),

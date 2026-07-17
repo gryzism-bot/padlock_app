@@ -462,10 +462,14 @@ void main() {
     expect(find.byTooltip('You work.'), findsWidgets);
   });
 
-  testWidgets('Suggestion display mode can switch to word chips', (
+  testWidgets('Suggestion display mode keeps only change and word chips', (
     tester,
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Sentence'), findsNothing);
+    expect(find.text('Change'), findsOneWidget);
+    expect(find.text('Word'), findsOneWidget);
 
     await tapVisible(tester, find.text('Word'));
 
@@ -1276,6 +1280,67 @@ void main() {
       find.byKey(const Key('suggestion-label-companion-anyone')),
     );
     expect(renderedSentence(tester), 'You learn to speak English with anyone.');
+  });
+
+  testWidgets('Guided UI can switch main verb by shaving right-action tail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-speak')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-english')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-companion-anyone')),
+    );
+
+    expect(renderedSentence(tester), 'You learn to speak English with anyone.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-build')),
+    );
+
+    expect(renderedSentence(tester), 'You build.');
+    expect(find.textContaining('right action -> none'), findsNothing);
+  });
+
+  testWidgets('Guided UI shaves right-action tail but keeps compatible rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-speak')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-english')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-companion-anyone')),
+    );
+
+    expect(renderedSentence(tester), 'You learn to speak English with anyone.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-teach')),
+    );
+
+    expect(renderedSentence(tester), 'You teach English with anyone.');
   });
 
   testWidgets('Subject rows can expand into noun subjects', (tester) async {
