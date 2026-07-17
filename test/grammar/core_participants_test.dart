@@ -739,6 +739,22 @@ void main() {
       );
     });
 
+    test('right action can own a direct object and companion tail', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: learn,
+          rightAction: speak,
+          object: science,
+          companion: anyone,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You learn to speak science with anyone.');
+    });
+
     test('person destination pronouns render in object case', () {
       final sentence = render(
         SentenceState(

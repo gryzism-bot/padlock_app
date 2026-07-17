@@ -401,6 +401,36 @@ void main() {
     expect(translated, endsWith('.)'));
   });
 
+  testWidgets('right action keeps owned object and companion rails reachable', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(tester, find.byTooltip('You learn to speak.'));
+
+    expect(renderedSentence(tester), 'You learn to speak.');
+    expect(find.text('Language:'), findsOneWidget);
+    expect(find.text('Companion:'), findsOneWidget);
+    expect(
+      find.byKey(const Key('suggestion-label-object-polish')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-object-science')),
+      findsNothing,
+    );
+
+    await tapAfterScroll(tester, find.byTooltip('You learn to speak Polish.'));
+    expect(renderedSentence(tester), 'You learn to speak Polish.');
+
+    await tapAfterScroll(
+      tester,
+      find.byTooltip('You learn to speak Polish with anyone.'),
+    );
+    expect(renderedSentence(tester), 'You learn to speak Polish with anyone.');
+  });
+
   testWidgets('Guided UI can exit lexical be through verb suggestions', (
     tester,
   ) async {
@@ -446,7 +476,7 @@ void main() {
   testWidgets('Suggestion chips expose selectable text labels', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    final teachLabel = tester.widget<SelectableText>(
+    final teachLabel = tester.widget<Text>(
       find.byKey(const Key('suggestion-label-action-teach')),
     );
 
@@ -1201,6 +1231,35 @@ void main() {
       expect(find.text('Right action:'), findsOneWidget);
     },
   );
+
+  testWidgets('Right action opens its owned object and companion rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-speak')),
+    );
+
+    expect(renderedSentence(tester), 'You learn to speak.');
+    expect(find.text('Language:'), findsOneWidget);
+    expect(find.text('Companion:'), findsOneWidget);
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-english')),
+    );
+    expect(renderedSentence(tester), 'You learn to speak English.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-companion-anyone')),
+    );
+    expect(renderedSentence(tester), 'You learn to speak English with anyone.');
+  });
 
   testWidgets('Subject rows can expand into noun subjects', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));

@@ -582,6 +582,12 @@ class GrammarEngine {
         builder.state.voice == Voice.active &&
         builder.state.recipientPlacement == RecipientPlacement.toPhrase;
 
+    // ---------- RIGHT ACTION ----------
+
+    if (builder.state.rightAction != null) {
+      parts.add('to ${builder.state.rightAction!.infinitive}');
+    }
+
     // ---------- RECIPIENT ----------
 
     if (builder.displayRecipient != null && !activeToRecipient) {
@@ -622,12 +628,6 @@ class GrammarEngine {
 
     if (builder.displayAdjectiveComplement != null) {
       parts.add(builder.displayAdjectiveComplement!.text);
-    }
-
-    // ---------- RIGHT ACTION ----------
-
-    if (builder.state.rightAction != null) {
-      parts.add('to ${builder.state.rightAction!.infinitive}');
     }
 
     // ---------- BOUND PARTICIPANT MANNER ----------

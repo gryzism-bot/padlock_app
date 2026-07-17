@@ -48,7 +48,6 @@ class _SuggestionButton extends StatelessWidget {
                 currentSentence: currentSentence,
                 displayMode: displayMode,
                 preview: preview,
-                onPressed: onPressed,
               ),
             ],
           ),
@@ -63,14 +62,12 @@ class _SuggestionLabel extends StatelessWidget {
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
   final String? preview;
-  final VoidCallback onPressed;
 
   const _SuggestionLabel({
     required this.suggestion,
     required this.currentSentence,
     required this.displayMode,
     required this.preview,
-    required this.onPressed,
   });
 
   @override
@@ -87,12 +84,11 @@ class _SuggestionLabel extends StatelessWidget {
     final key = Key(_suggestionLabelKey(suggestion));
 
     if (displayMode == SuggestionDisplayMode.word) {
-      return SelectableText(
+      return Text(
         suggestion.label,
         key: key,
         textAlign: TextAlign.center,
         style: baseStyle,
-        onTap: onPressed,
       );
     }
 
@@ -100,16 +96,15 @@ class _SuggestionLabel extends StatelessWidget {
     if (displayMode == SuggestionDisplayMode.sentence ||
         suggestion.isSelected ||
         currentSentence == renderedPreview) {
-      return SelectableText(
+      return Text(
         renderedPreview,
         key: key,
         textAlign: TextAlign.center,
         style: baseStyle,
-        onTap: onPressed,
       );
     }
 
-    return SelectableText.rich(
+    return Text.rich(
       _changedSuggestionSpan(
         currentSentence: currentSentence,
         preview: renderedPreview,
@@ -119,7 +114,6 @@ class _SuggestionLabel extends StatelessWidget {
       ),
       key: key,
       textAlign: TextAlign.center,
-      onTap: onPressed,
     );
   }
 }

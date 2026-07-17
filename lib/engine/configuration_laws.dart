@@ -134,15 +134,25 @@ bool activeRecipientNeedsRecipientCapablePredicate(SentenceState state) {
 }
 
 bool activeAddresseeNeedsAddresseeCapablePredicate(SentenceState state) {
-  return state.voice != Voice.active ||
-      state.addressee == null ||
-      state.action.takesAddressee;
+  if (state.voice != Voice.active || state.addressee == null) {
+    return true;
+  }
+
+  final rightAction = state.rightAction;
+  return rightAction == null
+      ? state.action.takesAddressee
+      : rightAction.takesAddressee;
 }
 
 bool activeObjectNeedsObjectCapablePredicate(SentenceState state) {
-  return state.voice != Voice.active ||
-      state.object == null ||
-      state.action.takesObject;
+  if (state.voice != Voice.active || state.object == null) {
+    return true;
+  }
+
+  final rightAction = state.rightAction;
+  return rightAction == null
+      ? state.action.takesObject
+      : rightAction.takesObject;
 }
 
 bool recipientFrameNeedsObject(SentenceState state) {

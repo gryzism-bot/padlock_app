@@ -157,21 +157,22 @@ String _fixedObjectAdjectiveTitle(ConfigurationState configuration) {
 
 String _objectUnlockHint(ConfigurationState configuration) {
   final state = configuration.sentenceState;
-  final fixedLabel = fixedObjectFrameLabel(state.action);
+  final owner = _railBoundTailOwner(state);
+  final fixedLabel = fixedObjectFrameLabel(owner);
 
   if (fixedLabel == null) {
     return 'Choose a verb that can take an object, like build, give, need, see, or use.';
   }
 
-  return 'Choose a fixed $fixedLabel for ${state.action.infinitive}.';
+  return 'Choose a fixed $fixedLabel for ${owner.infinitive}.';
 }
 
 String _objectModifierUnlockHint(ConfigurationState configuration) {
   final state = configuration.sentenceState;
+  final owner = _railBoundTailOwner(state);
 
-  if (hasFixedObjectFrame(state.action) &&
-      !fixedObjectFrameAllowsModifiers(state.action)) {
-    return '${state.action.infinitive} fixed ${fixedObjectFrameLabel(state.action)} choices stay bare.';
+  if (hasFixedObjectFrame(owner) && !fixedObjectFrameAllowsModifiers(owner)) {
+    return '${owner.infinitive} fixed ${fixedObjectFrameLabel(owner)} choices stay bare.';
   }
 
   return 'Choose an object first. Noun phrase modifiers wake after a noun exists.';
@@ -222,6 +223,10 @@ _ParticipantDoorStatus _participantStatus({
   return isAwake ? _ParticipantDoorStatus.awake : _ParticipantDoorStatus.asleep;
 }
 
+Verb _railBoundTailOwner(SentenceState state) {
+  return state.rightAction ?? state.action;
+}
+
 final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
   ConfigurationCompassSlot.action: _RailPolicy(
     slot: ConfigurationCompassSlot.action,
@@ -238,7 +243,8 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: (_) => '-',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
-        state.action.takesObject || hasFixedObjectFrame(state.action),
+        _railBoundTailOwner(state).takesObject ||
+        hasFixedObjectFrame(_railBoundTailOwner(state)),
     canRenderWhenEmpty: (state) => state.object != null,
     participantLabel: _coreObjectDoorLabel,
     participantValue: (state) => _nounTraceText(state.object),
@@ -363,7 +369,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: (_) => 'to',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
-        state.action.takesAddressee || state.addressee != null,
+        _railBoundTailOwner(state).takesAddressee || state.addressee != null,
     canRenderWhenEmpty: (state) => state.addressee != null,
     participantLabel: (_) => 'addressee',
     participantValue: (state) => _nounTraceText(state.addressee),
@@ -398,7 +404,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
         state.action.infinitive == 'be' ||
-        state.action.takesCompanion ||
+        _railBoundTailOwner(state).takesCompanion ||
         state.companion != null,
     canRenderWhenEmpty: (state) => state.companion != null,
     participantLabel: (_) => 'companion',
@@ -433,7 +439,8 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: (_) => 'to',
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
-        state.action.usesDestinationPlace || state.destination != null,
+        _railBoundTailOwner(state).usesDestinationPlace ||
+        state.destination != null,
     canRenderWhenEmpty: (state) => state.destination != null,
     participantLabel: (_) => 'destination',
     participantValue: (state) => _nounTraceText(state.destination),
@@ -595,12 +602,15 @@ bool _objectModifiersCanWake(SentenceState state) {
     return false;
   }
 
-  return !hasFixedObjectFrame(state.action) ||
-      fixedObjectFrameAllowsModifiers(state.action);
+  final owner = _railBoundTailOwner(state);
+  return !hasFixedObjectFrame(owner) ||
+      fixedObjectFrameAllowsModifiers(_railBoundTailOwner(state));
 }
 
 String? _fixedObjectSlotTitle(ConfigurationState configuration) {
-  final label = fixedObjectFrameLabel(configuration.sentenceState.action);
+  final label = fixedObjectFrameLabel(
+    _railBoundTailOwner(configuration.sentenceState),
+  );
   if (label == null) {
     return null;
   }
@@ -609,7 +619,9 @@ String? _fixedObjectSlotTitle(ConfigurationState configuration) {
 }
 
 String _coreObjectDoorLabel(ConfigurationState configuration) {
-  final fixedLabel = fixedObjectFrameLabel(configuration.sentenceState.action);
+  final fixedLabel = fixedObjectFrameLabel(
+    _railBoundTailOwner(configuration.sentenceState),
+  );
 
   if (fixedLabel == null) {
     return 'object';

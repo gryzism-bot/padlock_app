@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart' hide need;
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
@@ -1557,6 +1558,31 @@ void main() {
         'You want.',
       );
     });
+
+    test(
+      'right action object suggestions belong to the right action owner',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        var state = ConfigurationState.initial();
+
+        state = lock.applyMove(state, const SetRightAction(speak));
+
+        final labels = authoredCompass
+            .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+            .map((suggestion) => suggestion.label)
+            .toList();
+
+        expect(labels, containsAll(['English', 'Polish', 'Spanish']));
+        expect(labels, isNot(contains('science')));
+
+        state = lock.applyMove(state, const SetObject(fixed_object.polish));
+
+        expect(wasBlocked(state), isFalse);
+        expect(render(state), 'You learn to speak Polish.');
+      },
+    );
 
     test(
       'action suggestions keep only verbs compatible with current right action',

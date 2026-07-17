@@ -790,14 +790,7 @@ class ConfigurationEngine {
       );
     }
 
-    if (state.object != null) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Right action complement does not combine with an object in this frame.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
-    }
+    return;
   }
 
   void _validatePredicateFrame(
@@ -834,41 +827,48 @@ class ConfigurationEngine {
       }
     }
 
-    if (state.companion != null && !state.action.takesCompanion) {
+    if (state.companion != null &&
+        !(state.rightAction == null
+            ? state.action.takesCompanion
+            : state.rightAction!.takesCompanion)) {
       blockers.add(
         ConfigurationMessage.blocked(
-          '${state.action.infinitive} does not take a companion.',
+          '${(state.rightAction ?? state.action).infinitive} does not take a companion.',
           lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
 
-    if (state.destination != null && !state.action.usesDestinationPlace) {
+    if (state.destination != null &&
+        !(state.rightAction == null
+            ? state.action.usesDestinationPlace
+            : state.rightAction!.usesDestinationPlace)) {
       blockers.add(
         ConfigurationMessage.blocked(
-          '${state.action.infinitive} does not take a destination.',
+          '${(state.rightAction ?? state.action).infinitive} does not take a destination.',
           lawCategory: ConfigurationLawCategory.predicateFrameType,
         ),
       );
     }
 
-    if (hasFixedObjectFrame(state.action) && state.object != null) {
-      final label = fixedObjectFrameLabel(state.action) ?? 'fixed object';
-      if (!fixedObjectFitsAction(state.object!, state.action)) {
+    final objectOwner = state.rightAction ?? state.action;
+    if (hasFixedObjectFrame(objectOwner) && state.object != null) {
+      final label = fixedObjectFrameLabel(objectOwner) ?? 'fixed object';
+      if (!fixedObjectFitsAction(state.object!, objectOwner)) {
         blockers.add(
           ConfigurationMessage.blocked(
-            '${state.action.infinitive} only takes fixed $label objects.',
+            '${objectOwner.infinitive} only takes fixed $label objects.',
             lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
       }
 
-      if (!fixedObjectFrameAllowsModifiers(state.action) &&
+      if (!fixedObjectFrameAllowsModifiers(objectOwner) &&
           (state.object!.determiner != null ||
               state.object!.adjectiveList.isNotEmpty)) {
         blockers.add(
           ConfigurationMessage.blocked(
-            '${state.action.infinitive} fixed $label objects stay bare.',
+            '${objectOwner.infinitive} fixed $label objects stay bare.',
             lawCategory: ConfigurationLawCategory.predicateFrameType,
           ),
         );
@@ -916,7 +916,7 @@ class ConfigurationEngine {
         if (!activeAddresseeNeedsAddresseeCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take an addressee.',
+              '${(state.rightAction ?? state.action).infinitive} does not take an addressee.',
               lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
@@ -925,7 +925,7 @@ class ConfigurationEngine {
         if (!activeObjectNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take an object.',
+              '${(state.rightAction ?? state.action).infinitive} does not take an object.',
               lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );

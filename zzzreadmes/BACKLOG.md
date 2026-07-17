@@ -359,6 +359,16 @@ Current direction:
 Next Compass side quests:
 
 - keep current verb exits visible from every special frame
+- Guided verb switching should be able to shave incompatible optional tail
+  state before changing the predicate:
+  - example discovered in UI:
+    `You learn to speak with me.` narrowed the verb list until `to speak` was
+    cleared
+  - Guided Mode should switch verb and remove incompatible right-action,
+    companion, recipient, object, or addressee state as needed
+  - Assisted Mode may block and explain instead
+  - Manual Mode may keep the harder block
+  - Explorer Mode may expose the impossible state intentionally
 - show disabled-but-visible verbs in an Explorer-ish mode, with explanations
 - rank object choices by verb frame
 - rank recipients for recipient-capable verbs
@@ -484,6 +494,10 @@ Done recently:
 
 - collapsed controlled rails no longer ask Compass to generate full suggestion
   lists just to render a closed rail
+- diagnostics repaint no longer rebuilds the whole cockpit:
+  - Move trace updates use a listenable dock repaint
+  - preview cache counter updates use a listenable dock repaint
+  - rail chips no longer get rebuilt just because UI timing text changed
 - closed participant rails are now decided from the current `SentenceState`
   shape, and full suggestions are generated only after the rail is expanded
 - Backleg save: rail titles, wake hints, collapsed visibility, and empty-state

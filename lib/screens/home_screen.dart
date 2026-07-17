@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
@@ -20,6 +21,7 @@ import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -71,6 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
   );
+  late final ValueNotifier<List<_MoveTraceEntry>> moveTraceNotifier;
+  late final ValueNotifier<int> previewCacheEntryCountNotifier;
   Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
@@ -81,6 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     configuration = ConfigurationState.initial();
     previewCache = _SentencePreviewCache(grammar, maxEntries: null);
+    moveTraceNotifier = ValueNotifier(moveTrace);
+    previewCacheEntryCountNotifier = ValueNotifier(previewCacheEntryCount);
   }
 
   void _move(ConfigurationMove move) {
@@ -93,6 +99,12 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = nextConfiguration;
       if (move is SetAction) {
         expandedRails = const {};
+      }
+      if (move is SetRightAction) {
+        expandedRails = _expandedRailsAfterRightActionMove(
+          expandedRails,
+          nextConfiguration.sentenceState,
+        );
       }
       if (move case SetObject(:final object)) {
         nounNumbers = _updatedNounNumbers(
@@ -149,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = ConfigurationState.initial();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
-      moveTrace = const [];
+      _setMoveTrace(const []);
       _appendTraceEntry(
         _MoveTraceEntry.reset(sentence, elapsed: logicStopwatch.elapsed),
         uiStopwatch,
@@ -162,14 +174,14 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       previewCacheMode = mode;
       previewCache.setMaxEntries(_cacheEntryLimitForMode(mode));
-      previewCacheEntryCount = previewCache.size;
+      _setPreviewCacheEntryCount(previewCache.size);
     });
   }
 
   void _clearPreviewCache() {
     setState(() {
       previewCache.clear();
-      previewCacheEntryCount = 0;
+      _setPreviewCacheEntryCount(0);
     });
   }
 
@@ -200,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
       hoveredConfiguration.value = null;
       final sentence = grammar.generate(state.sentenceState).text;
       logicStopwatch.stop();
-      moveTrace = const [];
+      _setMoveTrace(const []);
       _appendTraceEntry(
         _MoveTraceEntry.random(sentence, elapsed: logicStopwatch.elapsed),
         uiStopwatch,
@@ -333,28 +345,38 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _appendTraceEntry(_MoveTraceEntry entry, Stopwatch uiStopwatch) {
-    moveTrace = _appendMoveTrace(moveTrace, entry);
+    _setMoveTrace(_appendMoveTrace(moveTrace, entry));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
 
       uiStopwatch.stop();
-      setState(() {
-        moveTrace = [
-          for (final current in moveTrace)
-            if (identical(current, entry))
-              current.withUiElapsed(uiStopwatch.elapsed)
-            else
-              current,
-        ];
-      });
+      _setMoveTrace([
+        for (final current in moveTrace)
+          if (identical(current, entry))
+            current.withUiElapsed(uiStopwatch.elapsed)
+          else
+            current,
+      ]);
     });
+  }
+
+  void _setMoveTrace(List<_MoveTraceEntry> entries) {
+    moveTrace = entries;
+    moveTraceNotifier.value = entries;
+  }
+
+  void _setPreviewCacheEntryCount(int value) {
+    previewCacheEntryCount = value;
+    previewCacheEntryCountNotifier.value = value;
   }
 
   @override
   void dispose() {
     hoveredConfiguration.dispose();
+    moveTraceNotifier.dispose();
+    previewCacheEntryCountNotifier.dispose();
     super.dispose();
   }
 
@@ -412,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
-        moveTrace: moveTrace,
+        moveTraceListenable: moveTraceNotifier,
         isCollapsed: diagnosticsCollapsed,
         onCollapsedChanged: (value) {
           setState(() {
@@ -420,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         cacheMode: cacheMode,
-        cacheEntryCount: previewCacheEntryCount,
+        cacheEntryCountListenable: previewCacheEntryCountNotifier,
         cacheEntryLimit: previewCache.maxEntries,
         onCacheModeChanged: _setPreviewCacheMode,
         onClearCache: _clearPreviewCache,
@@ -554,11 +576,27 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      setState(() {
-        previewCacheEntryCount = previewCache.size;
-      });
+      _setPreviewCacheEntryCount(previewCache.size);
     });
   }
+}
+
+Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
+  Set<ConfigurationCompassSlot> current,
+  SentenceState state,
+) {
+  final rightAction = state.rightAction;
+  if (rightAction == null) {
+    return {...current}..remove(ConfigurationCompassSlot.rightAction);
+  }
+
+  return {
+    ...current,
+    if (rightAction.takesObject) ConfigurationCompassSlot.object,
+    if (rightAction.takesAddressee) ConfigurationCompassSlot.addressee,
+    if (rightAction.takesCompanion) ConfigurationCompassSlot.companion,
+    if (rightAction.usesDestinationPlace) ConfigurationCompassSlot.destination,
+  };
 }
 
 int? _cacheEntryLimitForMode(PreviewCacheMode mode) {
@@ -788,125 +826,146 @@ class _AppBarTools extends StatelessWidget {
 
 class _BottomDock extends StatelessWidget {
   final List<ConfigurationMessage> messages;
-  final List<_MoveTraceEntry> moveTrace;
+  final ValueListenable<List<_MoveTraceEntry>> moveTraceListenable;
   final bool isCollapsed;
   final ValueChanged<bool> onCollapsedChanged;
   final PreviewCacheMode cacheMode;
   final ValueChanged<PreviewCacheMode> onCacheModeChanged;
   final VoidCallback onClearCache;
-  final int cacheEntryCount;
+  final ValueListenable<int> cacheEntryCountListenable;
   final int? cacheEntryLimit;
 
   const _BottomDock({
     required this.messages,
-    required this.moveTrace,
+    required this.moveTraceListenable,
     required this.isCollapsed,
     required this.onCollapsedChanged,
     required this.cacheMode,
     required this.onCacheModeChanged,
     required this.onClearCache,
-    required this.cacheEntryCount,
+    required this.cacheEntryCountListenable,
     required this.cacheEntryLimit,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final cacheStrip = _PreviewCacheDiagnosticsPanel(
-      mode: cacheMode,
-      entryCount: cacheEntryCount,
-      entryLimit: cacheEntryLimit,
-      onModeChanged: onCacheModeChanged,
-      onClear: onClearCache,
-    );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          color: colors.surface.withValues(alpha: 0.96),
-          elevation: 2,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: isCollapsed
-                  ? _diagnosticsDockCollapsedHeight
-                  : _diagnosticsDockReserveHeight,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final compact = constraints.maxWidth < 1100;
-                  final header = _DiagnosticsDockHeader(
-                    messages: messages,
-                    moveTrace: moveTrace,
-                    isCollapsed: isCollapsed,
-                    onCollapsedChanged: onCollapsedChanged,
-                    cacheStrip: cacheStrip,
-                  );
+    return ValueListenableBuilder<List<_MoveTraceEntry>>(
+      valueListenable: moveTraceListenable,
+      builder: (context, moveTrace, child) {
+        return ValueListenableBuilder<int>(
+          valueListenable: cacheEntryCountListenable,
+          builder: (context, cacheEntryCount, child) {
+            final cacheStrip = _PreviewCacheDiagnosticsPanel(
+              mode: cacheMode,
+              entryCount: cacheEntryCount,
+              entryLimit: cacheEntryLimit,
+              onModeChanged: onCacheModeChanged,
+              onClear: onClearCache,
+            );
 
-                  if (isCollapsed) {
-                    return header;
-                  }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: colors.surface.withValues(alpha: 0.96),
+                  elevation: 2,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: isCollapsed
+                          ? _diagnosticsDockCollapsedHeight
+                          : _diagnosticsDockReserveHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compact = constraints.maxWidth < 1100;
+                          final header = _DiagnosticsDockHeader(
+                            messages: messages,
+                            moveTrace: moveTrace,
+                            isCollapsed: isCollapsed,
+                            onCollapsedChanged: onCollapsedChanged,
+                            cacheStrip: cacheStrip,
+                          );
 
-                  if (compact) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        header,
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
+                          if (isCollapsed) {
+                            return header;
+                          }
+
+                          if (compact) {
+                            return Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                SizedBox(
-                                  height: 142,
-                                  child: _GuidedMessages(messages: messages),
-                                ),
+                                header,
                                 const SizedBox(height: 8),
-                                SizedBox(
-                                  height: 86,
-                                  child: _MoveTracePanel(entries: moveTrace),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        SizedBox(
+                                          height: 142,
+                                          child: _GuidedMessages(
+                                            messages: messages,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        SizedBox(
+                                          height: 86,
+                                          child: _MoveTracePanel(
+                                            entries: moveTrace,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+                            );
+                          }
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      header,
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              flex: 6,
-                              child: _GuidedMessages(messages: messages),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              flex: 5,
-                              child: _MoveTracePanel(entries: moveTrace),
-                            ),
-                          ],
-                        ),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              header,
+                              const SizedBox(height: 8),
+                              Expanded(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      flex: 6,
+                                      child: _GuidedMessages(
+                                        messages: messages,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      flex: 5,
+                                      child: _MoveTracePanel(
+                                        entries: moveTrace,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-        const _StickyFooter(),
-      ],
+                    ),
+                  ),
+                ),
+                const _StickyFooter(),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

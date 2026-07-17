@@ -203,6 +203,7 @@ class ConfigurationCompass {
               final authoredObjects = _nounChoicesForPath(
                 sentence,
                 PredicatePathKind.directObject,
+                owner: _boundTailOwner(sentence),
               );
               return _objectChoicesForState(
                 sentence,
@@ -213,7 +214,7 @@ class ConfigurationCompass {
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
-                  _objectFitsAction(object, sentence.action),
+                  _objectFitsAction(object, _boundTailOwner(sentence)),
             )
             .map((object) {
               final isSelected = _sameNounChoice(object, sentence.object);
@@ -304,7 +305,11 @@ class ConfigurationCompass {
           const _CompassCandidate(SetRecipient(null), 'no recipient', 120),
         ..._nounChoicesForState(
           sentence.recipient,
-          _nounChoicesForPath(sentence, PredicatePathKind.toRecipient) ??
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.toRecipient,
+                owner: _boundTailOwner(sentence),
+              ) ??
               recipients,
         ).map((recipient) {
           final isSelected = _sameNounChoice(recipient, sentence.recipient);
@@ -337,7 +342,11 @@ class ConfigurationCompass {
           const _CompassCandidate(SetAddressee(null), 'no addressee', 120),
         ..._nounChoicesForState(
           sentence.addressee,
-          _nounChoicesForPath(sentence, PredicatePathKind.toAddressee) ??
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.toAddressee,
+                owner: _boundTailOwner(sentence),
+              ) ??
               recipients,
         ).map((addressee) {
           final isSelected = _sameNounChoice(addressee, sentence.addressee);
@@ -370,7 +379,11 @@ class ConfigurationCompass {
           const _CompassCandidate(SetCompanion(null), 'no companion', 120),
         ..._nounChoicesForState(
           sentence.companion,
-          _nounChoicesForPath(sentence, PredicatePathKind.withCompanion) ??
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.withCompanion,
+                owner: _boundTailOwner(sentence),
+              ) ??
               recipients,
         ).map((companion) {
           final isSelected = _sameNounChoice(companion, sentence.companion);
@@ -403,7 +416,11 @@ class ConfigurationCompass {
           const _CompassCandidate(SetDestination(null), 'no destination', 120),
         ..._nounChoicesForState(
           sentence.destination,
-          _nounChoicesForPath(sentence, PredicatePathKind.toDestination) ??
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.toDestination,
+                owner: _boundTailOwner(sentence),
+              ) ??
               recipients,
         ).map((destination) {
           final isSelected = _sameNounChoice(destination, sentence.destination);
@@ -667,13 +684,14 @@ class ConfigurationCompass {
 
   List<NounPhrase>? _nounChoicesForPath(
     SentenceState sentence,
-    PredicatePathKind kind,
-  ) {
+    PredicatePathKind kind, {
+    Verb? owner,
+  }) {
     if (predicatePathMode != PredicatePathMode.authoredTracks) {
       return null;
     }
 
-    final choices = predicateNounChoicesFor(sentence.action, kind);
+    final choices = predicateNounChoicesFor(owner ?? sentence.action, kind);
 
     if (choices.isEmpty) {
       return null;
@@ -872,10 +890,9 @@ List<NounPhrase> _objectChoicesForState(
   List<NounPhrase> choices, {
   bool preferGivenChoices = false,
 }) {
+  final owner = _boundTailOwner(sentence);
   final nextChoices = [
-    ...(preferGivenChoices
-        ? choices
-        : _objectChoicesFor(sentence.action, choices)),
+    ...(preferGivenChoices ? choices : _objectChoicesFor(owner, choices)),
   ];
   final current = sentence.object;
 
@@ -885,6 +902,10 @@ List<NounPhrase> _objectChoicesForState(
   }
 
   return nextChoices;
+}
+
+Verb _boundTailOwner(SentenceState sentence) {
+  return sentence.rightAction ?? sentence.action;
 }
 
 List<NounPhrase> _nounChoicesForState(

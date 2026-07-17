@@ -167,27 +167,16 @@ void main() {
       expect(wasBlocked(state), isFalse);
     });
 
-    test('blocks object and right action in the same frame', () {
+    test('right action can own object and companion rails', () {
       var state = ConfigurationState.initial();
 
-      state = engine.applyMove(state, const SetAction(want));
-      state = engine.applyMove(state, const SetRightAction(go));
-      final previous = state;
-      state = engine.applyMove(
-        state,
-        SetObject(book.toNounPhrase(Number.singular)),
-      );
+      state = engine.applyMove(state, const SetAction(learn));
+      state = engine.applyMove(state, const SetRightAction(speak));
+      state = engine.applyMove(state, const SetObject(fixed_object.science));
+      state = engine.applyMove(state, const SetCompanion(anyone));
 
-      expect(state.sentenceState, same(previous.sentenceState));
-      expect(wasBlocked(state), isTrue);
-      expect(
-        state.messages.single.text,
-        'Right action complement does not combine with an object in this frame.',
-      );
-      expect(
-        state.messages.single.lawCategory,
-        ConfigurationLawCategory.predicateFrameType,
-      );
+      expect(render(state), 'You learn to speak science with anyone.');
+      expect(wasBlocked(state), isFalse);
     });
 
     test('blocks noun phrase determiners that do not match number', () {
