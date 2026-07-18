@@ -387,9 +387,9 @@ void main() {
         .data!;
     expect(translated, startsWith('(Ty) '));
     expect(translated, endsWith('.)'));
-    expect(find.byTooltip('Show English sentence'), findsOneWidget);
+    expect(find.byTooltip('Hide sentence translation'), findsOneWidget);
 
-    await tapVisible(tester, find.byTooltip('Show English sentence'));
+    await tapVisible(tester, find.byTooltip('Hide sentence translation'));
 
     expect(renderedSentence(tester), 'You learn.');
     expect(find.byKey(const Key('translation-gloss')), findsNothing);
@@ -398,6 +398,26 @@ void main() {
 
     expect(find.byKey(const Key('translation-gloss')), findsOneWidget);
   });
+
+  testWidgets(
+    'Translate verbs button toggles Polish verb glosses on verb chips',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      expect(find.byTooltip('Translate verbs'), findsOneWidget);
+      expect(find.text('(uczyć się)'), findsNothing);
+
+      await tapVisible(tester, find.byTooltip('Translate verbs'));
+
+      expect(find.byTooltip('Hide verb translations'), findsOneWidget);
+      expect(find.text('(uczyć się)'), findsWidgets);
+
+      await tapVisible(tester, find.byTooltip('Hide verb translations'));
+
+      expect(find.byTooltip('Translate verbs'), findsOneWidget);
+      expect(find.text('(uczyć się)'), findsNothing);
+    },
+  );
 
   testWidgets('Guided UI opens right action rail from a verb that wakes it', (
     tester,

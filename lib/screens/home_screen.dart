@@ -74,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
   HeaderPreviewMode? headerPreviewMode;
   PreviewCacheMode? previewCacheMode;
   bool showTranslation = true;
+  bool showVerbTranslations = false;
   bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
@@ -429,6 +430,12 @@ class _HomeScreenState extends State<HomeScreen> {
             showTranslation = !showTranslation;
           });
         },
+        showVerbTranslations: showVerbTranslations,
+        onToggleVerbTranslations: () {
+          setState(() {
+            showVerbTranslations = !showVerbTranslations;
+          });
+        },
         onReset: _reset,
         onRandomSentence: _shuffle,
       ),
@@ -487,6 +494,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           : null,
                       currentSentence: sentenceText,
                       displayMode: displayMode,
+                      showVerbTranslations: showVerbTranslations,
+                      translateVerb: translator.translateVerb,
                       suggestions: section.suggestions,
                       nounNumber: _nounNumberForSlot(section.slot),
                       onNounNumberChanged:
@@ -783,6 +792,8 @@ class _BottomDock extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
+  final bool showVerbTranslations;
+  final VoidCallback onToggleVerbTranslations;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -802,6 +813,8 @@ class _BottomDock extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
+    required this.showVerbTranslations,
+    required this.onToggleVerbTranslations,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -852,6 +865,8 @@ class _BottomDock extends StatelessWidget {
                             onDisplayModeChanged: onDisplayModeChanged,
                             showTranslation: showTranslation,
                             onToggleTranslation: onToggleTranslation,
+                            showVerbTranslations: showVerbTranslations,
+                            onToggleVerbTranslations: onToggleVerbTranslations,
                             onReset: onReset,
                             onRandomSentence: onRandomSentence,
                             cacheStrip: cacheStrip,
@@ -948,6 +963,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
+  final bool showVerbTranslations;
+  final VoidCallback onToggleVerbTranslations;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
   final Widget cacheStrip;
@@ -963,6 +980,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
+    required this.showVerbTranslations,
+    required this.onToggleVerbTranslations,
     required this.onReset,
     required this.onRandomSentence,
     required this.cacheStrip,
@@ -1015,6 +1034,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           onDisplayModeChanged: onDisplayModeChanged,
           showTranslation: showTranslation,
           onToggleTranslation: onToggleTranslation,
+          showVerbTranslations: showVerbTranslations,
+          onToggleVerbTranslations: onToggleVerbTranslations,
           onReset: onReset,
           onRandomSentence: onRandomSentence,
         );
@@ -1111,6 +1132,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
+  final bool showVerbTranslations;
+  final VoidCallback onToggleVerbTranslations;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1121,6 +1144,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
+    required this.showVerbTranslations,
+    required this.onToggleVerbTranslations,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1145,11 +1170,24 @@ class _DiagnosticsToolStrip extends StatelessWidget {
           const SizedBox(width: 8),
           IconButton.outlined(
             tooltip: showTranslation
-                ? 'Show English sentence'
+                ? 'Hide sentence translation'
                 : 'Translate sentence',
             visualDensity: VisualDensity.compact,
             onPressed: onToggleTranslation,
             icon: Icon(showTranslation ? Icons.translate : Icons.g_translate),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            tooltip: showVerbTranslations
+                ? 'Hide verb translations'
+                : 'Translate verbs',
+            visualDensity: VisualDensity.compact,
+            onPressed: onToggleVerbTranslations,
+            icon: Icon(
+              showVerbTranslations
+                  ? Icons.subtitles_off_outlined
+                  : Icons.subtitles_outlined,
+            ),
           ),
           const SizedBox(width: 4),
           IconButton.outlined(
@@ -1983,6 +2021,7 @@ class _ModalSuggestionWrap extends StatelessWidget {
             suggestion: suggestion,
             currentSentence: currentSentence,
             displayMode: SuggestionDisplayMode.word,
+            verbTranslation: null,
             preview: null,
             onPressed: () => onMove(suggestion.move),
             onPreviewChanged: onPreviewChanged,
@@ -2071,6 +2110,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
+                  verbTranslation: null,
                   preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
@@ -2088,6 +2128,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
+                  verbTranslation: null,
                   preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
@@ -2298,6 +2339,8 @@ class _CompassSlotSection extends StatefulWidget {
   final VoidCallback? onToggle;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
+  final bool showVerbTranslations;
+  final String? Function(Verb verb) translateVerb;
   final List<ConfigurationSuggestion> suggestions;
   final Number? nounNumber;
   final ValueChanged<Number>? onNounNumberChanged;
@@ -2313,6 +2356,8 @@ class _CompassSlotSection extends StatefulWidget {
     required this.onToggle,
     required this.currentSentence,
     required this.displayMode,
+    required this.showVerbTranslations,
+    required this.translateVerb,
     required this.suggestions,
     required this.nounNumber,
     required this.onNounNumberChanged,
@@ -2433,6 +2478,12 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
                   suggestion: suggestion,
                   currentSentence: widget.currentSentence,
                   displayMode: widget.displayMode,
+                  verbTranslation: widget.showVerbTranslations
+                      ? _verbTranslationForSuggestion(
+                          widget.translateVerb,
+                          suggestion,
+                        )
+                      : null,
                   preview: widget.displayMode == SuggestionDisplayMode.word
                       ? null
                       : widget.renderPreview(suggestion.preview.sentenceState),
@@ -2442,6 +2493,22 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
             ],
     );
   }
+}
+
+String? _verbTranslationForSuggestion(
+  String? Function(Verb verb) translateVerb,
+  ConfigurationSuggestion suggestion,
+) {
+  if (suggestion.slot != ConfigurationCompassSlot.action) {
+    return null;
+  }
+
+  final move = suggestion.move;
+  if (move is! SetAction) {
+    return null;
+  }
+
+  return translateVerb(move.action);
 }
 
 String _suggestionsSignatureFor(List<ConfigurationSuggestion> suggestions) {

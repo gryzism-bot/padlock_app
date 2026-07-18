@@ -4,6 +4,7 @@ class _SuggestionButton extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
+  final String? verbTranslation;
   final String? preview;
   final VoidCallback onPressed;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
@@ -12,6 +13,7 @@ class _SuggestionButton extends StatelessWidget {
     required this.suggestion,
     required this.currentSentence,
     required this.displayMode,
+    required this.verbTranslation,
     required this.preview,
     required this.onPressed,
     required this.onPreviewChanged,
@@ -47,6 +49,7 @@ class _SuggestionButton extends StatelessWidget {
                 suggestion: suggestion,
                 currentSentence: currentSentence,
                 displayMode: displayMode,
+                verbTranslation: verbTranslation,
                 preview: preview,
               ),
             ],
@@ -61,12 +64,14 @@ class _SuggestionLabel extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
+  final String? verbTranslation;
   final String? preview;
 
   const _SuggestionLabel({
     required this.suggestion,
     required this.currentSentence,
     required this.displayMode,
+    required this.verbTranslation,
     required this.preview,
   });
 
@@ -84,9 +89,10 @@ class _SuggestionLabel extends StatelessWidget {
     final key = Key(_suggestionLabelKey(suggestion));
 
     if (displayMode == SuggestionDisplayMode.word) {
-      return Text(
-        suggestion.label,
-        key: key,
+      return _SuggestionLabelText(
+        label: suggestion.label,
+        translation: verbTranslation,
+        labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
       );
@@ -94,24 +100,85 @@ class _SuggestionLabel extends StatelessWidget {
 
     final renderedPreview = preview ?? suggestion.label;
     if (suggestion.isSelected || currentSentence == renderedPreview) {
-      return Text(
-        renderedPreview,
-        key: key,
+      return _SuggestionLabelText(
+        label: renderedPreview,
+        translation: verbTranslation,
+        labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
       );
     }
 
-    return Text.rich(
-      _changedSuggestionSpan(
-        currentSentence: currentSentence,
-        preview: renderedPreview,
-        suggestion: suggestion,
-        colors: colors,
-        baseStyle: baseStyle,
-      ),
-      key: key,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text.rich(
+          _changedSuggestionSpan(
+            currentSentence: currentSentence,
+            preview: renderedPreview,
+            suggestion: suggestion,
+            colors: colors,
+            baseStyle: baseStyle,
+          ),
+          key: key,
+          textAlign: TextAlign.center,
+        ),
+        if (verbTranslation != null) _VerbTranslationGloss(verbTranslation!),
+      ],
+    );
+  }
+}
+
+class _SuggestionLabelText extends StatelessWidget {
+  final String label;
+  final String? translation;
+  final Key labelKey;
+  final TextAlign textAlign;
+  final TextStyle style;
+
+  const _SuggestionLabelText({
+    required this.label,
+    required this.translation,
+    required this.labelKey,
+    required this.textAlign,
+    required this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (translation == null) {
+      return Text(label, key: labelKey, textAlign: textAlign, style: style);
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, key: labelKey, textAlign: textAlign, style: style),
+        _VerbTranslationGloss(translation!),
+      ],
+    );
+  }
+}
+
+class _VerbTranslationGloss extends StatelessWidget {
+  final String translation;
+
+  const _VerbTranslationGloss(this.translation);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Text(
+      '($translation)',
       textAlign: TextAlign.center,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        color: colors.onSurfaceVariant,
+        fontSize: 10,
+        height: 1.05,
+      ),
     );
   }
 }

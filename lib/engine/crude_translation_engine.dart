@@ -12,6 +12,10 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 class CrudeTranslationEngine {
   const CrudeTranslationEngine();
 
+  String? translateVerb(Verb verb, {Language language = Language.pl}) {
+    return _infinitiveTranslation(verb, language);
+  }
+
   String translateSentence({
     required String renderedSentence,
     required SentenceState state,
