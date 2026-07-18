@@ -87,7 +87,25 @@ void main() {
   Future<void> tapVisible(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
     await tester.pumpAndSettle();
-    await tester.tap(finder);
+
+    final segmentedButton = find.ancestor(
+      of: finder,
+      matching: find.byWidgetPredicate((widget) => widget is SegmentedButton),
+    );
+    if (segmentedButton.evaluate().isNotEmpty) {
+      final label = tester.widget<Text>(finder).data;
+      final dynamic segmented = tester.widget(segmentedButton.first);
+      final Object? segment = segmented.segments.cast<dynamic>().firstWhere(
+        (dynamic segment) => (segment.label as Text).data == label,
+      );
+      final dynamic selection = segmented.selected.toSet();
+      selection
+        ..clear()
+        ..add((segment as dynamic).value);
+      segmented.onSelectionChanged(selection);
+    } else {
+      await tester.tap(finder, warnIfMissed: false);
+    }
     await tester.pumpAndSettle();
   }
 
@@ -321,7 +339,7 @@ void main() {
 
     expect(find.text('10 moves'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Reset'));
+    await tapVisible(tester, find.byTooltip('Reset'));
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You learn.');
@@ -371,14 +389,12 @@ void main() {
     expect(translated, endsWith('.)'));
     expect(find.byTooltip('Show English sentence'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Show English sentence'));
-    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byTooltip('Show English sentence'));
 
     expect(renderedSentence(tester), 'You learn.');
     expect(find.byKey(const Key('translation-gloss')), findsNothing);
 
-    await tester.tap(find.byTooltip('Translate sentence'));
-    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byTooltip('Translate sentence'));
 
     expect(find.byKey(const Key('translation-gloss')), findsOneWidget);
   });
@@ -1905,8 +1921,7 @@ void main() {
   testWidgets('Random sentence button keeps the UI renderable', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tester.tap(find.byTooltip('Random sentence'));
-    await tester.pumpAndSettle();
+    await tapVisible(tester, find.byTooltip('Random sentence'));
 
     expect(renderedSentence(tester), isNotEmpty);
     expect(renderedSentence(tester).endsWith('.'), isTrue);

@@ -26,6 +26,7 @@ import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 part 'widgets/control_cards.dart';
+part 'widgets/control_deck.dart';
 part 'widgets/noun_rail_state.dart';
 part 'widgets/rail_policy.dart';
 part 'widgets/suggestion_chips.dart';
@@ -394,48 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _syncPreviewCacheSizeAfterFrame();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Padlock Developer Console'),
-        actions: [
-          _AppBarTools(
-            previewMode: previewMode,
-            onPreviewModeChanged: (mode) {
-              setState(() {
-                headerPreviewMode = mode;
-                hoveredConfiguration.value = null;
-              });
-            },
-            displayMode: displayMode,
-            onDisplayModeChanged: (mode) {
-              setState(() {
-                suggestionDisplayMode = mode;
-              });
-            },
-          ),
-          IconButton(
-            tooltip: showTranslation
-                ? 'Show English sentence'
-                : 'Translate sentence',
-            onPressed: () {
-              setState(() {
-                showTranslation = !showTranslation;
-              });
-            },
-            icon: Icon(showTranslation ? Icons.translate : Icons.g_translate),
-          ),
-          IconButton(
-            tooltip: 'Reset',
-            onPressed: _reset,
-            icon: const Icon(Icons.restart_alt),
-          ),
-          IconButton(
-            tooltip: 'Random sentence',
-            onPressed: _shuffle,
-            icon: const Icon(Icons.shuffle),
-          ),
-          const SizedBox(width: 36),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Padlock Developer Console')),
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
         moveTraceListenable: moveTraceNotifier,
@@ -450,6 +410,27 @@ class _HomeScreenState extends State<HomeScreen> {
         cacheEntryLimit: previewCache.maxEntries,
         onCacheModeChanged: _setPreviewCacheMode,
         onClearCache: _clearPreviewCache,
+        previewMode: previewMode,
+        onPreviewModeChanged: (mode) {
+          setState(() {
+            headerPreviewMode = mode;
+            hoveredConfiguration.value = null;
+          });
+        },
+        displayMode: displayMode,
+        onDisplayModeChanged: (mode) {
+          setState(() {
+            suggestionDisplayMode = mode;
+          });
+        },
+        showTranslation: showTranslation,
+        onToggleTranslation: () {
+          setState(() {
+            showTranslation = !showTranslation;
+          });
+        },
+        onReset: _reset,
+        onRandomSentence: _shuffle,
       ),
       body: SafeArea(
         child: Stack(
@@ -786,48 +767,6 @@ class _VisibleCompassSlot {
   });
 }
 
-class _AppBarTools extends StatelessWidget {
-  final HeaderPreviewMode previewMode;
-  final ValueChanged<HeaderPreviewMode> onPreviewModeChanged;
-  final SuggestionDisplayMode displayMode;
-  final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
-
-  const _AppBarTools({
-    required this.previewMode,
-    required this.onPreviewModeChanged,
-    required this.displayMode,
-    required this.onDisplayModeChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-
-    return SizedBox(
-      width: min(width * 0.58, 760),
-      child: SingleChildScrollView(
-        key: const Key('app-bar-tools-scroll'),
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _HeaderPreviewModeSection(
-              value: previewMode,
-              onChanged: onPreviewModeChanged,
-            ),
-            const SizedBox(width: 8),
-            _DisplayModeSection(
-              value: displayMode,
-              onChanged: onDisplayModeChanged,
-            ),
-            const SizedBox(width: 8),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _BottomDock extends StatelessWidget {
   final List<ConfigurationMessage> messages;
   final ValueListenable<List<_MoveTraceEntry>> moveTraceListenable;
@@ -838,6 +777,14 @@ class _BottomDock extends StatelessWidget {
   final VoidCallback onClearCache;
   final ValueListenable<int> cacheEntryCountListenable;
   final int? cacheEntryLimit;
+  final HeaderPreviewMode previewMode;
+  final ValueChanged<HeaderPreviewMode> onPreviewModeChanged;
+  final SuggestionDisplayMode displayMode;
+  final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
+  final bool showTranslation;
+  final VoidCallback onToggleTranslation;
+  final VoidCallback onReset;
+  final VoidCallback onRandomSentence;
 
   const _BottomDock({
     required this.messages,
@@ -849,6 +796,14 @@ class _BottomDock extends StatelessWidget {
     required this.onClearCache,
     required this.cacheEntryCountListenable,
     required this.cacheEntryLimit,
+    required this.previewMode,
+    required this.onPreviewModeChanged,
+    required this.displayMode,
+    required this.onDisplayModeChanged,
+    required this.showTranslation,
+    required this.onToggleTranslation,
+    required this.onReset,
+    required this.onRandomSentence,
   });
 
   @override
@@ -891,6 +846,14 @@ class _BottomDock extends StatelessWidget {
                             moveTrace: moveTrace,
                             isCollapsed: isCollapsed,
                             onCollapsedChanged: onCollapsedChanged,
+                            previewMode: previewMode,
+                            onPreviewModeChanged: onPreviewModeChanged,
+                            displayMode: displayMode,
+                            onDisplayModeChanged: onDisplayModeChanged,
+                            showTranslation: showTranslation,
+                            onToggleTranslation: onToggleTranslation,
+                            onReset: onReset,
+                            onRandomSentence: onRandomSentence,
                             cacheStrip: cacheStrip,
                           );
 
@@ -979,6 +942,14 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final List<_MoveTraceEntry> moveTrace;
   final bool isCollapsed;
   final ValueChanged<bool> onCollapsedChanged;
+  final HeaderPreviewMode previewMode;
+  final ValueChanged<HeaderPreviewMode> onPreviewModeChanged;
+  final SuggestionDisplayMode displayMode;
+  final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
+  final bool showTranslation;
+  final VoidCallback onToggleTranslation;
+  final VoidCallback onReset;
+  final VoidCallback onRandomSentence;
   final Widget cacheStrip;
 
   const _DiagnosticsDockHeader({
@@ -986,6 +957,14 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.moveTrace,
     required this.isCollapsed,
     required this.onCollapsedChanged,
+    required this.previewMode,
+    required this.onPreviewModeChanged,
+    required this.displayMode,
+    required this.onDisplayModeChanged,
+    required this.showTranslation,
+    required this.onToggleTranslation,
+    required this.onReset,
+    required this.onRandomSentence,
     required this.cacheStrip,
   });
 
@@ -993,60 +972,201 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Row(
-      children: [
-        IconButton(
-          tooltip: isCollapsed
-              ? 'Expand diagnostics bar'
-              : 'Collapse diagnostics bar',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-          onPressed: () => onCollapsedChanged(!isCollapsed),
-          icon: Icon(
-            isCollapsed ? Icons.expand_less : Icons.expand_more,
-            size: 18,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Icon(Icons.notifications_none, size: 16, color: colors.primary),
-        const SizedBox(width: 5),
-        Text(
-          'Language alert ${messages.length}',
-          key: const Key('diagnostics-collapsed-alert-count'),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: colors.primary,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        if (isCollapsed) ...[
-          const SizedBox(width: 14),
-          Icon(Icons.route_outlined, size: 16, color: colors.secondary),
-          const SizedBox(width: 5),
-          Flexible(
-            child: SelectableText(
-              moveTrace.isEmpty ? 'No moves yet.' : moveTrace.last.line,
-              key: const Key('diagnostics-collapsed-move-text'),
-              maxLines: 1,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: colors.onSurfaceVariant),
-            ),
-          ),
-        ],
-        if (!isCollapsed) ...[
-          const SizedBox(width: 12),
-          Flexible(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: cacheStrip,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final showCacheStrip = !isCollapsed;
+        final compact = constraints.maxWidth < 720;
+        final cacheWidth = showCacheStrip
+            ? (constraints.maxWidth * 0.42).clamp(320.0, 560.0)
+            : 0.0;
+        final alertHeader = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              tooltip: isCollapsed
+                  ? 'Expand diagnostics bar'
+                  : 'Collapse diagnostics bar',
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+              onPressed: () => onCollapsedChanged(!isCollapsed),
+              icon: Icon(
+                isCollapsed ? Icons.expand_less : Icons.expand_more,
+                size: 18,
               ),
             ),
+            const SizedBox(width: 4),
+            Icon(Icons.notifications_none, size: 16, color: colors.primary),
+            const SizedBox(width: 5),
+            Text(
+              'Language alert ${messages.length}',
+              key: const Key('diagnostics-collapsed-alert-count'),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        );
+        final toolStrip = _DiagnosticsToolStrip(
+          previewMode: previewMode,
+          onPreviewModeChanged: onPreviewModeChanged,
+          displayMode: displayMode,
+          onDisplayModeChanged: onDisplayModeChanged,
+          showTranslation: showTranslation,
+          onToggleTranslation: onToggleTranslation,
+          onReset: onReset,
+          onRandomSentence: onRandomSentence,
+        );
+
+        if (compact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  alertHeader,
+                  if (isCollapsed) ...[
+                    const SizedBox(width: 14),
+                    Icon(
+                      Icons.route_outlined,
+                      size: 16,
+                      color: colors.secondary,
+                    ),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: SelectableText(
+                        moveTrace.isEmpty
+                            ? 'No moves yet.'
+                            : moveTrace.last.line,
+                        key: const Key('diagnostics-collapsed-move-text'),
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 4),
+              toolStrip,
+              if (showCacheStrip) ...[
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: cacheStrip,
+                  ),
+                ),
+              ],
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            alertHeader,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Align(alignment: Alignment.centerLeft, child: toolStrip),
+            ),
+            if (isCollapsed) ...[
+              const SizedBox(width: 14),
+              Icon(Icons.route_outlined, size: 16, color: colors.secondary),
+              const SizedBox(width: 5),
+              Flexible(
+                child: SelectableText(
+                  moveTrace.isEmpty ? 'No moves yet.' : moveTrace.last.line,
+                  key: const Key('diagnostics-collapsed-move-text'),
+                  maxLines: 1,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+            if (showCacheStrip) ...[
+              const SizedBox(width: 12),
+              SizedBox(
+                width: cacheWidth,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: cacheStrip,
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _DiagnosticsToolStrip extends StatelessWidget {
+  final HeaderPreviewMode previewMode;
+  final ValueChanged<HeaderPreviewMode> onPreviewModeChanged;
+  final SuggestionDisplayMode displayMode;
+  final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
+  final bool showTranslation;
+  final VoidCallback onToggleTranslation;
+  final VoidCallback onReset;
+  final VoidCallback onRandomSentence;
+
+  const _DiagnosticsToolStrip({
+    required this.previewMode,
+    required this.onPreviewModeChanged,
+    required this.displayMode,
+    required this.onDisplayModeChanged,
+    required this.showTranslation,
+    required this.onToggleTranslation,
+    required this.onReset,
+    required this.onRandomSentence,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      key: const Key('diagnostics-tool-strip'),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _HeaderPreviewModeSection(
+            value: previewMode,
+            onChanged: onPreviewModeChanged,
+          ),
+          const SizedBox(width: 8),
+          _DisplayModeSection(
+            value: displayMode,
+            onChanged: onDisplayModeChanged,
+          ),
+          const SizedBox(width: 8),
+          IconButton.outlined(
+            tooltip: showTranslation
+                ? 'Show English sentence'
+                : 'Translate sentence',
+            visualDensity: VisualDensity.compact,
+            onPressed: onToggleTranslation,
+            icon: Icon(showTranslation ? Icons.translate : Icons.g_translate),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            tooltip: 'Reset',
+            visualDensity: VisualDensity.compact,
+            onPressed: onReset,
+            icon: const Icon(Icons.restart_alt),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            tooltip: 'Random sentence',
+            visualDensity: VisualDensity.compact,
+            onPressed: onRandomSentence,
+            icon: const Icon(Icons.shuffle),
           ),
         ],
-      ],
+      ),
     );
   }
 }
@@ -1332,112 +1452,6 @@ class _SentencePanel extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ControlDeck extends StatelessWidget {
-  final String currentSentence;
-  final List<ConfigurationSuggestion> modalSuggestions;
-  final List<ConfigurationSuggestion> passiveFocusSuggestions;
-  final List<ConfigurationSuggestion> passiveAgentSuggestions;
-  final ConfigurationState configuration;
-  final ValueChanged<ConfigurationMove> onMove;
-  final ValueChanged<ConfigurationState?>? onPreviewChanged;
-
-  const _ControlDeck({
-    required this.currentSentence,
-    required this.modalSuggestions,
-    required this.passiveFocusSuggestions,
-    required this.passiveAgentSuggestions,
-    required this.configuration,
-    required this.onMove,
-    required this.onPreviewChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final useSingleRowControls = width >= 1800;
-        final cardWidth = useSingleRowControls
-            ? (width - 40) / 6
-            : width >= 1040
-            ? (width - 20) / 3
-            : width >= 760
-            ? (width - 10) / 2
-            : width;
-        final unitWidth = useSingleRowControls
-            ? (width - 40) / 10.35
-            : cardWidth;
-        final tenseWidth = useSingleRowControls ? unitWidth * 1.55 : cardWidth;
-        final subjectWidth = useSingleRowControls
-            ? unitWidth * 3.15
-            : cardWidth;
-        final modalWidth = useSingleRowControls ? unitWidth * 2.1 : cardWidth;
-        final voiceWidth = useSingleRowControls ? unitWidth * 1.9 : cardWidth;
-        final polarityWidth = useSingleRowControls
-            ? unitWidth * 0.65
-            : cardWidth;
-        final formWidth = useSingleRowControls ? unitWidth : cardWidth;
-
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            SizedBox(
-              width: tenseWidth,
-              child: _TenseAspectSection(
-                tense: configuration.sentenceState.tense,
-                aspect: configuration.sentenceState.aspect,
-                onMove: onMove,
-              ),
-            ),
-            SizedBox(
-              width: subjectWidth,
-              child: _PronounSection(
-                agent: configuration.sentenceState.agent,
-                onMove: onMove,
-              ),
-            ),
-            SizedBox(
-              width: modalWidth,
-              child: _ModalSection(
-                currentSentence: currentSentence,
-                modalSuggestions: modalSuggestions,
-                onMove: onMove,
-                onPreviewChanged: onPreviewChanged,
-              ),
-            ),
-            SizedBox(
-              width: voiceWidth,
-              child: _VoiceSection(
-                currentSentence: currentSentence,
-                voice: configuration.sentenceState.voice,
-                passiveFocusSuggestions: passiveFocusSuggestions,
-                passiveAgentSuggestions: passiveAgentSuggestions,
-                onMove: onMove,
-                onPreviewChanged: onPreviewChanged,
-              ),
-            ),
-            SizedBox(
-              width: polarityWidth,
-              child: _PolaritySection(
-                polarity: configuration.sentenceState.polarity,
-                onMove: onMove,
-              ),
-            ),
-            SizedBox(
-              width: formWidth,
-              child: _SentenceFormSection(
-                sentenceForm: configuration.sentenceState.sentenceForm,
-                onMove: onMove,
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
