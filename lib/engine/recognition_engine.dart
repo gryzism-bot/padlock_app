@@ -3,7 +3,6 @@ import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
-import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -2320,12 +2319,10 @@ class _RecognitionBuilder {
   final List<String> unknownTokens = [];
 
   SentenceState get state {
-    final fixedObjectAlias = fixedObjectVerbAliasFor(action!);
-
     return SentenceState(
-      action: fixedObjectAlias?.action ?? action!,
+      action: action!,
       agent: agent,
-      object: object ?? fixedObjectAlias?.object,
+      object: object,
       objectComplement: objectComplement,
       objectAdjectiveComplement: objectAdjectiveComplement,
       recipient: recipient,

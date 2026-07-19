@@ -381,7 +381,13 @@ void main() {
       },
     );
 
-    test('guided actions hide flattened fixed object verbs', () {
+    test('guided actions expose play but not flat activity verbs', () {
+      expect(verbs.map((verb) => verb.infinitive), contains('play'));
+      expect(
+        verbs.map((verb) => verb.infinitive),
+        isNot(contains('play volleyball')),
+      );
+
       final suggestions = ConfigurationCompass().suggestionsFor(
         ConfigurationState.initial(),
         ConfigurationCompassSlot.action,

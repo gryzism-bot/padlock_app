@@ -1,51 +1,6 @@
 import 'package:padlock_app/models/language.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
-const playFootball = Verb(
-  infinitive: 'play football',
-  presentThirdPerson: 'plays football',
-  pastSimple: 'played football',
-  pastParticiple: 'played football',
-  ingForm: 'playing football',
-  translations: {Language.pl: 'grać w piłkę nożną'},
-);
-
-const playBasketball = Verb(
-  infinitive: 'play basketball',
-  presentThirdPerson: 'plays basketball',
-  pastSimple: 'played basketball',
-  pastParticiple: 'played basketball',
-  ingForm: 'playing basketball',
-  translations: {Language.pl: 'grać w koszykówkę'},
-);
-
-const playVolleyball = Verb(
-  infinitive: 'play volleyball',
-  presentThirdPerson: 'plays volleyball',
-  pastSimple: 'played volleyball',
-  pastParticiple: 'played volleyball',
-  ingForm: 'playing volleyball',
-  translations: {Language.pl: 'grać w siatkówkę'},
-);
-
-const playTennis = Verb(
-  infinitive: 'play tennis',
-  presentThirdPerson: 'plays tennis',
-  pastSimple: 'played tennis',
-  pastParticiple: 'played tennis',
-  ingForm: 'playing tennis',
-  translations: {Language.pl: 'grać w tenisa'},
-);
-
-const playGolf = Verb(
-  infinitive: 'play golf',
-  presentThirdPerson: 'plays golf',
-  pastSimple: 'played golf',
-  pastParticiple: 'played golf',
-  ingForm: 'playing golf',
-  translations: {Language.pl: 'grać w golfa'},
-);
-
 const train = Verb(
   infinitive: 'train',
   presentThirdPerson: 'trains',
@@ -71,7 +26,7 @@ const lift = Verb(
   pastParticiple: 'lifted',
   ingForm: 'lifting',
   takesObject: true,
-  translations: {Language.pl: 'podnosić ciężary'},
+  translations: {Language.pl: 'podnosić'},
 );
 
 const throwVerb = Verb(
@@ -156,7 +111,7 @@ const wrestle = Verb(
   pastSimple: 'wrestled',
   pastParticiple: 'wrestled',
   ingForm: 'wrestling',
-  translations: {Language.pl: 'zapasy'},
+  translations: {Language.pl: 'uprawiać zapasy'},
 );
 
 const surf = Verb(
@@ -178,11 +133,6 @@ const cycle = Verb(
 );
 
 List<Verb> sportVerbs = [
-  playFootball,
-  playBasketball,
-  playVolleyball,
-  playTennis,
-  playGolf,
   train,
   exercise,
   lift,

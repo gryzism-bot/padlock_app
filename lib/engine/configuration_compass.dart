@@ -891,8 +891,7 @@ bool _canClearObjectIntoAction(NounPhrase? object, Verb action) {
   return object != null && canClearObjectForFixedSubjectFrame(object, action);
 }
 
-List<Verb> get _defaultActions =>
-    verbs.where((action) => !isFlattenedFixedObjectVerb(action)).toList();
+List<Verb> get _defaultActions => verbs;
 
 List<NounPhrase> _objectChoicesFor(Verb action, List<NounPhrase> fallback) {
   final fixedChoices = fixedObjectChoicesFor(action);

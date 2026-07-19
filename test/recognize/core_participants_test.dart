@@ -163,7 +163,7 @@ void main() {
       }
     });
 
-    test('flattened fixed activity verbs canonicalize to play plus object', () {
+    test('fixed activity phrases parse as play plus object', () {
       final cases = {
         'John played football.': football,
         'John played basketball.': basketball,
@@ -177,30 +177,27 @@ void main() {
 
         expectAgent(state, text: 'john');
         expect(state.action, play);
-        expect(state.object, entry.value);
+        expectObject(state, text: entry.value.text);
         expect(state.tense, Tense.past);
         expect(state.aspect, Aspect.simple);
       }
     });
 
-    test(
-      'fixed activity aliases canonicalize through questions and modals',
-      () {
-        final cases = {
-          'Does John play volleyball?': volleyball,
-          'John cannot play football.': football,
-          'They should play basketball.': basketball,
-          'Did Mary play tennis?': tennis,
-        };
+    test('fixed activity phrases parse through questions and modals', () {
+      final cases = {
+        'Does John play volleyball?': volleyball,
+        'John cannot play football.': football,
+        'They should play basketball.': basketball,
+        'Did Mary play tennis?': tennis,
+      };
 
-        for (final entry in cases.entries) {
-          final state = engine.recognize(entry.key);
+      for (final entry in cases.entries) {
+        final state = engine.recognize(entry.key);
 
-          expect(state.action, play, reason: entry.key);
-          expect(state.object, entry.value, reason: entry.key);
-        }
-      },
-    );
+        expect(state.action, play, reason: entry.key);
+        expectObject(state, text: entry.value.text);
+      }
+    });
 
     test('active object adjective complement follows the object', () {
       final state = engine.recognize('They made him calm.');
