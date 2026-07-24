@@ -512,6 +512,53 @@ void main() {
       expect(sentence, 'John introduced Tom to Mary.');
     });
 
+    test('topic surface renders as an about phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: think,
+          topic: mary.toNounPhrase(Number.singular),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John thinks about Mary.');
+    });
+
+    test('topic surface keeps noun phrase modifiers', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: learn,
+          topic: book.toNounPhrase(
+            Number.plural,
+            determiner: theDeterminer,
+            adjective: old,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She learned about the old books.');
+    });
+
+    test('topic surface survives modals and verb chains', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: read,
+          topic: grammar,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'They should have read about grammar.');
+    });
+
     test('manner can stay before bound addressee phrase', () {
       final sentence = render(
         SentenceState(

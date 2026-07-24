@@ -10,6 +10,7 @@ const speak = Verb(
   takesObject: true,
   takesAddressee: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'mówić'},
 );
 
@@ -21,6 +22,7 @@ const talk = Verb(
   ingForm: 'talking',
   takesAddressee: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'rozmawiać'},
 );
 
@@ -104,6 +106,7 @@ const explain = Verb(
   ingForm: 'explaining',
   takesObject: true,
   takesAddressee: true,
+  takesTopic: true,
   translations: {Language.pl: 'wyjaśniać'},
 );
 

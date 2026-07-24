@@ -25,6 +25,7 @@ const have = Verb(
   pastParticiple: 'had',
   ingForm: 'having',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'mieć'},
 );
 
@@ -34,6 +35,8 @@ const doVerb = Verb(
   pastSimple: 'did',
   pastParticiple: 'done',
   ingForm: 'doing',
+  takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'robić'},
 );
 
@@ -44,6 +47,7 @@ const findVerb = Verb(
   pastParticiple: 'found',
   ingForm: 'finding',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'znaleźć'},
 );
 
@@ -53,6 +57,9 @@ const sing = Verb(
   pastSimple: 'sang',
   pastParticiple: 'sung',
   ingForm: 'singing',
+  takesObject: true,
+  takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'śpiewać'},
 );
 
@@ -73,6 +80,9 @@ const read = Verb(
   pastParticiple: 'read',
   ingForm: 'reading',
   takesObject: true,
+  takesAddressee: true,
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'czytać'},
 );
 
@@ -82,6 +92,8 @@ const begin = Verb(
   pastSimple: 'began',
   pastParticiple: 'begun',
   ingForm: 'beginning',
+  takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'zaczynać'},
 );
 
@@ -125,6 +137,7 @@ const make = Verb(
   ingForm: 'making',
   takesObject: true,
   takesRecipient: true,
+  takesCompanion: true,
   takesObjectComplement: true,
   translations: {Language.pl: 'robić'},
 );
@@ -136,6 +149,7 @@ const take = Verb(
   pastParticiple: 'taken',
   ingForm: 'taking',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'brać'},
 );
 
@@ -157,6 +171,7 @@ const know = Verb(
   pastParticiple: 'known',
   ingForm: 'knowing',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'wiedzieć'},
 );
 
@@ -166,6 +181,8 @@ const think = Verb(
   pastSimple: 'thought',
   pastParticiple: 'thought',
   ingForm: 'thinking',
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'myśleć'},
 );
 
@@ -175,6 +192,8 @@ const say = Verb(
   pastSimple: 'said',
   pastParticiple: 'said',
   ingForm: 'saying',
+  takesObject: true,
+  takesAddressee: true,
   translations: {Language.pl: 'powiedzieć'},
 );
 
@@ -185,6 +204,7 @@ const see = Verb(
   pastParticiple: 'seen',
   ingForm: 'seeing',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'widzieć'},
 );
 
@@ -215,6 +235,7 @@ const meet = Verb(
   pastParticiple: 'met',
   ingForm: 'meeting',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'spotykać'},
 );
 
@@ -256,6 +277,7 @@ const buy = Verb(
   ingForm: 'buying',
   takesObject: true,
   takesRecipient: true,
+  takesCompanion: true,
   translations: {Language.pl: 'kupować'},
 );
 
@@ -266,6 +288,8 @@ const sell = Verb(
   pastParticiple: 'sold',
   ingForm: 'selling',
   takesObject: true,
+  takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'sprzedawać'},
 );
 
@@ -276,6 +300,7 @@ const use = Verb(
   pastParticiple: 'used',
   ingForm: 'using',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'używać'},
 );
 
@@ -286,6 +311,7 @@ const watch = Verb(
   pastParticiple: 'watched',
   ingForm: 'watching',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'oglądać'},
 );
 
@@ -318,6 +344,7 @@ const learn = Verb(
   ingForm: 'learning',
   takesObject: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'uczyć się'},
 );
 
@@ -347,6 +374,7 @@ const sleep = Verb(
   pastSimple: 'slept',
   pastParticiple: 'slept',
   ingForm: 'sleeping',
+  takesCompanion: true,
   translations: {Language.pl: 'spać'},
 );
 

@@ -27,8 +27,11 @@ class MaterialIconKey {
   static const panToolAltOutlined = 'pan_tool_alt_outlined';
   static const panToolOutlined = 'pan_tool_outlined';
   static const personOutline = 'person_outline';
+  static const placeOutlined = 'place_outlined';
   static const recordVoiceOverOutlined = 'record_voice_over_outlined';
+  static const scheduleOutlined = 'schedule_outlined';
   static const schoolOutlined = 'school_outlined';
+  static const speedOutlined = 'speed_outlined';
   static const sportsSoccer = 'sports_soccer';
 
   const MaterialIconKey._();
@@ -237,9 +240,33 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }
+  if (influenceKeys.contains('topic')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.lightbulbOutline),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
   if (influenceKeys.contains('right-action')) {
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.accountTreeOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('place')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.placeOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('time') || influenceKeys.contains('frequency')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.scheduleOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('manner')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.speedOutlined),
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }

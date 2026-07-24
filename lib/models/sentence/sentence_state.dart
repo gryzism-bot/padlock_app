@@ -25,6 +25,7 @@ class SentenceState {
   final NounPhrase? addressee;
   final NounPhrase? companion;
   final NounPhrase? destination;
+  final NounPhrase? topic;
   final Verb? rightAction;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
@@ -59,6 +60,7 @@ class SentenceState {
     this.addressee,
     this.companion,
     this.destination,
+    this.topic,
     this.rightAction,
     this.recipientPlacement = RecipientPlacement.beforeObject,
     this.recipientPreposition = RecipientPreposition.to,
@@ -95,6 +97,7 @@ class SentenceState {
       'addressee=${_nounPhraseSummary(addressee)}',
       'companion=${_nounPhraseSummary(companion)}',
       'destination=${_nounPhraseSummary(destination)}',
+      'topic=${_nounPhraseSummary(topic)}',
       'rightAction=${rightAction?.infinitive}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
@@ -128,6 +131,7 @@ Recipient: ${recipient?.text}
 Addressee: ${addressee?.text}
 Companion: ${companion?.text}
 Destination: ${destination?.text}
+Topic: ${topic?.text}
 Right Action: ${rightAction?.infinitive}
 Recipient Placement: $recipientPlacement
 Recipient Preposition: $recipientPreposition

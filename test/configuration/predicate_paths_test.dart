@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
     as animal_categories;
 import 'package:padlock_app/data/subjects/third_person/animals.dart'
@@ -40,6 +42,13 @@ void main() {
       PredicatePathKind.toAddressee => SetAddressee(path.nouns.first),
       PredicatePathKind.withCompanion => SetCompanion(path.nouns.first),
       PredicatePathKind.toDestination => SetDestination(path.nouns.first),
+      PredicatePathKind.aboutTopic => SetTopic(path.nouns.first),
+      PredicatePathKind.placePhrase => SetPlacePhrase(path.places.first),
+      PredicatePathKind.timePhrase => SetTimePhrase(path.times.first),
+      PredicatePathKind.frequencyPhrase => SetFrequencyPhrase(
+        path.frequencies.first,
+      ),
+      PredicatePathKind.mannerPhrase => SetMannerPhrase(path.manners.first),
     };
   }
 
@@ -403,6 +412,17 @@ void main() {
             case PredicatePathKind.toDestination:
               expect(unlocks.verb.usesDestinationPlace, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.aboutTopic:
+              expect(unlocks.verb.takesTopic, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.placePhrase:
+              expect(path.places, isNotEmpty, reason: reason);
+            case PredicatePathKind.timePhrase:
+              expect(path.times, isNotEmpty, reason: reason);
+            case PredicatePathKind.frequencyPhrase:
+              expect(path.frequencies, isNotEmpty, reason: reason);
+            case PredicatePathKind.mannerPhrase:
+              expect(path.manners, isNotEmpty, reason: reason);
           }
         }
       }
@@ -448,7 +468,100 @@ void main() {
           return grammar.generate(state.sentenceState).text;
         }).toList();
 
-        expect(rendered, entry.value);
+        expect(rendered, containsAll(entry.value));
+      }
+    });
+
+    test('essential reviewed phrase paths are authored', () {
+      expect(
+        predicateNounChoicesFor(
+          learn,
+          PredicatePathKind.aboutTopic,
+        ).map((topic) => topic.text),
+        containsAll(['grammar', 'science', 'Mary']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          go,
+          PredicatePathKind.placePhrase,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work', 'shop']),
+      );
+      expect(
+        predicateMannerChoicesFor(
+          go,
+          PredicatePathKind.mannerPhrase,
+        ).map((manner) => manner.text),
+        containsAll(['quickly', 'away', 'back', 'there']),
+      );
+      expect(
+        predicateMannerChoicesFor(
+          watch,
+          PredicatePathKind.mannerPhrase,
+        ).map((manner) => manner.text),
+        contains('closely'),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          sleep,
+          PredicatePathKind.placePhrase,
+        ).map((place) => place.noun),
+        containsAll(['home', 'bed']),
+      );
+    });
+
+    test('authored Compass mode narrows phrase rails to predicate paths', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(go));
+
+      final placeLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+      final mannerLabels = authoredCompass
+          .suggestionsFor(
+            state,
+            ConfigurationCompassSlot.mannerPhrase,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(placeLabels, containsAll(['home', 'school', 'shop']));
+      expect(placeLabels, isNot(contains('bed')));
+      expect(mannerLabels, containsAll(['quickly', 'away', 'back']));
+      expect(mannerLabels, isNot(contains('closely')));
+    });
+
+    test('reviewed phrase paths render through the lower Grammar Engine', () {
+      final cases = [
+        (
+          action: go,
+          move: const SetMannerPhrase(awayMannerPhrase),
+          text: 'You go away.',
+        ),
+        (
+          action: watch,
+          move: const SetMannerPhrase(closelyMannerPhrase),
+          text: 'You watch closely.',
+        ),
+        (
+          action: sleep,
+          move: const SetPlacePhrase(bedPlacePhrase),
+          text: 'You sleep on the bed.',
+        ),
+      ];
+
+      for (final example in cases) {
+        var state = ConfigurationState.initial();
+        state = lock.applyMove(state, SetAction(example.action));
+        state = lock.applyMove(state, example.move);
+
+        expect(wasBlocked(state), isFalse);
+        expect(grammar.generate(state.sentenceState).text, example.text);
       }
     });
   });

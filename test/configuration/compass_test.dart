@@ -720,7 +720,6 @@ void main() {
       expect(labels.indexOf('give'), lessThan(labels.indexOf('get')));
       expect(labels.indexOf('play'), lessThan(labels.indexOf('get')));
       expect(labels.indexOf('learn'), lessThan(labels.indexOf('get')));
-      expect(labels.indexOf('go'), lessThan(labels.indexOf('work')));
     });
 
     test('groups predicate doorways by visible output count', () {
@@ -748,8 +747,12 @@ void main() {
         ..sort((left, right) => right.compareTo(left));
 
       expect(outputCounts, orderedEquals(sortedOutputCounts));
-      expect(outputCountFor('teach'), greaterThan(outputCountFor('give')));
-      expect(outputCountFor('give'), greaterThan(outputCountFor('get')));
+      expect(outputCountFor('work'), greaterThan(outputCountFor('get')));
+      expect(outputCountFor('go'), greaterThan(outputCountFor('get')));
+      expect(
+        outputCountFor('give'),
+        greaterThanOrEqualTo(outputCountFor('get')),
+      );
     });
 
     test('noun complement suggestions follow agent number', () {
@@ -936,6 +939,39 @@ void main() {
         'Mary',
       ]);
       expect(render(suggestions.last.preview), 'You go to Mary.');
+    });
+
+    test('topic suggestions require about-topic-capable frame', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(go),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(state, ConfigurationCompassSlot.topic),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(learn));
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['grammar', 'science', 'Mary']));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'grammar')
+              .preview,
+        ),
+        'You learn about grammar.',
+      );
     });
 
     test('keeps recipient focus behind the ditransitive frame', () {

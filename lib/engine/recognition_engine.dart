@@ -1530,6 +1530,7 @@ class RecognitionEngine {
       builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
       builder.companionStart > 0 ? builder.companionStart - 1 : -1,
       builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
+      builder.topicStart > 0 ? builder.topicStart - 1 : -1,
       builder.rightActionStart,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
@@ -1588,6 +1589,14 @@ class RecognitionEngine {
       firstPhraseStart,
     )) {
       builder.destinationEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
+      builder.topicStart,
+      builder.topicEnd,
+      firstPhraseStart,
+    )) {
+      builder.topicEnd = firstPhraseStart - 1;
     }
 
     if (_crossesPhrase(
@@ -1655,6 +1664,10 @@ class RecognitionEngine {
     if (builder.destinationStart >= 0 &&
         builder.destinationStart <= frontPhraseEnd) {
       builder.destinationStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.topicStart >= 0 && builder.topicStart <= frontPhraseEnd) {
+      builder.topicStart = frontPhraseEnd + 1;
     }
 
     if (builder.rightActionStart >= 0 &&
@@ -1736,6 +1749,12 @@ class RecognitionEngine {
           builder.destinationStart,
           builder.destinationEnd + 1,
         ),
+      );
+    }
+
+    if (builder.topicStart >= 0 && builder.topicEnd >= builder.topicStart) {
+      builder.topic = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.topicStart, builder.topicEnd + 1),
       );
     }
 
@@ -1903,6 +1922,7 @@ class RecognitionEngine {
     _recognizeDestinationPhrase(builder, phraseTokens);
     _recognizeAddresseePhrase(builder, phraseTokens);
     _recognizeCompanionPhrase(builder, phraseTokens);
+    _recognizeTopicPhrase(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
   }
 
@@ -2123,6 +2143,28 @@ class RecognitionEngine {
     builder.destinationEnd = _nounPhraseEnd(builder, destinationStart);
   }
 
+  void _recognizeTopicPhrase(_RecognitionBuilder builder, List<String> tokens) {
+    if (builder.action?.takesTopic != true) {
+      return;
+    }
+
+    final wordsBefore = _phraseWordIndex(tokens, 'about');
+
+    if (wordsBefore < 0) {
+      return;
+    }
+
+    final aboutIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final topicStart = aboutIndex + 1;
+
+    if (!_looksLikeCompanionPhrase(builder, topicStart)) {
+      return;
+    }
+
+    builder.topicStart = topicStart;
+    builder.topicEnd = _nounPhraseEnd(builder, topicStart);
+  }
+
   int _toWordIndexNotAlreadyReserved(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2254,6 +2296,9 @@ class _RecognitionBuilder {
   int destinationStart = -1;
   int destinationEnd = -1;
 
+  int topicStart = -1;
+  int topicEnd = -1;
+
   int rightActionStart = -1;
   int rightActionEnd = -1;
 
@@ -2291,6 +2336,7 @@ class _RecognitionBuilder {
   NounPhrase? addressee;
   NounPhrase? companion;
   NounPhrase? destination;
+  NounPhrase? topic;
   Verb? rightAction;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
@@ -2329,6 +2375,7 @@ class _RecognitionBuilder {
       addressee: addressee,
       companion: companion,
       destination: destination,
+      topic: topic,
       rightAction: rightAction,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
@@ -2364,6 +2411,7 @@ class _RecognitionBuilder {
       'addressee: $addresseeStart -> $addresseeEnd (${_tokensBetween(addresseeStart, addresseeEnd)}) = ${addressee?.text}',
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
       'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
+      'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topic?.text}',
       'rightAction: $rightActionStart -> $rightActionEnd (${_tokensBetween(rightActionStart, rightActionEnd)}) = ${rightAction?.infinitive}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',

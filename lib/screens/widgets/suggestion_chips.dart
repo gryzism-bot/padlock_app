@@ -379,8 +379,11 @@ IconData _materialIconFor(String materialIcon) {
     MaterialIconKey.panToolAltOutlined => Icons.pan_tool_alt_outlined,
     MaterialIconKey.panToolOutlined => Icons.pan_tool_outlined,
     MaterialIconKey.personOutline => Icons.person_outline,
+    MaterialIconKey.placeOutlined => Icons.place_outlined,
     MaterialIconKey.recordVoiceOverOutlined => Icons.record_voice_over_outlined,
+    MaterialIconKey.scheduleOutlined => Icons.schedule_outlined,
     MaterialIconKey.schoolOutlined => Icons.school_outlined,
+    MaterialIconKey.speedOutlined => Icons.speed_outlined,
     MaterialIconKey.sportsSoccer => Icons.sports_soccer,
     _ => Icons.help_outline,
   };
@@ -395,7 +398,7 @@ Color _verbWakeSignalColor(
     'complement' => colors.secondary,
     'recipient' => colors.tertiary,
     'destination' => colors.error,
-    'addressee' || 'companion' => colors.secondary,
+    'addressee' || 'companion' || 'topic' => colors.secondary,
     _ => colors.primary,
   };
 }

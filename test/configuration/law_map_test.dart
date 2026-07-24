@@ -145,6 +145,11 @@ void main() {
             PredicatePathKind.toAddressee => 'addressee',
             PredicatePathKind.withCompanion => 'companion',
             PredicatePathKind.toDestination => 'destination',
+            PredicatePathKind.aboutTopic => 'topic',
+            PredicatePathKind.placePhrase => 'place',
+            PredicatePathKind.timePhrase => 'time',
+            PredicatePathKind.frequencyPhrase => 'frequency',
+            PredicatePathKind.mannerPhrase => 'manner',
           };
 
           expect(

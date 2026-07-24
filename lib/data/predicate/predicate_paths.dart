@@ -8,6 +8,11 @@ import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
 import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
     as people_categories;
+import 'package:padlock_app/data/phrases/frequency_phrases.dart'
+    as frequency_data;
+import 'package:padlock_app/data/phrases/manner_phrases.dart' as manner_data;
+import 'package:padlock_app/data/phrases/place_phrases.dart' as place_data;
+import 'package:padlock_app/data/phrases/time_phrases.dart' as time_data;
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/education.dart' as education_data;
@@ -16,6 +21,10 @@ import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
+import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
@@ -30,17 +39,30 @@ enum PredicatePathKind {
   toAddressee,
   withCompanion,
   toDestination,
+  aboutTopic,
+  placePhrase,
+  timePhrase,
+  frequencyPhrase,
+  mannerPhrase,
 }
 
 class PredicatePath {
   final PredicatePathKind kind;
   final List<NounPhrase> nouns;
   final List<Verb> verbs;
+  final List<PlacePhrase> places;
+  final List<TimePhrase> times;
+  final List<FrequencyPhrase> frequencies;
+  final List<MannerPhrase> manners;
 
   const PredicatePath._({
     required this.kind,
     this.nouns = const [],
     this.verbs = const [],
+    this.places = const [],
+    this.times = const [],
+    this.frequencies = const [],
+    this.manners = const [],
   });
 
   const PredicatePath.directObject(List<NounPhrase> nouns)
@@ -60,6 +82,21 @@ class PredicatePath {
 
   const PredicatePath.toDestination(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.toDestination, nouns: nouns);
+
+  const PredicatePath.aboutTopic(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.aboutTopic, nouns: nouns);
+
+  const PredicatePath.placePhrase(List<PlacePhrase> places)
+    : this._(kind: PredicatePathKind.placePhrase, places: places);
+
+  const PredicatePath.timePhrase(List<TimePhrase> times)
+    : this._(kind: PredicatePathKind.timePhrase, times: times);
+
+  const PredicatePath.frequencyPhrase(List<FrequencyPhrase> frequencies)
+    : this._(kind: PredicatePathKind.frequencyPhrase, frequencies: frequencies);
+
+  const PredicatePath.mannerPhrase(List<MannerPhrase> manners)
+    : this._(kind: PredicatePathKind.mannerPhrase, manners: manners);
 }
 
 class PredicateUnlocks {
@@ -87,6 +124,44 @@ List<NounPhrase> _uniqueByText(List<NounPhrase> nouns) {
   return [
     for (final noun in nouns)
       if (seen.add(noun.text.toLowerCase())) noun,
+  ];
+}
+
+List<PlacePhrase> _uniquePlacesByText(List<PlacePhrase> places) {
+  final seen = <String>{};
+
+  return [
+    for (final place in places)
+      if (seen.add(place.noun.toLowerCase())) place,
+  ];
+}
+
+List<TimePhrase> _uniqueTimesByText(List<TimePhrase> times) {
+  final seen = <String>{};
+
+  return [
+    for (final time in times)
+      if (seen.add(time.text.toLowerCase())) time,
+  ];
+}
+
+List<FrequencyPhrase> _uniqueFrequenciesByText(
+  List<FrequencyPhrase> frequencies,
+) {
+  final seen = <String>{};
+
+  return [
+    for (final frequency in frequencies)
+      if (seen.add(frequency.text.toLowerCase())) frequency,
+  ];
+}
+
+List<MannerPhrase> _uniqueMannersByText(List<MannerPhrase> manners) {
+  final seen = <String>{};
+
+  return [
+    for (final manner in manners)
+      if (seen.add(manner.text.toLowerCase())) manner,
   ];
 }
 
@@ -207,6 +282,15 @@ final _learnSubjects = [
   fixed_object.history,
   fixed_object.science,
 ];
+final _basicTopics = _uniqueByText([
+  ..._learnSubjects,
+  ..._textObjects,
+  ..._peopleAndAnimals,
+  ...object_categories.singularMediaObjects,
+  ...object_categories.pluralMediaObjects,
+  ...object_categories.singularDeviceObjects,
+  ...object_categories.pluralDeviceObjects,
+]);
 final _spokenLanguages = [
   fixed_object.english,
   fixed_object.polish,
@@ -223,7 +307,72 @@ final _rightActionWants = [go, work, learn, swim, speak, watch, sleep];
 final _rightActionNeeds = [go, work, learn, speak, sleep];
 final _rightActionLikes = [go, work, learn, swim, speak, watch, sleep];
 final _rightActionLoves = [go, work, learn, swim, speak, watch];
+final _rightActionBegins = [work, learn, speak, swim];
 final _rightActionLearns = [speak, swim, work];
+final _rightActionRemembers = [go, call, work, learn];
+final _rightActionHates = [go, work, learn, swim, speak, watch, sleep];
+final _rightActionHelps = [work, learn, speak];
+final _homeSchoolWorkPlaces = [
+  place_data.homePlacePhrase,
+  place_data.schoolPlacePhrase,
+  place_data.workPlacePhrase,
+  place_data.officePlacePhrase,
+];
+final _everydayPlaces = _uniquePlacesByText([
+  place_data.homePlacePhrase,
+  place_data.schoolPlacePhrase,
+  place_data.workPlacePhrase,
+  place_data.officePlacePhrase,
+  place_data.shopPlacePhrase,
+  place_data.parkPlacePhrase,
+  place_data.restaurantPlacePhrase,
+  place_data.hospitalPlacePhrase,
+]);
+final _basicTimes = [
+  time_data.todayTimePhrase,
+  time_data.nowTimePhrase,
+  time_data.tomorrowTimePhrase,
+  time_data.laterTimePhrase,
+  time_data.atNightTimePhrase,
+];
+final _todayTimes = [
+  time_data.todayTimePhrase,
+  time_data.nowTimePhrase,
+  time_data.thisMorningTimePhrase,
+  time_data.thisAfternoonTimePhrase,
+  time_data.thisEveningTimePhrase,
+];
+final _basicFrequencies = [
+  frequency_data.alwaysFrequencyPhrase,
+  frequency_data.oftenFrequencyPhrase,
+  frequency_data.sometimesFrequencyPhrase,
+  frequency_data.everyDayFrequencyPhrase,
+];
+final _movementManners = [
+  manner_data.quicklyMannerPhrase,
+  manner_data.slowlyMannerPhrase,
+  manner_data.carefullyMannerPhrase,
+];
+final _carefulManners = [
+  manner_data.carefullyMannerPhrase,
+  manner_data.withCareMannerPhrase,
+  manner_data.slowlyMannerPhrase,
+];
+final _speechManners = [
+  manner_data.loudlyMannerPhrase,
+  manner_data.quietlyMannerPhrase,
+  manner_data.politelyMannerPhrase,
+];
+final _performanceManners = [
+  manner_data.wellMannerPhrase,
+  manner_data.badlyMannerPhrase,
+  manner_data.loudlyMannerPhrase,
+  manner_data.quietlyMannerPhrase,
+];
+final _mistakeManners = [
+  manner_data.byAccidentMannerPhrase,
+  manner_data.onPurposeMannerPhrase,
+];
 
 PredicateUnlocks _direct(Verb verb, List<NounPhrase> nouns) {
   return PredicateUnlocks(
@@ -232,13 +381,14 @@ PredicateUnlocks _direct(Verb verb, List<NounPhrase> nouns) {
   );
 }
 
-PredicateUnlocks _directWithCompanion(Verb verb, List<NounPhrase> nouns) {
+PredicateUnlocks _directWithPaths(
+  Verb verb,
+  List<NounPhrase> nouns, {
+  List<PredicatePath> paths = const [],
+}) {
   return PredicateUnlocks(
     verb: verb,
-    paths: [
-      PredicatePath.directObject(nouns),
-      PredicatePath.withCompanion(_people),
-    ],
+    paths: [PredicatePath.directObject(nouns), ...paths],
   );
 }
 
@@ -266,30 +416,210 @@ PredicateUnlocks _companion(Verb verb) {
   );
 }
 
+PredicatePath _places(List<PlacePhrase> places) {
+  return PredicatePath.placePhrase(_uniquePlacesByText(places));
+}
+
+PredicatePath _times(List<TimePhrase> times) {
+  return PredicatePath.timePhrase(_uniqueTimesByText(times));
+}
+
+PredicatePath _frequencies(List<FrequencyPhrase> frequencies) {
+  return PredicatePath.frequencyPhrase(_uniqueFrequenciesByText(frequencies));
+}
+
+PredicatePath _manners(List<MannerPhrase> manners) {
+  return PredicatePath.mannerPhrase(_uniqueMannersByText(manners));
+}
+
 final guidedPredicateUnlocks = [
-  _direct(have, _everydayObjects),
-  _direct(findVerb, _findableObjects),
-  _direct(breakVerb, _breakableObjects),
-  _destinationWithCompanion(go),
-  _destinationWithCompanion(come),
-  _direct(get, _everydayObjects),
+  PredicateUnlocks(
+    verb: be,
+    paths: [
+      _places(_homeSchoolWorkPlaces),
+      _times(_todayTimes),
+      _manners([
+        manner_data.quietlyMannerPhrase,
+        manner_data.happilyMannerPhrase,
+      ]),
+    ],
+  ),
+  _directWithPaths(
+    have,
+    _everydayObjects,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _times(_todayTimes),
+      _frequencies(_basicFrequencies),
+    ],
+  ),
+  _directWithPaths(
+    doVerb,
+    _uniqueByText([..._learnSubjects, ..._textObjects, ..._gameObjects]),
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.quicklyMannerPhrase,
+        manner_data.carefullyMannerPhrase,
+        manner_data.againMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    findVerb,
+    _findableObjects,
+    paths: [
+      _places(_everydayPlaces),
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.quicklyMannerPhrase,
+        manner_data.byAccidentMannerPhrase,
+      ]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: sing,
+    paths: [
+      PredicatePath.directObject(_musicObjects),
+      PredicatePath.toAddressee(_people),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _manners(_performanceManners),
+    ],
+  ),
+  _directWithPaths(
+    breakVerb,
+    _breakableObjects,
+    paths: [
+      _manners([..._mistakeManners, manner_data.quicklyMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    read,
+    _textObjects,
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.toAddressee(_people),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _times([time_data.atNightTimePhrase, ..._todayTimes]),
+      _manners([manner_data.carefullyMannerPhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: begin,
+    paths: [
+      PredicatePath.directObject(_learnSubjects),
+      PredicatePath.toRightAction(_rightActionBegins),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _times([time_data.todayTimePhrase, time_data.nowTimePhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: go,
+    paths: [
+      PredicatePath.toDestination(_people),
+      PredicatePath.withCompanion(_people),
+      _places(_everydayPlaces),
+      _times(_basicTimes),
+      _manners([
+        ..._movementManners,
+        manner_data.awayMannerPhrase,
+        manner_data.backMannerPhrase,
+        manner_data.thereMannerPhrase,
+      ]),
+      _frequencies(_basicFrequencies),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: come,
+    paths: [
+      PredicatePath.toDestination(_people),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _times(_basicTimes),
+      _manners([
+        ..._movementManners,
+        manner_data.hereMannerPhrase,
+        manner_data.backMannerPhrase,
+      ]),
+    ],
+  ),
+  _directWithPaths(
+    get,
+    _everydayObjects,
+    paths: [_places(_homeSchoolWorkPlaces), _times(_todayTimes)],
+  ),
   PredicateUnlocks(
     verb: make,
     paths: [
       PredicatePath.directObject(_everydayObjects),
       PredicatePath.toRecipient(_people),
+      PredicatePath.withCompanion(_people),
+      _manners(_carefulManners),
     ],
   ),
-  _direct(take, _everydayObjects),
+  _directWithPaths(
+    take,
+    _everydayObjects,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _places(_everydayPlaces),
+      _manners(_movementManners),
+      _times(_todayTimes),
+    ],
+  ),
   PredicateUnlocks(
     verb: give,
     paths: [
       PredicatePath.directObject(_transferObjects),
       PredicatePath.toRecipient(_people),
+      _times(_todayTimes),
     ],
   ),
-  _direct(know, _uniqueByText([..._peopleAndAnimals, ..._learnSubjects])),
-  _direct(see, _uniqueByText([..._peopleAndAnimals, ..._everydayObjects])),
+  _directWithPaths(
+    know,
+    _uniqueByText([..._peopleAndAnimals, ..._learnSubjects]),
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      _manners([manner_data.wellMannerPhrase, manner_data.alreadyMannerPhrase]),
+      _times([time_data.nowTimePhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: think,
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.carefullyMannerPhrase,
+        manner_data.quicklyMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: say,
+    paths: [
+      PredicatePath.directObject(_textObjects),
+      PredicatePath.toAddressee(_people),
+      _manners(_speechManners),
+    ],
+  ),
+  _directWithPaths(
+    see,
+    _uniqueByText([..._peopleAndAnimals, ..._everydayObjects]),
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _places(_everydayPlaces),
+      _manners([manner_data.clearlyMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
   PredicateUnlocks(
     verb: want,
     paths: [
@@ -297,6 +627,7 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._everydayObjects, ..._people]),
       ),
       PredicatePath.toRightAction(_rightActionWants),
+      _times([time_data.nowTimePhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -306,6 +637,7 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._everydayObjects, ..._people]),
       ),
       PredicatePath.toRightAction(_rightActionNeeds),
+      _times([time_data.nowTimePhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -315,6 +647,7 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._everydayObjects, ..._peopleAndAnimals]),
       ),
       PredicatePath.toRightAction(_rightActionLikes),
+      _frequencies(_basicFrequencies),
     ],
   ),
   PredicateUnlocks(
@@ -328,31 +661,36 @@ final guidedPredicateUnlocks = [
         ]),
       ),
       PredicatePath.toRightAction(_rightActionLoves),
+      _frequencies(_basicFrequencies),
     ],
   ),
-  _companion(work),
-  PredicateUnlocks(
-    verb: play,
+  _directWithPaths(
+    meet,
+    _peopleAndAnimals,
     paths: [
-      PredicatePath.directObject(_playActivities),
       PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _times([
+        time_data.todayTimePhrase,
+        time_data.tomorrowTimePhrase,
+        time_data.laterTimePhrase,
+      ]),
     ],
   ),
   PredicateUnlocks(
-    verb: learn,
+    verb: work,
     paths: [
-      PredicatePath.directObject(_learnSubjects),
-      PredicatePath.toRightAction(_rightActionLearns),
       PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _manners([
+        manner_data.quicklyMannerPhrase,
+        manner_data.carefullyMannerPhrase,
+        manner_data.manuallyMannerPhrase,
+      ]),
+      _times(_todayTimes),
+      _frequencies(_basicFrequencies),
     ],
   ),
-  _direct(remember, _uniqueByText([..._peopleAndAnimals, ..._learnSubjects])),
-  _direct(hate, _uniqueByText([..._peopleAndAnimals, ..._everydayObjects])),
-  _direct(meet, _peopleAndAnimals),
-  _direct(use, _toolObjects),
-  _direct(open, _openableObjects),
-  _direct(close, _openableObjects),
-  _direct(help, _peopleAndAnimals),
   PredicateUnlocks(
     verb: buy,
     paths: [
@@ -360,16 +698,135 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._moneyObjects, ..._everydayObjects]),
       ),
       PredicatePath.toRecipient(_people),
+      PredicatePath.withCompanion(_people),
+      _places([place_data.shopPlacePhrase]),
+      _times(_todayTimes),
     ],
   ),
-  _direct(sell, _uniqueByText([..._moneyObjects, ..._everydayObjects])),
-  _direct(read, _textObjects),
-  _direct(watch, _mediaObjects),
-  _direct(lose, _uniqueByText([..._moneyObjects, ..._toolObjects])),
+  PredicateUnlocks(
+    verb: sell,
+    paths: [
+      PredicatePath.directObject(
+        _uniqueByText([..._moneyObjects, ..._everydayObjects]),
+      ),
+      PredicatePath.toAddressee(_people),
+      PredicatePath.withCompanion(_people),
+      _places([place_data.shopPlacePhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    use,
+    _toolObjects,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners(_carefulManners),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    watch,
+    _mediaObjects,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      PredicatePath.toRightAction([education_data.research]),
+      _places(_homeSchoolWorkPlaces),
+      _manners([
+        manner_data.closelyMannerPhrase,
+        manner_data.quietlyMannerPhrase,
+      ]),
+    ],
+  ),
+  _directWithPaths(
+    lose,
+    _uniqueByText([..._moneyObjects, ..._toolObjects, ..._gameObjects]),
+    paths: [
+      _places(_everydayPlaces),
+      _manners(_mistakeManners),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: play,
+    paths: [
+      PredicatePath.directObject(_playActivities),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _manners(_performanceManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: learn,
+    paths: [
+      PredicatePath.directObject(_learnSubjects),
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.toRightAction(_rightActionLearns),
+      PredicatePath.withCompanion(_people),
+      _places(_homeSchoolWorkPlaces),
+      _manners([manner_data.quicklyMannerPhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: hate,
+    paths: [
+      PredicatePath.directObject(
+        _uniqueByText([..._peopleAndAnimals, ..._everydayObjects]),
+      ),
+      PredicatePath.toRightAction(_rightActionHates),
+      _manners([manner_data.quietlyMannerPhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: remember,
+    paths: [
+      PredicatePath.directObject(
+        _uniqueByText([..._peopleAndAnimals, ..._learnSubjects]),
+      ),
+      PredicatePath.toRightAction(_rightActionRemembers),
+      _manners([
+        manner_data.clearlyMannerPhrase,
+        manner_data.alreadyMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: sleep,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _places([place_data.homePlacePhrase, place_data.bedPlacePhrase]),
+      _times([time_data.atNightTimePhrase, ..._todayTimes]),
+      _manners([
+        manner_data.wellMannerPhrase,
+        manner_data.badlyMannerPhrase,
+        manner_data.quietlyMannerPhrase,
+      ]),
+    ],
+  ),
+  _directWithPaths(
+    open,
+    _openableObjects,
+    paths: [_manners(_carefulManners), _times(_todayTimes)],
+  ),
+  _directWithPaths(
+    close,
+    _openableObjects,
+    paths: [_manners(_carefulManners), _times(_todayTimes)],
+  ),
+  PredicateUnlocks(
+    verb: help,
+    paths: [
+      PredicatePath.directObject(_peopleAndAnimals),
+      PredicatePath.toRightAction(_rightActionHelps),
+      _places(_homeSchoolWorkPlaces),
+      _times(_todayTimes),
+    ],
+  ),
   PredicateUnlocks(
     verb: speak,
     paths: [
       PredicatePath.directObject(_spokenLanguages),
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_peopleAndAnimals),
       PredicatePath.withCompanion(_people),
     ],
@@ -377,6 +834,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: talk,
     paths: [
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_peopleAndAnimals),
       PredicatePath.withCompanion(_people),
     ],
@@ -403,6 +861,7 @@ final guidedPredicateUnlocks = [
     verb: explain,
     paths: [
       PredicatePath.directObject(_learnSubjects),
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_people),
     ],
   ),
@@ -417,7 +876,14 @@ final guidedPredicateUnlocks = [
       PredicatePath.toAddressee(_peopleAndAnimals),
     ],
   ),
-  _directWithCompanion(education_data.study, _learnSubjects),
+  _directWithPaths(
+    education_data.study,
+    _learnSubjects,
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.withCompanion(_people),
+    ],
+  ),
   PredicateUnlocks(
     verb: education_data.teach,
     paths: [
@@ -433,9 +899,10 @@ final guidedPredicateUnlocks = [
   ),
   _direct(education_data.calculate, _learnSubjects),
   _direct(education_data.solve, _learnSubjects),
-  _direct(
+  _directWithPaths(
     education_data.understand,
     _uniqueByText([..._learnSubjects, ..._people]),
+    paths: [PredicatePath.aboutTopic(_basicTopics)],
   ),
   _direct(
     education_data.forget,
@@ -450,7 +917,11 @@ final guidedPredicateUnlocks = [
     education_data.improve,
     _uniqueByText([..._learnSubjects, ..._textObjects]),
   ),
-  _direct(education_data.research, _learnSubjects),
+  _directWithPaths(
+    education_data.research,
+    _learnSubjects,
+    paths: [PredicatePath.aboutTopic(_basicTopics)],
+  ),
   _destinationWithCompanion(walk),
   _destinationWithCompanion(run),
   _destinationWithCompanion(swim),
@@ -796,6 +1267,48 @@ List<Verb> predicateVerbChoicesFor(Verb verb, PredicatePathKind kind) {
       for (final choice in path.verbs)
         if (seen.add(choice.infinitive)) choice,
   ];
+}
+
+List<PlacePhrase> predicatePlaceChoicesFor(Verb verb, PredicatePathKind kind) {
+  return _uniquePlacesByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      ...path.places,
+  ]);
+}
+
+List<TimePhrase> predicateTimeChoicesFor(Verb verb, PredicatePathKind kind) {
+  return _uniqueTimesByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      ...path.times,
+  ]);
+}
+
+List<FrequencyPhrase> predicateFrequencyChoicesFor(
+  Verb verb,
+  PredicatePathKind kind,
+) {
+  return _uniqueFrequenciesByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      ...path.frequencies,
+  ]);
+}
+
+List<MannerPhrase> predicateMannerChoicesFor(
+  Verb verb,
+  PredicatePathKind kind,
+) {
+  return _uniqueMannersByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == kind))
+      ...path.manners,
+  ]);
 }
 
 PredicatePathMigrationDecision? predicatePathMigrationFor(Verb verb) {

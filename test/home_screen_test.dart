@@ -533,12 +533,14 @@ void main() {
 
     expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-think-topic')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
-    expect(find.byKey(const Key('verb-wake-read-text')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-read-addressee')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-read-companion')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-drive-vehicle')), findsOneWidget);
-    expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-time')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
     expect(find.byTooltip('You catch.'), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
@@ -562,21 +564,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-give')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(2),
-    );
-    expect(
-      find.byTooltip(
-        'give unlocks recipient, object. grammar frame: recipient, object. '
-        'It can wake 2 rails.',
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.byTooltip(
-        'read unlocks text. predicate property: text. '
-        'It can wake 1 rail.',
-      ),
-      findsOneWidget,
+      findsNWidgets(3),
     );
   });
 
@@ -1995,10 +1983,20 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Companion');
       case 'destination':
         titles.add('Destination');
+      case 'topic':
+        titles.add('Topic');
       case 'right-action':
         titles.add('Right action');
       case 'complement':
         titles.addAll(['Noun complement', 'Adjective complement']);
+      case 'place':
+        titles.add('Place phrase');
+      case 'time':
+        titles.add('Time phrase');
+      case 'frequency':
+        titles.add('Frequency phrase');
+      case 'manner':
+        titles.add('Manner phrase');
       case 'recipient':
       case 'object-complement':
         break;

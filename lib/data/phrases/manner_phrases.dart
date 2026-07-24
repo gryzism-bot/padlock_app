@@ -20,6 +20,18 @@ const carefullyMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const closelyMannerPhrase = MannerPhrase(
+  text: 'closely',
+  translations: {Language.pl: 'uwaĹĽnie'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const clearlyMannerPhrase = MannerPhrase(
+  text: 'clearly',
+  translations: {Language.pl: 'wyraĹşnie'},
+  position: PhrasePosition.afterPredicate,
+);
+
 const easilyMannerPhrase = MannerPhrase(
   text: 'easily',
   translations: {Language.pl: 'łatwo'},
@@ -134,10 +146,60 @@ const onPurposeMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const manuallyMannerPhrase = MannerPhrase(
+  text: 'manually',
+  translations: {Language.pl: 'rÄ™cznie'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const againMannerPhrase = MannerPhrase(
+  text: 'again',
+  translations: {Language.pl: 'znowu'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const alreadyMannerPhrase = MannerPhrase(
+  text: 'already',
+  translations: {Language.pl: 'juĹĽ'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const awayMannerPhrase = MannerPhrase(
+  text: 'away',
+  translations: {Language.pl: 'precz'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const backMannerPhrase = MannerPhrase(
+  text: 'back',
+  translations: {Language.pl: 'z powrotem'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const hereMannerPhrase = MannerPhrase(
+  text: 'here',
+  translations: {Language.pl: 'tutaj'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const thereMannerPhrase = MannerPhrase(
+  text: 'there',
+  translations: {Language.pl: 'tam'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const outsideMannerPhrase = MannerPhrase(
+  text: 'outside',
+  translations: {Language.pl: 'na zewnÄ…trz'},
+  position: PhrasePosition.afterPredicate,
+);
+
 List<MannerPhrase> mannerPhrases = [
   quicklyMannerPhrase,
   slowlyMannerPhrase,
   carefullyMannerPhrase,
+  closelyMannerPhrase,
+  clearlyMannerPhrase,
   easilyMannerPhrase,
   quietlyMannerPhrase,
   silentlyMannerPhrase,
@@ -157,4 +219,12 @@ List<MannerPhrase> mannerPhrases = [
   withConfidenceMannerPhrase,
   byAccidentMannerPhrase,
   onPurposeMannerPhrase,
+  manuallyMannerPhrase,
+  againMannerPhrase,
+  alreadyMannerPhrase,
+  awayMannerPhrase,
+  backMannerPhrase,
+  hereMannerPhrase,
+  thereMannerPhrase,
+  outsideMannerPhrase,
 ];

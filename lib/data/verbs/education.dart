@@ -9,6 +9,7 @@ const study = Verb(
   ingForm: 'studying',
   takesObject: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'uczyć się'},
 );
 
@@ -71,6 +72,7 @@ const understand = Verb(
   pastParticiple: 'understood',
   ingForm: 'understanding',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'rozumieć'},
 );
 
@@ -130,6 +132,7 @@ const research = Verb(
   pastParticiple: 'researched',
   ingForm: 'researching',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'prowadzić badania'},
 );
 

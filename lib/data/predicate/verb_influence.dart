@@ -55,7 +55,7 @@ const _popularDoorwayBonusByVerb = {
   'think': 1,
 };
 
-const _visibleOutputCountByVerb = {'be': 2};
+const _visibleOutputCountByVerb = {'be': 5};
 
 List<PredicateInfluence> predicateInfluencesFor(Verb action) {
   final fixedLabel = fixedObjectFrameLabel(action);
@@ -86,6 +86,10 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
 
   if (action.takesCompanion) {
     add(_predicateProperty(action, 'companion', 'companion', 46));
+  }
+
+  if (action.takesTopic) {
+    add(_predicateProperty(action, 'topic', 'about-topic', 44));
   }
 
   if (fixedLabel != null) {
@@ -151,6 +155,36 @@ PredicateInfluence _influenceForPath(
       'destination',
       'destination',
       40,
+    ),
+    PredicatePathKind.aboutTopic => _predicateProperty(
+      action,
+      'topic',
+      'about-topic',
+      44,
+    ),
+    PredicatePathKind.placePhrase => _predicateProperty(
+      action,
+      'place',
+      'place phrase',
+      34,
+    ),
+    PredicatePathKind.timePhrase => _predicateProperty(
+      action,
+      'time',
+      'time phrase',
+      33,
+    ),
+    PredicatePathKind.frequencyPhrase => _predicateProperty(
+      action,
+      'frequency',
+      'frequency phrase',
+      32,
+    ),
+    PredicatePathKind.mannerPhrase => _predicateProperty(
+      action,
+      'manner',
+      'manner phrase',
+      31,
     ),
   };
 }

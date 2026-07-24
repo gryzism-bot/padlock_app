@@ -32,6 +32,7 @@ NounPhrase? _nounPhraseForSlot(
     ConfigurationCompassSlot.addressee => state.addressee,
     ConfigurationCompassSlot.companion => state.companion,
     ConfigurationCompassSlot.destination => state.destination,
+    ConfigurationCompassSlot.topic => state.topic,
     ConfigurationCompassSlot.passiveAgentNoun => state.agent,
     ConfigurationCompassSlot.complement => state.complement,
     _ => null,
@@ -53,6 +54,7 @@ List<NounPhrase> _nounChoicesForSlot(
     ConfigurationCompassSlot.addressee => compass.recipients,
     ConfigurationCompassSlot.companion => compass.recipients,
     ConfigurationCompassSlot.destination => compass.recipients,
+    ConfigurationCompassSlot.topic => compass.recipients,
     ConfigurationCompassSlot.passiveAgentNoun => compass.recipients,
     ConfigurationCompassSlot.complement => compass.complements,
     _ => const [],
@@ -108,6 +110,7 @@ ConfigurationMove _setNounPhraseMove(
     ConfigurationCompassSlot.addressee => SetAddressee(nounPhrase),
     ConfigurationCompassSlot.companion => SetCompanion(nounPhrase),
     ConfigurationCompassSlot.destination => SetDestination(nounPhrase),
+    ConfigurationCompassSlot.topic => SetTopic(nounPhrase),
     ConfigurationCompassSlot.passiveAgentNoun => SetAgent(nounPhrase),
     ConfigurationCompassSlot.complement => SetComplement(nounPhrase),
     _ => throw ArgumentError('No noun number switch for ${slot.name}.'),
@@ -122,6 +125,7 @@ String _slotTraceLabel(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.addressee => 'addressee',
     ConfigurationCompassSlot.companion => 'companion',
     ConfigurationCompassSlot.destination => 'destination',
+    ConfigurationCompassSlot.topic => 'topic',
     ConfigurationCompassSlot.passiveAgentNoun => 'by-agent',
     ConfigurationCompassSlot.complement => 'noun complement',
     _ => slot.name,
@@ -136,6 +140,7 @@ bool _slotHasNounNumberSwitch(ConfigurationCompassSlot slot) {
     ConfigurationCompassSlot.addressee ||
     ConfigurationCompassSlot.companion ||
     ConfigurationCompassSlot.destination ||
+    ConfigurationCompassSlot.topic ||
     ConfigurationCompassSlot.passiveAgentNoun ||
     ConfigurationCompassSlot.complement => true,
     _ => false,
@@ -188,6 +193,11 @@ Map<ConfigurationCompassSlot, Number> _updatedNounNumbersFromMove(
       current,
       ConfigurationCompassSlot.destination,
       destination,
+    ),
+    SetTopic(:final topic) => _updatedNounNumbers(
+      current,
+      ConfigurationCompassSlot.topic,
+      topic,
     ),
     SetAgent(:final agent) => _updatedNounNumbers(
       current,

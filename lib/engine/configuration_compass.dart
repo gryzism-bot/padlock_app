@@ -5,6 +5,8 @@ import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/phrases/frequency_phrases.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
@@ -17,6 +19,8 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
@@ -51,6 +55,9 @@ enum ConfigurationCompassSlot {
   destination,
   destinationDeterminer,
   destinationAdjective,
+  topic,
+  topicDeterminer,
+  topicAdjective,
   rightAction,
   complement,
   complementDeterminer,
@@ -63,6 +70,8 @@ enum ConfigurationCompassSlot {
   modal,
   placePhrase,
   timePhrase,
+  frequencyPhrase,
+  mannerPhrase,
 }
 
 class ConfigurationSuggestion {
@@ -95,6 +104,8 @@ class ConfigurationCompass {
   final List<Modal> modals;
   final List<PlacePhrase> places;
   final List<TimePhrase> times;
+  final List<FrequencyPhrase> frequencies;
+  final List<MannerPhrase> manners;
   final PredicatePathMode predicatePathMode;
 
   ConfigurationCompass({
@@ -109,6 +120,8 @@ class ConfigurationCompass {
     List<Modal>? modals,
     List<PlacePhrase>? places,
     List<TimePhrase>? times,
+    List<FrequencyPhrase>? frequencies,
+    List<MannerPhrase>? manners,
     this.predicatePathMode = PredicatePathMode.legacyCompassFallback,
   }) : actions = actions ?? _defaultActions,
        objects = objects ?? _defaultObjects,
@@ -119,7 +132,9 @@ class ConfigurationCompass {
        determiners = determiners ?? allDeterminers,
        modals = modals ?? _coreModals,
        places = places ?? placePhrases,
-       times = times ?? timePhrases;
+       times = times ?? timePhrases,
+       frequencies = frequencies ?? frequencyPhrases,
+       manners = manners ?? mannerPhrases;
 
   List<ConfigurationSuggestion> suggestionsFor(
     ConfigurationState state,
@@ -441,6 +456,38 @@ class ConfigurationCompass {
         sentence.destination,
         NounPhraseTarget.destination,
       ),
+      ConfigurationCompassSlot.topic => [
+        if (sentence.topic != null)
+          const _CompassCandidate(SetTopic(null), 'no topic', 120),
+        ..._nounChoicesForState(
+          sentence.topic,
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.aboutTopic,
+                owner: _boundTailOwner(sentence),
+              ) ??
+              recipients,
+        ).map((topic) {
+          final isSelected = _sameNounChoice(topic, sentence.topic);
+          final nextTopic = isSelected
+              ? sentence.topic
+              : _carryCompatibleNounPhrase(from: sentence.topic, to: topic);
+          return _CompassCandidate(
+            SetTopic(nextTopic),
+            nextTopic == null ? topic.text : _nounPhraseLabel(nextTopic),
+            100,
+            isSelected: isSelected,
+          );
+        }),
+      ],
+      ConfigurationCompassSlot.topicDeterminer => _determinerCandidates(
+        sentence.topic,
+        NounPhraseTarget.topic,
+      ),
+      ConfigurationCompassSlot.topicAdjective => _adjectiveCandidates(
+        sentence.topic,
+        NounPhraseTarget.topic,
+      ),
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)
           const _CompassCandidate(SetRightAction(null), 'no right action', 120),
@@ -584,7 +631,10 @@ class ConfigurationCompass {
           sentence.placePhrase == null ? 130 : 120,
           isSelected: sentence.placePhrase == null,
         ),
-        ...places.map(
+        ..._placeChoicesForState(
+          sentence.placePhrase,
+          _placeChoicesForPath(sentence) ?? places,
+        ).map(
           (place) => _CompassCandidate(
             SetPlacePhrase(place),
             place.noun,
@@ -600,12 +650,53 @@ class ConfigurationCompass {
           sentence.timePhrase == null ? 130 : 120,
           isSelected: sentence.timePhrase == null,
         ),
-        ...times.map(
+        ..._timeChoicesForState(
+          sentence.timePhrase,
+          _timeChoicesForPath(sentence) ?? times,
+        ).map(
           (time) => _CompassCandidate(
             SetTimePhrase(time),
             time.text,
             _timePriority(sentence.tense, sentence.aspect, time),
             isSelected: time == sentence.timePhrase,
+          ),
+        ),
+      ],
+      ConfigurationCompassSlot.frequencyPhrase => [
+        _CompassCandidate(
+          const SetFrequencyPhrase(null),
+          'no frequency',
+          sentence.frequencyPhrase == null ? 130 : 120,
+          isSelected: sentence.frequencyPhrase == null,
+        ),
+        ..._frequencyChoicesForState(
+          sentence.frequencyPhrase,
+          _frequencyChoicesForPath(sentence) ?? frequencies,
+        ).map(
+          (frequency) => _CompassCandidate(
+            SetFrequencyPhrase(frequency),
+            frequency.text,
+            100,
+            isSelected: frequency == sentence.frequencyPhrase,
+          ),
+        ),
+      ],
+      ConfigurationCompassSlot.mannerPhrase => [
+        _CompassCandidate(
+          const SetMannerPhrase(null),
+          'no manner',
+          sentence.mannerPhrase == null ? 130 : 120,
+          isSelected: sentence.mannerPhrase == null,
+        ),
+        ..._mannerChoicesForState(
+          sentence.mannerPhrase,
+          _mannerChoicesForPath(sentence) ?? manners,
+        ).map(
+          (manner) => _CompassCandidate(
+            SetMannerPhrase(manner),
+            manner.text,
+            100,
+            isSelected: manner == sentence.mannerPhrase,
           ),
         ),
       ],
@@ -708,6 +799,58 @@ class ConfigurationCompass {
     }
 
     return choices;
+  }
+
+  List<PlacePhrase>? _placeChoicesForPath(SentenceState sentence) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final choices = predicatePlaceChoicesFor(
+      _boundTailOwner(sentence),
+      PredicatePathKind.placePhrase,
+    );
+
+    return choices.isEmpty ? null : choices;
+  }
+
+  List<TimePhrase>? _timeChoicesForPath(SentenceState sentence) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final choices = predicateTimeChoicesFor(
+      _boundTailOwner(sentence),
+      PredicatePathKind.timePhrase,
+    );
+
+    return choices.isEmpty ? null : choices;
+  }
+
+  List<FrequencyPhrase>? _frequencyChoicesForPath(SentenceState sentence) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final choices = predicateFrequencyChoicesFor(
+      _boundTailOwner(sentence),
+      PredicatePathKind.frequencyPhrase,
+    );
+
+    return choices.isEmpty ? null : choices;
+  }
+
+  List<MannerPhrase>? _mannerChoicesForPath(SentenceState sentence) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final choices = predicateMannerChoicesFor(
+      _boundTailOwner(sentence),
+      PredicatePathKind.mannerPhrase,
+    );
+
+    return choices.isEmpty ? null : choices;
   }
 }
 
@@ -935,6 +1078,58 @@ List<NounPhrase> _nounChoicesForState(
   return nextChoices;
 }
 
+List<PlacePhrase> _placeChoicesForState(
+  PlacePhrase? current,
+  List<PlacePhrase> choices,
+) {
+  final nextChoices = _uniquePlaceChoices(choices);
+
+  if (current != null && !nextChoices.contains(current)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
+List<TimePhrase> _timeChoicesForState(
+  TimePhrase? current,
+  List<TimePhrase> choices,
+) {
+  final nextChoices = _uniqueTimeChoices(choices);
+
+  if (current != null && !nextChoices.contains(current)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
+List<FrequencyPhrase> _frequencyChoicesForState(
+  FrequencyPhrase? current,
+  List<FrequencyPhrase> choices,
+) {
+  final nextChoices = _uniqueFrequencyChoices(choices);
+
+  if (current != null && !nextChoices.contains(current)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
+List<MannerPhrase> _mannerChoicesForState(
+  MannerPhrase? current,
+  List<MannerPhrase> choices,
+) {
+  final nextChoices = _uniqueMannerChoices(choices);
+
+  if (current != null && !nextChoices.contains(current)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
 List<Verb> _verbChoicesForState(Verb? current, List<Verb> choices) {
   final nextChoices = _uniqueVerbChoices(choices);
 
@@ -970,6 +1165,42 @@ List<Verb> _uniqueVerbChoices(List<Verb> choices) {
   return [
     for (final choice in choices)
       if (seen.add(choice.infinitive)) choice,
+  ];
+}
+
+List<PlacePhrase> _uniquePlaceChoices(List<PlacePhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.noun.toLowerCase())) choice,
+  ];
+}
+
+List<TimePhrase> _uniqueTimeChoices(List<TimePhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.text.toLowerCase())) choice,
+  ];
+}
+
+List<FrequencyPhrase> _uniqueFrequencyChoices(List<FrequencyPhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.text.toLowerCase())) choice,
+  ];
+}
+
+List<MannerPhrase> _uniqueMannerChoices(List<MannerPhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.text.toLowerCase())) choice,
   ];
 }
 

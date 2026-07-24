@@ -982,6 +982,7 @@ String _moveLabel(ConfigurationMove move) {
       'companion -> ${_nounPhraseLabel(companion)}',
     SetDestination(:final destination) =>
       'destination -> ${_nounPhraseLabel(destination)}',
+    SetTopic(:final topic) => 'topic -> ${_nounPhraseLabel(topic)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>

@@ -78,6 +78,7 @@ enum NounPhraseTarget {
   addressee,
   companion,
   destination,
+  topic,
   complement,
 }
 
@@ -267,6 +268,12 @@ class SetDestination extends ConfigurationMove {
   const SetDestination(this.destination);
 }
 
+class SetTopic extends ConfigurationMove {
+  final NounPhrase? topic;
+
+  const SetTopic(this.topic);
+}
+
 class SetRightAction extends ConfigurationMove {
   final Verb? rightAction;
 
@@ -454,6 +461,7 @@ class ConfigurationEngine {
         addressee: null,
         companion: state.companion,
         destination: null,
+        topic: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: null,
@@ -477,6 +485,23 @@ class ConfigurationEngine {
     final destination = tailOwner.usesDestinationPlace
         ? state.destination
         : null;
+    final topic = _topicAfterActionChange(state.topic, tailOwner);
+    final placePhrase = _placePhraseAfterActionChange(
+      state.placePhrase,
+      tailOwner,
+    );
+    final timePhrase = _timePhraseAfterActionChange(
+      state.timePhrase,
+      tailOwner,
+    );
+    final frequencyPhrase = _frequencyPhraseAfterActionChange(
+      state.frequencyPhrase,
+      tailOwner,
+    );
+    final mannerPhrase = _mannerPhraseAfterActionChange(
+      state.mannerPhrase,
+      tailOwner,
+    );
     final canKeepPassive =
         state.voice == Voice.passive && action.takesObject && object != null;
     final voice = canKeepPassive ? state.voice : Voice.active;
@@ -502,9 +527,15 @@ class ConfigurationEngine {
       addressee: addressee,
       companion: companion,
       destination: destination,
+      topic: topic,
       rightAction: rightAction,
       complement: null,
       adjectiveComplement: null,
+      placePhrase: placePhrase,
+      placeMeaning: placePhrase == null ? null : state.placeMeaning,
+      timePhrase: timePhrase,
+      frequencyPhrase: frequencyPhrase,
+      mannerPhrase: mannerPhrase,
       voice: voice,
       passiveFocus: passiveFocus,
       showPassiveAgent: voice == Voice.passive ? state.showPassiveAgent : true,
@@ -530,6 +561,7 @@ class ConfigurationEngine {
         state,
         destination: destination,
       ),
+      SetTopic(:final topic) => _copy(state, topic: topic),
       SetRightAction(:final rightAction) => _copy(
         state,
         rightAction: rightAction,
@@ -582,6 +614,7 @@ class ConfigurationEngine {
         recipient: null,
         addressee: null,
         destination: null,
+        topic: null,
         rightAction: null,
         complement: complement,
         adjectiveComplement: null,
@@ -596,6 +629,7 @@ class ConfigurationEngine {
         recipient: null,
         addressee: null,
         destination: null,
+        topic: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
@@ -670,6 +704,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Addressee', state.addressee, blockers);
     _validateNounPhrase('Companion', state.companion, blockers);
     _validateNounPhrase('Destination', state.destination, blockers);
+    _validateNounPhrase('Topic', state.topic, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
     _validateRightAction(state, blockers);
 
@@ -819,6 +854,15 @@ class ConfigurationEngine {
       );
     }
 
+    if (lexicalBeRejectsTopicSurface(state)) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take an about-topic.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+        ),
+      );
+    }
+
     if (lexicalBeRejectsDestinationSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -949,6 +993,18 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.topic != null &&
+        !(state.rightAction == null
+            ? state.action.takesTopic
+            : state.rightAction!.takesTopic)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${(state.rightAction ?? state.action).infinitive} does not take an about-topic.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
+        ),
+      );
+    }
+
     final objectOwner = state.rightAction ?? state.action;
     if (hasFixedObjectFrame(objectOwner) && state.object != null) {
       final label = fixedObjectFrameLabel(objectOwner) ?? 'fixed object';
@@ -1020,6 +1076,15 @@ class ConfigurationEngine {
           );
         }
 
+        if (!activeTopicNeedsTopicCapablePredicate(state)) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${(state.rightAction ?? state.action).infinitive} does not take an about-topic.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
         if (!activeObjectNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
@@ -1045,6 +1110,15 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an addressee.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
+        if (state.topic != null && !state.action.takesTopic) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} does not take an about-topic.',
               lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
@@ -1240,6 +1314,9 @@ class ConfigurationEngine {
     if (previous.destination != null && current.destination == null) {
       fields.add('destination');
     }
+    if (previous.topic != null && current.topic == null) {
+      fields.add('about-topic');
+    }
     if (previous.rightAction != null && current.rightAction == null) {
       fields.add('right action');
     }
@@ -1249,6 +1326,18 @@ class ConfigurationEngine {
     if (previous.adjectiveComplement != null &&
         current.adjectiveComplement == null) {
       fields.add('adjective complement');
+    }
+    if (previous.placePhrase != null && current.placePhrase == null) {
+      fields.add('place phrase');
+    }
+    if (previous.timePhrase != null && current.timePhrase == null) {
+      fields.add('time phrase');
+    }
+    if (previous.frequencyPhrase != null && current.frequencyPhrase == null) {
+      fields.add('frequency phrase');
+    }
+    if (previous.mannerPhrase != null && current.mannerPhrase == null) {
+      fields.add('manner phrase');
     }
     if (previous.voice == Voice.passive && current.voice == Voice.active) {
       fields.add('passive voice');
@@ -1322,6 +1411,26 @@ class ConfigurationEngine {
     return companion;
   }
 
+  NounPhrase? _topicAfterActionChange(NounPhrase? topic, Verb action) {
+    if (topic == null) {
+      return null;
+    }
+
+    if (!action.takesTopic) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsNoun(
+      action,
+      PredicatePathKind.aboutTopic,
+      topic,
+    )) {
+      return null;
+    }
+
+    return topic;
+  }
+
   bool _predicatePathAcceptsNoun(
     Verb action,
     PredicatePathKind kind,
@@ -1340,6 +1449,138 @@ class ConfigurationEngine {
       (choice) =>
           choice.text.toLowerCase() == noun.text.toLowerCase() &&
           choice.number == noun.number,
+    );
+  }
+
+  PlacePhrase? _placePhraseAfterActionChange(
+    PlacePhrase? placePhrase,
+    Verb action,
+  ) {
+    if (placePhrase == null) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsPlace(action, placePhrase)) {
+      return null;
+    }
+
+    return placePhrase;
+  }
+
+  TimePhrase? _timePhraseAfterActionChange(
+    TimePhrase? timePhrase,
+    Verb action,
+  ) {
+    if (timePhrase == null) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsTime(action, timePhrase)) {
+      return null;
+    }
+
+    return timePhrase;
+  }
+
+  FrequencyPhrase? _frequencyPhraseAfterActionChange(
+    FrequencyPhrase? frequencyPhrase,
+    Verb action,
+  ) {
+    if (frequencyPhrase == null) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsFrequency(action, frequencyPhrase)) {
+      return null;
+    }
+
+    return frequencyPhrase;
+  }
+
+  MannerPhrase? _mannerPhraseAfterActionChange(
+    MannerPhrase? mannerPhrase,
+    Verb action,
+  ) {
+    if (mannerPhrase == null) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsManner(action, mannerPhrase)) {
+      return null;
+    }
+
+    return mannerPhrase;
+  }
+
+  bool _predicatePathAcceptsPlace(Verb action, PlacePhrase phrase) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicatePlaceChoicesFor(
+      action,
+      PredicatePathKind.placePhrase,
+    );
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) => choice.noun.toLowerCase() == phrase.noun.toLowerCase(),
+    );
+  }
+
+  bool _predicatePathAcceptsTime(Verb action, TimePhrase phrase) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateTimeChoicesFor(
+      action,
+      PredicatePathKind.timePhrase,
+    );
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) => choice.text.toLowerCase() == phrase.text.toLowerCase(),
+    );
+  }
+
+  bool _predicatePathAcceptsFrequency(Verb action, FrequencyPhrase phrase) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateFrequencyChoicesFor(
+      action,
+      PredicatePathKind.frequencyPhrase,
+    );
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) => choice.text.toLowerCase() == phrase.text.toLowerCase(),
+    );
+  }
+
+  bool _predicatePathAcceptsManner(Verb action, MannerPhrase phrase) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateMannerChoicesFor(
+      action,
+      PredicatePathKind.mannerPhrase,
+    );
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) => choice.text.toLowerCase() == phrase.text.toLowerCase(),
     );
   }
 
@@ -1405,6 +1646,7 @@ class ConfigurationEngine {
     Object? addressee = _unchanged,
     Object? companion = _unchanged,
     Object? destination = _unchanged,
+    Object? topic = _unchanged,
     Object? rightAction = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -1447,6 +1689,7 @@ class ConfigurationEngine {
       destination: identical(destination, _unchanged)
           ? state.destination
           : destination as NounPhrase?,
+      topic: identical(topic, _unchanged) ? state.topic : topic as NounPhrase?,
       rightAction: identical(rightAction, _unchanged)
           ? state.rightAction
           : rightAction as Verb?,
@@ -1523,6 +1766,10 @@ class ConfigurationEngine {
         state.destination == null
             ? state
             : _copy(state, destination: transform(state.destination!)),
+      NounPhraseTarget.topic =>
+        state.topic == null
+            ? state
+            : _copy(state, topic: transform(state.topic!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state
