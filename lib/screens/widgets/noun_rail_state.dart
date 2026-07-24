@@ -1,5 +1,117 @@
 part of '../home_screen.dart';
 
+typedef _NounRailReader = NounPhrase? Function(SentenceState state);
+typedef _NounRailChoicesBuilder =
+    List<NounPhrase> Function(
+      ConfigurationCompass compass,
+      SentenceState state,
+    );
+typedef _NounRailMoveBuilder =
+    ConfigurationMove Function(NounPhrase nounPhrase);
+
+class _NounRailSlotPolicy {
+  final ConfigurationCompassSlot slot;
+  final _NounRailReader read;
+  final _NounRailChoicesBuilder choices;
+  final _NounRailMoveBuilder move;
+  final String traceLabel;
+
+  const _NounRailSlotPolicy({
+    required this.slot,
+    required this.read,
+    required this.choices,
+    required this.move,
+    required this.traceLabel,
+  });
+}
+
+final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
+  ConfigurationCompassSlot.object: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.object,
+    read: (state) => state.object,
+    choices: (compass, state) => [
+      ...fixedObjectChoicesFor(_railBoundTailOwner(state)),
+      ...compass.objects,
+    ],
+    move: (nounPhrase) => SetObject(nounPhrase),
+    traceLabel: 'object',
+  ),
+  ConfigurationCompassSlot.objectComplement: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.objectComplement,
+    read: (state) => state.objectComplement,
+    choices: (compass, _) => compass.complements,
+    move: (nounPhrase) => SetObjectComplement(nounPhrase),
+    traceLabel: 'object complement',
+  ),
+  ConfigurationCompassSlot.recipient: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.recipient,
+    read: (state) => state.recipient,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetRecipient(nounPhrase),
+    traceLabel: 'recipient',
+  ),
+  ConfigurationCompassSlot.addressee: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.addressee,
+    read: (state) => state.addressee,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetAddressee(nounPhrase),
+    traceLabel: 'addressee',
+  ),
+  ConfigurationCompassSlot.companion: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.companion,
+    read: (state) => state.companion,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetCompanion(nounPhrase),
+    traceLabel: 'companion',
+  ),
+  ConfigurationCompassSlot.destination: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.destination,
+    read: (state) => state.destination,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetDestination(nounPhrase),
+    traceLabel: 'destination',
+  ),
+  ConfigurationCompassSlot.topic: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.topic,
+    read: (state) => state.topic,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetTopic(nounPhrase),
+    traceLabel: 'topic',
+  ),
+  ConfigurationCompassSlot.beneficiary: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.beneficiary,
+    read: (state) => state.beneficiary,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetBeneficiary(nounPhrase),
+    traceLabel: 'beneficiary',
+  ),
+  ConfigurationCompassSlot.source: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.source,
+    read: (state) => state.source,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetSource(nounPhrase),
+    traceLabel: 'source',
+  ),
+  ConfigurationCompassSlot.passiveAgentNoun: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.passiveAgentNoun,
+    read: (state) => state.agent,
+    choices: (compass, _) => compass.recipients,
+    move: (nounPhrase) => SetAgent(nounPhrase),
+    traceLabel: 'by-agent',
+  ),
+  ConfigurationCompassSlot.complement: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.complement,
+    read: (state) => state.complement,
+    choices: (compass, _) => compass.complements,
+    move: (nounPhrase) => SetComplement(nounPhrase),
+    traceLabel: 'noun complement',
+  ),
+};
+
+_NounRailSlotPolicy? _nounRailPolicy(ConfigurationCompassSlot slot) {
+  return _nounRailPolicies[slot];
+}
+
 bool _sameNounPhrase(NounPhrase? left, NounPhrase right) {
   return left != null &&
       left.text == right.text &&
@@ -25,20 +137,7 @@ NounPhrase? _nounPhraseForSlot(
   SentenceState state,
   ConfigurationCompassSlot slot,
 ) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object => state.object,
-    ConfigurationCompassSlot.objectComplement => state.objectComplement,
-    ConfigurationCompassSlot.recipient => state.recipient,
-    ConfigurationCompassSlot.addressee => state.addressee,
-    ConfigurationCompassSlot.companion => state.companion,
-    ConfigurationCompassSlot.destination => state.destination,
-    ConfigurationCompassSlot.topic => state.topic,
-    ConfigurationCompassSlot.beneficiary => state.beneficiary,
-    ConfigurationCompassSlot.source => state.source,
-    ConfigurationCompassSlot.passiveAgentNoun => state.agent,
-    ConfigurationCompassSlot.complement => state.complement,
-    _ => null,
-  };
+  return _nounRailPolicy(slot)?.read(state);
 }
 
 List<NounPhrase> _nounChoicesForSlot(
@@ -46,23 +145,7 @@ List<NounPhrase> _nounChoicesForSlot(
   SentenceState state,
   ConfigurationCompassSlot slot,
 ) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object => [
-      ...fixedObjectChoicesFor(state.action),
-      ...compass.objects,
-    ],
-    ConfigurationCompassSlot.objectComplement => compass.complements,
-    ConfigurationCompassSlot.recipient => compass.recipients,
-    ConfigurationCompassSlot.addressee => compass.recipients,
-    ConfigurationCompassSlot.companion => compass.recipients,
-    ConfigurationCompassSlot.destination => compass.recipients,
-    ConfigurationCompassSlot.topic => compass.recipients,
-    ConfigurationCompassSlot.beneficiary => compass.recipients,
-    ConfigurationCompassSlot.source => compass.recipients,
-    ConfigurationCompassSlot.passiveAgentNoun => compass.recipients,
-    ConfigurationCompassSlot.complement => compass.complements,
-    _ => const [],
-  };
+  return _nounRailPolicy(slot)?.choices(compass, state) ?? const [];
 }
 
 List<NounPhrase> _nounChoicesForConfigurationSlot(
@@ -105,56 +188,20 @@ ConfigurationMove _setNounPhraseMove(
   ConfigurationCompassSlot slot,
   NounPhrase nounPhrase,
 ) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object => SetObject(nounPhrase),
-    ConfigurationCompassSlot.objectComplement => SetObjectComplement(
-      nounPhrase,
-    ),
-    ConfigurationCompassSlot.recipient => SetRecipient(nounPhrase),
-    ConfigurationCompassSlot.addressee => SetAddressee(nounPhrase),
-    ConfigurationCompassSlot.companion => SetCompanion(nounPhrase),
-    ConfigurationCompassSlot.destination => SetDestination(nounPhrase),
-    ConfigurationCompassSlot.topic => SetTopic(nounPhrase),
-    ConfigurationCompassSlot.beneficiary => SetBeneficiary(nounPhrase),
-    ConfigurationCompassSlot.source => SetSource(nounPhrase),
-    ConfigurationCompassSlot.passiveAgentNoun => SetAgent(nounPhrase),
-    ConfigurationCompassSlot.complement => SetComplement(nounPhrase),
-    _ => throw ArgumentError('No noun number switch for ${slot.name}.'),
-  };
+  final policy = _nounRailPolicy(slot);
+  if (policy == null) {
+    throw ArgumentError('No noun number switch for ${slot.name}.');
+  }
+
+  return policy.move(nounPhrase);
 }
 
 String _slotTraceLabel(ConfigurationCompassSlot slot) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object => 'object',
-    ConfigurationCompassSlot.objectComplement => 'object complement',
-    ConfigurationCompassSlot.recipient => 'recipient',
-    ConfigurationCompassSlot.addressee => 'addressee',
-    ConfigurationCompassSlot.companion => 'companion',
-    ConfigurationCompassSlot.destination => 'destination',
-    ConfigurationCompassSlot.topic => 'topic',
-    ConfigurationCompassSlot.beneficiary => 'beneficiary',
-    ConfigurationCompassSlot.source => 'source',
-    ConfigurationCompassSlot.passiveAgentNoun => 'by-agent',
-    ConfigurationCompassSlot.complement => 'noun complement',
-    _ => slot.name,
-  };
+  return _nounRailPolicy(slot)?.traceLabel ?? slot.name;
 }
 
 bool _slotHasNounNumberSwitch(ConfigurationCompassSlot slot) {
-  return switch (slot) {
-    ConfigurationCompassSlot.object ||
-    ConfigurationCompassSlot.objectComplement ||
-    ConfigurationCompassSlot.recipient ||
-    ConfigurationCompassSlot.addressee ||
-    ConfigurationCompassSlot.companion ||
-    ConfigurationCompassSlot.destination ||
-    ConfigurationCompassSlot.topic ||
-    ConfigurationCompassSlot.beneficiary ||
-    ConfigurationCompassSlot.source ||
-    ConfigurationCompassSlot.passiveAgentNoun ||
-    ConfigurationCompassSlot.complement => true,
-    _ => false,
-  };
+  return _nounRailPolicy(slot) != null;
 }
 
 Map<ConfigurationCompassSlot, Number> _updatedNounNumbers(
@@ -173,63 +220,62 @@ Map<ConfigurationCompassSlot, Number> _updatedNounNumbersFromMove(
   Map<ConfigurationCompassSlot, Number> current,
   ConfigurationMove move,
 ) {
+  final railState = _nounRailStateFromMove(move);
+  if (railState == null) {
+    return current;
+  }
+
+  return _updatedNounNumbers(current, railState.slot, railState.nounPhrase);
+}
+
+({ConfigurationCompassSlot slot, NounPhrase? nounPhrase})?
+_nounRailStateFromMove(ConfigurationMove move) {
   return switch (move) {
-    SetObject(:final object) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.object,
-      object,
+    SetObject(:final object) => (
+      slot: ConfigurationCompassSlot.object,
+      nounPhrase: object,
     ),
-    SetObjectComplement(:final objectComplement) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.objectComplement,
-      objectComplement,
+    SetObjectComplement(:final objectComplement) => (
+      slot: ConfigurationCompassSlot.objectComplement,
+      nounPhrase: objectComplement,
     ),
-    SetRecipient(:final recipient) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.recipient,
-      recipient,
+    SetRecipient(:final recipient) => (
+      slot: ConfigurationCompassSlot.recipient,
+      nounPhrase: recipient,
     ),
-    SetAddressee(:final addressee) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.addressee,
-      addressee,
+    SetAddressee(:final addressee) => (
+      slot: ConfigurationCompassSlot.addressee,
+      nounPhrase: addressee,
     ),
-    SetCompanion(:final companion) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.companion,
-      companion,
+    SetCompanion(:final companion) => (
+      slot: ConfigurationCompassSlot.companion,
+      nounPhrase: companion,
     ),
-    SetDestination(:final destination) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.destination,
-      destination,
+    SetDestination(:final destination) => (
+      slot: ConfigurationCompassSlot.destination,
+      nounPhrase: destination,
     ),
-    SetTopic(:final topic) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.topic,
-      topic,
+    SetTopic(:final topic) => (
+      slot: ConfigurationCompassSlot.topic,
+      nounPhrase: topic,
     ),
-    SetBeneficiary(:final beneficiary) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.beneficiary,
-      beneficiary,
+    SetBeneficiary(:final beneficiary) => (
+      slot: ConfigurationCompassSlot.beneficiary,
+      nounPhrase: beneficiary,
     ),
-    SetSource(:final source) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.source,
-      source,
+    SetSource(:final source) => (
+      slot: ConfigurationCompassSlot.source,
+      nounPhrase: source,
     ),
-    SetAgent(:final agent) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.passiveAgentNoun,
-      agent,
+    SetAgent(:final agent) => (
+      slot: ConfigurationCompassSlot.passiveAgentNoun,
+      nounPhrase: agent,
     ),
-    SetComplement(:final complement) => _updatedNounNumbers(
-      current,
-      ConfigurationCompassSlot.complement,
-      complement,
+    SetComplement(:final complement) => (
+      slot: ConfigurationCompassSlot.complement,
+      nounPhrase: complement,
     ),
-    _ => current,
+    _ => null,
   };
 }
 

@@ -114,20 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
           nextConfiguration.sentenceState,
         );
       }
-      if (move case SetObject(:final object)) {
-        nounNumbers = _updatedNounNumbers(
-          nounNumbers,
-          ConfigurationCompassSlot.object,
-          object,
-        );
-      }
-      if (move case SetAddressee(:final addressee)) {
-        nounNumbers = _updatedNounNumbers(
-          nounNumbers,
-          ConfigurationCompassSlot.addressee,
-          addressee,
-        );
-      }
       nounNumbers = _updatedNounNumbersFromMove(nounNumbers, move);
       if (move is SetAction) {
         nounNumbers = _syncNounNumbersWithState(
