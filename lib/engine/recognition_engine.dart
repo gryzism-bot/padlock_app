@@ -251,7 +251,7 @@ class RecognitionEngine {
             final beenIndex = current;
             current++;
             _recognizeVerbAfterBeen(builder, current);
-            if (builder.action == null && current < builder.tokens.length) {
+            if (builder.action == null) {
               _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
             }
           } else if (current < builder.tokens.length) {
@@ -439,7 +439,7 @@ class RecognitionEngine {
           final beenIndex = current;
           current++;
           _recognizeVerbAfterBeen(builder, current);
-          if (builder.action == null && current < builder.tokens.length) {
+          if (builder.action == null) {
             _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
           }
         } else if (current < builder.tokens.length) {
@@ -501,7 +501,7 @@ class RecognitionEngine {
           final beenIndex = current;
           current++;
           _recognizeVerbAfterBeen(builder, current);
-          if (builder.action == null && current < builder.tokens.length) {
+          if (builder.action == null) {
             _recognizeLexicalBeAfterBeen(builder, beenIndex, current);
           }
         } else if (current < builder.tokens.length) {

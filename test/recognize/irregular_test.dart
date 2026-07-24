@@ -155,17 +155,13 @@ void main() {
       expect(state.placePhrase, homePlacePhrase);
     });
 
-    test(
-      'John has been',
-      () {
-        final state = engine.recognize('John has been.');
+    test('John has been', () {
+      final state = engine.recognize('John has been.');
 
-        expectAgent(state, text: 'john');
-        expect(state.action, be);
-        expect(state.aspect, Aspect.perfect);
-      },
-      skip: 'Lexical BE after HAVE is still parsed as a helper stack',
-    );
+      expectAgent(state, text: 'john');
+      expect(state.action, be);
+      expect(state.aspect, Aspect.perfect);
+    });
 
     test(
       'John read yesterday',
