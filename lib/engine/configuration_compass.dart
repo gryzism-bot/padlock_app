@@ -19,6 +19,7 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -352,217 +353,77 @@ class ConfigurationCompass {
         sentence.recipient,
         NounPhraseTarget.recipient,
       ),
-      ConfigurationCompassSlot.addressee => [
-        if (sentence.addressee != null)
-          const _CompassCandidate(SetAddressee(null), 'no addressee', 120),
-        ..._nounChoicesForState(
-          sentence.addressee,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.toAddressee,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((addressee) {
-          final isSelected = _sameNounChoice(addressee, sentence.addressee);
-          final nextAddressee = isSelected
-              ? sentence.addressee
-              : _carryCompatibleNounPhrase(
-                  from: sentence.addressee,
-                  to: addressee,
-                );
-          return _CompassCandidate(
-            SetAddressee(nextAddressee),
-            nextAddressee == null
-                ? addressee.text
-                : _nounPhraseLabel(nextAddressee),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.addressee => _prepositionalSurfaceCandidates(
+        sentence,
+        addresseeSurface,
+      ),
       ConfigurationCompassSlot.addresseeDeterminer => _determinerCandidates(
-        sentence.addressee,
-        NounPhraseTarget.addressee,
+        addresseeSurface.read(sentence),
+        _nounTargetForSurface(addresseeSurface),
       ),
       ConfigurationCompassSlot.addresseeAdjective => _adjectiveCandidates(
-        sentence.addressee,
-        NounPhraseTarget.addressee,
+        addresseeSurface.read(sentence),
+        _nounTargetForSurface(addresseeSurface),
       ),
-      ConfigurationCompassSlot.companion => [
-        if (sentence.companion != null)
-          const _CompassCandidate(SetCompanion(null), 'no companion', 120),
-        ..._nounChoicesForState(
-          sentence.companion,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.withCompanion,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((companion) {
-          final isSelected = _sameNounChoice(companion, sentence.companion);
-          final nextCompanion = isSelected
-              ? sentence.companion
-              : _carryCompatibleNounPhrase(
-                  from: sentence.companion,
-                  to: companion,
-                );
-          return _CompassCandidate(
-            SetCompanion(nextCompanion),
-            nextCompanion == null
-                ? companion.text
-                : _nounPhraseLabel(nextCompanion),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.companion => _prepositionalSurfaceCandidates(
+        sentence,
+        companionSurface,
+      ),
       ConfigurationCompassSlot.companionDeterminer => _determinerCandidates(
-        sentence.companion,
-        NounPhraseTarget.companion,
+        companionSurface.read(sentence),
+        _nounTargetForSurface(companionSurface),
       ),
       ConfigurationCompassSlot.companionAdjective => _adjectiveCandidates(
-        sentence.companion,
-        NounPhraseTarget.companion,
+        companionSurface.read(sentence),
+        _nounTargetForSurface(companionSurface),
       ),
-      ConfigurationCompassSlot.destination => [
-        if (sentence.destination != null)
-          const _CompassCandidate(SetDestination(null), 'no destination', 120),
-        ..._nounChoicesForState(
-          sentence.destination,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.toDestination,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((destination) {
-          final isSelected = _sameNounChoice(destination, sentence.destination);
-          final nextDestination = isSelected
-              ? sentence.destination
-              : _carryCompatibleNounPhrase(
-                  from: sentence.destination,
-                  to: destination,
-                );
-          return _CompassCandidate(
-            SetDestination(nextDestination),
-            nextDestination == null
-                ? destination.text
-                : _nounPhraseLabel(nextDestination),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.destination => _prepositionalSurfaceCandidates(
+        sentence,
+        destinationSurface,
+      ),
       ConfigurationCompassSlot.destinationDeterminer => _determinerCandidates(
-        sentence.destination,
-        NounPhraseTarget.destination,
+        destinationSurface.read(sentence),
+        _nounTargetForSurface(destinationSurface),
       ),
       ConfigurationCompassSlot.destinationAdjective => _adjectiveCandidates(
-        sentence.destination,
-        NounPhraseTarget.destination,
+        destinationSurface.read(sentence),
+        _nounTargetForSurface(destinationSurface),
       ),
-      ConfigurationCompassSlot.topic => [
-        if (sentence.topic != null)
-          const _CompassCandidate(SetTopic(null), 'no topic', 120),
-        ..._nounChoicesForState(
-          sentence.topic,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.aboutTopic,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((topic) {
-          final isSelected = _sameNounChoice(topic, sentence.topic);
-          final nextTopic = isSelected
-              ? sentence.topic
-              : _carryCompatibleNounPhrase(from: sentence.topic, to: topic);
-          return _CompassCandidate(
-            SetTopic(nextTopic),
-            nextTopic == null ? topic.text : _nounPhraseLabel(nextTopic),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.topic => _prepositionalSurfaceCandidates(
+        sentence,
+        topicSurface,
+      ),
       ConfigurationCompassSlot.topicDeterminer => _determinerCandidates(
-        sentence.topic,
-        NounPhraseTarget.topic,
+        topicSurface.read(sentence),
+        _nounTargetForSurface(topicSurface),
       ),
       ConfigurationCompassSlot.topicAdjective => _adjectiveCandidates(
-        sentence.topic,
-        NounPhraseTarget.topic,
+        topicSurface.read(sentence),
+        _nounTargetForSurface(topicSurface),
       ),
-      ConfigurationCompassSlot.beneficiary => [
-        if (sentence.beneficiary != null)
-          const _CompassCandidate(SetBeneficiary(null), 'no beneficiary', 120),
-        ..._nounChoicesForState(
-          sentence.beneficiary,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.forBeneficiary,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((beneficiary) {
-          final isSelected = _sameNounChoice(beneficiary, sentence.beneficiary);
-          final nextBeneficiary = isSelected
-              ? sentence.beneficiary
-              : _carryCompatibleNounPhrase(
-                  from: sentence.beneficiary,
-                  to: beneficiary,
-                );
-          return _CompassCandidate(
-            SetBeneficiary(nextBeneficiary),
-            nextBeneficiary == null
-                ? beneficiary.text
-                : _nounPhraseLabel(nextBeneficiary),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.beneficiary => _prepositionalSurfaceCandidates(
+        sentence,
+        beneficiarySurface,
+      ),
       ConfigurationCompassSlot.beneficiaryDeterminer => _determinerCandidates(
-        sentence.beneficiary,
-        NounPhraseTarget.beneficiary,
+        beneficiarySurface.read(sentence),
+        _nounTargetForSurface(beneficiarySurface),
       ),
       ConfigurationCompassSlot.beneficiaryAdjective => _adjectiveCandidates(
-        sentence.beneficiary,
-        NounPhraseTarget.beneficiary,
+        beneficiarySurface.read(sentence),
+        _nounTargetForSurface(beneficiarySurface),
       ),
-      ConfigurationCompassSlot.source => [
-        if (sentence.source != null)
-          const _CompassCandidate(SetSource(null), 'no source', 120),
-        ..._nounChoicesForState(
-          sentence.source,
-          _nounChoicesForPath(
-                sentence,
-                PredicatePathKind.fromSource,
-                owner: _boundTailOwner(sentence),
-              ) ??
-              recipients,
-        ).map((source) {
-          final isSelected = _sameNounChoice(source, sentence.source);
-          final nextSource = isSelected
-              ? sentence.source
-              : _carryCompatibleNounPhrase(from: sentence.source, to: source);
-          return _CompassCandidate(
-            SetSource(nextSource),
-            nextSource == null ? source.text : _nounPhraseLabel(nextSource),
-            100,
-            isSelected: isSelected,
-          );
-        }),
-      ],
+      ConfigurationCompassSlot.source => _prepositionalSurfaceCandidates(
+        sentence,
+        sourceSurface,
+      ),
       ConfigurationCompassSlot.sourceDeterminer => _determinerCandidates(
-        sentence.source,
-        NounPhraseTarget.source,
+        sourceSurface.read(sentence),
+        _nounTargetForSurface(sourceSurface),
       ),
       ConfigurationCompassSlot.sourceAdjective => _adjectiveCandidates(
-        sentence.source,
-        NounPhraseTarget.source,
+        sourceSurface.read(sentence),
+        _nounTargetForSurface(sourceSurface),
       ),
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)
@@ -798,6 +659,42 @@ class ConfigurationCompass {
     ];
   }
 
+  Iterable<_CompassCandidate> _prepositionalSurfaceCandidates(
+    SentenceState sentence,
+    PrepositionalParticipantSurface surface,
+  ) {
+    final current = surface.read(sentence);
+    final choices =
+        _nounChoicesForPath(
+          sentence,
+          _predicatePathKindForSurface(surface),
+          owner: _boundTailOwner(sentence),
+        ) ??
+        recipients;
+
+    return [
+      if (current != null)
+        _CompassCandidate(
+          _setPrepositionalSurface(surface, null),
+          'no ${_nounLabelForSurface(surface)}',
+          120,
+        ),
+      ..._nounChoicesForState(current, choices).map((noun) {
+        final isSelected = _sameNounChoice(noun, current);
+        final nextNoun = isSelected
+            ? current
+            : _carryCompatibleNounPhrase(from: current, to: noun);
+
+        return _CompassCandidate(
+          _setPrepositionalSurface(surface, nextNoun),
+          nextNoun == null ? noun.text : _nounPhraseLabel(nextNoun),
+          100,
+          isSelected: isSelected,
+        );
+      }),
+    ];
+  }
+
   Iterable<_CompassCandidate> _adjectiveCandidates(
     NounPhrase? phrase,
     NounPhraseTarget target,
@@ -921,6 +818,54 @@ class ConfigurationCompass {
 
     return choices.isEmpty ? null : choices;
   }
+}
+
+ConfigurationMove _setPrepositionalSurface(
+  PrepositionalParticipantSurface surface,
+  NounPhrase? noun,
+) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.addressee => SetAddressee(noun),
+    PrepositionalParticipantKind.companion => SetCompanion(noun),
+    PrepositionalParticipantKind.destination => SetDestination(noun),
+    PrepositionalParticipantKind.topic => SetTopic(noun),
+    PrepositionalParticipantKind.beneficiary => SetBeneficiary(noun),
+    PrepositionalParticipantKind.source => SetSource(noun),
+  };
+}
+
+NounPhraseTarget _nounTargetForSurface(
+  PrepositionalParticipantSurface surface,
+) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.addressee => NounPhraseTarget.addressee,
+    PrepositionalParticipantKind.companion => NounPhraseTarget.companion,
+    PrepositionalParticipantKind.destination => NounPhraseTarget.destination,
+    PrepositionalParticipantKind.topic => NounPhraseTarget.topic,
+    PrepositionalParticipantKind.beneficiary => NounPhraseTarget.beneficiary,
+    PrepositionalParticipantKind.source => NounPhraseTarget.source,
+  };
+}
+
+PredicatePathKind _predicatePathKindForSurface(
+  PrepositionalParticipantSurface surface,
+) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
+    PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
+    PrepositionalParticipantKind.destination => PredicatePathKind.toDestination,
+    PrepositionalParticipantKind.topic => PredicatePathKind.aboutTopic,
+    PrepositionalParticipantKind.beneficiary =>
+      PredicatePathKind.forBeneficiary,
+    PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
+  };
+}
+
+String _nounLabelForSurface(PrepositionalParticipantSurface surface) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.topic => 'topic',
+    _ => surface.label,
+  };
 }
 
 bool _objectCanTakeModifiers(SentenceState sentence) {

@@ -1048,6 +1048,68 @@ void main() {
       );
     });
 
+    test('prepositional participant rails share the same compass surface', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+
+      final cases = [
+        (
+          action: speak,
+          slot: ConfigurationCompassSlot.addressee,
+          choice: 'Mary',
+          sentence: 'You speak to Mary.',
+        ),
+        (
+          action: speak,
+          slot: ConfigurationCompassSlot.companion,
+          choice: 'Mary',
+          sentence: 'You speak with Mary.',
+        ),
+        (
+          action: go,
+          slot: ConfigurationCompassSlot.destination,
+          choice: 'Mary',
+          sentence: 'You go to Mary.',
+        ),
+        (
+          action: learn,
+          slot: ConfigurationCompassSlot.topic,
+          choice: 'grammar',
+          sentence: 'You learn about grammar.',
+        ),
+        (
+          action: work,
+          slot: ConfigurationCompassSlot.beneficiary,
+          choice: 'Mary',
+          sentence: 'You work for Mary.',
+        ),
+        (
+          action: learn,
+          slot: ConfigurationCompassSlot.source,
+          choice: 'Mary',
+          sentence: 'You learn from Mary.',
+        ),
+      ];
+
+      for (final testCase in cases) {
+        final state = lock.applyMove(
+          ConfigurationState.initial(),
+          SetAction(testCase.action),
+        );
+        final suggestions = authoredCompass.suggestionsFor(
+          state,
+          testCase.slot,
+          limit: 0,
+        );
+        final suggestion = suggestions.singleWhere(
+          (suggestion) => suggestion.label == testCase.choice,
+        );
+
+        expect(render(suggestion.preview), testCase.sentence);
+      }
+    });
+
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(give));
