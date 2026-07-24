@@ -3,6 +3,7 @@ import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/phrase_position.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -648,41 +649,7 @@ class GrammarEngine {
       _addPhrase(parts, builder.mannerPhrase);
     }
 
-    // ---------- ADDRESSEE ----------
-
-    if (builder.displayAddressee != null) {
-      parts.add('to ${_renderObjectCase(builder.displayAddressee!)}');
-    }
-
-    // ---------- COMPANION ----------
-
-    if (builder.displayCompanion != null) {
-      parts.add('with ${_renderObjectCase(builder.displayCompanion!)}');
-    }
-
-    // ---------- DESTINATION ----------
-
-    if (builder.displayDestination != null) {
-      parts.add('to ${_renderObjectCase(builder.displayDestination!)}');
-    }
-
-    // ---------- TOPIC ----------
-
-    if (builder.displayTopic != null) {
-      parts.add('about ${_renderObjectCase(builder.displayTopic!)}');
-    }
-
-    // ---------- BENEFICIARY ----------
-
-    if (builder.displayBeneficiary != null) {
-      parts.add('for ${_renderObjectCase(builder.displayBeneficiary!)}');
-    }
-
-    // ---------- SOURCE ----------
-
-    if (builder.displaySource != null) {
-      parts.add('from ${_renderObjectCase(builder.displaySource!)}');
-    }
+    _addPrepositionalParticipantSurfaces(parts, builder);
 
     // ---------- PASSIVE AGENT ----------
 
@@ -699,6 +666,34 @@ class GrammarEngine {
     sentence = sentence.replaceAll('can not', 'cannot');
 
     return '${sentence.capitalizeFirst()}${builder.punctuation}';
+  }
+
+  void _addPrepositionalParticipantSurfaces(
+    List<String> parts,
+    _SentenceBuilder builder,
+  ) {
+    for (final surface in prepositionalParticipantSurfaces) {
+      final phrase = _displayPrepositionalParticipant(builder, surface);
+      if (phrase == null) {
+        continue;
+      }
+
+      parts.add('${surface.preposition} ${_renderObjectCase(phrase)}');
+    }
+  }
+
+  NounPhrase? _displayPrepositionalParticipant(
+    _SentenceBuilder builder,
+    PrepositionalParticipantSurface surface,
+  ) {
+    return switch (surface.kind) {
+      PrepositionalParticipantKind.addressee => builder.displayAddressee,
+      PrepositionalParticipantKind.companion => builder.displayCompanion,
+      PrepositionalParticipantKind.destination => builder.displayDestination,
+      PrepositionalParticipantKind.topic => builder.displayTopic,
+      PrepositionalParticipantKind.beneficiary => builder.displayBeneficiary,
+      PrepositionalParticipantKind.source => builder.displaySource,
+    };
   }
 
   void _addFrontPhrases(List<String> parts, _SentenceBuilder builder) {

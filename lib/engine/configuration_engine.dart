@@ -6,6 +6,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_laws.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -497,17 +498,36 @@ class ConfigurationEngine {
     final recipient = action.takesRecipient && object != null
         ? state.recipient
         : null;
-    final addressee = tailOwner.takesAddressee ? state.addressee : null;
-    final companion = _companionAfterActionChange(state.companion, tailOwner);
-    final destination = tailOwner.usesDestinationPlace
-        ? state.destination
-        : null;
-    final topic = _topicAfterActionChange(state.topic, tailOwner);
-    final beneficiary = _beneficiaryAfterActionChange(
+    final addressee = _surfaceAfterActionChange(
+      state.addressee,
+      tailOwner,
+      addresseeSurface,
+    );
+    final companion = _surfaceAfterActionChange(
+      state.companion,
+      tailOwner,
+      companionSurface,
+    );
+    final destination = _surfaceAfterActionChange(
+      state.destination,
+      tailOwner,
+      destinationSurface,
+    );
+    final topic = _surfaceAfterActionChange(
+      state.topic,
+      tailOwner,
+      topicSurface,
+    );
+    final beneficiary = _surfaceAfterActionChange(
       state.beneficiary,
       tailOwner,
+      beneficiarySurface,
     );
-    final source = _sourceAfterActionChange(state.source, tailOwner);
+    final source = _surfaceAfterActionChange(
+      state.source,
+      tailOwner,
+      sourceSurface,
+    );
     final placePhrase = _placePhraseAfterActionChange(
       state.placePhrase,
       tailOwner,
@@ -882,49 +902,15 @@ class ConfigurationEngine {
       );
     }
 
-    if (lexicalBeRejectsAddresseeSurface(state)) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Lexical be does not take an addressee.',
-          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
-        ),
-      );
-    }
-
-    if (lexicalBeRejectsTopicSurface(state)) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Lexical be does not take an about-topic.',
-          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
-        ),
-      );
-    }
-
-    if (lexicalBeRejectsBeneficiarySurface(state)) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Lexical be does not take a beneficiary.',
-          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
-        ),
-      );
-    }
-
-    if (lexicalBeRejectsSourceSurface(state)) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Lexical be does not take a source.',
-          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
-        ),
-      );
-    }
-
-    if (lexicalBeRejectsDestinationSurface(state)) {
-      blockers.add(
-        const ConfigurationMessage.blocked(
-          'Lexical be does not take a destination.',
-          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
-        ),
-      );
+    for (final surface in prepositionalParticipantSurfaces) {
+      if (lexicalBeRejectsPrepositionalSurface(state, surface)) {
+        blockers.add(
+          ConfigurationMessage.blocked(
+            'Lexical be does not take ${surface.blockedNounLabel}.',
+            lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+          ),
+        );
+      }
     }
 
     if (lexicalBeRejectsRightActionSurface(state)) {
@@ -1024,64 +1010,15 @@ class ConfigurationEngine {
       }
     }
 
-    if (state.companion != null &&
-        !(state.rightAction == null
-            ? state.action.takesCompanion
-            : state.rightAction!.takesCompanion)) {
-      blockers.add(
-        ConfigurationMessage.blocked(
-          '${(state.rightAction ?? state.action).infinitive} does not take a companion.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
-    }
-
-    if (state.destination != null &&
-        !(state.rightAction == null
-            ? state.action.usesDestinationPlace
-            : state.rightAction!.usesDestinationPlace)) {
-      blockers.add(
-        ConfigurationMessage.blocked(
-          '${(state.rightAction ?? state.action).infinitive} does not take a destination.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
-    }
-
-    if (state.topic != null &&
-        !(state.rightAction == null
-            ? state.action.takesTopic
-            : state.rightAction!.takesTopic)) {
-      blockers.add(
-        ConfigurationMessage.blocked(
-          '${(state.rightAction ?? state.action).infinitive} does not take an about-topic.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
-    }
-
-    if (state.beneficiary != null &&
-        !(state.rightAction == null
-            ? state.action.takesBeneficiary
-            : state.rightAction!.takesBeneficiary)) {
-      blockers.add(
-        ConfigurationMessage.blocked(
-          '${(state.rightAction ?? state.action).infinitive} does not take a beneficiary.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
-    }
-
-    if (state.source != null &&
-        !(state.rightAction == null
-            ? state.action.takesSource
-            : state.rightAction!.takesSource)) {
-      blockers.add(
-        ConfigurationMessage.blocked(
-          '${(state.rightAction ?? state.action).infinitive} does not take a source.',
-          lawCategory: ConfigurationLawCategory.predicateFrameType,
-        ),
-      );
+    for (final surface in predicateFrameValidatedPrepositionalSurfaces) {
+      if (!prepositionalSurfaceNeedsCapablePredicate(state, surface)) {
+        blockers.add(
+          ConfigurationMessage.blocked(
+            '${(state.rightAction ?? state.action).infinitive} does not take ${surface.blockedNounLabel}.',
+            lawCategory: ConfigurationLawCategory.predicateFrameType,
+          ),
+        );
+      }
     }
 
     final objectOwner = state.rightAction ?? state.action;
@@ -1146,40 +1083,18 @@ class ConfigurationEngine {
           );
         }
 
-        if (!activeAddresseeNeedsAddresseeCapablePredicate(state)) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${(state.rightAction ?? state.action).infinitive} does not take an addressee.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (!activeTopicNeedsTopicCapablePredicate(state)) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${(state.rightAction ?? state.action).infinitive} does not take an about-topic.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (!activeBeneficiaryNeedsBeneficiaryCapablePredicate(state)) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${(state.rightAction ?? state.action).infinitive} does not take a beneficiary.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (!activeSourceNeedsSourceCapablePredicate(state)) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${(state.rightAction ?? state.action).infinitive} does not take a source.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
+        for (final surface in activeVoicePrepositionalSurfaces) {
+          if (!activePrepositionalSurfaceNeedsCapablePredicate(
+            state,
+            surface,
+          )) {
+            blockers.add(
+              ConfigurationMessage.blocked(
+                '${(state.rightAction ?? state.action).infinitive} does not take ${surface.blockedNounLabel}.',
+                lawCategory: ConfigurationLawCategory.predicateFrameType,
+              ),
+            );
+          }
         }
 
         if (!activeObjectNeedsObjectCapablePredicate(state)) {
@@ -1203,40 +1118,19 @@ class ConfigurationEngine {
         break;
 
       case Voice.passive:
-        if (state.addressee != null && !state.action.takesAddressee) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take an addressee.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (state.topic != null && !state.action.takesTopic) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take an about-topic.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (state.beneficiary != null && !state.action.takesBeneficiary) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take a beneficiary.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
-        }
-
-        if (state.source != null && !state.action.takesSource) {
-          blockers.add(
-            ConfigurationMessage.blocked(
-              '${state.action.infinitive} does not take a source.',
-              lawCategory: ConfigurationLawCategory.predicateFrameType,
-            ),
-          );
+        for (final surface in activeVoicePrepositionalSurfaces) {
+          if (!prepositionalSurfaceNeedsCapablePredicate(
+            state,
+            surface,
+            includeRightAction: false,
+          )) {
+            blockers.add(
+              ConfigurationMessage.blocked(
+                '${state.action.infinitive} does not take ${surface.blockedNounLabel}.',
+                lawCategory: ConfigurationLawCategory.predicateFrameType,
+              ),
+            );
+          }
         }
 
         if (!passiveVoiceNeedsObjectCapablePredicate(state)) {
@@ -1512,87 +1406,43 @@ class ConfigurationEngine {
     return object;
   }
 
-  NounPhrase? _companionAfterActionChange(NounPhrase? companion, Verb action) {
-    if (companion == null) {
-      return null;
-    }
-
-    if (!action.takesCompanion) {
-      return null;
-    }
-
-    if (!_predicatePathAcceptsNoun(
-      action,
-      PredicatePathKind.withCompanion,
-      companion,
-    )) {
-      return null;
-    }
-
-    return companion;
-  }
-
-  NounPhrase? _topicAfterActionChange(NounPhrase? topic, Verb action) {
-    if (topic == null) {
-      return null;
-    }
-
-    if (!action.takesTopic) {
-      return null;
-    }
-
-    if (!_predicatePathAcceptsNoun(
-      action,
-      PredicatePathKind.aboutTopic,
-      topic,
-    )) {
-      return null;
-    }
-
-    return topic;
-  }
-
-  NounPhrase? _beneficiaryAfterActionChange(
-    NounPhrase? beneficiary,
+  NounPhrase? _surfaceAfterActionChange(
+    NounPhrase? noun,
     Verb action,
+    PrepositionalParticipantSurface surface,
   ) {
-    if (beneficiary == null) {
+    if (noun == null) {
       return null;
     }
 
-    if (!action.takesBeneficiary) {
+    if (!surface.isSupportedBy(action)) {
       return null;
     }
 
     if (!_predicatePathAcceptsNoun(
       action,
-      PredicatePathKind.forBeneficiary,
-      beneficiary,
+      _predicatePathKindForSurface(surface),
+      noun,
     )) {
       return null;
     }
 
-    return beneficiary;
+    return noun;
   }
 
-  NounPhrase? _sourceAfterActionChange(NounPhrase? source, Verb action) {
-    if (source == null) {
-      return null;
-    }
-
-    if (!action.takesSource) {
-      return null;
-    }
-
-    if (!_predicatePathAcceptsNoun(
-      action,
-      PredicatePathKind.fromSource,
-      source,
-    )) {
-      return null;
-    }
-
-    return source;
+  PredicatePathKind _predicatePathKindForSurface(
+    PrepositionalParticipantSurface surface,
+  ) {
+    return switch (surface.kind) {
+      PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
+      PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
+      PrepositionalParticipantKind.destination =>
+        PredicatePathKind.toDestination,
+      PrepositionalParticipantKind.topic => PredicatePathKind.aboutTopic,
+      PrepositionalParticipantKind.beneficiary =>
+        PredicatePathKind.forBeneficiary,
+      PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
+    };
   }
 
   bool _predicatePathAcceptsNoun(

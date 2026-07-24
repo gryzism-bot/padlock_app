@@ -1,6 +1,7 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -61,6 +62,15 @@ bool lexicalBeRejectsSourceSurface(SentenceState state) {
 
 bool lexicalBeRejectsDestinationSurface(SentenceState state) {
   return isLexicalBeFrame(state) && state.destination != null;
+}
+
+bool lexicalBeRejectsPrepositionalSurface(
+  SentenceState state,
+  PrepositionalParticipantSurface surface,
+) {
+  return isLexicalBeFrame(state) &&
+      !surface.lexicalBeAllows &&
+      surface.read(state) != null;
 }
 
 bool lexicalBeRejectsRightActionSurface(SentenceState state) {
@@ -146,45 +156,45 @@ bool activeRecipientNeedsRecipientCapablePredicate(SentenceState state) {
 }
 
 bool activeAddresseeNeedsAddresseeCapablePredicate(SentenceState state) {
-  if (state.voice != Voice.active || state.addressee == null) {
-    return true;
-  }
-
-  final rightAction = state.rightAction;
-  return rightAction == null
-      ? state.action.takesAddressee
-      : rightAction.takesAddressee;
+  return activePrepositionalSurfaceNeedsCapablePredicate(
+    state,
+    addresseeSurface,
+  );
 }
 
 bool activeTopicNeedsTopicCapablePredicate(SentenceState state) {
-  if (state.voice != Voice.active || state.topic == null) {
-    return true;
-  }
-
-  final rightAction = state.rightAction;
-  return rightAction == null ? state.action.takesTopic : rightAction.takesTopic;
+  return activePrepositionalSurfaceNeedsCapablePredicate(state, topicSurface);
 }
 
 bool activeBeneficiaryNeedsBeneficiaryCapablePredicate(SentenceState state) {
-  if (state.voice != Voice.active || state.beneficiary == null) {
-    return true;
-  }
-
-  final rightAction = state.rightAction;
-  return rightAction == null
-      ? state.action.takesBeneficiary
-      : rightAction.takesBeneficiary;
+  return activePrepositionalSurfaceNeedsCapablePredicate(
+    state,
+    beneficiarySurface,
+  );
 }
 
 bool activeSourceNeedsSourceCapablePredicate(SentenceState state) {
-  if (state.voice != Voice.active || state.source == null) {
+  return activePrepositionalSurfaceNeedsCapablePredicate(state, sourceSurface);
+}
+
+bool activePrepositionalSurfaceNeedsCapablePredicate(
+  SentenceState state,
+  PrepositionalParticipantSurface surface,
+) {
+  if (state.voice != Voice.active || surface.read(state) == null) {
     return true;
   }
 
-  final rightAction = state.rightAction;
-  return rightAction == null
-      ? state.action.takesSource
-      : rightAction.takesSource;
+  return surface.isSupportedByState(state);
+}
+
+bool prepositionalSurfaceNeedsCapablePredicate(
+  SentenceState state,
+  PrepositionalParticipantSurface surface, {
+  bool includeRightAction = true,
+}) {
+  return surface.read(state) == null ||
+      surface.isSupportedByState(state, includeRightAction: includeRightAction);
 }
 
 bool activeObjectNeedsObjectCapablePredicate(SentenceState state) {

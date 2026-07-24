@@ -3,6 +3,7 @@ import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 
 void main() {
   group('Configuration law map', () {
@@ -19,6 +20,27 @@ void main() {
           .toList();
 
       expect(offenders, isEmpty);
+    });
+
+    test('prepositional participant surfaces have one shared law map', () {
+      expect(prepositionalParticipantSurfaces.map((surface) => surface.label), [
+        'addressee',
+        'companion',
+        'destination',
+        'about-topic',
+        'beneficiary',
+        'source',
+      ]);
+      expect(
+        prepositionalParticipantSurfaces.map((surface) => surface.preposition),
+        ['to', 'with', 'to', 'about', 'for', 'from'],
+      );
+      expect(
+        prepositionalParticipantSurfaces.where(
+          (surface) => surface.lexicalBeAllows,
+        ),
+        [companionSurface],
+      );
     });
 
     test('transitive and ditransitive wakes are grammar frame laws', () {
