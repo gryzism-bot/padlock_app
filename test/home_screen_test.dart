@@ -564,7 +564,21 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-give')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(3),
+      findsNWidgets(2),
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-learn')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(5),
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-go')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(2),
     );
   });
 
@@ -827,6 +841,12 @@ void main() {
 
     await tapAfterScroll(
       tester,
+      find.byKey(const Key('suggestion-label-action-learn')),
+    );
+    expectRailSurfaceMarker(tester, 'Source', 'from');
+
+    await tapAfterScroll(
+      tester,
       find.byKey(const Key('suggestion-label-action-introduce')),
     );
 
@@ -857,6 +877,24 @@ void main() {
 
     expectRailSurfaceMarker(tester, 'Noun complement', '-');
     expectRailSurfaceMarker(tester, 'Adjective complement', '-');
+  });
+
+  testWidgets('Movement place rail exposes source-place choices', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-go')),
+      delta: -500,
+    );
+
+    expect(find.byTooltip('You go from work.'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You go from work.'));
+
+    expect(renderedSentence(tester), 'You go from work.');
   });
 
   testWidgets('Essential verb chips expose their expected cockpit rails', (
@@ -1993,6 +2031,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Topic');
       case 'beneficiary':
         titles.add('Beneficiary');
+      case 'source':
+        titles.add('Source');
       case 'right-action':
         titles.add('Right action');
       case 'complement':

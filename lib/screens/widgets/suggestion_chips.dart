@@ -302,13 +302,20 @@ _VerbWakeSignal? _verbWakeSignal(
   }
 
   final influenceKeys = [for (final influence in influences) influence.key];
+  final coreInfluences = [
+    for (final influence in influences)
+      if (!_isPhraseInfluence(influence)) influence,
+  ];
+  final coreInfluenceKeys = [
+    for (final influence in coreInfluences) influence.key,
+  ];
   final profile = predicateSemanticIconProfileFor(
     infinitive: action.infinitive,
     influenceKeys: influenceKeys,
   );
   final outputCount = predicateSemanticOutputCount(
     infinitive: action.infinitive,
-    influenceKeys: influenceKeys,
+    influenceKeys: coreInfluenceKeys,
     profile: profile,
   );
 
@@ -318,7 +325,12 @@ _VerbWakeSignal? _verbWakeSignal(
         '${action.infinitive}-${influence.key}',
     ],
     actionKey: action.infinitive,
-    tooltip: _verbWakeTooltip(action.infinitive, influences, outputCount),
+    tooltip: _verbWakeTooltip(
+      action.infinitive,
+      influences,
+      coreInfluences,
+      outputCount,
+    ),
     icons: profile.icons,
     color: _verbWakeSignalColor(influences, colors),
     outputCount: outputCount,
@@ -328,17 +340,24 @@ _VerbWakeSignal? _verbWakeSignal(
 String _verbWakeTooltip(
   String action,
   List<PredicateInfluence> influences,
+  List<PredicateInfluence> coreInfluences,
   int outputCount,
 ) {
-  final labels = influences.map((influence) => influence.label).join(', ');
-  final grammarLabels = influences
+  final coreLabels = coreInfluences
+      .map((influence) => influence.label)
+      .join(', ');
+  final phraseLabels = influences
+      .where(_isPhraseInfluence)
+      .map((influence) => influence.label)
+      .join(', ');
+  final grammarLabels = coreInfluences
       .where(
         (influence) =>
             influence.source == PredicateInfluenceSource.grammarFrame,
       )
       .map((influence) => influence.label)
       .join(', ');
-  final propertyLabels = influences
+  final propertyLabels = coreInfluences
       .where(
         (influence) =>
             influence.source == PredicateInfluenceSource.predicateProperty,
@@ -350,8 +369,19 @@ String _verbWakeTooltip(
     if (grammarLabels.isNotEmpty) 'grammar frame: $grammarLabels',
     if (propertyLabels.isNotEmpty) 'predicate property: $propertyLabels',
   ].join('. ');
-  return '$action unlocks $labels. $sourceText. '
-      'It can wake $outputCount $railWord.';
+  return [
+    if (coreLabels.isNotEmpty) '$action wakes core rails: $coreLabels',
+    if (phraseLabels.isNotEmpty) 'Phrase tracks: $phraseLabels',
+    if (sourceText.isNotEmpty) sourceText,
+    'It can wake $outputCount core $railWord.',
+  ].join('. ');
+}
+
+bool _isPhraseInfluence(PredicateInfluence influence) {
+  return switch (influence.key) {
+    'place' || 'time' || 'frequency' || 'manner' => true,
+    _ => false,
+  };
 }
 
 const _materialOutputIcon = Icons.keyboard_arrow_right;
@@ -360,6 +390,7 @@ IconData _materialIconFor(String materialIcon) {
   return switch (materialIcon) {
     MaterialIconKey.accountTreeOutlined => Icons.account_tree_outlined,
     MaterialIconKey.arrowDownward => Icons.arrow_downward,
+    MaterialIconKey.arrowBack => Icons.arrow_back,
     MaterialIconKey.arrowForward => Icons.arrow_forward,
     MaterialIconKey.arrowUpward => Icons.arrow_upward,
     MaterialIconKey.backHandOutlined => Icons.back_hand_outlined,
@@ -398,7 +429,11 @@ Color _verbWakeSignalColor(
     'complement' => colors.secondary,
     'recipient' => colors.tertiary,
     'destination' => colors.error,
-    'addressee' || 'companion' || 'topic' || 'beneficiary' => colors.secondary,
+    'addressee' ||
+    'companion' ||
+    'topic' ||
+    'beneficiary' ||
+    'source' => colors.secondary,
     _ => colors.primary,
   };
 }

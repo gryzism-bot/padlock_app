@@ -80,6 +80,7 @@ enum NounPhraseTarget {
   destination,
   topic,
   beneficiary,
+  source,
   complement,
 }
 
@@ -281,6 +282,12 @@ class SetBeneficiary extends ConfigurationMove {
   const SetBeneficiary(this.beneficiary);
 }
 
+class SetSource extends ConfigurationMove {
+  final NounPhrase? source;
+
+  const SetSource(this.source);
+}
+
 class SetRightAction extends ConfigurationMove {
   final Verb? rightAction;
 
@@ -393,8 +400,9 @@ class SetTimePhrase extends ConfigurationMove {
 
 class SetPlacePhrase extends ConfigurationMove {
   final PlacePhrase? placePhrase;
+  final PlaceMeaning? placeMeaning;
 
-  const SetPlacePhrase(this.placePhrase);
+  const SetPlacePhrase(this.placePhrase, {this.placeMeaning});
 }
 
 class SetFrequencyPhrase extends ConfigurationMove {
@@ -470,6 +478,7 @@ class ConfigurationEngine {
         destination: null,
         topic: null,
         beneficiary: null,
+        source: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: null,
@@ -498,6 +507,7 @@ class ConfigurationEngine {
       state.beneficiary,
       tailOwner,
     );
+    final source = _sourceAfterActionChange(state.source, tailOwner);
     final placePhrase = _placePhraseAfterActionChange(
       state.placePhrase,
       tailOwner,
@@ -541,6 +551,7 @@ class ConfigurationEngine {
       destination: destination,
       topic: topic,
       beneficiary: beneficiary,
+      source: source,
       rightAction: rightAction,
       complement: null,
       adjectiveComplement: null,
@@ -579,6 +590,7 @@ class ConfigurationEngine {
         state,
         beneficiary: beneficiary,
       ),
+      SetSource(:final source) => _copy(state, source: source),
       SetRightAction(:final rightAction) => _copy(
         state,
         rightAction: rightAction,
@@ -633,6 +645,7 @@ class ConfigurationEngine {
         destination: null,
         topic: null,
         beneficiary: null,
+        source: null,
         rightAction: null,
         complement: complement,
         adjectiveComplement: null,
@@ -649,6 +662,7 @@ class ConfigurationEngine {
         destination: null,
         topic: null,
         beneficiary: null,
+        source: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
@@ -697,10 +711,12 @@ class ConfigurationEngine {
         sentenceForm: sentenceForm,
       ),
       SetTimePhrase(:final timePhrase) => _copy(state, timePhrase: timePhrase),
-      SetPlacePhrase(:final placePhrase) => _copy(
+      SetPlacePhrase(:final placePhrase, :final placeMeaning) => _copy(
         state,
         placePhrase: placePhrase,
-        placeMeaning: placePhrase == null ? null : state.placeMeaning,
+        placeMeaning: placePhrase == null
+            ? null
+            : placeMeaning ?? state.placeMeaning,
       ),
       SetFrequencyPhrase(:final frequencyPhrase) => _copy(
         state,
@@ -725,6 +741,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Destination', state.destination, blockers);
     _validateNounPhrase('Topic', state.topic, blockers);
     _validateNounPhrase('Beneficiary', state.beneficiary, blockers);
+    _validateNounPhrase('Source', state.source, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
     _validateRightAction(state, blockers);
 
@@ -892,6 +909,15 @@ class ConfigurationEngine {
       );
     }
 
+    if (lexicalBeRejectsSourceSurface(state)) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take a source.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+        ),
+      );
+    }
+
     if (lexicalBeRejectsDestinationSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -1046,6 +1072,18 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.source != null &&
+        !(state.rightAction == null
+            ? state.action.takesSource
+            : state.rightAction!.takesSource)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${(state.rightAction ?? state.action).infinitive} does not take a source.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
+        ),
+      );
+    }
+
     final objectOwner = state.rightAction ?? state.action;
     if (hasFixedObjectFrame(objectOwner) && state.object != null) {
       final label = fixedObjectFrameLabel(objectOwner) ?? 'fixed object';
@@ -1135,6 +1173,15 @@ class ConfigurationEngine {
           );
         }
 
+        if (!activeSourceNeedsSourceCapablePredicate(state)) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${(state.rightAction ?? state.action).infinitive} does not take a source.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
         if (!activeObjectNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
@@ -1178,6 +1225,15 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take a beneficiary.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
+        if (state.source != null && !state.action.takesSource) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} does not take a source.',
               lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
@@ -1379,6 +1435,9 @@ class ConfigurationEngine {
     if (previous.beneficiary != null && current.beneficiary == null) {
       fields.add('beneficiary');
     }
+    if (previous.source != null && current.source == null) {
+      fields.add('source');
+    }
     if (previous.rightAction != null && current.rightAction == null) {
       fields.add('right action');
     }
@@ -1514,6 +1573,26 @@ class ConfigurationEngine {
     }
 
     return beneficiary;
+  }
+
+  NounPhrase? _sourceAfterActionChange(NounPhrase? source, Verb action) {
+    if (source == null) {
+      return null;
+    }
+
+    if (!action.takesSource) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsNoun(
+      action,
+      PredicatePathKind.fromSource,
+      source,
+    )) {
+      return null;
+    }
+
+    return source;
   }
 
   bool _predicatePathAcceptsNoun(
@@ -1733,6 +1812,7 @@ class ConfigurationEngine {
     Object? destination = _unchanged,
     Object? topic = _unchanged,
     Object? beneficiary = _unchanged,
+    Object? source = _unchanged,
     Object? rightAction = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -1779,6 +1859,9 @@ class ConfigurationEngine {
       beneficiary: identical(beneficiary, _unchanged)
           ? state.beneficiary
           : beneficiary as NounPhrase?,
+      source: identical(source, _unchanged)
+          ? state.source
+          : source as NounPhrase?,
       rightAction: identical(rightAction, _unchanged)
           ? state.rightAction
           : rightAction as Verb?,
@@ -1863,6 +1946,10 @@ class ConfigurationEngine {
         state.beneficiary == null
             ? state
             : _copy(state, beneficiary: transform(state.beneficiary!)),
+      NounPhraseTarget.source =>
+        state.source == null
+            ? state
+            : _copy(state, source: transform(state.source!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state

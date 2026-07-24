@@ -27,6 +27,7 @@ import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
@@ -817,6 +818,8 @@ final _lawProbes = <_LawProbe>[
   _LawProbe('companion -> no companion', const SetCompanion(null)),
   _LawProbe('destination -> Mary', SetDestination(_person(people_data.mary))),
   _LawProbe('destination -> no destination', const SetDestination(null)),
+  _LawProbe('source -> Mary', SetSource(_person(people_data.mary))),
+  _LawProbe('source -> no source', const SetSource(null)),
   _LawProbe(
     'complement -> teacher',
     SetComplement(_person(people_data.teacher)),
@@ -892,6 +895,14 @@ final _lawProbes = <_LawProbe>[
   _LawProbe(
     'destination adjective -> calm',
     SetNounPhraseAdjectives(NounPhraseTarget.destination, [_adjective('calm')]),
+  ),
+  _LawProbe(
+    'source determiner -> the',
+    const SetNounPhraseDeterminer(NounPhraseTarget.source, theDeterminer),
+  ),
+  _LawProbe(
+    'source adjective -> calm',
+    SetNounPhraseAdjectives(NounPhraseTarget.source, [_adjective('calm')]),
   ),
   _LawProbe(
     'complement determiner -> the',
@@ -985,6 +996,7 @@ String _moveLabel(ConfigurationMove move) {
     SetTopic(:final topic) => 'topic -> ${_nounPhraseLabel(topic)}',
     SetBeneficiary(:final beneficiary) =>
       'beneficiary -> ${_nounPhraseLabel(beneficiary)}',
+    SetSource(:final source) => 'source -> ${_nounPhraseLabel(source)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
@@ -1015,8 +1027,8 @@ String _moveLabel(ConfigurationMove move) {
     SetSentenceForm(:final sentenceForm) => 'form -> ${sentenceForm.name}',
     SetTimePhrase(:final timePhrase) =>
       'time phrase -> ${timePhrase?.text ?? 'none'}',
-    SetPlacePhrase(:final placePhrase) =>
-      'place phrase -> ${placePhrase?.noun ?? 'none'}',
+    SetPlacePhrase(:final placePhrase, :final placeMeaning) =>
+      'place phrase -> ${placePhrase == null ? 'none' : placePhrase.render(placeMeaning ?? PlaceMeaning.location)}',
     SetFrequencyPhrase(:final frequencyPhrase) =>
       'frequency phrase -> ${frequencyPhrase?.text ?? 'none'}',
     SetMannerPhrase(:final mannerPhrase) =>

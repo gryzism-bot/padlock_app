@@ -40,6 +40,7 @@ class CrudeTranslationEngine {
       state.destination,
       state.topic,
       state.beneficiary,
+      state.source,
       state.objectComplement,
       state.complement,
     ]) {
@@ -65,6 +66,7 @@ class CrudeTranslationEngine {
       ...?state.destination?.adjectiveList,
       ...?state.topic?.adjectiveList,
       ...?state.beneficiary?.adjectiveList,
+      ...?state.source?.adjectiveList,
       ...?state.complement?.adjectiveList,
       state.objectAdjectiveComplement,
       state.adjectiveComplement,
@@ -138,6 +140,9 @@ class CrudeTranslationEngine {
     }
     if (state.beneficiary != null) {
       add('for', _prepositionTranslation('for', language));
+    }
+    if (state.source != null) {
+      add('from', language == Language.pl ? 'od' : null);
     }
 
     for (final entry in _supportWordTranslations(state, language).entries) {

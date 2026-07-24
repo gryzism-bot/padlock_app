@@ -41,6 +41,7 @@ enum PredicatePathKind {
   toDestination,
   aboutTopic,
   forBeneficiary,
+  fromSource,
   placePhrase,
   timePhrase,
   frequencyPhrase,
@@ -89,6 +90,9 @@ class PredicatePath {
 
   const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
+
+  const PredicatePath.fromSource(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.fromSource, nouns: nouns);
 
   const PredicatePath.placePhrase(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.placePhrase, places: places);
@@ -425,6 +429,10 @@ PredicatePath _beneficiaries() {
   return PredicatePath.forBeneficiary(_basicBeneficiaries);
 }
 
+PredicatePath _sources() {
+  return PredicatePath.fromSource(_peopleAndAnimals);
+}
+
 PredicatePath _places(List<PlacePhrase> places) {
   return PredicatePath.placePhrase(_uniquePlacesByText(places));
 }
@@ -563,7 +571,7 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     get,
     _everydayObjects,
-    paths: [_places(_homeSchoolWorkPlaces), _times(_todayTimes)],
+    paths: [_sources(), _places(_homeSchoolWorkPlaces), _times(_todayTimes)],
   ),
   PredicateUnlocks(
     verb: make,
@@ -578,6 +586,7 @@ final guidedPredicateUnlocks = [
     take,
     _everydayObjects,
     paths: [
+      _sources(),
       PredicatePath.withCompanion(_people),
       _places(_everydayPlaces),
       _manners(_movementManners),
@@ -712,6 +721,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRecipient(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
+      _sources(),
       _places([place_data.shopPlacePhrase]),
       _times(_todayTimes),
     ],
@@ -776,6 +786,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toRightAction(_rightActionLearns),
       PredicatePath.withCompanion(_people),
+      _sources(),
       _places(_homeSchoolWorkPlaces),
       _manners([manner_data.quicklyMannerPhrase]),
     ],
@@ -862,6 +873,7 @@ final guidedPredicateUnlocks = [
   ),
   _direct(call, _peopleAndAnimals),
   _addressee(listen, _peopleAndAnimals),
+  PredicateUnlocks(verb: hear, paths: [_sources()]),
   PredicateUnlocks(
     verb: write,
     paths: [

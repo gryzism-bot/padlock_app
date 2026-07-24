@@ -128,6 +128,7 @@ const get = Verb(
   pastParticiple: 'got',
   ingForm: 'getting',
   takesObject: true,
+  takesSource: true,
   translations: {Language.pl: 'dostać'},
 );
 
@@ -152,6 +153,7 @@ const take = Verb(
   ingForm: 'taking',
   takesObject: true,
   takesCompanion: true,
+  takesSource: true,
   translations: {Language.pl: 'brać'},
 );
 
@@ -282,6 +284,7 @@ const buy = Verb(
   takesRecipient: true,
   takesCompanion: true,
   takesBeneficiary: true,
+  takesSource: true,
   translations: {Language.pl: 'kupować'},
 );
 
@@ -350,6 +353,7 @@ const learn = Verb(
   takesObject: true,
   takesCompanion: true,
   takesTopic: true,
+  takesSource: true,
   translations: {Language.pl: 'uczyć się'},
 );
 

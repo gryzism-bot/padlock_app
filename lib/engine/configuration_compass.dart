@@ -21,6 +21,7 @@ import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
@@ -61,6 +62,9 @@ enum ConfigurationCompassSlot {
   beneficiary,
   beneficiaryDeterminer,
   beneficiaryAdjective,
+  source,
+  sourceDeterminer,
+  sourceAdjective,
   rightAction,
   complement,
   complementDeterminer,
@@ -528,6 +532,38 @@ class ConfigurationCompass {
         sentence.beneficiary,
         NounPhraseTarget.beneficiary,
       ),
+      ConfigurationCompassSlot.source => [
+        if (sentence.source != null)
+          const _CompassCandidate(SetSource(null), 'no source', 120),
+        ..._nounChoicesForState(
+          sentence.source,
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.fromSource,
+                owner: _boundTailOwner(sentence),
+              ) ??
+              recipients,
+        ).map((source) {
+          final isSelected = _sameNounChoice(source, sentence.source);
+          final nextSource = isSelected
+              ? sentence.source
+              : _carryCompatibleNounPhrase(from: sentence.source, to: source);
+          return _CompassCandidate(
+            SetSource(nextSource),
+            nextSource == null ? source.text : _nounPhraseLabel(nextSource),
+            100,
+            isSelected: isSelected,
+          );
+        }),
+      ],
+      ConfigurationCompassSlot.sourceDeterminer => _determinerCandidates(
+        sentence.source,
+        NounPhraseTarget.source,
+      ),
+      ConfigurationCompassSlot.sourceAdjective => _adjectiveCandidates(
+        sentence.source,
+        NounPhraseTarget.source,
+      ),
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)
           const _CompassCandidate(SetRightAction(null), 'no right action', 120),
@@ -671,16 +707,9 @@ class ConfigurationCompass {
           sentence.placePhrase == null ? 130 : 120,
           isSelected: sentence.placePhrase == null,
         ),
-        ..._placeChoicesForState(
-          sentence.placePhrase,
+        ..._placePhraseCandidatesForState(
+          sentence,
           _placeChoicesForPath(sentence) ?? places,
-        ).map(
-          (place) => _CompassCandidate(
-            SetPlacePhrase(place),
-            place.noun,
-            _placePriority(sentence.action, place),
-            isSelected: place == sentence.placePhrase,
-          ),
         ),
       ],
       ConfigurationCompassSlot.timePhrase => [
@@ -991,6 +1020,65 @@ int _placePriority(Verb action, PlacePhrase place) {
     'park' => 95,
     _ => 80,
   };
+}
+
+List<_CompassCandidate> _placePhraseCandidatesForState(
+  SentenceState sentence,
+  List<PlacePhrase> choices,
+) {
+  final places = _placeChoicesForState(sentence.placePhrase, choices);
+  final candidates = <_CompassCandidate>[];
+  final selectedMeaning = _effectivePlaceMeaning(sentence);
+
+  for (final place in places) {
+    if (sentence.action.usesDestinationPlace &&
+        place.prepositions.containsKey(PlaceMeaning.destination)) {
+      candidates.add(
+        _CompassCandidate(
+          SetPlacePhrase(place, placeMeaning: PlaceMeaning.destination),
+          place.noun,
+          _placePriority(sentence.action, place),
+          isSelected:
+              place == sentence.placePhrase &&
+              selectedMeaning == PlaceMeaning.destination,
+        ),
+      );
+    } else {
+      candidates.add(
+        _CompassCandidate(
+          SetPlacePhrase(place, placeMeaning: PlaceMeaning.location),
+          place.noun,
+          _placePriority(sentence.action, place),
+          isSelected:
+              place == sentence.placePhrase &&
+              selectedMeaning == PlaceMeaning.location,
+        ),
+      );
+    }
+
+    if (sentence.action.usesDestinationPlace &&
+        place.prepositions.containsKey(PlaceMeaning.source)) {
+      candidates.add(
+        _CompassCandidate(
+          SetPlacePhrase(place, placeMeaning: PlaceMeaning.source),
+          place.render(PlaceMeaning.source),
+          _placePriority(sentence.action, place) - 5,
+          isSelected:
+              place == sentence.placePhrase &&
+              selectedMeaning == PlaceMeaning.source,
+        ),
+      );
+    }
+  }
+
+  return candidates;
+}
+
+PlaceMeaning _effectivePlaceMeaning(SentenceState sentence) {
+  return sentence.placeMeaning ??
+      (sentence.action.usesDestinationPlace
+          ? PlaceMeaning.destination
+          : PlaceMeaning.location);
 }
 
 int _determinerPriority(NounPhrase phrase, Determiner determiner) {

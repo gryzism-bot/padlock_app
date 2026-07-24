@@ -16,6 +16,7 @@ import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/crude_translation_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -310,6 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case ConfigurationCompassSlot.destination:
         case ConfigurationCompassSlot.topic:
         case ConfigurationCompassSlot.beneficiary:
+        case ConfigurationCompassSlot.source:
         case ConfigurationCompassSlot.passiveAgentNoun:
         case ConfigurationCompassSlot.complement:
           break;
@@ -594,6 +596,7 @@ Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
     if (rightAction.usesDestinationPlace) ConfigurationCompassSlot.destination,
     if (rightAction.takesTopic) ConfigurationCompassSlot.topic,
     if (rightAction.takesBeneficiary) ConfigurationCompassSlot.beneficiary,
+    if (rightAction.takesSource) ConfigurationCompassSlot.source,
   };
 }
 
@@ -1322,6 +1325,7 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetTopic(:final topic) => 'topic -> ${_nounTraceText(topic)}',
     SetBeneficiary(:final beneficiary) =>
       'beneficiary -> ${_nounTraceText(beneficiary)}',
+    SetSource(:final source) => 'source -> ${_nounTraceText(source)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
@@ -1355,8 +1359,8 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetSentenceForm(:final sentenceForm) => 'form -> ${sentenceForm.name}',
     SetTimePhrase(:final timePhrase) =>
       'time phrase -> ${timePhrase?.text ?? 'none'}',
-    SetPlacePhrase(:final placePhrase) =>
-      'place phrase -> ${placePhrase?.render() ?? 'none'}',
+    SetPlacePhrase(:final placePhrase, :final placeMeaning) =>
+      'place phrase -> ${placePhrase == null ? 'none' : placePhrase.render(placeMeaning ?? PlaceMeaning.location)}',
     SetFrequencyPhrase(:final frequencyPhrase) =>
       'frequency phrase -> ${frequencyPhrase?.text ?? 'none'}',
     SetMannerPhrase(:final mannerPhrase) =>
@@ -1387,6 +1391,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.destination => 'destination',
     NounPhraseTarget.topic => 'topic',
     NounPhraseTarget.beneficiary => 'beneficiary',
+    NounPhraseTarget.source => 'source',
     NounPhraseTarget.complement => 'complement',
   };
 }

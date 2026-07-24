@@ -623,6 +623,71 @@ void main() {
       expect(sentence, 'Football was played for Mary by John.');
     });
 
+    test('source surface renders as a from phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: learn,
+          source: mary.toNounPhrase(Number.singular),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John learns from Mary.');
+    });
+
+    test('source surface keeps noun phrase modifiers', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: hear,
+          source: teacher.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+            adjective: old,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She heard from the old teacher.');
+    });
+
+    test('source surface can follow an object', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: get,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          source: he,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'They should have got a book from him.');
+    });
+
+    test('source surface survives passive voice', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: take,
+          object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+          source: mary.toNounPhrase(Number.singular),
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'A book was taken from Mary by John.');
+    });
+
     test('manner can stay before bound addressee phrase', () {
       final sentence = render(
         SentenceState(
@@ -711,6 +776,21 @@ void main() {
       );
 
       expect(sentence, 'Mary went quietly to school.');
+    });
+
+    test('motion verbs can render source place surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: go,
+          placePhrase: workPlacePhrase,
+          placeMeaning: PlaceMeaning.source,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She goes from work.');
     });
 
     test('motion verbs can render manner before person destination', () {

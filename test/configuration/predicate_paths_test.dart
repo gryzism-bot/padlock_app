@@ -44,6 +44,7 @@ void main() {
       PredicatePathKind.toDestination => SetDestination(path.nouns.first),
       PredicatePathKind.aboutTopic => SetTopic(path.nouns.first),
       PredicatePathKind.forBeneficiary => SetBeneficiary(path.nouns.first),
+      PredicatePathKind.fromSource => SetSource(path.nouns.first),
       PredicatePathKind.placePhrase => SetPlacePhrase(path.places.first),
       PredicatePathKind.timePhrase => SetTimePhrase(path.times.first),
       PredicatePathKind.frequencyPhrase => SetFrequencyPhrase(
@@ -419,6 +420,9 @@ void main() {
             case PredicatePathKind.forBeneficiary:
               expect(unlocks.verb.takesBeneficiary, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.fromSource:
+              expect(unlocks.verb.takesSource, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.placePhrase:
               expect(path.places, isNotEmpty, reason: reason);
             case PredicatePathKind.timePhrase:
@@ -510,6 +514,13 @@ void main() {
           work,
           PredicatePathKind.forBeneficiary,
         ).map((beneficiary) => beneficiary.text),
+        containsAll(['John', 'Mary', 'friend']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          learn,
+          PredicatePathKind.fromSource,
+        ).map((source) => source.text),
         containsAll(['John', 'Mary', 'friend']),
       );
       expect(

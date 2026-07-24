@@ -702,7 +702,7 @@ void main() {
       expect(suggestions.map((suggestion) => suggestion.label), contains('go'));
     });
 
-    test('ranks predicate doorways by sentence influence', () {
+    test('predicate doorway influence data marks verbs that wake rails', () {
       final labels = ConfigurationCompass()
           .suggestionsFor(
             ConfigurationState.initial(),
@@ -716,10 +716,18 @@ void main() {
         labels,
         containsAll(['be', 'give', 'play', 'learn', 'go', 'get', 'work']),
       );
-      expect(labels.indexOf('be'), lessThan(labels.indexOf('get')));
-      expect(labels.indexOf('give'), lessThan(labels.indexOf('get')));
-      expect(labels.indexOf('play'), lessThan(labels.indexOf('get')));
-      expect(labels.indexOf('learn'), lessThan(labels.indexOf('get')));
+      expect(
+        predicateInfluenceRank(be),
+        greaterThan(predicateInfluenceRank(work)),
+      );
+      expect(
+        predicateInfluencesFor(get).map((influence) => influence.key),
+        containsAll(['object', 'source']),
+      );
+      expect(
+        predicateInfluencesFor(play).map((influence) => influence.key),
+        contains('activity'),
+      );
     });
 
     test('groups predicate doorways by visible output count', () {
@@ -749,10 +757,7 @@ void main() {
       expect(outputCounts, orderedEquals(sortedOutputCounts));
       expect(outputCountFor('work'), greaterThan(outputCountFor('get')));
       expect(outputCountFor('go'), greaterThan(outputCountFor('get')));
-      expect(
-        outputCountFor('give'),
-        greaterThanOrEqualTo(outputCountFor('get')),
-      );
+      expect(outputCountFor('get'), greaterThan(outputCountFor('give')));
     });
 
     test('noun complement suggestions follow agent number', () {
@@ -1007,6 +1012,39 @@ void main() {
               .preview,
         ),
         'You work for Mary.',
+      );
+    });
+
+    test('source suggestions require from-source-capable frame', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(go),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(state, ConfigurationCompassSlot.source),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(learn));
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.source,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['John', 'Mary', 'friend']));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You learn from Mary.',
       );
     });
 
@@ -1516,6 +1554,12 @@ void main() {
       );
 
       expect(render(schoolSuggestion.preview), 'You go to school.');
+
+      final sourceWorkSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'from work',
+      );
+
+      expect(render(sourceWorkSuggestion.preview), 'You go from work.');
     });
 
     test('time suggestions put tense-friendly phrases first', () {

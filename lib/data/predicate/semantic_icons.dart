@@ -8,6 +8,7 @@ class PredicateIconSlot {
 class MaterialIconKey {
   static const accountTreeOutlined = 'account_tree_outlined';
   static const arrowDownward = 'arrow_downward';
+  static const arrowBack = 'arrow_back';
   static const arrowForward = 'arrow_forward';
   static const arrowUpward = 'arrow_upward';
   static const backHandOutlined = 'back_hand_outlined';
@@ -250,6 +251,12 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.personOutline),
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
+  if (influenceKeys.contains('source')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.personOutline),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowBack),
     ];
   }
   if (influenceKeys.contains('right-action')) {

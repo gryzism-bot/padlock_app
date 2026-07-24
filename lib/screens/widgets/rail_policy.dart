@@ -208,6 +208,7 @@ const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.destination,
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
+  ConfigurationCompassSlot.source,
   ConfigurationCompassSlot.rightAction,
   ConfigurationCompassSlot.passiveAgentNoun,
   ConfigurationCompassSlot.complement,
@@ -534,6 +535,38 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     canRenderCollapsedWhen: (state) =>
         state.beneficiary?.canTakeModifiers ?? false,
     canRenderWhenEmpty: (state) => state.beneficiary?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.source: _RailPolicy(
+    slot: ConfigurationCompassSlot.source,
+    title: (_) => 'Source',
+    unlockHint: (_) =>
+        'Choose a verb that can open a from-source, like learn, get, take, buy, or hear.',
+    surfaceMarker: (_) => 'from',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        _railBoundTailOwner(state).takesSource || state.source != null,
+    canRenderWhenEmpty: (state) => state.source != null,
+    participantLabel: (_) => 'source',
+    participantValue: (state) => _nounTraceText(state.source),
+    participantFilledWhen: (state) => state.source != null,
+  ),
+  ConfigurationCompassSlot.sourceDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.sourceDeterminer,
+    title: (_) => 'Source determiner',
+    unlockHint: (_) =>
+        'Choose a source first. Source modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) => state.source?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.source?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.sourceAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.sourceAdjective,
+    title: (_) => 'Source adjective',
+    unlockHint: (_) =>
+        'Choose a source first. Source modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) => state.source?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.source?.canTakeModifiers ?? false,
   ),
   ConfigurationCompassSlot.rightAction: _RailPolicy(
     slot: ConfigurationCompassSlot.rightAction,

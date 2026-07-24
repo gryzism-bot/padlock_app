@@ -147,6 +147,7 @@ void main() {
             PredicatePathKind.toDestination => 'destination',
             PredicatePathKind.aboutTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
+            PredicatePathKind.fromSource => 'source',
             PredicatePathKind.placePhrase => 'place',
             PredicatePathKind.timePhrase => 'time',
             PredicatePathKind.frequencyPhrase => 'frequency',

@@ -82,6 +82,7 @@ const hear = Verb(
   pastSimple: 'heard',
   pastParticiple: 'heard',
   ingForm: 'hearing',
+  takesSource: true,
   translations: {Language.pl: 'słyszeć'},
 );
 
