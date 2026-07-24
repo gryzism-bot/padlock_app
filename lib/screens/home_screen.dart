@@ -15,6 +15,7 @@ import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/crude_translation_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -577,27 +578,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _setPreviewCacheEntryCount(previewCache.size);
     });
   }
-}
-
-Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
-  Set<ConfigurationCompassSlot> current,
-  SentenceState state,
-) {
-  final rightAction = state.rightAction;
-  if (rightAction == null) {
-    return {...current}..remove(ConfigurationCompassSlot.rightAction);
-  }
-
-  return {
-    ...current,
-    if (rightAction.takesObject) ConfigurationCompassSlot.object,
-    if (rightAction.takesAddressee) ConfigurationCompassSlot.addressee,
-    if (rightAction.takesCompanion) ConfigurationCompassSlot.companion,
-    if (rightAction.usesDestinationPlace) ConfigurationCompassSlot.destination,
-    if (rightAction.takesTopic) ConfigurationCompassSlot.topic,
-    if (rightAction.takesBeneficiary) ConfigurationCompassSlot.beneficiary,
-    if (rightAction.takesSource) ConfigurationCompassSlot.source,
-  };
 }
 
 int? _cacheEntryLimitForMode(PreviewCacheMode mode) {

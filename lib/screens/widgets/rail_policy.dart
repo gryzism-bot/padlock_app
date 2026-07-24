@@ -230,6 +230,142 @@ Verb _railBoundTailOwner(SentenceState state) {
   return state.rightAction ?? state.action;
 }
 
+Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
+  Set<ConfigurationCompassSlot> current,
+  SentenceState state,
+) {
+  if (state.rightAction == null) {
+    return {...current}..remove(ConfigurationCompassSlot.rightAction);
+  }
+
+  final configuration = ConfigurationState(sentenceState: state);
+
+  return {
+    ...current,
+    for (final slot in _rightActionOwnedRailSlots)
+      if (_railPolicy(slot).canRenderCollapsed(configuration)) slot,
+  };
+}
+
+const _rightActionOwnedRailSlots = [
+  ConfigurationCompassSlot.object,
+  ConfigurationCompassSlot.addressee,
+  ConfigurationCompassSlot.companion,
+  ConfigurationCompassSlot.destination,
+  ConfigurationCompassSlot.topic,
+  ConfigurationCompassSlot.beneficiary,
+  ConfigurationCompassSlot.source,
+];
+
+final _prepositionalSurfaceRailPolicies = [
+  ..._prepositionalSurfaceRailPolicy(
+    surface: addresseeSurface,
+    title: 'Addressee',
+    unlockHint: 'Choose a verb that can speak, talk, or write to someone.',
+    slot: ConfigurationCompassSlot.addressee,
+    determinerSlot: ConfigurationCompassSlot.addresseeDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.addresseeAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: companionSurface,
+    title: 'Companion',
+    unlockHint:
+        'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
+    slot: ConfigurationCompassSlot.companion,
+    determinerSlot: ConfigurationCompassSlot.companionDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.companionAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: destinationSurface,
+    title: 'Destination',
+    unlockHint:
+        'Choose a movement verb like go, come, travel, arrive, leave, or return.',
+    slot: ConfigurationCompassSlot.destination,
+    determinerSlot: ConfigurationCompassSlot.destinationDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.destinationAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: topicSurface,
+    title: 'Topic',
+    unlockHint:
+        'Choose a verb that can open an about-topic, like think, talk, learn, read, or explain.',
+    slot: ConfigurationCompassSlot.topic,
+    determinerSlot: ConfigurationCompassSlot.topicDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.topicAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: beneficiarySurface,
+    title: 'Beneficiary',
+    unlockHint:
+        'Choose a verb that can open a for-beneficiary, like work, sing, read, write, play, buy, or cook.',
+    slot: ConfigurationCompassSlot.beneficiary,
+    determinerSlot: ConfigurationCompassSlot.beneficiaryDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.beneficiaryAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: sourceSurface,
+    title: 'Source',
+    unlockHint:
+        'Choose a verb that can open a from-source, like learn, get, take, buy, or hear.',
+    slot: ConfigurationCompassSlot.source,
+    determinerSlot: ConfigurationCompassSlot.sourceDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.sourceAdjective,
+  ),
+];
+
+List<_RailPolicy> _prepositionalSurfaceRailPolicy({
+  required PrepositionalParticipantSurface surface,
+  required String title,
+  required String unlockHint,
+  required ConfigurationCompassSlot slot,
+  required ConfigurationCompassSlot determinerSlot,
+  required ConfigurationCompassSlot adjectiveSlot,
+}) {
+  final label = surface.kind == PrepositionalParticipantKind.topic
+      ? 'topic'
+      : surface.label;
+
+  return [
+    _RailPolicy(
+      slot: slot,
+      title: (_) => title,
+      unlockHint: (_) => unlockHint,
+      surfaceMarker: (_) => surface.preposition,
+      isControlled: true,
+      canRenderCollapsedWhen: (state) =>
+          (surface.lexicalBeAllows && state.action.infinitive == 'be') ||
+          surface.isSupportedByState(state) ||
+          surface.read(state) != null,
+      canRenderWhenEmpty: (state) => surface.read(state) != null,
+      participantLabel: (_) => label,
+      participantValue: (state) => _nounTraceText(surface.read(state)),
+      participantFilledWhen: (state) => surface.read(state) != null,
+    ),
+    _RailPolicy(
+      slot: determinerSlot,
+      title: (_) => '$title determiner',
+      unlockHint: (_) =>
+          'Choose ${surface.blockedNounLabel} first. $title modifiers wake after that noun exists.',
+      isControlled: true,
+      canRenderCollapsedWhen: (state) =>
+          surface.read(state)?.canTakeModifiers ?? false,
+      canRenderWhenEmpty: (state) =>
+          surface.read(state)?.canTakeModifiers ?? false,
+    ),
+    _RailPolicy(
+      slot: adjectiveSlot,
+      title: (_) => '$title adjective',
+      unlockHint: (_) =>
+          'Choose ${surface.blockedNounLabel} first. $title modifiers wake after that noun exists.',
+      isControlled: true,
+      canRenderCollapsedWhen: (state) =>
+          surface.read(state)?.canTakeModifiers ?? false,
+      canRenderWhenEmpty: (state) =>
+          surface.read(state)?.canTakeModifiers ?? false,
+    ),
+  ];
+}
+
 final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
   ConfigurationCompassSlot.action: _RailPolicy(
     slot: ConfigurationCompassSlot.action,
@@ -364,210 +500,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
         state.recipient?.canTakeModifiers ?? false,
     canRenderWhenEmpty: (state) => state.recipient?.canTakeModifiers ?? false,
   ),
-  ConfigurationCompassSlot.addressee: _RailPolicy(
-    slot: ConfigurationCompassSlot.addressee,
-    title: (_) => 'Addressee',
-    unlockHint: (_) =>
-        'Choose a verb that can speak, talk, or write to someone.',
-    surfaceMarker: (_) => 'to',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        _railBoundTailOwner(state).takesAddressee || state.addressee != null,
-    canRenderWhenEmpty: (state) => state.addressee != null,
-    participantLabel: (_) => 'addressee',
-    participantValue: (state) => _nounTraceText(state.addressee),
-    participantFilledWhen: (state) => state.addressee != null,
-  ),
-  ConfigurationCompassSlot.addresseeDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.addresseeDeterminer,
-    title: (_) => 'Addressee determiner',
-    unlockHint: (_) =>
-        'Choose an addressee first. Addressee modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.addressee?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.addressee?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.addresseeAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.addresseeAdjective,
-    title: (_) => 'Addressee adjective',
-    unlockHint: (_) =>
-        'Choose an addressee first. Addressee modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.addressee?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.addressee?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.companion: _RailPolicy(
-    slot: ConfigurationCompassSlot.companion,
-    title: (_) => 'Companion',
-    unlockHint: (_) =>
-        'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
-    surfaceMarker: (_) => 'with',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.action.infinitive == 'be' ||
-        _railBoundTailOwner(state).takesCompanion ||
-        state.companion != null,
-    canRenderWhenEmpty: (state) => state.companion != null,
-    participantLabel: (_) => 'companion',
-    participantValue: (state) => _nounTraceText(state.companion),
-    participantFilledWhen: (state) => state.companion != null,
-  ),
-  ConfigurationCompassSlot.companionDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.companionDeterminer,
-    title: (_) => 'Companion determiner',
-    unlockHint: (_) =>
-        'Choose a companion first. Companion modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.companion?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.companion?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.companionAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.companionAdjective,
-    title: (_) => 'Companion adjective',
-    unlockHint: (_) =>
-        'Choose a companion first. Companion modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.companion?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.companion?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.destination: _RailPolicy(
-    slot: ConfigurationCompassSlot.destination,
-    title: (_) => 'Destination',
-    unlockHint: (_) =>
-        'Choose a movement verb like go, come, travel, arrive, leave, or return.',
-    surfaceMarker: (_) => 'to',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        _railBoundTailOwner(state).usesDestinationPlace ||
-        state.destination != null,
-    canRenderWhenEmpty: (state) => state.destination != null,
-    participantLabel: (_) => 'destination',
-    participantValue: (state) => _nounTraceText(state.destination),
-    participantFilledWhen: (state) => state.destination != null,
-  ),
-  ConfigurationCompassSlot.destinationDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.destinationDeterminer,
-    title: (_) => 'Destination determiner',
-    unlockHint: (_) =>
-        'Choose a destination first. Destination modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.destination?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.destination?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.destinationAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.destinationAdjective,
-    title: (_) => 'Destination adjective',
-    unlockHint: (_) =>
-        'Choose a destination first. Destination modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.destination?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.destination?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.topic: _RailPolicy(
-    slot: ConfigurationCompassSlot.topic,
-    title: (_) => 'Topic',
-    unlockHint: (_) =>
-        'Choose a verb that can open an about-topic, like think, talk, learn, read, or explain.',
-    surfaceMarker: (_) => 'about',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        _railBoundTailOwner(state).takesTopic || state.topic != null,
-    canRenderWhenEmpty: (state) => state.topic != null,
-    participantLabel: (_) => 'topic',
-    participantValue: (state) => _nounTraceText(state.topic),
-    participantFilledWhen: (state) => state.topic != null,
-  ),
-  ConfigurationCompassSlot.topicDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.topicDeterminer,
-    title: (_) => 'Topic determiner',
-    unlockHint: (_) =>
-        'Choose a topic first. Topic modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) => state.topic?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.topic?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.topicAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.topicAdjective,
-    title: (_) => 'Topic adjective',
-    unlockHint: (_) =>
-        'Choose a topic first. Topic modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) => state.topic?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.topic?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.beneficiary: _RailPolicy(
-    slot: ConfigurationCompassSlot.beneficiary,
-    title: (_) => 'Beneficiary',
-    unlockHint: (_) =>
-        'Choose a verb that can open a for-beneficiary, like work, sing, read, write, play, buy, or cook.',
-    surfaceMarker: (_) => 'for',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        _railBoundTailOwner(state).takesBeneficiary ||
-        state.beneficiary != null,
-    canRenderWhenEmpty: (state) => state.beneficiary != null,
-    participantLabel: (_) => 'beneficiary',
-    participantValue: (state) => _nounTraceText(state.beneficiary),
-    participantFilledWhen: (state) => state.beneficiary != null,
-  ),
-  ConfigurationCompassSlot.beneficiaryDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.beneficiaryDeterminer,
-    title: (_) => 'Beneficiary determiner',
-    unlockHint: (_) =>
-        'Choose a beneficiary first. Beneficiary modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.beneficiary?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.beneficiary?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.beneficiaryAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.beneficiaryAdjective,
-    title: (_) => 'Beneficiary adjective',
-    unlockHint: (_) =>
-        'Choose a beneficiary first. Beneficiary modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        state.beneficiary?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.beneficiary?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.source: _RailPolicy(
-    slot: ConfigurationCompassSlot.source,
-    title: (_) => 'Source',
-    unlockHint: (_) =>
-        'Choose a verb that can open a from-source, like learn, get, take, buy, or hear.',
-    surfaceMarker: (_) => 'from',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) =>
-        _railBoundTailOwner(state).takesSource || state.source != null,
-    canRenderWhenEmpty: (state) => state.source != null,
-    participantLabel: (_) => 'source',
-    participantValue: (state) => _nounTraceText(state.source),
-    participantFilledWhen: (state) => state.source != null,
-  ),
-  ConfigurationCompassSlot.sourceDeterminer: _RailPolicy(
-    slot: ConfigurationCompassSlot.sourceDeterminer,
-    title: (_) => 'Source determiner',
-    unlockHint: (_) =>
-        'Choose a source first. Source modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) => state.source?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.source?.canTakeModifiers ?? false,
-  ),
-  ConfigurationCompassSlot.sourceAdjective: _RailPolicy(
-    slot: ConfigurationCompassSlot.sourceAdjective,
-    title: (_) => 'Source adjective',
-    unlockHint: (_) =>
-        'Choose a source first. Source modifiers wake after that noun exists.',
-    isControlled: true,
-    canRenderCollapsedWhen: (state) => state.source?.canTakeModifiers ?? false,
-    canRenderWhenEmpty: (state) => state.source?.canTakeModifiers ?? false,
-  ),
+  for (final policy in _prepositionalSurfaceRailPolicies) policy.slot: policy,
   ConfigurationCompassSlot.rightAction: _RailPolicy(
     slot: ConfigurationCompassSlot.rightAction,
     title: (_) => 'Right action',
