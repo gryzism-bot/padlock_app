@@ -398,7 +398,7 @@ Color _verbWakeSignalColor(
     'complement' => colors.secondary,
     'recipient' => colors.tertiary,
     'destination' => colors.error,
-    'addressee' || 'companion' || 'topic' => colors.secondary,
+    'addressee' || 'companion' || 'topic' || 'beneficiary' => colors.secondary,
     _ => colors.primary,
   };
 }

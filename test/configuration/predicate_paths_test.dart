@@ -43,6 +43,7 @@ void main() {
       PredicatePathKind.withCompanion => SetCompanion(path.nouns.first),
       PredicatePathKind.toDestination => SetDestination(path.nouns.first),
       PredicatePathKind.aboutTopic => SetTopic(path.nouns.first),
+      PredicatePathKind.forBeneficiary => SetBeneficiary(path.nouns.first),
       PredicatePathKind.placePhrase => SetPlacePhrase(path.places.first),
       PredicatePathKind.timePhrase => SetTimePhrase(path.times.first),
       PredicatePathKind.frequencyPhrase => SetFrequencyPhrase(
@@ -415,6 +416,9 @@ void main() {
             case PredicatePathKind.aboutTopic:
               expect(unlocks.verb.takesTopic, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.forBeneficiary:
+              expect(unlocks.verb.takesBeneficiary, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.placePhrase:
               expect(path.places, isNotEmpty, reason: reason);
             case PredicatePathKind.timePhrase:
@@ -500,6 +504,13 @@ void main() {
           PredicatePathKind.mannerPhrase,
         ).map((manner) => manner.text),
         contains('closely'),
+      );
+      expect(
+        predicateNounChoicesFor(
+          work,
+          PredicatePathKind.forBeneficiary,
+        ).map((beneficiary) => beneficiary.text),
+        containsAll(['John', 'Mary', 'friend']),
       );
       expect(
         predicatePlaceChoicesFor(

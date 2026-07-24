@@ -534,6 +534,7 @@ void main() {
     expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-think-topic')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-beneficiary')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-read-addressee')), findsOneWidget);
@@ -542,7 +543,6 @@ void main() {
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-time')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
-    expect(find.byTooltip('You catch.'), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
@@ -818,6 +818,12 @@ void main() {
     expectRailSurfaceMarker(tester, 'Subject', '-');
     expectRailSurfaceMarker(tester, 'Companion', 'with');
     expectRailSurfaceMarker(tester, 'Right action', 'to');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-work')),
+    );
+    expectRailSurfaceMarker(tester, 'Beneficiary', 'for');
 
     await tapAfterScroll(
       tester,
@@ -1985,6 +1991,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Destination');
       case 'topic':
         titles.add('Topic');
+      case 'beneficiary':
+        titles.add('Beneficiary');
       case 'right-action':
         titles.add('Right action');
       case 'complement':

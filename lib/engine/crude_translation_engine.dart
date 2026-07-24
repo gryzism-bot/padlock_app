@@ -38,6 +38,8 @@ class CrudeTranslationEngine {
       state.addressee,
       state.companion,
       state.destination,
+      state.topic,
+      state.beneficiary,
       state.objectComplement,
       state.complement,
     ]) {
@@ -61,6 +63,8 @@ class CrudeTranslationEngine {
       ...?state.addressee?.adjectiveList,
       ...?state.companion?.adjectiveList,
       ...?state.destination?.adjectiveList,
+      ...?state.topic?.adjectiveList,
+      ...?state.beneficiary?.adjectiveList,
       ...?state.complement?.adjectiveList,
       state.objectAdjectiveComplement,
       state.adjectiveComplement,
@@ -128,6 +132,12 @@ class CrudeTranslationEngine {
       if (preposition != null) {
         add(preposition, _prepositionTranslation(preposition, language));
       }
+    }
+    if (state.topic != null) {
+      add('about', _prepositionTranslation('about', language));
+    }
+    if (state.beneficiary != null) {
+      add('for', _prepositionTranslation('for', language));
     }
 
     for (final entry in _supportWordTranslations(state, language).entries) {
@@ -248,6 +258,7 @@ String? _prepositionTranslation(String preposition, Language language) {
   return switch (preposition) {
     'to' => 'do',
     'for' => 'dla',
+    'about' => 'o',
     'by' => 'przez',
     'with' => 'z',
     'at' => 'w',

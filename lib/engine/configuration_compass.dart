@@ -58,6 +58,9 @@ enum ConfigurationCompassSlot {
   topic,
   topicDeterminer,
   topicAdjective,
+  beneficiary,
+  beneficiaryDeterminer,
+  beneficiaryAdjective,
   rightAction,
   complement,
   complementDeterminer,
@@ -487,6 +490,43 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.topicAdjective => _adjectiveCandidates(
         sentence.topic,
         NounPhraseTarget.topic,
+      ),
+      ConfigurationCompassSlot.beneficiary => [
+        if (sentence.beneficiary != null)
+          const _CompassCandidate(SetBeneficiary(null), 'no beneficiary', 120),
+        ..._nounChoicesForState(
+          sentence.beneficiary,
+          _nounChoicesForPath(
+                sentence,
+                PredicatePathKind.forBeneficiary,
+                owner: _boundTailOwner(sentence),
+              ) ??
+              recipients,
+        ).map((beneficiary) {
+          final isSelected = _sameNounChoice(beneficiary, sentence.beneficiary);
+          final nextBeneficiary = isSelected
+              ? sentence.beneficiary
+              : _carryCompatibleNounPhrase(
+                  from: sentence.beneficiary,
+                  to: beneficiary,
+                );
+          return _CompassCandidate(
+            SetBeneficiary(nextBeneficiary),
+            nextBeneficiary == null
+                ? beneficiary.text
+                : _nounPhraseLabel(nextBeneficiary),
+            100,
+            isSelected: isSelected,
+          );
+        }),
+      ],
+      ConfigurationCompassSlot.beneficiaryDeterminer => _determinerCandidates(
+        sentence.beneficiary,
+        NounPhraseTarget.beneficiary,
+      ),
+      ConfigurationCompassSlot.beneficiaryAdjective => _adjectiveCandidates(
+        sentence.beneficiary,
+        NounPhraseTarget.beneficiary,
       ),
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)

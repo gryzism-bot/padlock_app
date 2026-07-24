@@ -8,6 +8,7 @@ const cook = Verb(
   pastParticiple: 'cooked',
   ingForm: 'cooking',
   takesObject: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'gotować'},
 );
 

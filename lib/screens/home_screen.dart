@@ -309,6 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case ConfigurationCompassSlot.companion:
         case ConfigurationCompassSlot.destination:
         case ConfigurationCompassSlot.topic:
+        case ConfigurationCompassSlot.beneficiary:
         case ConfigurationCompassSlot.passiveAgentNoun:
         case ConfigurationCompassSlot.complement:
           break;
@@ -592,6 +593,7 @@ Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
     if (rightAction.takesCompanion) ConfigurationCompassSlot.companion,
     if (rightAction.usesDestinationPlace) ConfigurationCompassSlot.destination,
     if (rightAction.takesTopic) ConfigurationCompassSlot.topic,
+    if (rightAction.takesBeneficiary) ConfigurationCompassSlot.beneficiary,
   };
 }
 
@@ -1318,6 +1320,8 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetDestination(:final destination) =>
       'destination -> ${_nounTraceText(destination)}',
     SetTopic(:final topic) => 'topic -> ${_nounTraceText(topic)}',
+    SetBeneficiary(:final beneficiary) =>
+      'beneficiary -> ${_nounTraceText(beneficiary)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
@@ -1382,6 +1386,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.companion => 'companion',
     NounPhraseTarget.destination => 'destination',
     NounPhraseTarget.topic => 'topic',
+    NounPhraseTarget.beneficiary => 'beneficiary',
     NounPhraseTarget.complement => 'complement',
   };
 }

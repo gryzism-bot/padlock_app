@@ -1531,6 +1531,7 @@ class RecognitionEngine {
       builder.companionStart > 0 ? builder.companionStart - 1 : -1,
       builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
       builder.topicStart > 0 ? builder.topicStart - 1 : -1,
+      builder.beneficiaryStart > 0 ? builder.beneficiaryStart - 1 : -1,
       builder.rightActionStart,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
@@ -1597,6 +1598,14 @@ class RecognitionEngine {
       firstPhraseStart,
     )) {
       builder.topicEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
+      builder.beneficiaryStart,
+      builder.beneficiaryEnd,
+      firstPhraseStart,
+    )) {
+      builder.beneficiaryEnd = firstPhraseStart - 1;
     }
 
     if (_crossesPhrase(
@@ -1668,6 +1677,11 @@ class RecognitionEngine {
 
     if (builder.topicStart >= 0 && builder.topicStart <= frontPhraseEnd) {
       builder.topicStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.beneficiaryStart >= 0 &&
+        builder.beneficiaryStart <= frontPhraseEnd) {
+      builder.beneficiaryStart = frontPhraseEnd + 1;
     }
 
     if (builder.rightActionStart >= 0 &&
@@ -1755,6 +1769,16 @@ class RecognitionEngine {
     if (builder.topicStart >= 0 && builder.topicEnd >= builder.topicStart) {
       builder.topic = _recognizeNounPhrase(
         builder.tokens.sublist(builder.topicStart, builder.topicEnd + 1),
+      );
+    }
+
+    if (builder.beneficiaryStart >= 0 &&
+        builder.beneficiaryEnd >= builder.beneficiaryStart) {
+      builder.beneficiary = _recognizeNounPhrase(
+        builder.tokens.sublist(
+          builder.beneficiaryStart,
+          builder.beneficiaryEnd + 1,
+        ),
       );
     }
 
@@ -1923,6 +1947,7 @@ class RecognitionEngine {
     _recognizeAddresseePhrase(builder, phraseTokens);
     _recognizeCompanionPhrase(builder, phraseTokens);
     _recognizeTopicPhrase(builder, phraseTokens);
+    _recognizeBeneficiaryPhrase(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
   }
 
@@ -2165,6 +2190,32 @@ class RecognitionEngine {
     builder.topicEnd = _nounPhraseEnd(builder, topicStart);
   }
 
+  void _recognizeBeneficiaryPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    final owner = builder.rightAction ?? builder.action;
+    if (owner?.takesBeneficiary != true || builder.recipientStart >= 0) {
+      return;
+    }
+
+    final wordsBefore = _phraseWordIndex(tokens, 'for');
+
+    if (wordsBefore < 0) {
+      return;
+    }
+
+    final forIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final beneficiaryStart = forIndex + 1;
+
+    if (!_looksLikeCompanionPhrase(builder, beneficiaryStart)) {
+      return;
+    }
+
+    builder.beneficiaryStart = beneficiaryStart;
+    builder.beneficiaryEnd = _nounPhraseEnd(builder, beneficiaryStart);
+  }
+
   int _toWordIndexNotAlreadyReserved(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2299,6 +2350,9 @@ class _RecognitionBuilder {
   int topicStart = -1;
   int topicEnd = -1;
 
+  int beneficiaryStart = -1;
+  int beneficiaryEnd = -1;
+
   int rightActionStart = -1;
   int rightActionEnd = -1;
 
@@ -2337,6 +2391,7 @@ class _RecognitionBuilder {
   NounPhrase? companion;
   NounPhrase? destination;
   NounPhrase? topic;
+  NounPhrase? beneficiary;
   Verb? rightAction;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
@@ -2376,6 +2431,7 @@ class _RecognitionBuilder {
       companion: companion,
       destination: destination,
       topic: topic,
+      beneficiary: beneficiary,
       rightAction: rightAction,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
@@ -2412,6 +2468,7 @@ class _RecognitionBuilder {
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
       'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
       'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topic?.text}',
+      'beneficiary: $beneficiaryStart -> $beneficiaryEnd (${_tokensBetween(beneficiaryStart, beneficiaryEnd)}) = ${beneficiary?.text}',
       'rightAction: $rightActionStart -> $rightActionEnd (${_tokensBetween(rightActionStart, rightActionEnd)}) = ${rightAction?.infinitive}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',

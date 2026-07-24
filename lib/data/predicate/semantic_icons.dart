@@ -246,6 +246,12 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }
+  if (influenceKeys.contains('beneficiary')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.personOutline),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
   if (influenceKeys.contains('right-action')) {
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.accountTreeOutlined),

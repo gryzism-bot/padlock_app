@@ -207,6 +207,7 @@ const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.companion,
   ConfigurationCompassSlot.destination,
   ConfigurationCompassSlot.topic,
+  ConfigurationCompassSlot.beneficiary,
   ConfigurationCompassSlot.rightAction,
   ConfigurationCompassSlot.passiveAgentNoun,
   ConfigurationCompassSlot.complement,
@@ -498,6 +499,41 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: true,
     canRenderCollapsedWhen: (state) => state.topic?.canTakeModifiers ?? false,
     canRenderWhenEmpty: (state) => state.topic?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.beneficiary: _RailPolicy(
+    slot: ConfigurationCompassSlot.beneficiary,
+    title: (_) => 'Beneficiary',
+    unlockHint: (_) =>
+        'Choose a verb that can open a for-beneficiary, like work, sing, read, write, play, buy, or cook.',
+    surfaceMarker: (_) => 'for',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        _railBoundTailOwner(state).takesBeneficiary ||
+        state.beneficiary != null,
+    canRenderWhenEmpty: (state) => state.beneficiary != null,
+    participantLabel: (_) => 'beneficiary',
+    participantValue: (state) => _nounTraceText(state.beneficiary),
+    participantFilledWhen: (state) => state.beneficiary != null,
+  ),
+  ConfigurationCompassSlot.beneficiaryDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.beneficiaryDeterminer,
+    title: (_) => 'Beneficiary determiner',
+    unlockHint: (_) =>
+        'Choose a beneficiary first. Beneficiary modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.beneficiary?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.beneficiary?.canTakeModifiers ?? false,
+  ),
+  ConfigurationCompassSlot.beneficiaryAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.beneficiaryAdjective,
+    title: (_) => 'Beneficiary adjective',
+    unlockHint: (_) =>
+        'Choose a beneficiary first. Beneficiary modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        state.beneficiary?.canTakeModifiers ?? false,
+    canRenderWhenEmpty: (state) => state.beneficiary?.canTakeModifiers ?? false,
   ),
   ConfigurationCompassSlot.rightAction: _RailPolicy(
     slot: ConfigurationCompassSlot.rightAction,

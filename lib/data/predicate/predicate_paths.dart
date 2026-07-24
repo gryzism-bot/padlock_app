@@ -40,6 +40,7 @@ enum PredicatePathKind {
   withCompanion,
   toDestination,
   aboutTopic,
+  forBeneficiary,
   placePhrase,
   timePhrase,
   frequencyPhrase,
@@ -85,6 +86,9 @@ class PredicatePath {
 
   const PredicatePath.aboutTopic(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.aboutTopic, nouns: nouns);
+
+  const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
 
   const PredicatePath.placePhrase(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.placePhrase, places: places);
@@ -291,6 +295,7 @@ final _basicTopics = _uniqueByText([
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
 ]);
+final _basicBeneficiaries = _uniqueByText([..._people]);
 final _spokenLanguages = [
   fixed_object.english,
   fixed_object.polish,
@@ -416,6 +421,10 @@ PredicateUnlocks _companion(Verb verb) {
   );
 }
 
+PredicatePath _beneficiaries() {
+  return PredicatePath.forBeneficiary(_basicBeneficiaries);
+}
+
 PredicatePath _places(List<PlacePhrase> places) {
   return PredicatePath.placePhrase(_uniquePlacesByText(places));
 }
@@ -485,6 +494,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.directObject(_musicObjects),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _places(_homeSchoolWorkPlaces),
       _manners(_performanceManners),
     ],
@@ -504,6 +514,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _places(_homeSchoolWorkPlaces),
       _times([time_data.atNightTimePhrase, ..._todayTimes]),
       _manners([manner_data.carefullyMannerPhrase]),
@@ -681,6 +692,7 @@ final guidedPredicateUnlocks = [
     verb: work,
     paths: [
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _places(_homeSchoolWorkPlaces),
       _manners([
         manner_data.quicklyMannerPhrase,
@@ -699,6 +711,7 @@ final guidedPredicateUnlocks = [
       ),
       PredicatePath.toRecipient(_people),
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _places([place_data.shopPlacePhrase]),
       _times(_todayTimes),
     ],
@@ -751,6 +764,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_playActivities),
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _places(_homeSchoolWorkPlaces),
       _manners(_performanceManners),
     ],
@@ -855,6 +869,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRecipient(_people),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
     ],
   ),
   PredicateUnlocks(
@@ -947,7 +962,7 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(travel_data.arrive),
   _destinationWithCompanion(travel_data.leave),
   _destinationWithCompanion(travel_data.returnVerb),
-  _direct(cooking_data.cook, _foodObjects),
+  _directWithPaths(cooking_data.cook, _foodObjects, paths: [_beneficiaries()]),
   _direct(cooking_data.bake, _foodObjects),
   _direct(cooking_data.fry, _foodObjects),
   _direct(cooking_data.boil, _foodObjects),

@@ -12,6 +12,7 @@ class Verb {
   final bool takesAddressee;
   final bool takesCompanion;
   final bool takesTopic;
+  final bool takesBeneficiary;
   final bool takesObjectComplement;
 
   /// go, come, travel, arrive, leave...
@@ -31,6 +32,7 @@ class Verb {
     this.takesAddressee = false,
     this.takesCompanion = false,
     this.takesTopic = false,
+    this.takesBeneficiary = false,
     this.takesObjectComplement = false,
     required this.translations,
   });

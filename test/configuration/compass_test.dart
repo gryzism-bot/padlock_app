@@ -974,6 +974,42 @@ void main() {
       );
     });
 
+    test('beneficiary suggestions require for-beneficiary-capable frame', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(go),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.beneficiary,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetAction(work));
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.beneficiary,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['John', 'Mary', 'friend']));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You work for Mary.',
+      );
+    });
+
     test('keeps recipient focus behind the ditransitive frame', () {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(give));

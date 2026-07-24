@@ -92,6 +92,10 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
     add(_predicateProperty(action, 'topic', 'about-topic', 44));
   }
 
+  if (action.takesBeneficiary) {
+    add(_predicateProperty(action, 'beneficiary', 'beneficiary', 43));
+  }
+
   if (fixedLabel != null) {
     add(_predicateProperty(action, fixedLabel, fixedLabel, 45));
   }
@@ -161,6 +165,12 @@ PredicateInfluence _influenceForPath(
       'topic',
       'about-topic',
       44,
+    ),
+    PredicatePathKind.forBeneficiary => _predicateProperty(
+      action,
+      'beneficiary',
+      'beneficiary',
+      43,
     ),
     PredicatePathKind.placePhrase => _predicateProperty(
       action,

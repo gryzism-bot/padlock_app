@@ -79,6 +79,7 @@ enum NounPhraseTarget {
   companion,
   destination,
   topic,
+  beneficiary,
   complement,
 }
 
@@ -274,6 +275,12 @@ class SetTopic extends ConfigurationMove {
   const SetTopic(this.topic);
 }
 
+class SetBeneficiary extends ConfigurationMove {
+  final NounPhrase? beneficiary;
+
+  const SetBeneficiary(this.beneficiary);
+}
+
 class SetRightAction extends ConfigurationMove {
   final Verb? rightAction;
 
@@ -462,6 +469,7 @@ class ConfigurationEngine {
         companion: state.companion,
         destination: null,
         topic: null,
+        beneficiary: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: null,
@@ -486,6 +494,10 @@ class ConfigurationEngine {
         ? state.destination
         : null;
     final topic = _topicAfterActionChange(state.topic, tailOwner);
+    final beneficiary = _beneficiaryAfterActionChange(
+      state.beneficiary,
+      tailOwner,
+    );
     final placePhrase = _placePhraseAfterActionChange(
       state.placePhrase,
       tailOwner,
@@ -528,6 +540,7 @@ class ConfigurationEngine {
       companion: companion,
       destination: destination,
       topic: topic,
+      beneficiary: beneficiary,
       rightAction: rightAction,
       complement: null,
       adjectiveComplement: null,
@@ -562,6 +575,10 @@ class ConfigurationEngine {
         destination: destination,
       ),
       SetTopic(:final topic) => _copy(state, topic: topic),
+      SetBeneficiary(:final beneficiary) => _copy(
+        state,
+        beneficiary: beneficiary,
+      ),
       SetRightAction(:final rightAction) => _copy(
         state,
         rightAction: rightAction,
@@ -615,6 +632,7 @@ class ConfigurationEngine {
         addressee: null,
         destination: null,
         topic: null,
+        beneficiary: null,
         rightAction: null,
         complement: complement,
         adjectiveComplement: null,
@@ -630,6 +648,7 @@ class ConfigurationEngine {
         addressee: null,
         destination: null,
         topic: null,
+        beneficiary: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
@@ -705,6 +724,7 @@ class ConfigurationEngine {
     _validateNounPhrase('Companion', state.companion, blockers);
     _validateNounPhrase('Destination', state.destination, blockers);
     _validateNounPhrase('Topic', state.topic, blockers);
+    _validateNounPhrase('Beneficiary', state.beneficiary, blockers);
     _validateNounPhrase('Complement', state.complement, blockers);
     _validateRightAction(state, blockers);
 
@@ -863,6 +883,15 @@ class ConfigurationEngine {
       );
     }
 
+    if (lexicalBeRejectsBeneficiarySurface(state)) {
+      blockers.add(
+        const ConfigurationMessage.blocked(
+          'Lexical be does not take a beneficiary.',
+          lawCategory: ConfigurationLawCategory.lexicalBeFrame,
+        ),
+      );
+    }
+
     if (lexicalBeRejectsDestinationSurface(state)) {
       blockers.add(
         const ConfigurationMessage.blocked(
@@ -1005,6 +1034,18 @@ class ConfigurationEngine {
       );
     }
 
+    if (state.beneficiary != null &&
+        !(state.rightAction == null
+            ? state.action.takesBeneficiary
+            : state.rightAction!.takesBeneficiary)) {
+      blockers.add(
+        ConfigurationMessage.blocked(
+          '${(state.rightAction ?? state.action).infinitive} does not take a beneficiary.',
+          lawCategory: ConfigurationLawCategory.predicateFrameType,
+        ),
+      );
+    }
+
     final objectOwner = state.rightAction ?? state.action;
     if (hasFixedObjectFrame(objectOwner) && state.object != null) {
       final label = fixedObjectFrameLabel(objectOwner) ?? 'fixed object';
@@ -1085,6 +1126,15 @@ class ConfigurationEngine {
           );
         }
 
+        if (!activeBeneficiaryNeedsBeneficiaryCapablePredicate(state)) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${(state.rightAction ?? state.action).infinitive} does not take a beneficiary.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
         if (!activeObjectNeedsObjectCapablePredicate(state)) {
           blockers.add(
             ConfigurationMessage.blocked(
@@ -1119,6 +1169,15 @@ class ConfigurationEngine {
           blockers.add(
             ConfigurationMessage.blocked(
               '${state.action.infinitive} does not take an about-topic.',
+              lawCategory: ConfigurationLawCategory.predicateFrameType,
+            ),
+          );
+        }
+
+        if (state.beneficiary != null && !state.action.takesBeneficiary) {
+          blockers.add(
+            ConfigurationMessage.blocked(
+              '${state.action.infinitive} does not take a beneficiary.',
               lawCategory: ConfigurationLawCategory.predicateFrameType,
             ),
           );
@@ -1317,6 +1376,9 @@ class ConfigurationEngine {
     if (previous.topic != null && current.topic == null) {
       fields.add('about-topic');
     }
+    if (previous.beneficiary != null && current.beneficiary == null) {
+      fields.add('beneficiary');
+    }
     if (previous.rightAction != null && current.rightAction == null) {
       fields.add('right action');
     }
@@ -1429,6 +1491,29 @@ class ConfigurationEngine {
     }
 
     return topic;
+  }
+
+  NounPhrase? _beneficiaryAfterActionChange(
+    NounPhrase? beneficiary,
+    Verb action,
+  ) {
+    if (beneficiary == null) {
+      return null;
+    }
+
+    if (!action.takesBeneficiary) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsNoun(
+      action,
+      PredicatePathKind.forBeneficiary,
+      beneficiary,
+    )) {
+      return null;
+    }
+
+    return beneficiary;
   }
 
   bool _predicatePathAcceptsNoun(
@@ -1647,6 +1732,7 @@ class ConfigurationEngine {
     Object? companion = _unchanged,
     Object? destination = _unchanged,
     Object? topic = _unchanged,
+    Object? beneficiary = _unchanged,
     Object? rightAction = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -1690,6 +1776,9 @@ class ConfigurationEngine {
           ? state.destination
           : destination as NounPhrase?,
       topic: identical(topic, _unchanged) ? state.topic : topic as NounPhrase?,
+      beneficiary: identical(beneficiary, _unchanged)
+          ? state.beneficiary
+          : beneficiary as NounPhrase?,
       rightAction: identical(rightAction, _unchanged)
           ? state.rightAction
           : rightAction as Verb?,
@@ -1770,6 +1859,10 @@ class ConfigurationEngine {
         state.topic == null
             ? state
             : _copy(state, topic: transform(state.topic!)),
+      NounPhraseTarget.beneficiary =>
+        state.beneficiary == null
+            ? state
+            : _copy(state, beneficiary: transform(state.beneficiary!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state

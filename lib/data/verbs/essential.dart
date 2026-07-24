@@ -60,6 +60,7 @@ const sing = Verb(
   takesObject: true,
   takesAddressee: true,
   takesCompanion: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'śpiewać'},
 );
 
@@ -83,6 +84,7 @@ const read = Verb(
   takesAddressee: true,
   takesCompanion: true,
   takesTopic: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'czytać'},
 );
 
@@ -266,6 +268,7 @@ const work = Verb(
   pastParticiple: 'worked',
   ingForm: 'working',
   takesCompanion: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'pracować'},
 );
 
@@ -278,6 +281,7 @@ const buy = Verb(
   takesObject: true,
   takesRecipient: true,
   takesCompanion: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'kupować'},
 );
 
@@ -333,6 +337,7 @@ const play = Verb(
   ingForm: 'playing',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'grać'},
 );
 

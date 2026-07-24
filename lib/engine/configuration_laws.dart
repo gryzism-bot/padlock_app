@@ -51,6 +51,10 @@ bool lexicalBeRejectsTopicSurface(SentenceState state) {
   return isLexicalBeFrame(state) && state.topic != null;
 }
 
+bool lexicalBeRejectsBeneficiarySurface(SentenceState state) {
+  return isLexicalBeFrame(state) && state.beneficiary != null;
+}
+
 bool lexicalBeRejectsDestinationSurface(SentenceState state) {
   return isLexicalBeFrame(state) && state.destination != null;
 }
@@ -155,6 +159,17 @@ bool activeTopicNeedsTopicCapablePredicate(SentenceState state) {
 
   final rightAction = state.rightAction;
   return rightAction == null ? state.action.takesTopic : rightAction.takesTopic;
+}
+
+bool activeBeneficiaryNeedsBeneficiaryCapablePredicate(SentenceState state) {
+  if (state.voice != Voice.active || state.beneficiary == null) {
+    return true;
+  }
+
+  final rightAction = state.rightAction;
+  return rightAction == null
+      ? state.action.takesBeneficiary
+      : rightAction.takesBeneficiary;
 }
 
 bool activeObjectNeedsObjectCapablePredicate(SentenceState state) {

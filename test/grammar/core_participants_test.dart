@@ -559,6 +559,70 @@ void main() {
       expect(sentence, 'They should have read about grammar.');
     });
 
+    test('beneficiary surface renders as a for phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
+          beneficiary: mary.toNounPhrase(Number.singular),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John works for Mary.');
+    });
+
+    test('beneficiary surface keeps noun phrase modifiers', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: sing,
+          beneficiary: teacher.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+            adjective: old,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She sang for the old teacher.');
+    });
+
+    test('beneficiary surface survives modals and verb chains', () {
+      final sentence = render(
+        SentenceState(
+          agent: they,
+          action: read,
+          beneficiary: he,
+          modal: should,
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ),
+      );
+
+      expect(sentence, 'They should have read for him.');
+    });
+
+    test('beneficiary surface survives passive voice', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: play,
+          object: football,
+          beneficiary: mary.toNounPhrase(Number.singular),
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Football was played for Mary by John.');
+    });
+
     test('manner can stay before bound addressee phrase', () {
       final sentence = render(
         SentenceState(
