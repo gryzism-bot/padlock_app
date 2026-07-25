@@ -541,7 +541,7 @@ void main() {
     expect(find.byKey(const Key('verb-wake-read-companion')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-drive-vehicle')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
-    expect(find.byKey(const Key('verb-wake-give-time')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-time')), findsNothing);
     expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
