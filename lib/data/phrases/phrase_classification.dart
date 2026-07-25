@@ -114,6 +114,22 @@ bool isClauseLevelModifier(Object phrase) {
       PhraseSurfaceRole.clauseLevelModifier;
 }
 
+bool usesBroadPhraseFallbackInAuthoredMode(PhraseSurfaceFamily family) {
+  final classifications = currentPhraseClassificationsForFamily(family);
+  if (classifications.isEmpty) {
+    return false;
+  }
+
+  return classifications.every(
+    (classification) =>
+        classification.role == PhraseSurfaceRole.clauseLevelModifier,
+  );
+}
+
+bool broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily family) {
+  return !usesBroadPhraseFallbackInAuthoredMode(family);
+}
+
 final clauseLevelTimePhrases = <TimePhrase>[
   for (final classification in currentPhraseClassifications)
     if (classification.family == PhraseSurfaceFamily.time &&

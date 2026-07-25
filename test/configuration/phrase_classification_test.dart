@@ -106,6 +106,25 @@ void main() {
       );
     });
 
+    test('dead wood policy removes broad guided fallback only', () {
+      expect(
+        broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.place),
+        isTrue,
+      );
+      expect(
+        broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.manner),
+        isTrue,
+      );
+      expect(
+        usesBroadPhraseFallbackInAuthoredMode(PhraseSurfaceFamily.time),
+        isTrue,
+      );
+      expect(
+        usesBroadPhraseFallbackInAuthoredMode(PhraseSurfaceFamily.frequency),
+        isTrue,
+      );
+    });
+
     test('authored mode keeps time choices broad as clause modifiers', () {
       final compass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,

@@ -406,6 +406,14 @@ in progress, but Recognition must read them back into the intended fields:
 `rightAction`, route participants, `placePhrase`, and `timePhrase` must not
 silently swallow each other.
 
+Act 7 decides what is dead wood. The old phrase fields are not dead: Grammar and
+Recognition still use them as the bridge while Predicate Paths are being
+authored. What is dead in Guided Mode is the broad generic fallback for
+predicate-bound place and manner choices. `placePhrase` and `mannerPhrase` can
+still appear when an authored Predicate Path owns them, or when a selected value
+needs an exit. Time and frequency stay broad clause-level controls because they
+modify the whole sentence rather than completing one verb route.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product

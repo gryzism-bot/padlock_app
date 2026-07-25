@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -332,5 +333,28 @@ void main() {
       expect(state.destination, isNull);
       expect(state.source, isNull);
     });
+
+    test(
+      'old phrase fields remain alive as Grammar and Recognition bridge',
+      () {
+        final state = recognizeRoundTrip(
+          'John learned from Mary at home yesterday.',
+        );
+
+        expect(state.action, learn);
+        expectNoun(state.source, 'Mary');
+        expect(state.placePhrase, homePlacePhrase);
+        expect(state.timePhrase, yesterdayTimePhrase);
+
+        final mannerState = recognizeRoundTrip(
+          'John explained grammar carefully to Mary.',
+        );
+
+        expect(mannerState.action, explain);
+        expectNoun(mannerState.object, 'grammar');
+        expectNoun(mannerState.addressee, 'Mary');
+        expect(mannerState.mannerPhrase, carefullyMannerPhrase);
+      },
+    );
   });
 }

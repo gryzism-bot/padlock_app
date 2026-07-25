@@ -760,6 +760,7 @@ class ConfigurationCompass {
   Iterable<_CompassCandidate> _placePhraseCandidates(SentenceState sentence) {
     final authoredChoices = _placeChoicesForPath(sentence);
     if (predicatePathMode == PredicatePathMode.authoredTracks &&
+        broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.place) &&
         authoredChoices != null &&
         authoredChoices.isEmpty &&
         sentence.placePhrase == null) {
@@ -780,6 +781,7 @@ class ConfigurationCompass {
   Iterable<_CompassCandidate> _mannerPhraseCandidates(SentenceState sentence) {
     final authoredChoices = _mannerChoicesForPath(sentence);
     if (predicatePathMode == PredicatePathMode.authoredTracks &&
+        broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.manner) &&
         authoredChoices != null &&
         authoredChoices.isEmpty &&
         sentence.mannerPhrase == null) {
