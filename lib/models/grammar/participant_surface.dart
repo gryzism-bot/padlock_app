@@ -104,9 +104,9 @@ const sourceSurface = PrepositionalParticipantSurface(
 
 const prepositionalParticipantSurfaces = [
   addresseeSurface,
-  companionSurface,
   destinationSurface,
   topicSurface,
+  companionSurface,
   beneficiarySurface,
   sourceSurface,
 ];

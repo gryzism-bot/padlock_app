@@ -400,6 +400,12 @@ owns that route, or when an already selected value needs an exit. Clause-level
 time and frequency controls remain broad for now because they modify the whole
 sentence rather than belonging to one predicate route.
 
+Act 6 protects the bridge boundary with two-way tests. Right-side routes can
+still compile down into old `SentenceState` phrase fields while the migration is
+in progress, but Recognition must read them back into the intended fields:
+`rightAction`, route participants, `placePhrase`, and `timePhrase` must not
+silently swallow each other.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product

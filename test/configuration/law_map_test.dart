@@ -25,15 +25,15 @@ void main() {
     test('prepositional participant surfaces have one shared law map', () {
       expect(prepositionalParticipantSurfaces.map((surface) => surface.label), [
         'addressee',
-        'companion',
         'destination',
         'about-topic',
+        'companion',
         'beneficiary',
         'source',
       ]);
       expect(
         prepositionalParticipantSurfaces.map((surface) => surface.preposition),
-        ['to', 'with', 'to', 'about', 'for', 'from'],
+        ['to', 'to', 'about', 'with', 'for', 'from'],
       );
       expect(
         prepositionalParticipantSurfaces.where(

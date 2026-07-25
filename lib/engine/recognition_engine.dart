@@ -1183,6 +1183,10 @@ class RecognitionEngine {
       builder.agentEnd = builder.verbChainStart - 1;
     }
 
+    if (_recognizeRightActionObjectTail(builder)) {
+      return;
+    }
+
     if (builder.action?.takesObject != true) {
       return;
     }
@@ -1207,12 +1211,59 @@ class RecognitionEngine {
     }
   }
 
+  bool _recognizeRightActionObjectTail(_RecognitionBuilder builder) {
+    final rightAction = builder.rightAction;
+    if (rightAction?.takesObject != true) {
+      return false;
+    }
+
+    final objectStart = builder.rightActionEnd + 1;
+    if (objectStart >= builder.tokens.length) {
+      return false;
+    }
+
+    if (_startsNonParticipantPhrase(builder, objectStart)) {
+      return false;
+    }
+
+    builder.objectStart = objectStart;
+    builder.objectEnd = builder.tokens.length - 1;
+    return true;
+  }
+
   bool _startsNonParticipantPhrase(_RecognitionBuilder builder, int start) {
     if (start >= builder.tokens.length) {
       return false;
     }
 
     if (start == builder.rightActionStart) {
+      return true;
+    }
+
+    final token = builder.tokens[start].toLowerCase();
+    final owner = _prepositionalParticipantOwner(builder);
+    if (token == 'to' &&
+        (owner?.takesAddressee == true ||
+            owner?.usesDestinationPlace == true ||
+            owner?.takesRecipient == true)) {
+      return true;
+    }
+
+    if (token == 'with' &&
+        (builder.action == be || owner?.takesCompanion == true)) {
+      return true;
+    }
+
+    if (token == 'about' && owner?.takesTopic == true) {
+      return true;
+    }
+
+    if (token == 'for' &&
+        (owner?.takesBeneficiary == true || owner?.takesRecipient == true)) {
+      return true;
+    }
+
+    if (token == 'from' && owner?.takesSource == true) {
       return true;
     }
 
@@ -1378,6 +1429,10 @@ class RecognitionEngine {
 
   bool _startsStandalonePronounPhrase(_RecognitionBuilder builder, int index) {
     final token = builder.tokens[index].toLowerCase();
+
+    if (_lookupStandaloneNounPhrase(token) != null) {
+      return true;
+    }
 
     if (token == 'i' ||
         token == 'you' ||
@@ -1545,12 +1600,17 @@ class RecognitionEngine {
 
     final firstPhraseStart = starts.reduce((a, b) => a < b ? a : b);
 
-    if (_crossesPhrase(
+    final firstObjectTailStart = _firstBoundaryAtOrAfter(
+      starts,
       builder.objectStart,
-      builder.objectEnd,
-      firstPhraseStart,
-    )) {
-      builder.objectEnd = firstPhraseStart - 1;
+    );
+    if (firstObjectTailStart != null &&
+        _crossesPhrase(
+          builder.objectStart,
+          builder.objectEnd,
+          firstObjectTailStart,
+        )) {
+      builder.objectEnd = firstObjectTailStart - 1;
     }
 
     if (_crossesPhrase(
@@ -1636,6 +1696,19 @@ class RecognitionEngine {
 
   bool _crossesPhrase(int start, int end, int phraseStart) {
     return start >= 0 && start <= phraseStart && end >= phraseStart;
+  }
+
+  int? _firstBoundaryAtOrAfter(List<int> starts, int start) {
+    if (start < 0) {
+      return null;
+    }
+
+    final candidates = starts.where((boundary) => boundary >= start);
+    if (candidates.isEmpty) {
+      return null;
+    }
+
+    return candidates.reduce((a, b) => a < b ? a : b);
   }
 
   void _trimFrontPhrases(_RecognitionBuilder builder) {
@@ -1844,6 +1917,14 @@ class RecognitionEngine {
     }
 
     final text = remaining.join(' ').toLowerCase();
+    final standalone = _lookupStandaloneNounPhrase(text);
+
+    if (standalone != null &&
+        determiner == null &&
+        recognizedAdjectives.isEmpty) {
+      return standalone;
+    }
+
     final fixedObject = _lookupFixedObject(text);
 
     if (fixedObject != null &&
@@ -1921,6 +2002,18 @@ class RecognitionEngine {
       if (normalized == noun.singular.toLowerCase() ||
           normalized == noun.plural.toLowerCase()) {
         return noun;
+      }
+    }
+
+    return null;
+  }
+
+  NounPhrase? _lookupStandaloneNounPhrase(String text) {
+    final normalized = text.toLowerCase();
+
+    for (final phrase in _knownStandaloneNounPhrases) {
+      if (normalized == phrase.text.toLowerCase()) {
+        return phrase;
       }
     }
 
@@ -2124,7 +2217,8 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
-    if (builder.action != be && builder.action?.takesCompanion != true) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (builder.action != be && owner?.takesCompanion != true) {
       return;
     }
 
@@ -2149,7 +2243,8 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
-    if (builder.action?.takesAddressee != true || builder.recipientStart >= 0) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (owner?.takesAddressee != true || builder.recipientStart >= 0) {
       return;
     }
 
@@ -2174,7 +2269,8 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
-    if (builder.action?.usesDestinationPlace != true) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (owner?.usesDestinationPlace != true) {
       return;
     }
 
@@ -2196,7 +2292,8 @@ class RecognitionEngine {
   }
 
   void _recognizeTopicPhrase(_RecognitionBuilder builder, List<String> tokens) {
-    if (builder.action?.takesTopic != true) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (owner?.takesTopic != true) {
       return;
     }
 
@@ -2221,7 +2318,7 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
-    final owner = builder.rightAction ?? builder.action;
+    final owner = _prepositionalParticipantOwner(builder);
     if (owner?.takesBeneficiary != true || builder.recipientStart >= 0) {
       return;
     }
@@ -2247,7 +2344,7 @@ class RecognitionEngine {
     _RecognitionBuilder builder,
     List<String> tokens,
   ) {
-    final owner = builder.rightAction ?? builder.action;
+    final owner = _prepositionalParticipantOwner(builder);
     if (owner?.takesSource != true) {
       return;
     }
@@ -2290,6 +2387,10 @@ class RecognitionEngine {
     return -1;
   }
 
+  Verb? _prepositionalParticipantOwner(_RecognitionBuilder builder) {
+    return builder.rightAction ?? builder.action;
+  }
+
   bool _looksLikeCompanionPhrase(_RecognitionBuilder builder, int start) {
     if (start >= builder.tokens.length) {
       return false;
@@ -2311,7 +2412,7 @@ class RecognitionEngine {
     }
 
     final text = builder.tokens[current].toLowerCase();
-    return _lookupNoun(text) != null;
+    return _lookupNoun(text) != null || _lookupFixedObject(text) != null;
   }
 
   void _recognizeMannerPhrase(
@@ -2355,6 +2456,12 @@ class RecognitionEngine {
       if (_lookupDeterminer(token) != null) continue;
 
       if (_lookupAdjective(token) != null) continue;
+
+      if (_lookupNoun(token) != null) continue;
+
+      if (_lookupFixedObject(token) != null) continue;
+
+      if (_lookupStandaloneNounPhrase(token) != null) continue;
 
       builder.unknownTokens.add(token);
     }
@@ -2655,6 +2762,8 @@ const _knownNouns = [
   bee,
   butterfly,
 ];
+
+const _knownStandaloneNounPhrases = [someone, anyone, nobody, everyone];
 
 const _knownFixedObjects = [
   fixed_object.football,
