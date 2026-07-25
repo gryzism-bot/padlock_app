@@ -765,12 +765,10 @@ class ConfigurationCompass {
       return null;
     }
 
-    final choices = predicatePlaceChoicesFor(
+    return predicatePlaceChoicesFor(
       _boundTailOwner(sentence),
       PredicatePathKind.placePhrase,
     );
-
-    return choices.isEmpty ? null : choices;
   }
 
   List<MannerPhrase>? _mannerChoicesForPath(SentenceState sentence) {
@@ -778,12 +776,10 @@ class ConfigurationCompass {
       return null;
     }
 
-    final choices = predicateMannerChoicesFor(
+    return predicateMannerChoicesFor(
       _boundTailOwner(sentence),
       PredicatePathKind.mannerPhrase,
     );
-
-    return choices.isEmpty ? null : choices;
   }
 }
 

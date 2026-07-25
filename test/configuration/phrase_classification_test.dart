@@ -5,6 +5,7 @@ import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -151,6 +152,59 @@ void main() {
       expect(state.sentenceState.action, read);
       expect(state.sentenceState.timePhrase, yesterdayTimePhrase);
       expect(state.sentenceState.frequencyPhrase, neverFrequencyPhrase);
+    });
+
+    test('authored mode does not fall back to broad place routes', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = ConfigurationState.initial();
+      state = const ConfigurationEngine().applyMove(
+        state,
+        const SetAction(say),
+      );
+
+      final labels = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(labels, ['no place']);
+    });
+
+    test('authored mode does not fall back to broad manner routes', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = ConfigurationState.initial();
+      state = const ConfigurationEngine().applyMove(
+        state,
+        const SetAction(speak),
+      );
+
+      final labels = compass
+          .suggestionsFor(
+            state,
+            ConfigurationCompassSlot.mannerPhrase,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(labels, ['no manner']);
+    });
+
+    test('predicate-bound phrase routes are shaved by incompatible verbs', () {
+      final lock = const ConfigurationEngine();
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(go));
+      state = lock.applyMove(state, const SetPlacePhrase(schoolPlacePhrase));
+      state = lock.applyMove(state, const SetMannerPhrase(awayMannerPhrase));
+      state = lock.applyMove(state, const SetAction(say));
+
+      expect(state.sentenceState.action, say);
+      expect(state.sentenceState.placePhrase, isNull);
+      expect(state.sentenceState.mannerPhrase, isNull);
     });
 
     test('manner words are currently predicate-bound route material', () {

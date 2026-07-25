@@ -331,6 +331,12 @@ Known solid laws:
 
 Potential next laws:
 
+- ConfigurationEngine law-table comb-down:
+  - `_validate(...)` is healthy but still a large readable if-tree
+  - extract repeated "if law is broken, add this category/message" shapes into
+    stable `ConfigurationLaw` / `LawCheck` data
+  - this should feed both developer diagnostics and educational alerts from the
+    same source
 - participant identity/reflexive law:
   same participant in agent/object or agent/recipient should be transformed,
   blocked, or explained

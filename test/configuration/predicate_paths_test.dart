@@ -3,6 +3,7 @@ import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
+import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
     as animal_categories;
@@ -21,6 +22,7 @@ import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/engine/predicate_path_compiler.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
@@ -34,47 +36,11 @@ void main() {
     );
   }
 
-  ConfigurationMove firstMoveFor(PredicatePath path) {
-    return switch (path.kind) {
-      PredicatePathKind.directObject => SetObject(path.nouns.first),
-      PredicatePathKind.toRightAction => SetRightAction(path.verbs.first),
-      PredicatePathKind.toRecipient => SetRecipient(path.nouns.first),
-      PredicatePathKind.toAddressee => SetAddressee(path.nouns.first),
-      PredicatePathKind.withCompanion => SetCompanion(path.nouns.first),
-      PredicatePathKind.toDestination => SetDestination(path.nouns.first),
-      PredicatePathKind.aboutTopic => SetTopic(path.nouns.first),
-      PredicatePathKind.forBeneficiary => SetBeneficiary(path.nouns.first),
-      PredicatePathKind.fromSource => SetSource(path.nouns.first),
-      PredicatePathKind.placePhrase => SetPlacePhrase(path.places.first),
-      PredicatePathKind.timePhrase => SetTimePhrase(path.times.first),
-      PredicatePathKind.frequencyPhrase => SetFrequencyPhrase(
-        path.frequencies.first,
-      ),
-      PredicatePathKind.mannerPhrase => SetMannerPhrase(path.manners.first),
-    };
-  }
-
   ConfigurationState stateAfterPath(
     PredicateUnlocks unlocks,
     PredicatePath path,
   ) {
-    var state = ConfigurationState.initial();
-    state = lock.applyMove(state, SetAction(unlocks.verb));
-
-    if (path.kind == PredicatePathKind.toRecipient) {
-      PredicatePath? directObjectPath;
-      for (final candidate in unlocks.paths) {
-        if (candidate.kind == PredicatePathKind.directObject) {
-          directObjectPath = candidate;
-          break;
-        }
-      }
-      if (directObjectPath != null) {
-        state = lock.applyMove(state, firstMoveFor(directObjectPath));
-      }
-    }
-
-    return lock.applyMove(state, firstMoveFor(path));
+    return compileFirstPredicatePathChoice(unlocks, path, lock: lock);
   }
 
   group('Predicate paths', () {
@@ -87,6 +53,88 @@ void main() {
         ]),
       );
     });
+
+    test('predicate path compiler maps authored routes into state moves', () {
+      for (final unlocks in guidedPredicateUnlocks) {
+        for (final path in unlocks.paths) {
+          final move = firstMoveForPredicatePath(path, owner: unlocks.verb);
+          final expectedMove = switch (path.kind) {
+            PredicatePathKind.directObject => isA<SetObject>(),
+            PredicatePathKind.toRightAction => isA<SetRightAction>(),
+            PredicatePathKind.toRecipient => isA<SetRecipient>(),
+            PredicatePathKind.toAddressee => isA<SetAddressee>(),
+            PredicatePathKind.withCompanion => isA<SetCompanion>(),
+            PredicatePathKind.toDestination => isA<SetDestination>(),
+            PredicatePathKind.aboutTopic => isA<SetTopic>(),
+            PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
+            PredicatePathKind.fromSource => isA<SetSource>(),
+            PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
+            PredicatePathKind.timePhrase => isA<SetTimePhrase>(),
+            PredicatePathKind.frequencyPhrase => isA<SetFrequencyPhrase>(),
+            PredicatePathKind.mannerPhrase => isA<SetMannerPhrase>(),
+          };
+
+          expect(
+            move,
+            expectedMove,
+            reason: '${unlocks.verb.infinitive} ${path.kind}',
+          );
+        }
+      }
+    });
+
+    test(
+      'predicate path compiler renders route choices through SentenceState',
+      () {
+        final examples = [
+          (
+            action: learn,
+            kind: PredicatePathKind.directObject,
+            text: 'You learn English.',
+          ),
+          (
+            action: learn,
+            kind: PredicatePathKind.toRightAction,
+            text: 'You learn to speak.',
+          ),
+          (
+            action: write,
+            kind: PredicatePathKind.toAddressee,
+            text: 'You write to John.',
+          ),
+          (
+            action: work,
+            kind: PredicatePathKind.forBeneficiary,
+            text: 'You work for John.',
+          ),
+          (
+            action: go,
+            kind: PredicatePathKind.placePhrase,
+            text: 'You go home.',
+          ),
+          (
+            action: go,
+            kind: PredicatePathKind.mannerPhrase,
+            text: 'You go quickly.',
+          ),
+        ];
+
+        for (final example in examples) {
+          final unlocks = predicateUnlocksFor(example.action)!;
+          final path = unlocks.paths.singleWhere(
+            (path) => path.kind == example.kind,
+          );
+          final state = compileFirstPredicatePathChoice(
+            unlocks,
+            path,
+            lock: lock,
+          );
+
+          expect(wasBlocked(state), isFalse);
+          expect(grammar.generate(state.sentenceState).text, example.text);
+        }
+      },
+    );
 
     test('guided predicate unlocks are authored per visible verb', () {
       final verbs = guidedPredicateUnlocks
@@ -530,6 +578,26 @@ void main() {
         ).map((place) => place.noun),
         containsAll(['home', 'bed']),
       );
+    });
+
+    test('authored phrase routes use predicate-bound classified phrases', () {
+      for (final unlocks in guidedPredicateUnlocks) {
+        for (final path in unlocks.paths) {
+          final phrases = switch (path.kind) {
+            PredicatePathKind.placePhrase => <Object>[...path.places],
+            PredicatePathKind.mannerPhrase => <Object>[...path.manners],
+            _ => const <Object>[],
+          };
+
+          for (final phrase in phrases) {
+            expect(
+              currentPhraseClassificationFor(phrase)?.role,
+              PhraseSurfaceRole.predicateBoundRoute,
+              reason: '${unlocks.verb.infinitive} ${path.kind}',
+            );
+          }
+        }
+      }
     });
 
     test('authored Compass mode narrows phrase rails to predicate paths', () {

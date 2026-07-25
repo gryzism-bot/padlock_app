@@ -381,6 +381,19 @@ sentence-level controls in Guided Mode: they remain broad Compass choices, they
 do not count as verb-woken outputs, and guided verb switching does not shave
 them away just because the next predicate has different authored tracks.
 
+Act 3 moves predicate-bound phrase exposure into Predicate Paths. In authored
+mode, place and manner rails no longer fall back to every old phrase constant
+when a predicate has not authored that route. A predicate-bound place or manner
+can stay visible only as a selected exit, or as a route the current predicate
+explicitly owns. Switching verbs shaves those route-bound phrases when the next
+predicate does not author them.
+
+Act 4 adds the bridge compiler. Predicate Paths stay authored data, but
+`predicate_path_compiler.dart` knows how to turn a chosen route into the correct
+Configuration move and therefore into the same `SentenceState` fields that
+Grammar and Recognition already understand. This keeps the new right-side word
+routes from forcing a rewrite of the old engines.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product

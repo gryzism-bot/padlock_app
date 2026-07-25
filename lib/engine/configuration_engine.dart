@@ -1537,7 +1537,7 @@ class ConfigurationEngine {
       PredicatePathKind.placePhrase,
     );
     if (choices.isEmpty) {
-      return true;
+      return false;
     }
 
     return choices.any(
@@ -1599,7 +1599,7 @@ class ConfigurationEngine {
       PredicatePathKind.mannerPhrase,
     );
     if (choices.isEmpty) {
-      return true;
+      return false;
     }
 
     return choices.any(
