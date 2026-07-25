@@ -2,6 +2,8 @@ import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 
 enum PhraseSurfaceFamily { place, time, frequency, manner }
 
@@ -106,3 +108,22 @@ List<CurrentPhraseClassification> currentPhraseClassificationsForFamily(
       if (classification.family == family) classification,
   ];
 }
+
+bool isClauseLevelModifier(Object phrase) {
+  return currentPhraseClassificationFor(phrase)?.role ==
+      PhraseSurfaceRole.clauseLevelModifier;
+}
+
+final clauseLevelTimePhrases = <TimePhrase>[
+  for (final classification in currentPhraseClassifications)
+    if (classification.family == PhraseSurfaceFamily.time &&
+        classification.role == PhraseSurfaceRole.clauseLevelModifier)
+      classification.phrase as TimePhrase,
+];
+
+final clauseLevelFrequencyPhrases = <FrequencyPhrase>[
+  for (final classification in currentPhraseClassifications)
+    if (classification.family == PhraseSurfaceFamily.frequency &&
+        classification.role == PhraseSurfaceRole.clauseLevelModifier)
+      classification.phrase as FrequencyPhrase,
+];

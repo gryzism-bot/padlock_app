@@ -3,10 +3,9 @@ import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
-import 'package:padlock_app/data/phrases/place_phrases.dart';
-import 'package:padlock_app/data/phrases/time_phrases.dart';
-import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
+import 'package:padlock_app/data/phrases/phrase_classification.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
@@ -140,8 +139,8 @@ class ConfigurationCompass {
        determiners = determiners ?? allDeterminers,
        modals = modals ?? _coreModals,
        places = places ?? placePhrases,
-       times = times ?? timePhrases,
-       frequencies = frequencies ?? frequencyPhrases,
+       times = times ?? clauseLevelTimePhrases,
+       frequencies = frequencies ?? clauseLevelFrequencyPhrases,
        manners = manners ?? mannerPhrases;
 
   List<ConfigurationSuggestion> suggestionsFor(
@@ -580,10 +579,7 @@ class ConfigurationCompass {
           sentence.timePhrase == null ? 130 : 120,
           isSelected: sentence.timePhrase == null,
         ),
-        ..._timeChoicesForState(
-          sentence.timePhrase,
-          _timeChoicesForPath(sentence) ?? times,
-        ).map(
+        ..._timeChoicesForState(sentence.timePhrase, times).map(
           (time) => _CompassCandidate(
             SetTimePhrase(time),
             time.text,
@@ -599,10 +595,7 @@ class ConfigurationCompass {
           sentence.frequencyPhrase == null ? 130 : 120,
           isSelected: sentence.frequencyPhrase == null,
         ),
-        ..._frequencyChoicesForState(
-          sentence.frequencyPhrase,
-          _frequencyChoicesForPath(sentence) ?? frequencies,
-        ).map(
+        ..._frequencyChoicesForState(sentence.frequencyPhrase, frequencies).map(
           (frequency) => _CompassCandidate(
             SetFrequencyPhrase(frequency),
             frequency.text,
@@ -775,32 +768,6 @@ class ConfigurationCompass {
     final choices = predicatePlaceChoicesFor(
       _boundTailOwner(sentence),
       PredicatePathKind.placePhrase,
-    );
-
-    return choices.isEmpty ? null : choices;
-  }
-
-  List<TimePhrase>? _timeChoicesForPath(SentenceState sentence) {
-    if (predicatePathMode != PredicatePathMode.authoredTracks) {
-      return null;
-    }
-
-    final choices = predicateTimeChoicesFor(
-      _boundTailOwner(sentence),
-      PredicatePathKind.timePhrase,
-    );
-
-    return choices.isEmpty ? null : choices;
-  }
-
-  List<FrequencyPhrase>? _frequencyChoicesForPath(SentenceState sentence) {
-    if (predicatePathMode != PredicatePathMode.authoredTracks) {
-      return null;
-    }
-
-    final choices = predicateFrequencyChoicesFor(
-      _boundTailOwner(sentence),
-      PredicatePathKind.frequencyPhrase,
     );
 
     return choices.isEmpty ? null : choices;

@@ -4,6 +4,10 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/engine/configuration_compass.dart';
+import 'package:padlock_app/engine/configuration_engine.dart';
 
 void main() {
   group('Current phrase classification', () {
@@ -85,6 +89,8 @@ void main() {
 
       expect(clauseModifiers, containsAll(['today', 'yesterday', 'now']));
       expect(clauseModifiers, containsAll(['always', 'usually', 'every day']));
+      expect(clauseLevelTimePhrases, timePhrases);
+      expect(clauseLevelFrequencyPhrases, frequencyPhrases);
       expect(
         currentPhraseClassificationFor(todayTimePhrase)!.family,
         PhraseSurfaceFamily.time,
@@ -93,6 +99,58 @@ void main() {
         currentPhraseClassificationFor(alwaysFrequencyPhrase)!.family,
         PhraseSurfaceFamily.frequency,
       );
+    });
+
+    test('authored mode keeps time choices broad as clause modifiers', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = ConfigurationState.initial();
+      state = const ConfigurationEngine().applyMove(state, const SetAction(go));
+
+      final labels = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.timePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(labels, containsAll(['today', 'yesterday', 'on Monday']));
+      expect(labels, contains('soon'));
+    });
+
+    test('authored mode keeps frequency choices broad as clause modifiers', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = ConfigurationState.initial();
+      state = const ConfigurationEngine().applyMove(state, const SetAction(go));
+
+      final labels = compass
+          .suggestionsFor(
+            state,
+            ConfigurationCompassSlot.frequencyPhrase,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(labels, containsAll(['always', 'usually', 'never']));
+      expect(labels, contains('every year'));
+    });
+
+    test('clause modifiers survive guided verb shaving', () {
+      final lock = const ConfigurationEngine();
+      var state = ConfigurationState.initial();
+      state = lock.applyMove(state, const SetAction(go));
+      state = lock.applyMove(state, const SetTimePhrase(yesterdayTimePhrase));
+      state = lock.applyMove(
+        state,
+        const SetFrequencyPhrase(neverFrequencyPhrase),
+      );
+      state = lock.applyMove(state, const SetAction(read));
+
+      expect(state.sentenceState.action, read);
+      expect(state.sentenceState.timePhrase, yesterdayTimePhrase);
+      expect(state.sentenceState.frequencyPhrase, neverFrequencyPhrase);
     });
 
     test('manner words are currently predicate-bound route material', () {

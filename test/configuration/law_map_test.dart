@@ -159,6 +159,11 @@ void main() {
         final influenceKeys = influences.map((influence) => influence.key);
 
         for (final path in unlocks.paths) {
+          if (path.kind == PredicatePathKind.timePhrase ||
+              path.kind == PredicatePathKind.frequencyPhrase) {
+            continue;
+          }
+
           final expectedKey = switch (path.kind) {
             PredicatePathKind.directObject =>
               fixedObjectFrameLabel(unlocks.verb) ?? 'object',

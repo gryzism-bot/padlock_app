@@ -2,6 +2,7 @@ import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_laws.dart';
@@ -1545,6 +1546,10 @@ class ConfigurationEngine {
   }
 
   bool _predicatePathAcceptsTime(Verb action, TimePhrase phrase) {
+    if (isClauseLevelModifier(phrase)) {
+      return true;
+    }
+
     if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
       return true;
     }
@@ -1563,6 +1568,10 @@ class ConfigurationEngine {
   }
 
   bool _predicatePathAcceptsFrequency(Verb action, FrequencyPhrase phrase) {
+    if (isClauseLevelModifier(phrase)) {
+      return true;
+    }
+
     if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
       return true;
     }

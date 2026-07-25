@@ -376,6 +376,11 @@ Act 1 exists as executable data in `phrase_classification.dart`. It classifies
 all current place, time, frequency, and manner phrase constants before any
 fields are removed or any rails are rewired.
 
+Act 2 keeps clause modifiers explicit. Current time and frequency phrases stay
+sentence-level controls in Guided Mode: they remain broad Compass choices, they
+do not count as verb-woken outputs, and guided verb switching does not shave
+them away just because the next predicate has different authored tracks.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product

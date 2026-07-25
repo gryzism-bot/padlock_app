@@ -69,6 +69,10 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
   }
 
   for (final path in predicatePathsFor(action)) {
+    if (!_pathWakesPredicate(path.kind)) {
+      continue;
+    }
+
     add(_influenceForPath(action, path.kind, fixedLabel));
   }
 
@@ -122,6 +126,13 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
 
   influences.sort((left, right) => right.rank.compareTo(left.rank));
   return influences;
+}
+
+bool _pathWakesPredicate(PredicatePathKind kind) {
+  return switch (kind) {
+    PredicatePathKind.timePhrase || PredicatePathKind.frequencyPhrase => false,
+    _ => true,
+  };
 }
 
 PredicateInfluence _influenceForPath(
