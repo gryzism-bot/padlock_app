@@ -372,6 +372,10 @@ The implementation plan should be incremental:
    - no duplicate guided route appears through both a phrase rail and a
      predicate route
 
+Act 1 exists as executable data in `phrase_classification.dart`. It classifies
+all current place, time, frequency, and manner phrase constants before any
+fields are removed or any rails are rewired.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product
