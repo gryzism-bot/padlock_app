@@ -394,6 +394,12 @@ Configuration move and therefore into the same `SentenceState` fields that
 Grammar and Recognition already understand. This keeps the new right-side word
 routes from forcing a rewrite of the old engines.
 
+Act 5 hides broad generic phrase rails from Guided Mode. In authored mode,
+predicate-bound place and manner surfaces appear only when the current predicate
+owns that route, or when an already selected value needs an exit. Clause-level
+time and frequency controls remain broad for now because they modify the whole
+sentence rather than belonging to one predicate route.
+
 Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product

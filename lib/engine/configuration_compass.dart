@@ -561,16 +561,7 @@ class ConfigurationCompass {
               ),
             ),
       ConfigurationCompassSlot.placePhrase => [
-        _CompassCandidate(
-          const SetPlacePhrase(null),
-          'no place',
-          sentence.placePhrase == null ? 130 : 120,
-          isSelected: sentence.placePhrase == null,
-        ),
-        ..._placePhraseCandidatesForState(
-          sentence,
-          _placeChoicesForPath(sentence) ?? places,
-        ),
+        ..._placePhraseCandidates(sentence),
       ],
       ConfigurationCompassSlot.timePhrase => [
         _CompassCandidate(
@@ -605,23 +596,7 @@ class ConfigurationCompass {
         ),
       ],
       ConfigurationCompassSlot.mannerPhrase => [
-        _CompassCandidate(
-          const SetMannerPhrase(null),
-          'no manner',
-          sentence.mannerPhrase == null ? 130 : 120,
-          isSelected: sentence.mannerPhrase == null,
-        ),
-        ..._mannerChoicesForState(
-          sentence.mannerPhrase,
-          _mannerChoicesForPath(sentence) ?? manners,
-        ).map(
-          (manner) => _CompassCandidate(
-            SetMannerPhrase(manner),
-            manner.text,
-            100,
-            isSelected: manner == sentence.mannerPhrase,
-          ),
-        ),
+        ..._mannerPhraseCandidates(sentence),
       ],
     };
   }
@@ -780,6 +755,56 @@ class ConfigurationCompass {
       _boundTailOwner(sentence),
       PredicatePathKind.mannerPhrase,
     );
+  }
+
+  Iterable<_CompassCandidate> _placePhraseCandidates(SentenceState sentence) {
+    final authoredChoices = _placeChoicesForPath(sentence);
+    if (predicatePathMode == PredicatePathMode.authoredTracks &&
+        authoredChoices != null &&
+        authoredChoices.isEmpty &&
+        sentence.placePhrase == null) {
+      return const <_CompassCandidate>[];
+    }
+
+    return [
+      _CompassCandidate(
+        const SetPlacePhrase(null),
+        'no place',
+        sentence.placePhrase == null ? 130 : 120,
+        isSelected: sentence.placePhrase == null,
+      ),
+      ..._placePhraseCandidatesForState(sentence, authoredChoices ?? places),
+    ];
+  }
+
+  Iterable<_CompassCandidate> _mannerPhraseCandidates(SentenceState sentence) {
+    final authoredChoices = _mannerChoicesForPath(sentence);
+    if (predicatePathMode == PredicatePathMode.authoredTracks &&
+        authoredChoices != null &&
+        authoredChoices.isEmpty &&
+        sentence.mannerPhrase == null) {
+      return const <_CompassCandidate>[];
+    }
+
+    return [
+      _CompassCandidate(
+        const SetMannerPhrase(null),
+        'no manner',
+        sentence.mannerPhrase == null ? 130 : 120,
+        isSelected: sentence.mannerPhrase == null,
+      ),
+      ..._mannerChoicesForState(
+        sentence.mannerPhrase,
+        authoredChoices ?? manners,
+      ).map(
+        (manner) => _CompassCandidate(
+          SetMannerPhrase(manner),
+          manner.text,
+          100,
+          isSelected: manner == sentence.mannerPhrase,
+        ),
+      ),
+    ];
   }
 }
 

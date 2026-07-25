@@ -5,10 +5,14 @@ import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
+import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 void main() {
   group('Current phrase classification', () {
@@ -154,7 +158,7 @@ void main() {
       expect(state.sentenceState.frequencyPhrase, neverFrequencyPhrase);
     });
 
-    test('authored mode does not fall back to broad place routes', () {
+    test('authored mode hides broad place routes without an authored path', () {
       final compass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
@@ -169,20 +173,117 @@ void main() {
           .map((suggestion) => suggestion.label)
           .toList();
 
-      expect(labels, ['no place']);
+      expect(labels, isEmpty);
     });
 
-    test('authored mode does not fall back to broad manner routes', () {
+    test(
+      'authored mode hides broad manner routes without an authored path',
+      () {
+        final compass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        var state = ConfigurationState.initial();
+        state = const ConfigurationEngine().applyMove(
+          state,
+          const SetAction(speak),
+        );
+
+        final labels = compass
+            .suggestionsFor(
+              state,
+              ConfigurationCompassSlot.mannerPhrase,
+              limit: 0,
+            )
+            .map((suggestion) => suggestion.label)
+            .toList();
+
+        expect(labels, isEmpty);
+      },
+    );
+
+    test('authored mode keeps selected place exit without broad fallback', () {
       final compass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = ConfigurationState(
+        sentenceState: SentenceState(
+          agent: you,
+          action: say,
+          placePhrase: schoolPlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, ['no place', 'school']);
+      expect(labels, isNot(contains('home')));
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'no place')
+            .preview
+            .sentenceState
+            .placePhrase,
+        isNull,
+      );
+    });
+
+    test('authored mode keeps selected manner exit without broad fallback', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = ConfigurationState(
+        sentenceState: SentenceState(
+          agent: you,
+          action: want,
+          mannerPhrase: closelyMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.mannerPhrase,
+        limit: 0,
+      );
+
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, ['no manner', 'closely']);
+      expect(labels, isNot(contains('quickly')));
+      expect(
+        suggestions
+            .singleWhere((suggestion) => suggestion.label == 'no manner')
+            .preview
+            .sentenceState
+            .mannerPhrase,
+        isNull,
+      );
+    });
+
+    test('legacy mode keeps broad phrase fallback for explorer-style use', () {
+      final compass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.legacyCompassFallback,
       );
       var state = ConfigurationState.initial();
       state = const ConfigurationEngine().applyMove(
         state,
-        const SetAction(speak),
+        const SetAction(say),
       );
 
-      final labels = compass
+      final placeLabels = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+      final mannerLabels = compass
           .suggestionsFor(
             state,
             ConfigurationCompassSlot.mannerPhrase,
@@ -191,7 +292,8 @@ void main() {
           .map((suggestion) => suggestion.label)
           .toList();
 
-      expect(labels, ['no manner']);
+      expect(placeLabels, containsAll(['no place', 'home', 'school']));
+      expect(mannerLabels, containsAll(['no manner', 'quickly', 'carefully']));
     });
 
     test('predicate-bound phrase routes are shaved by incompatible verbs', () {

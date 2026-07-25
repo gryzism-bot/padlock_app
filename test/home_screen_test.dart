@@ -1030,6 +1030,33 @@ void main() {
   });
 
   testWidgets(
+    'Guided Mode hides broad phrase rails until authored routes wake them',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      expect(renderedSentence(tester), 'You learn.');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-want')),
+      );
+
+      expect(renderedSentence(tester), 'You want.');
+      expect(find.text('Place phrase:'), findsNothing);
+      expect(find.text('Manner phrase:'), findsNothing);
+      expect(find.text('Time phrase:'), findsOneWidget);
+
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-action-go')),
+      );
+
+      expect(renderedSentence(tester), 'You go.');
+      expect(find.text('Place phrase:'), findsOneWidget);
+      expect(find.text('Manner phrase:'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'Rail policy follows a procedural route across predicate frames',
     (tester) async {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));

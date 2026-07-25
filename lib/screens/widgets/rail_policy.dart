@@ -619,7 +619,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     unlockHint: (_) => 'No open move from here.',
     isControlled: false,
     canRenderCollapsedWhen: (_) => false,
-    canRenderWhenEmpty: (_) => true,
+    canRenderWhenEmpty: (state) => state.placePhrase != null,
   ),
   ConfigurationCompassSlot.timePhrase: _RailPolicy(
     slot: ConfigurationCompassSlot.timePhrase,
@@ -645,7 +645,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: (_) => 'how',
     isControlled: false,
     canRenderCollapsedWhen: (_) => false,
-    canRenderWhenEmpty: (_) => true,
+    canRenderWhenEmpty: (state) => state.mannerPhrase != null,
   ),
 };
 
