@@ -296,3 +296,83 @@ tests. A future pass can gather it into a small policy layer:
 
 That would make disappearing rails, remembered passive agents, and open/closed
 predicate surfaces easier to test and reason about.
+
+## Keepsake Pt 3: Right-Side Word Route Surface
+
+The next architectural pressure point is the old phrase surface.
+
+`placePhrase`, `timePhrase`, `frequencyPhrase`, and `mannerPhrase` were useful
+early because they gave Grammar Engine a compact way to render extra sentence
+material. But Guided Mode is no longer asking only:
+
+Can this complete phrase be appended?
+
+It is asking:
+
+What word can the learner choose next after this predicate?
+
+That makes some phrase data feel too prebaked. `You go home`, `You go to
+school`, `You go from work`, `You go into the shop`, and `You work at home` are
+not just generic place decorations in the product view. They are predicate-owned
+routes. The verb opens the next word, and that next word may open another noun.
+
+Guiding law:
+
+If a choice is licensed by the predicate, it belongs to Predicate Paths. If it
+modifies the whole clause, it stays a clause modifier.
+
+The split:
+
+- Predicate-bound right routes:
+  - `go home`
+  - `go to school`
+  - `go from work`
+  - `go into the shop`
+  - `work at home`
+  - `speak with Mary`
+  - `talk about grammar`
+  - `learn from John`
+  - `write on paper`
+- Clause-level modifiers:
+  - `yesterday`
+  - `today`
+  - `usually`
+  - `every day`
+  - possibly broad sentence-level manner
+
+This is not a new Phrase Engine. It is the opposite direction: split old
+prebaked phrase choices into smaller right-side routes where the predicate owns
+the opening.
+
+The educational reason matters. A sentence configurator should show the learner
+that `to`, `from`, `with`, `about`, `for`, `at`, `in`, and bare direction words
+are live pieces of the sentence, not hidden ingredients inside a phrase label.
+`outside`, `inside`, `abroad`, `nearby`, `home`, and `there` are one-word route
+choices in the same broad UI sense as object nouns: the learner chooses a word,
+then the sentence changes.
+
+The implementation plan should be incremental:
+
+1. Classify existing phrase data into clause-level modifiers and predicate-bound
+   routes.
+2. Keep true clause modifiers in the old sentence-level fields.
+3. Move predicate-bound place/source/topic/beneficiary/location behavior into
+   authored Predicate Paths.
+4. Compile those routes back into existing `SentenceState` fields so Grammar and
+   Recognition stay stable.
+5. Hide broad generic phrase rails from Guided Mode where a predicate-owned route
+   now exists.
+6. Add tests that protect the split:
+   - `You go home.`
+   - `You go to school.`
+   - `You go from work.`
+   - `You work at home.`
+   - `You learn about grammar.`
+   - `You worked yesterday.`
+   - no duplicate guided route appears through both a phrase rail and a
+     predicate route
+
+Long term, this prepares the final sentence-centered UI. The learner clicks the
+sentence's verb, sees authored routes opened by that verb, and follows one route
+at a time. The developer cockpit may still show broader rails, but the product
+view should feel like word routing rather than phrase dumping.
