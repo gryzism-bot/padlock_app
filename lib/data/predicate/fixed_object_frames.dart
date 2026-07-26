@@ -31,10 +31,19 @@ const _modifierFriendlyFixedObjectFrames = {
 };
 
 final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
-  'play': [football, basketball, volleyball, tennis, golf],
-  'learn': [english, grammar, math, history, science],
-  'study': [english, grammar, math, history, science],
-  'teach': [english, grammar, math, history, science],
+  'play': [
+    football,
+    basketball,
+    volleyball,
+    tennis,
+    golf,
+    music,
+    for (final noun in object_categories.musicObjectNouns) ..._nounForms(noun),
+    for (final noun in object_categories.gameObjectNouns) ..._nounForms(noun),
+  ],
+  'learn': [english, polish, spanish, grammar, math, history, science],
+  'study': [english, polish, spanish, grammar, math, history, science],
+  'teach': [english, polish, spanish, grammar, math, history, science],
   'speak': [english, polish, spanish],
   'read': [
     for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),

@@ -278,7 +278,15 @@ void main() {
       );
       final labels = suggestions.map((suggestion) => suggestion.label).toList();
 
-      expect(labels, ['English', 'grammar', 'history', 'math', 'science']);
+      expect(labels, [
+        'English',
+        'Polish',
+        'Spanish',
+        'grammar',
+        'history',
+        'math',
+        'science',
+      ]);
       expect(labels, isNot(contains('book')));
       expect(
         grammar.generate(suggestions.first.preview.sentenceState).text,
@@ -382,7 +390,15 @@ void main() {
         expect(learn.takesObject, isTrue);
         expect(
           learnDirectObjects,
-          containsAll(['English', 'grammar', 'math', 'history', 'science']),
+          containsAll([
+            'English',
+            'Polish',
+            'Spanish',
+            'grammar',
+            'math',
+            'history',
+            'science',
+          ]),
         );
         expect(learnDirectObjects, isNot(contains('book')));
       },
@@ -400,6 +416,8 @@ void main() {
         expect(learnObjects, isNot(contains('book')));
         expect(fixedObjectChoicesFor(learn).map((noun) => noun.text), [
           'English',
+          'Polish',
+          'Spanish',
           'grammar',
           'math',
           'history',
@@ -617,6 +635,36 @@ void main() {
       );
     });
 
+    test('essential verb review sheet is executable route audit', () {
+      final implemented = _essentialVerbReviewRoutes.where(
+        (route) => route.status == _RouteStatus.implemented,
+      );
+      final pending = _essentialVerbReviewRoutes.where(
+        (route) => route.status == _RouteStatus.pending,
+      );
+
+      expect(
+        _essentialVerbReviewRoutes
+            .map((route) => route.verb.infinitive)
+            .toSet(),
+        essentialVerbs.map((verb) => verb.infinitive).toSet(),
+        reason: 'Every essential verb should have at least one reviewed route.',
+      );
+
+      for (final route in implemented) {
+        expect(_reviewedRouteExists(route), isTrue, reason: route.description);
+      }
+
+      for (final route in pending) {
+        expect(
+          _reviewedRouteExists(route),
+          isFalse,
+          reason:
+              '${route.description} is intentionally pending; when this turns true, move it to implemented.',
+        );
+      }
+    });
+
     test('authored phrase routes use predicate-bound classified phrases', () {
       for (final unlocks in guidedPredicateUnlocks) {
         for (final path in unlocks.paths) {
@@ -693,3 +741,769 @@ void main() {
     });
   });
 }
+
+enum _RouteStatus { implemented, pending }
+
+enum _ReviewedRouteKind {
+  directObject,
+  rightAction,
+  recipient,
+  addressee,
+  companion,
+  destination,
+  aboutTopic,
+  ofTopic,
+  beneficiary,
+  source,
+  place,
+  sourcePlace,
+  time,
+  manner,
+  lexicalBeNounComplement,
+  lexicalBeAdjectiveComplement,
+  objectAdjectiveComplement,
+  instrument,
+  purpose,
+  onTopic,
+}
+
+class _ReviewedRoute {
+  final Verb verb;
+  final _ReviewedRouteKind kind;
+  final String? text;
+  final _RouteStatus status;
+
+  const _ReviewedRoute(
+    this.verb,
+    this.kind, {
+    this.text,
+    this.status = _RouteStatus.implemented,
+  });
+
+  String get description {
+    final value = text == null ? '' : ' "$text"';
+    return '${verb.infinitive} ${kind.name}$value';
+  }
+}
+
+const _pending = _RouteStatus.pending;
+
+const _essentialVerbReviewRoutes = [
+  _ReviewedRoute(be, _ReviewedRouteKind.lexicalBeAdjectiveComplement),
+  _ReviewedRoute(be, _ReviewedRouteKind.lexicalBeNounComplement),
+  _ReviewedRoute(be, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(be, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(be, _ReviewedRouteKind.sourcePlace, status: _pending),
+  _ReviewedRoute(be, _ReviewedRouteKind.companion),
+  _ReviewedRoute(
+    be,
+    _ReviewedRouteKind.lexicalBeAdjectiveComplement,
+    text: 'happy',
+  ),
+  _ReviewedRoute(
+    be,
+    _ReviewedRouteKind.lexicalBeAdjectiveComplement,
+    text: 'tired',
+  ),
+  _ReviewedRoute(
+    be,
+    _ReviewedRouteKind.lexicalBeAdjectiveComplement,
+    text: 'hungry',
+  ),
+  _ReviewedRoute(
+    be,
+    _ReviewedRouteKind.lexicalBeAdjectiveComplement,
+    text: 'ready',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    be,
+    _ReviewedRouteKind.lexicalBeAdjectiveComplement,
+    text: 'late',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(have, _ReviewedRouteKind.companion),
+  _ReviewedRoute(have, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(have, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(
+    have,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    have,
+    _ReviewedRouteKind.directObject,
+    text: 'time',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    have,
+    _ReviewedRouteKind.directObject,
+    text: 'problem',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    have,
+    _ReviewedRouteKind.directObject,
+    text: 'question',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    have,
+    _ReviewedRouteKind.directObject,
+    text: 'breakfast',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.companion),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'again'),
+  _ReviewedRoute(
+    doVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'work',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    doVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'homework',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    doVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'job',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    doVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'exercise',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.companion),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
+  _ReviewedRoute(
+    findVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    findVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'someone',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'song'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.companion),
+  _ReviewedRoute(sing, _ReviewedRouteKind.addressee),
+  _ReviewedRoute(sing, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'loudly'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'quietly'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'well'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'badly'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'music'),
+
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'window'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'chair'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'by accident'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(
+    breakVerb,
+    _ReviewedRouteKind.directObject,
+    text: 'cup',
+    status: _pending,
+  ),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument, status: _pending),
+
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'books'),
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'letter'),
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'newspaper'),
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'story'),
+  _ReviewedRoute(read, _ReviewedRouteKind.addressee),
+  _ReviewedRoute(read, _ReviewedRouteKind.companion),
+  _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(read, _ReviewedRouteKind.time, text: 'at night'),
+  _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(
+    read,
+    _ReviewedRouteKind.directObject,
+    text: 'English',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(begin, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(begin, _ReviewedRouteKind.rightAction, text: 'work'),
+  _ReviewedRoute(begin, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(begin, _ReviewedRouteKind.companion),
+  _ReviewedRoute(begin, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(begin, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(begin, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(
+    begin,
+    _ReviewedRouteKind.directObject,
+    text: 'lesson',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    begin,
+    _ReviewedRouteKind.directObject,
+    text: 'work',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'slowly'),
+  _ReviewedRoute(go, _ReviewedRouteKind.companion),
+  _ReviewedRoute(go, _ReviewedRouteKind.destination),
+  _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'work'),
+  _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'shop'),
+  _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'away'),
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'back'),
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'there'),
+  _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'today'),
+
+  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'slowly'),
+  _ReviewedRoute(come, _ReviewedRouteKind.companion),
+  _ReviewedRoute(come, _ReviewedRouteKind.destination),
+  _ReviewedRoute(come, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'here'),
+  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'back'),
+  _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(come, _ReviewedRouteKind.sourcePlace, status: _pending),
+
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(get, _ReviewedRouteKind.source),
+  _ReviewedRoute(get, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(get, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(
+    get,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    get,
+    _ReviewedRouteKind.directObject,
+    text: 'job',
+    status: _pending,
+  ),
+  _ReviewedRoute(get, _ReviewedRouteKind.beneficiary, status: _pending),
+
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'cake'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'coffee'),
+  _ReviewedRoute(make, _ReviewedRouteKind.recipient),
+  _ReviewedRoute(
+    make,
+    _ReviewedRouteKind.objectAdjectiveComplement,
+    text: 'happy',
+  ),
+  _ReviewedRoute(
+    make,
+    _ReviewedRouteKind.objectAdjectiveComplement,
+    text: 'calm',
+  ),
+  _ReviewedRoute(make, _ReviewedRouteKind.companion),
+  _ReviewedRoute(make, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(
+    make,
+    _ReviewedRouteKind.directObject,
+    text: 'plan',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    make,
+    _ReviewedRouteKind.directObject,
+    text: 'mistake',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'photo'),
+  _ReviewedRoute(take, _ReviewedRouteKind.companion),
+  _ReviewedRoute(take, _ReviewedRouteKind.source),
+  _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(
+    take,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+  _ReviewedRoute(take, _ReviewedRouteKind.destination, status: _pending),
+
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(give, _ReviewedRouteKind.recipient),
+  _ReviewedRoute(give, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(give, _ReviewedRouteKind.beneficiary, status: _pending),
+  _ReviewedRoute(give, _ReviewedRouteKind.companion, status: _pending),
+
+  _ReviewedRoute(know, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'Mary'),
+  _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'English'),
+  _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'grammar'),
+  _ReviewedRoute(know, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(know, _ReviewedRouteKind.manner, text: 'well'),
+  _ReviewedRoute(know, _ReviewedRouteKind.manner, text: 'already'),
+  _ReviewedRoute(know, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(
+    know,
+    _ReviewedRouteKind.directObject,
+    text: 'answer',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(think, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(think, _ReviewedRouteKind.ofTopic),
+  _ReviewedRoute(think, _ReviewedRouteKind.companion),
+  _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'now'),
+
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(say, _ReviewedRouteKind.addressee),
+  _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'loudly'),
+  _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'quietly'),
+  _ReviewedRoute(say, _ReviewedRouteKind.aboutTopic, status: _pending),
+  _ReviewedRoute(
+    say,
+    _ReviewedRouteKind.directObject,
+    text: 'word',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    say,
+    _ReviewedRouteKind.directObject,
+    text: 'yes',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    say,
+    _ReviewedRouteKind.directObject,
+    text: 'no',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    say,
+    _ReviewedRouteKind.directObject,
+    text: 'hello',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(see, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(see, _ReviewedRouteKind.directObject, text: 'cat'),
+  _ReviewedRoute(see, _ReviewedRouteKind.directObject, text: 'friend'),
+  _ReviewedRoute(see, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(see, _ReviewedRouteKind.companion),
+  _ReviewedRoute(see, _ReviewedRouteKind.manner, text: 'clearly'),
+  _ReviewedRoute(see, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(
+    see,
+    _ReviewedRouteKind.directObject,
+    text: 'problem',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(want, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'go'),
+  _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'speak'),
+  _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'sleep'),
+  _ReviewedRoute(want, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(want, _ReviewedRouteKind.companion, status: _pending),
+
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'go'),
+  _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'speak'),
+  _ReviewedRoute(need, _ReviewedRouteKind.time, text: 'now'),
+  _ReviewedRoute(
+    need,
+    _ReviewedRouteKind.directObject,
+    text: 'help',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    need,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(meet, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(meet, _ReviewedRouteKind.directObject, text: 'friend'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.directObject, text: 'teacher'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.directObject, text: 'cat'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.companion),
+  _ReviewedRoute(meet, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(meet, _ReviewedRouteKind.time, text: 'tomorrow'),
+
+  _ReviewedRoute(like, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'music'),
+  _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'swim'),
+  _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'watch'),
+  _ReviewedRoute(like, _ReviewedRouteKind.companion, status: _pending),
+
+  _ReviewedRoute(love, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'music'),
+  _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'swim'),
+  _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'watch'),
+  _ReviewedRoute(love, _ReviewedRouteKind.companion, status: _pending),
+
+  _ReviewedRoute(work, _ReviewedRouteKind.companion),
+  _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'work'),
+  _ReviewedRoute(work, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'manually'),
+  _ReviewedRoute(work, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, status: _pending),
+
+  _ReviewedRoute(buy, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'ticket'),
+  _ReviewedRoute(buy, _ReviewedRouteKind.recipient),
+  _ReviewedRoute(buy, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(buy, _ReviewedRouteKind.companion),
+  _ReviewedRoute(buy, _ReviewedRouteKind.place, text: 'shop'),
+  _ReviewedRoute(buy, _ReviewedRouteKind.time, text: 'today'),
+
+  _ReviewedRoute(sell, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(sell, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(sell, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(sell, _ReviewedRouteKind.directObject, text: 'car'),
+  _ReviewedRoute(sell, _ReviewedRouteKind.directObject, text: 'house'),
+  _ReviewedRoute(sell, _ReviewedRouteKind.addressee),
+  _ReviewedRoute(sell, _ReviewedRouteKind.companion),
+  _ReviewedRoute(sell, _ReviewedRouteKind.place, text: 'shop'),
+  _ReviewedRoute(sell, _ReviewedRouteKind.time, text: 'today'),
+
+  _ReviewedRoute(use, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'computer'),
+  _ReviewedRoute(use, _ReviewedRouteKind.companion),
+  _ReviewedRoute(use, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(use, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, status: _pending),
+
+  _ReviewedRoute(watch, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'movie'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.companion),
+  _ReviewedRoute(watch, _ReviewedRouteKind.rightAction, text: 'research'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.manner, text: 'closely'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.manner, text: 'quietly'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(
+    watch,
+    _ReviewedRouteKind.directObject,
+    text: 'show',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    watch,
+    _ReviewedRouteKind.directObject,
+    text: 'game',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    watch,
+    _ReviewedRouteKind.rightAction,
+    text: 'analyze',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'park'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.manner, text: 'by accident'),
+  _ReviewedRoute(
+    lose,
+    _ReviewedRouteKind.directObject,
+    text: 'money',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'football'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'basketball'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'volleyball'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'tennis'),
+  _ReviewedRoute(play, _ReviewedRouteKind.companion),
+  _ReviewedRoute(play, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'well'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'music'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(
+    play,
+    _ReviewedRouteKind.manner,
+    text: 'outside',
+    status: _pending,
+  ),
+
+  _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'English'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'grammar'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'history'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'science'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.rightAction, text: 'speak'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.rightAction, text: 'swim'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.rightAction, text: 'work'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.companion),
+  _ReviewedRoute(learn, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'Polish'),
+
+  _ReviewedRoute(hate, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'food'),
+  _ReviewedRoute(hate, _ReviewedRouteKind.rightAction, text: 'work'),
+  _ReviewedRoute(hate, _ReviewedRouteKind.manner, text: 'quietly'),
+  _ReviewedRoute(
+    hate,
+    _ReviewedRouteKind.directObject,
+    text: 'noise',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    hate,
+    _ReviewedRouteKind.directObject,
+    text: 'waiting',
+    status: _pending,
+  ),
+  _ReviewedRoute(
+    hate,
+    _ReviewedRouteKind.rightAction,
+    text: 'lose',
+    status: _pending,
+  ),
+  _ReviewedRoute(hate, _ReviewedRouteKind.companion, status: _pending),
+
+  _ReviewedRoute(remember, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'story'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'English'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'grammar'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'go'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'call'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.manner, text: 'clearly'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.time, text: 'today'),
+
+  _ReviewedRoute(sleep, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.place, text: 'bed'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.companion),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.manner, text: 'well'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.manner, text: 'badly'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.manner, text: 'quietly'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.time, text: 'at night'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(sleep, _ReviewedRouteKind.time, text: 'now'),
+
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'door'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'window'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'box'),
+  _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(open, _ReviewedRouteKind.instrument, status: _pending),
+  _ReviewedRoute(open, _ReviewedRouteKind.beneficiary, status: _pending),
+
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'door'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'window'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'box'),
+  _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(close, _ReviewedRouteKind.instrument, status: _pending),
+  _ReviewedRoute(close, _ReviewedRouteKind.beneficiary, status: _pending),
+
+  _ReviewedRoute(help, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(help, _ReviewedRouteKind.directObject, text: 'friend'),
+  _ReviewedRoute(help, _ReviewedRouteKind.directObject, text: 'teacher'),
+  _ReviewedRoute(help, _ReviewedRouteKind.directObject, text: 'child'),
+  _ReviewedRoute(help, _ReviewedRouteKind.rightAction, text: 'learn'),
+  _ReviewedRoute(help, _ReviewedRouteKind.rightAction, text: 'work'),
+  _ReviewedRoute(help, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(help, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(help, _ReviewedRouteKind.aboutTopic, status: _pending),
+];
+
+bool _reviewedRouteExists(_ReviewedRoute route) {
+  final text = route.text;
+  switch (route.kind) {
+    case _ReviewedRouteKind.directObject:
+      return _nounPathHas(route.verb, PredicatePathKind.directObject, text);
+    case _ReviewedRouteKind.rightAction:
+      return _verbPathHas(route.verb, PredicatePathKind.toRightAction, text);
+    case _ReviewedRouteKind.recipient:
+      return _nounPathHas(route.verb, PredicatePathKind.toRecipient, text);
+    case _ReviewedRouteKind.addressee:
+      return _nounPathHas(route.verb, PredicatePathKind.toAddressee, text);
+    case _ReviewedRouteKind.companion:
+      return route.verb == be ||
+          _nounPathHas(route.verb, PredicatePathKind.withCompanion, text);
+    case _ReviewedRouteKind.destination:
+      return _nounPathHas(route.verb, PredicatePathKind.toDestination, text);
+    case _ReviewedRouteKind.aboutTopic:
+      return _nounPathHas(route.verb, PredicatePathKind.aboutTopic, text);
+    case _ReviewedRouteKind.ofTopic:
+      return _nounPathHas(route.verb, PredicatePathKind.ofTopic, text);
+    case _ReviewedRouteKind.beneficiary:
+      return _nounPathHas(route.verb, PredicatePathKind.forBeneficiary, text);
+    case _ReviewedRouteKind.source:
+      return _nounPathHas(route.verb, PredicatePathKind.fromSource, text);
+    case _ReviewedRouteKind.place:
+      return _placePathHas(route.verb, text);
+    case _ReviewedRouteKind.sourcePlace:
+      return false;
+    case _ReviewedRouteKind.time:
+      return _timePathHas(route.verb, text);
+    case _ReviewedRouteKind.manner:
+      return _mannerPathHas(route.verb, text);
+    case _ReviewedRouteKind.lexicalBeNounComplement:
+      return route.verb == be &&
+          (text == null || _beNounComplements.contains(text));
+    case _ReviewedRouteKind.lexicalBeAdjectiveComplement:
+      return route.verb == be &&
+          (text == null || _beAdjectiveComplements.contains(text));
+    case _ReviewedRouteKind.objectAdjectiveComplement:
+      return route.verb.takesObjectComplement &&
+          (text == null || _objectAdjectiveComplements.contains(text));
+    case _ReviewedRouteKind.instrument:
+    case _ReviewedRouteKind.purpose:
+    case _ReviewedRouteKind.onTopic:
+      return false;
+  }
+}
+
+bool _nounPathHas(Verb verb, PredicatePathKind kind, String? text) {
+  final choices = predicateNounChoicesFor(verb, kind);
+  if (text == null || text == 'something') {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.text.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+bool _verbPathHas(Verb verb, PredicatePathKind kind, String? text) {
+  final choices = predicateVerbChoicesFor(verb, kind);
+  if (text == null) {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.infinitive.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+bool _placePathHas(Verb verb, String? text) {
+  final choices = predicatePlaceChoicesFor(verb, PredicatePathKind.placePhrase);
+  if (text == null || text == 'somewhere') {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.noun.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+bool _timePathHas(Verb verb, String? text) {
+  final choices = predicateTimeChoicesFor(verb, PredicatePathKind.timePhrase);
+  if (text == null) {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.text.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+bool _mannerPathHas(Verb verb, String? text) {
+  final choices = predicateMannerChoicesFor(
+    verb,
+    PredicatePathKind.mannerPhrase,
+  );
+  if (text == null) {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.text.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+const _beNounComplements = {
+  'person',
+  'doctor',
+  'teacher',
+  'student',
+  'engineer',
+  'friend',
+};
+
+const _beAdjectiveComplements = {
+  'happy',
+  'tired',
+  'hungry',
+  'calm',
+  'sad',
+  'angry',
+};
+
+const _objectAdjectiveComplements = {'happy', 'calm', 'sad', 'angry', 'tired'};

@@ -6,6 +6,8 @@ import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
     as animal_categories;
 import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
+import 'package:padlock_app/data/subjects/third_person/objects.dart'
+    as object_data;
 import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
     as people_categories;
 import 'package:padlock_app/data/phrases/frequency_phrases.dart'
@@ -26,6 +28,7 @@ import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
 enum PredicatePathMode { authoredTracks, legacyCompassFallback }
@@ -233,11 +236,16 @@ final _mediaObjects = _uniqueByText([
   ...object_categories.singularMediaObjects,
   ...object_categories.pluralMediaObjects,
 ]);
+final _photoObjects = _uniqueByText([
+  for (final object in _mediaObjects)
+    if (object.text == 'photo' || object.text == 'photos') object,
+]);
 final _moneyObjects = _uniqueByText([
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
 ]);
 final _musicObjects = _uniqueByText([
+  fixed_object.music,
   ...object_categories.singularMusicObjects,
   ...object_categories.pluralMusicObjects,
 ]);
@@ -252,6 +260,16 @@ final _drivableObjects = _uniqueByText([
 final _rideableObjects = _uniqueByText([
   ...object_categories.singularRideableObjects,
   ...object_categories.pluralRideableObjects,
+]);
+final _saleObjects = _uniqueByText([
+  ..._moneyObjects,
+  ..._everydayObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
 ]);
 final _throwCatchObjects = _uniqueByText([
   ...object_categories.singularGameObjects,
@@ -289,6 +307,8 @@ final _transferObjects = _uniqueByText([
 ]);
 final _learnSubjects = [
   fixed_object.english,
+  fixed_object.polish,
+  fixed_object.spanish,
   fixed_object.grammar,
   fixed_object.math,
   fixed_object.history,
@@ -369,6 +389,7 @@ final _movementManners = [
 final _carefulManners = [
   manner_data.carefullyMannerPhrase,
   manner_data.withCareMannerPhrase,
+  manner_data.quicklyMannerPhrase,
   manner_data.slowlyMannerPhrase,
 ];
 final _speechManners = [
@@ -588,7 +609,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     take,
-    _everydayObjects,
+    _uniqueByText([..._everydayObjects, ..._photoObjects]),
     paths: [
       _sources(),
       PredicatePath.withCompanion(_people),
@@ -669,7 +690,12 @@ final guidedPredicateUnlocks = [
     verb: like,
     paths: [
       PredicatePath.directObject(
-        _uniqueByText([..._everydayObjects, ..._peopleAndAnimals]),
+        _uniqueByText([
+          ..._everydayObjects,
+          ..._peopleAndAnimals,
+          ..._musicObjects,
+          ..._gameObjects,
+        ]),
       ),
       PredicatePath.toRightAction(_rightActionLikes),
       _frequencies(_basicFrequencies),
@@ -683,6 +709,7 @@ final guidedPredicateUnlocks = [
           ..._peopleAndAnimals,
           ..._musicObjects,
           ..._gameObjects,
+          ..._foodObjects,
         ]),
       ),
       PredicatePath.toRightAction(_rightActionLoves),
@@ -734,9 +761,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: sell,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([..._moneyObjects, ..._everydayObjects]),
-      ),
+      PredicatePath.directObject(_saleObjects),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _places([place_data.shopPlacePhrase]),
@@ -777,7 +802,9 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: play,
     paths: [
-      PredicatePath.directObject(_playActivities),
+      PredicatePath.directObject(
+        _uniqueByText([..._playActivities, ..._musicObjects, ..._gameObjects]),
+      ),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _places(_homeSchoolWorkPlaces),
@@ -810,7 +837,11 @@ final guidedPredicateUnlocks = [
     verb: remember,
     paths: [
       PredicatePath.directObject(
-        _uniqueByText([..._peopleAndAnimals, ..._learnSubjects]),
+        _uniqueByText([
+          ..._peopleAndAnimals,
+          ..._learnSubjects,
+          ..._textObjects,
+        ]),
       ),
       PredicatePath.toRightAction(_rightActionRemembers),
       _manners([

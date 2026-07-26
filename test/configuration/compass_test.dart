@@ -85,6 +85,8 @@ void main() {
 
       expect(initialSuggestions.map((suggestion) => suggestion.label), [
         'English',
+        'Polish',
+        'Spanish',
         'grammar',
         'history',
         'math',
@@ -1135,7 +1137,7 @@ void main() {
         (
           action: learn,
           slot: ConfigurationCompassSlot.topic,
-          choice: 'grammar',
+          choice: 'about grammar',
           sentence: 'You learn about grammar.',
         ),
         (
@@ -1164,6 +1166,11 @@ void main() {
         );
         final suggestion = suggestions.singleWhere(
           (suggestion) => suggestion.label == testCase.choice,
+          orElse: () => throw StateError(
+            'No ${testCase.slot} suggestion "${testCase.choice}" for '
+            '${testCase.action.infinitive}. Got: '
+            '${suggestions.map((suggestion) => suggestion.label).join(', ')}',
+          ),
         );
 
         expect(render(suggestion.preview), testCase.sentence);
