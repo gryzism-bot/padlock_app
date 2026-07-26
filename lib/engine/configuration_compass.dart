@@ -883,14 +883,6 @@ class _CompassCandidate {
 }
 
 int _actionPriority(Verb current, Verb candidate) {
-  if (current == be && candidate == work) {
-    return 120;
-  }
-
-  if (current == be) {
-    return 100;
-  }
-
   final priority = predicateDoorwayPriority(candidate);
 
   if (current.takesObject &&

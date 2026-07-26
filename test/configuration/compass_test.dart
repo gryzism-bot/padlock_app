@@ -760,6 +760,35 @@ void main() {
       expect(outputCountFor('get'), greaterThan(outputCountFor('give')));
     });
 
+    test('lexical be keeps the normal predicate doorway order', () {
+      final beState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(be),
+      );
+
+      final suggestions = compass.suggestionsFor(
+        beState,
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+
+      final outputCounts = [
+        for (final suggestion in suggestions)
+          predicateDoorwayOutputCount((suggestion.move as SetAction).action),
+      ];
+      final sortedOutputCounts = [...outputCounts]
+        ..sort((left, right) => right.compareTo(left));
+
+      expect(outputCounts, orderedEquals(sortedOutputCounts));
+      final firstLabels = suggestions
+          .take(12)
+          .map((suggestion) => suggestion.label);
+      expect(firstLabels, containsAll(['be', 'learn', 'go', 'give']));
+      expect(firstLabels, isNot(contains('add')));
+      expect(firstLabels, isNot(contains('agree')));
+      expect(firstLabels, isNot(contains('answer')));
+    });
+
     test('noun complement suggestions follow agent number', () {
       var state = lock.applyMove(
         ConfigurationState.initial(),
