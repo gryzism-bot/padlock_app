@@ -129,7 +129,7 @@ void main() {
     final markerFinder = find.byKey(Key('rail-surface-marker-$railTitle'));
 
     expect(markerFinder, findsOneWidget);
-    expect(tester.widget<Text>(markerFinder).data, '($marker)');
+    expect(tester.widget<Text>(markerFinder).data, '[$marker]');
   }
 
   bool appearsBefore(WidgetTester tester, Finder left, Finder right) {
@@ -571,7 +571,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-learn')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(5),
+      findsNWidgets(6),
     );
     expect(
       find.descendant(
@@ -1055,6 +1055,26 @@ void main() {
       expect(find.text('Manner phrase:'), findsOneWidget);
     },
   );
+
+  testWidgets('Guided UI names authored at-location rail explicitly', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-work')),
+    );
+
+    expect(renderedSentence(tester), 'You work.');
+    expect(find.text('At location:'), findsOneWidget);
+    expect(find.text('Place phrase:'), findsNothing);
+    expectRailSurfaceMarker(tester, 'At location', 'at');
+
+    await tapAfterScroll(tester, find.byTooltip('You work at school.'));
+
+    expect(renderedSentence(tester), 'You work at school.');
+  });
 
   testWidgets('Guided UI exposes reviewed phrase routes for think', (
     tester,
@@ -2084,6 +2104,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Beneficiary');
       case 'source':
         titles.add('Source');
+      case 'at-location':
+        titles.add('At location');
       case 'right-action':
         titles.add('Right action');
       case 'complement':

@@ -189,6 +189,12 @@ PredicateInfluence _influenceForPath(
       'source',
       42,
     ),
+    PredicatePathKind.atLocation => _predicateProperty(
+      action,
+      'at-location',
+      'at location',
+      35,
+    ),
     PredicatePathKind.placePhrase => _predicateProperty(
       action,
       'place',

@@ -1636,7 +1636,7 @@ void main() {
       );
 
       final schoolSuggestion = suggestions.singleWhere(
-        (suggestion) => suggestion.label == 'school',
+        (suggestion) => suggestion.label == 'at school',
       );
       expect(render(schoolSuggestion.preview), 'You work at school.');
 
@@ -1649,7 +1649,7 @@ void main() {
 
       expect(
         exitSuggestions
-            .singleWhere((suggestion) => suggestion.label == 'school')
+            .singleWhere((suggestion) => suggestion.label == 'at school')
             .isSelected,
         isTrue,
       );
@@ -1679,7 +1679,7 @@ void main() {
       expect(render(suggestions.first.preview), 'You go home.');
 
       final schoolSuggestion = suggestions.singleWhere(
-        (suggestion) => suggestion.label == 'school',
+        (suggestion) => suggestion.label == 'to school',
       );
 
       expect(render(schoolSuggestion.preview), 'You go to school.');

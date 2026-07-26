@@ -70,7 +70,7 @@ class _SectionFrame extends StatelessWidget {
               Tooltip(
                 message: 'Surface connector: $surfaceMarker',
                 child: Text(
-                  '($surfaceMarker)',
+                  '[$surfaceMarker]',
                   key: Key('rail-surface-marker-$title'),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: colors.primary,

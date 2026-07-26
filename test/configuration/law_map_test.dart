@@ -176,6 +176,7 @@ void main() {
             PredicatePathKind.ofTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
             PredicatePathKind.fromSource => 'source',
+            PredicatePathKind.atLocation => 'at-location',
             PredicatePathKind.placePhrase => 'place',
             PredicatePathKind.timePhrase => 'time',
             PredicatePathKind.frequencyPhrase => 'frequency',

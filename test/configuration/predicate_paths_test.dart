@@ -23,6 +23,7 @@ import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/predicate_path_compiler.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
@@ -69,6 +70,7 @@ void main() {
             PredicatePathKind.ofTopic => isA<SetTopic>(),
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
+            PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
             PredicatePathKind.timePhrase => isA<SetTimePhrase>(),
             PredicatePathKind.frequencyPhrase => isA<SetFrequencyPhrase>(),
@@ -107,6 +109,11 @@ void main() {
             action: work,
             kind: PredicatePathKind.forBeneficiary,
             text: 'You work for John.',
+          ),
+          (
+            action: work,
+            kind: PredicatePathKind.atLocation,
+            text: 'You work at home.',
           ),
           (
             action: go,
@@ -491,6 +498,15 @@ void main() {
             case PredicatePathKind.fromSource:
               expect(unlocks.verb.takesSource, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.atLocation:
+              expect(path.places, isNotEmpty, reason: reason);
+              for (final place in path.places) {
+                expect(
+                  place.render(PlaceMeaning.location).startsWith('at '),
+                  isTrue,
+                  reason: '$reason -> ${place.render(PlaceMeaning.location)}',
+                );
+              }
             case PredicatePathKind.placePhrase:
               expect(path.places, isNotEmpty, reason: reason);
             case PredicatePathKind.timePhrase:
@@ -555,6 +571,13 @@ void main() {
           PredicatePathKind.aboutTopic,
         ).map((topic) => topic.text),
         containsAll(['grammar', 'science', 'Mary']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          work,
+          PredicatePathKind.atLocation,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -669,6 +692,7 @@ void main() {
       for (final unlocks in guidedPredicateUnlocks) {
         for (final path in unlocks.paths) {
           final phrases = switch (path.kind) {
+            PredicatePathKind.atLocation => <Object>[...path.places],
             PredicatePathKind.placePhrase => <Object>[...path.places],
             PredicatePathKind.mannerPhrase => <Object>[...path.manners],
             _ => const <Object>[],
@@ -705,7 +729,7 @@ void main() {
           .map((suggestion) => suggestion.label)
           .toList();
 
-      expect(placeLabels, containsAll(['home', 'school', 'shop']));
+      expect(placeLabels, containsAll(['home', 'to school', 'to the shop']));
       expect(placeLabels, isNot(contains('bed')));
       expect(mannerLabels, containsAll(['quickly', 'away', 'back']));
       expect(mannerLabels, isNot(contains('closely')));
@@ -1453,7 +1477,10 @@ bool _verbPathHas(Verb verb, PredicatePathKind kind, String? text) {
 }
 
 bool _placePathHas(Verb verb, String? text) {
-  final choices = predicatePlaceChoicesFor(verb, PredicatePathKind.placePhrase);
+  final choices = [
+    ...predicatePlaceChoicesFor(verb, PredicatePathKind.atLocation),
+    ...predicatePlaceChoicesFor(verb, PredicatePathKind.placePhrase),
+  ];
   if (text == null || text == 'somewhere') {
     return choices.isNotEmpty;
   }

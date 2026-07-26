@@ -794,10 +794,11 @@ class ConfigurationCompass {
       return null;
     }
 
-    return predicatePlaceChoicesFor(
-      _boundTailOwner(sentence),
-      PredicatePathKind.placePhrase,
-    );
+    final owner = _boundTailOwner(sentence);
+    return _uniquePlaceChoices([
+      ...predicatePlaceChoicesFor(owner, PredicatePathKind.atLocation),
+      ...predicatePlaceChoicesFor(owner, PredicatePathKind.placePhrase),
+    ]);
   }
 
   List<MannerPhrase>? _mannerChoicesForPath(SentenceState sentence) {
@@ -1027,7 +1028,7 @@ List<_CompassCandidate> _placePhraseCandidatesForState(
       candidates.add(
         _CompassCandidate(
           SetPlacePhrase(place, placeMeaning: PlaceMeaning.destination),
-          place.noun,
+          place.render(PlaceMeaning.destination),
           _placePriority(sentence.action, place),
           isSelected:
               place == sentence.placePhrase &&
@@ -1038,7 +1039,7 @@ List<_CompassCandidate> _placePhraseCandidatesForState(
       candidates.add(
         _CompassCandidate(
           SetPlacePhrase(place, placeMeaning: PlaceMeaning.location),
-          place.noun,
+          place.render(PlaceMeaning.location),
           _placePriority(sentence.action, place),
           isSelected:
               place == sentence.placePhrase &&

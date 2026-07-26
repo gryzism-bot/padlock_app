@@ -155,6 +155,23 @@ String _fixedObjectAdjectiveTitle(ConfigurationState configuration) {
   return '${_fixedObjectTitle(configuration)} adjective';
 }
 
+bool _ownerHasAtLocationRoute(ConfigurationState configuration) {
+  return predicatePlaceChoicesFor(
+    _railBoundTailOwner(configuration.sentenceState),
+    PredicatePathKind.atLocation,
+  ).isNotEmpty;
+}
+
+String _placeRailTitle(ConfigurationState configuration) {
+  return _ownerHasAtLocationRoute(configuration)
+      ? 'At location'
+      : 'Place phrase';
+}
+
+String? _placeRailSurfaceMarker(ConfigurationState configuration) {
+  return _ownerHasAtLocationRoute(configuration) ? 'at' : null;
+}
+
 String _objectUnlockHint(ConfigurationState configuration) {
   final state = configuration.sentenceState;
   final owner = _railBoundTailOwner(state);
@@ -617,8 +634,9 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
   ),
   ConfigurationCompassSlot.placePhrase: _RailPolicy(
     slot: ConfigurationCompassSlot.placePhrase,
-    title: (_) => 'Place phrase',
+    title: _placeRailTitle,
     unlockHint: (_) => 'No open move from here.',
+    surfaceMarker: _placeRailSurfaceMarker,
     isControlled: false,
     canRenderCollapsedWhen: (_) => false,
     canRenderWhenEmpty: (state) => state.placePhrase != null,

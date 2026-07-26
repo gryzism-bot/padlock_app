@@ -50,6 +50,78 @@ Postpone for now:
 - browser/UI nightly automation
 - rail virtualization, until paging and render caching are not enough
 
+## Executable Review Audit
+
+The essential verb review sheet is now executable through
+`test/configuration/predicate_paths_test.dart`.
+
+Current audit count:
+
+- 345 reviewed essential verb routes
+- 288 implemented as achievable PredicatePaths
+- 57 pending right-hand examples from `zzzreadmes/VERB_REVIEW.md`
+- 28 essential verbs still have at least one pending reviewed route
+
+Interpretation:
+
+- Most pending rows are missing data or missing authored `PredicatePath` entries,
+  not missing Grammar Engine logic.
+- Some pending rows expose missing route kinds in the current system:
+  - `instrument`: `open with a key`, `break with a tool`
+  - `purpose`: `use for something`
+  - `onTopic`: `work on something`
+  - `sourcePlace`: `be from somewhere`, `come from somewhere`
+- `at` already exists in the old broad `PlacePhrase` surface through
+  `PlaceMeaning.location`, so sentences such as `You work at school.` can be
+  rendered.
+- `at` is not yet atomized as a verb-owned right-hand route like
+  `with -> person`, `to -> destination`, `about -> topic`, or
+  `from -> source`. Treat this as a phrase-tail migration task, not as missing
+  Grammar Engine logic.
+
+Constraint sorting for PredicatePaths:
+
+1. Near-universal clause modifiers:
+   - time: `today`, `now`, `at night`
+   - frequency: `often`, `sometimes`, `every day`
+   - manner: `quickly`, `carefully`, `well`
+   - broad location: `at school`, `at home`, `in the office`
+   - these are mostly Compass ranking / semantic C-section work
+2. Structural verb frames:
+   - direct object: `read a book`
+   - recipient: `give Mary a book`, `give a book to Mary`
+   - addressee: `speak to Mary`
+   - companion: `learn with Mary`
+   - destination/source: `go to school`, `learn from Mary`
+   - beneficiary: `buy a book for Mary`
+   - right action: `learn to speak`
+   - these belong in verb-owned PredicatePaths and shared frame metadata
+3. Verb-owned semantic rails:
+   - `play` wakes sports/games/music
+   - `learn` wakes languages/subjects/skills
+   - `read/write` wake text
+   - `use` wakes tools
+   - `open/close` wake openable objects
+   - these are handcrafted Guided Mode data
+4. Special lexical frames:
+   - lexical `be`: noun/adjective/place/source/companion complement
+   - object complement verbs: `make him calm`, `call him a teacher`
+   - these are structural and should remain explicit
+
+Next audit actions:
+
+- split the 57 pending rows into:
+  - data-only additions
+  - new route kinds
+  - old phrase-tail migrations
+  - intentionally postponed semantics
+- implement the missing route-kind family before adding large amounts of new
+  vocabulary:
+  - instrument
+  - purpose/for-purpose
+  - on-topic
+  - atomized `at` / `in` / `on` location routes
+
 ## Night Configuration Run Takeaways
 
 Latest 6-hour configuration run:

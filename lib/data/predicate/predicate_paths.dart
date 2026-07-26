@@ -25,6 +25,7 @@ import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -46,6 +47,7 @@ enum PredicatePathKind {
   ofTopic,
   forBeneficiary,
   fromSource,
+  atLocation,
   placePhrase,
   timePhrase,
   frequencyPhrase,
@@ -100,6 +102,9 @@ class PredicatePath {
 
   const PredicatePath.fromSource(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.fromSource, nouns: nouns);
+
+  const PredicatePath.atLocation(List<PlacePhrase> places)
+    : this._(kind: PredicatePathKind.atLocation, places: places);
 
   const PredicatePath.placePhrase(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.placePhrase, places: places);
@@ -462,6 +467,18 @@ PredicatePath _places(List<PlacePhrase> places) {
   return PredicatePath.placePhrase(_uniquePlacesByText(places));
 }
 
+PredicatePath _atLocations(List<PlacePhrase> places) {
+  return PredicatePath.atLocation(
+    _uniquePlacesByText(
+      places
+          .where(
+            (place) => place.prepositions[PlaceMeaning.location]?.text == 'at',
+          )
+          .toList(),
+    ),
+  );
+}
+
 PredicatePath _times(List<TimePhrase> times) {
   return PredicatePath.timePhrase(_uniqueTimesByText(times));
 }
@@ -478,7 +495,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: be,
     paths: [
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times(_todayTimes),
       _manners([
         manner_data.quietlyMannerPhrase,
@@ -491,7 +508,7 @@ final guidedPredicateUnlocks = [
     _everydayObjects,
     paths: [
       PredicatePath.withCompanion(_people),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times(_todayTimes),
       _frequencies(_basicFrequencies),
     ],
@@ -528,7 +545,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _manners(_performanceManners),
     ],
   ),
@@ -548,7 +565,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times([time_data.atNightTimePhrase, ..._todayTimes]),
       _manners([manner_data.carefullyMannerPhrase]),
     ],
@@ -559,7 +576,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.directObject(_learnSubjects),
       PredicatePath.toRightAction(_rightActionBegins),
       PredicatePath.withCompanion(_people),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times([time_data.todayTimePhrase, time_data.nowTimePhrase]),
     ],
   ),
@@ -596,7 +613,11 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     get,
     _everydayObjects,
-    paths: [_sources(), _places(_homeSchoolWorkPlaces), _times(_todayTimes)],
+    paths: [
+      _sources(),
+      _atLocations(_homeSchoolWorkPlaces),
+      _times(_todayTimes),
+    ],
   ),
   PredicateUnlocks(
     verb: make,
@@ -721,7 +742,7 @@ final guidedPredicateUnlocks = [
     _peopleAndAnimals,
     paths: [
       PredicatePath.withCompanion(_people),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times([
         time_data.todayTimePhrase,
         time_data.tomorrowTimePhrase,
@@ -734,7 +755,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.carefullyMannerPhrase,
@@ -783,7 +804,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.withCompanion(_people),
       PredicatePath.toRightAction([education_data.research]),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _manners([
         manner_data.closelyMannerPhrase,
         manner_data.quietlyMannerPhrase,
@@ -807,7 +828,7 @@ final guidedPredicateUnlocks = [
       ),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _manners(_performanceManners),
     ],
   ),
@@ -819,7 +840,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRightAction(_rightActionLearns),
       PredicatePath.withCompanion(_people),
       _sources(),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _manners([manner_data.quicklyMannerPhrase]),
     ],
   ),
@@ -879,7 +900,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_peopleAndAnimals),
       PredicatePath.toRightAction(_rightActionHelps),
-      _places(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces),
       _times(_todayTimes),
     ],
   ),
