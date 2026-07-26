@@ -1056,6 +1056,27 @@ void main() {
     },
   );
 
+  testWidgets('Guided UI exposes reviewed phrase routes for think', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-think')),
+    );
+
+    expect(renderedSentence(tester), 'You think.');
+    expect(find.text('Topic:'), findsOneWidget);
+    expect(find.text('Companion:'), findsOneWidget);
+    expect(find.text('Manner phrase:'), findsOneWidget);
+    expect(find.text('Time phrase:'), findsOneWidget);
+    expect(find.byTooltip('You think carefully.'), findsOneWidget);
+    expect(find.byTooltip('You think quickly.'), findsOneWidget);
+    expect(find.byTooltip('You think today.'), findsOneWidget);
+    expect(find.byTooltip('You think now.'), findsOneWidget);
+  });
+
   testWidgets(
     'Rail policy follows a procedural route across predicate frames',
     (tester) async {

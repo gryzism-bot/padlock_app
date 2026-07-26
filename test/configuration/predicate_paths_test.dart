@@ -572,6 +572,34 @@ void main() {
         containsAll(['John', 'Mary', 'friend']),
       );
       expect(
+        predicateNounChoicesFor(
+          think,
+          PredicatePathKind.aboutTopic,
+        ).map((topic) => topic.text),
+        containsAll(['grammar', 'science', 'Mary']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          think,
+          PredicatePathKind.withCompanion,
+        ).map((companion) => companion.text),
+        containsAll(['John', 'Mary', 'friend']),
+      );
+      expect(
+        predicateMannerChoicesFor(
+          think,
+          PredicatePathKind.mannerPhrase,
+        ).map((manner) => manner.text),
+        containsAll(['carefully', 'quickly']),
+      );
+      expect(
+        predicateTimeChoicesFor(
+          think,
+          PredicatePathKind.timePhrase,
+        ).map((time) => time.text),
+        containsAll(['today', 'now']),
+      );
+      expect(
         predicatePlaceChoicesFor(
           sleep,
           PredicatePathKind.placePhrase,
