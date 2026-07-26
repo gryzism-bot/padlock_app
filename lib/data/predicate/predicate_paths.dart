@@ -40,6 +40,7 @@ enum PredicatePathKind {
   withCompanion,
   toDestination,
   aboutTopic,
+  ofTopic,
   forBeneficiary,
   fromSource,
   placePhrase,
@@ -87,6 +88,9 @@ class PredicatePath {
 
   const PredicatePath.aboutTopic(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.aboutTopic, nouns: nouns);
+
+  const PredicatePath.ofTopic(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.ofTopic, nouns: nouns);
 
   const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
@@ -614,6 +618,7 @@ final guidedPredicateUnlocks = [
     verb: think,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.ofTopic(_peopleAndAnimals),
       PredicatePath.withCompanion(_people),
       _manners([
         manner_data.carefullyMannerPhrase,

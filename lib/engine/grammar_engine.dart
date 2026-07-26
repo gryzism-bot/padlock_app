@@ -678,7 +678,10 @@ class GrammarEngine {
         continue;
       }
 
-      parts.add('${surface.preposition} ${_renderObjectCase(phrase)}');
+      final preposition = surface.kind == PrepositionalParticipantKind.topic
+          ? builder.state.topicPreposition.text
+          : surface.preposition;
+      parts.add('$preposition ${_renderObjectCase(phrase)}');
     }
   }
 

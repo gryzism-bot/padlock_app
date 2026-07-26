@@ -136,7 +136,10 @@ class CrudeTranslationEngine {
       }
     }
     if (state.topic != null) {
-      add('about', _prepositionTranslation('about', language));
+      add(
+        state.topicPreposition.text,
+        _prepositionTranslation(state.topicPreposition.text, language),
+      );
     }
     if (state.beneficiary != null) {
       add('for', _prepositionTranslation('for', language));
@@ -264,6 +267,7 @@ String? _prepositionTranslation(String preposition, Language language) {
     'to' => 'do',
     'for' => 'dla',
     'about' => 'o',
+    'of' => 'o',
     'by' => 'przez',
     'with' => 'z',
     'at' => 'w',

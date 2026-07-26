@@ -1071,6 +1071,9 @@ void main() {
     expect(find.text('Companion:'), findsOneWidget);
     expect(find.text('Manner phrase:'), findsOneWidget);
     expect(find.text('Time phrase:'), findsOneWidget);
+    await expandRail(tester, 'Topic');
+    expect(find.byTooltip('You think about grammar.'), findsOneWidget);
+    expect(find.byTooltip('You think of John.'), findsOneWidget);
     expect(find.byTooltip('You think carefully.'), findsOneWidget);
     expect(find.byTooltip('You think quickly.'), findsOneWidget);
     expect(find.byTooltip('You think today.'), findsOneWidget);

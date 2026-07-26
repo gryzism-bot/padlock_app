@@ -66,6 +66,7 @@ void main() {
             PredicatePathKind.withCompanion => isA<SetCompanion>(),
             PredicatePathKind.toDestination => isA<SetDestination>(),
             PredicatePathKind.aboutTopic => isA<SetTopic>(),
+            PredicatePathKind.ofTopic => isA<SetTopic>(),
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
             PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
@@ -463,6 +464,7 @@ void main() {
               expect(unlocks.verb.usesDestinationPlace, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.aboutTopic:
+            case PredicatePathKind.ofTopic:
               expect(unlocks.verb.takesTopic, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.forBeneficiary:
@@ -577,6 +579,13 @@ void main() {
           PredicatePathKind.aboutTopic,
         ).map((topic) => topic.text),
         containsAll(['grammar', 'science', 'Mary']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          think,
+          PredicatePathKind.ofTopic,
+        ).map((topic) => topic.text),
+        containsAll(['John', 'Mary', 'friend']),
       );
       expect(
         predicateNounChoicesFor(

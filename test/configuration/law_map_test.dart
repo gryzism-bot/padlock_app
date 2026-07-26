@@ -173,6 +173,7 @@ void main() {
             PredicatePathKind.withCompanion => 'companion',
             PredicatePathKind.toDestination => 'destination',
             PredicatePathKind.aboutTopic => 'topic',
+            PredicatePathKind.ofTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
             PredicatePathKind.fromSource => 'source',
             PredicatePathKind.placePhrase => 'place',

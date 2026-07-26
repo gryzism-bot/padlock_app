@@ -975,7 +975,7 @@ void main() {
       expect(render(suggestions.last.preview), 'You go to Mary.');
     });
 
-    test('topic suggestions require about-topic-capable frame', () {
+    test('topic suggestions require topic-capable frame', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
@@ -997,14 +997,45 @@ void main() {
       );
       final labels = suggestions.map((suggestion) => suggestion.label);
 
-      expect(labels, containsAll(['grammar', 'science', 'Mary']));
+      expect(
+        labels,
+        containsAll(['about grammar', 'about science', 'about Mary']),
+      );
       expect(
         render(
           suggestions
-              .firstWhere((suggestion) => suggestion.label == 'grammar')
+              .firstWhere((suggestion) => suggestion.label == 'about grammar')
               .preview,
         ),
         'You learn about grammar.',
+      );
+    });
+
+    test('topic suggestions can use about and of routes', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(think),
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, contains('about grammar'));
+      expect(labels, contains('of John'));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'of John')
+              .preview,
+        ),
+        'You think of John.',
       );
     });
 

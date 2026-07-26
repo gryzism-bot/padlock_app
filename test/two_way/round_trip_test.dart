@@ -189,6 +189,7 @@ void main() {
         'John explained grammar carefully to Mary.',
         'John introduced Tom to Mary.',
         'John thinks about Mary.',
+        'John thinks of Mary.',
         'She learned about the old books.',
         'They should have read about grammar.',
         'You learn about science with Mary.',

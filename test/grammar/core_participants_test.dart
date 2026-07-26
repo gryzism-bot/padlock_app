@@ -23,6 +23,7 @@ import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -524,6 +525,21 @@ void main() {
       );
 
       expect(sentence, 'John thinks about Mary.');
+    });
+
+    test('topic surface can render as an of phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: think,
+          topic: mary.toNounPhrase(Number.singular),
+          topicPreposition: TopicPreposition.of,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John thinks of Mary.');
     });
 
     test('topic surface keeps noun phrase modifiers', () {

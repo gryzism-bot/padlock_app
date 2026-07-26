@@ -28,6 +28,7 @@ import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
@@ -388,10 +389,7 @@ class ConfigurationCompass {
         destinationSurface.read(sentence),
         _nounTargetForSurface(destinationSurface),
       ),
-      ConfigurationCompassSlot.topic => _prepositionalSurfaceCandidates(
-        sentence,
-        topicSurface,
-      ),
+      ConfigurationCompassSlot.topic => _topicCandidates(sentence),
       ConfigurationCompassSlot.topicDeterminer => _determinerCandidates(
         topicSurface.read(sentence),
         _nounTargetForSurface(topicSurface),
@@ -663,6 +661,62 @@ class ConfigurationCompass {
     ];
   }
 
+  Iterable<_CompassCandidate> _topicCandidates(SentenceState sentence) {
+    final current = sentence.topic;
+    final owner = _boundTailOwner(sentence);
+    final authoredAboutChoices = _nounChoicesForPath(
+      sentence,
+      PredicatePathKind.aboutTopic,
+      owner: owner,
+    );
+    final authoredOfChoices = _nounChoicesForPath(
+      sentence,
+      PredicatePathKind.ofTopic,
+      owner: owner,
+    );
+    final choicesByPreposition =
+        <({TopicPreposition preposition, List<NounPhrase> choices})>[
+          if (authoredAboutChoices != null)
+            (
+              preposition: TopicPreposition.about,
+              choices: authoredAboutChoices,
+            ),
+          if (authoredOfChoices != null)
+            (preposition: TopicPreposition.of, choices: authoredOfChoices),
+        ];
+
+    final effectiveChoices = choicesByPreposition.isEmpty
+        ? <({TopicPreposition preposition, List<NounPhrase> choices})>[
+            (preposition: TopicPreposition.about, choices: recipients),
+          ]
+        : choicesByPreposition;
+
+    return [
+      if (current != null)
+        const _CompassCandidate(SetTopic(null), 'no topic', 120),
+      ...effectiveChoices.expand((entry) {
+        return _nounChoicesForState(current, entry.choices).map((noun) {
+          final isSelected =
+              _sameNounChoice(noun, current) &&
+              sentence.topicPreposition == entry.preposition;
+          final nextNoun = isSelected
+              ? current
+              : _carryCompatibleNounPhrase(from: current, to: noun);
+          final labelNoun = nextNoun == null
+              ? noun.text
+              : _nounPhraseLabel(nextNoun);
+
+          return _CompassCandidate(
+            SetTopic(nextNoun, topicPreposition: entry.preposition),
+            '${entry.preposition.text} $labelNoun',
+            isSelected ? 120 : _topicPriority(entry.preposition, noun),
+            isSelected: isSelected,
+          );
+        });
+      }),
+    ];
+  }
+
   Iterable<_CompassCandidate> _adjectiveCandidates(
     NounPhrase? phrase,
     NounPhraseTarget target,
@@ -808,6 +862,16 @@ class ConfigurationCompass {
       ),
     ];
   }
+}
+
+int _topicPriority(TopicPreposition preposition, NounPhrase noun) {
+  return switch ((preposition, noun.text.toLowerCase())) {
+    (TopicPreposition.about, 'grammar') => 112,
+    (TopicPreposition.of, 'john') => 112,
+    (TopicPreposition.about, 'science') => 111,
+    (TopicPreposition.of, 'mary') => 111,
+    _ => 100,
+  };
 }
 
 ConfigurationMove _setPrepositionalSurface(

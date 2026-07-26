@@ -288,7 +288,7 @@ final _prepositionalSurfaceRailPolicies = [
     surface: topicSurface,
     title: 'Topic',
     unlockHint:
-        'Choose a verb that can open an about-topic, like think, talk, learn, read, or explain.',
+        'Choose a verb that can open an about/of topic, like think, talk, learn, read, or explain.',
     slot: ConfigurationCompassSlot.topic,
     determinerSlot: ConfigurationCompassSlot.topicDeterminer,
     adjectiveSlot: ConfigurationCompassSlot.topicAdjective,
@@ -330,7 +330,9 @@ List<_RailPolicy> _prepositionalSurfaceRailPolicy({
       slot: slot,
       title: (_) => title,
       unlockHint: (_) => unlockHint,
-      surfaceMarker: (_) => surface.preposition,
+      surfaceMarker: (_) => surface.kind == PrepositionalParticipantKind.topic
+          ? 'about/of'
+          : surface.preposition,
       isControlled: true,
       canRenderCollapsedWhen: (state) =>
           (surface.lexicalBeAllows && state.action.infinitive == 'be') ||

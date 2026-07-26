@@ -33,6 +33,7 @@ import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -2297,21 +2298,42 @@ class RecognitionEngine {
       return;
     }
 
-    final wordsBefore = _phraseWordIndex(tokens, 'about');
+    final topicPreposition = _firstTopicPreposition(tokens);
+    if (topicPreposition == null) {
+      return;
+    }
+
+    final wordsBefore = _phraseWordIndex(tokens, topicPreposition.text);
 
     if (wordsBefore < 0) {
       return;
     }
 
-    final aboutIndex = builder.verbChainEnd + 1 + wordsBefore;
-    final topicStart = aboutIndex + 1;
+    final prepositionIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final topicStart = prepositionIndex + 1;
 
     if (!_looksLikeCompanionPhrase(builder, topicStart)) {
       return;
     }
 
+    builder.topicPreposition = topicPreposition;
     builder.topicStart = topicStart;
     builder.topicEnd = _nounPhraseEnd(builder, topicStart);
+  }
+
+  TopicPreposition? _firstTopicPreposition(List<String> tokens) {
+    final aboutIndex = _phraseWordIndex(tokens, TopicPreposition.about.text);
+    final ofIndex = _phraseWordIndex(tokens, TopicPreposition.of.text);
+
+    if (aboutIndex < 0) {
+      return ofIndex < 0 ? null : TopicPreposition.of;
+    }
+
+    if (ofIndex < 0 || aboutIndex < ofIndex) {
+      return TopicPreposition.about;
+    }
+
+    return TopicPreposition.of;
   }
 
   void _recognizeBeneficiaryPhrase(
@@ -2443,11 +2465,17 @@ class RecognitionEngine {
     for (final token in builder.tokens) {
       if (token.toLowerCase() == 'not') continue;
 
-      if (token.toLowerCase() == 'by') continue;
-
-      if (token.toLowerCase() == 'to') continue;
-
-      if (token.toLowerCase() == 'with') continue;
+      if (const {
+        'by',
+        'to',
+        'with',
+        'about',
+        'of',
+        'for',
+        'from',
+      }.contains(token.toLowerCase())) {
+        continue;
+      }
 
       if (_lookupVerb(token) != null) continue;
 
@@ -2554,6 +2582,7 @@ class _RecognitionBuilder {
   NounPhrase? companion;
   NounPhrase? destination;
   NounPhrase? topic;
+  TopicPreposition topicPreposition = TopicPreposition.about;
   NounPhrase? beneficiary;
   NounPhrase? source;
   Verb? rightAction;
@@ -2595,6 +2624,7 @@ class _RecognitionBuilder {
       companion: companion,
       destination: destination,
       topic: topic,
+      topicPreposition: topicPreposition,
       beneficiary: beneficiary,
       source: source,
       rightAction: rightAction,
@@ -2632,7 +2662,7 @@ class _RecognitionBuilder {
       'addressee: $addresseeStart -> $addresseeEnd (${_tokensBetween(addresseeStart, addresseeEnd)}) = ${addressee?.text}',
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
       'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
-      'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topic?.text}',
+      'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topicPreposition.text} ${topic?.text}',
       'beneficiary: $beneficiaryStart -> $beneficiaryEnd (${_tokensBetween(beneficiaryStart, beneficiaryEnd)}) = ${beneficiary?.text}',
       'source: $sourceStart -> $sourceEnd (${_tokensBetween(sourceStart, sourceEnd)}) = ${source?.text}',
       'rightAction: $rightActionStart -> $rightActionEnd (${_tokensBetween(rightActionStart, rightActionEnd)}) = ${rightAction?.infinitive}',

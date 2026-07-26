@@ -17,6 +17,7 @@ import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/determiner.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
@@ -274,8 +275,9 @@ class SetDestination extends ConfigurationMove {
 
 class SetTopic extends ConfigurationMove {
   final NounPhrase? topic;
+  final TopicPreposition topicPreposition;
 
-  const SetTopic(this.topic);
+  const SetTopic(this.topic, {this.topicPreposition = TopicPreposition.about});
 }
 
 class SetBeneficiary extends ConfigurationMove {
@@ -518,6 +520,7 @@ class ConfigurationEngine {
       state.topic,
       tailOwner,
       topicSurface,
+      topicPreposition: state.topicPreposition,
     );
     final beneficiary = _surfaceAfterActionChange(
       state.beneficiary,
@@ -571,6 +574,9 @@ class ConfigurationEngine {
       companion: companion,
       destination: destination,
       topic: topic,
+      topicPreposition: topic == null
+          ? TopicPreposition.about
+          : state.topicPreposition,
       beneficiary: beneficiary,
       source: source,
       rightAction: rightAction,
@@ -606,7 +612,13 @@ class ConfigurationEngine {
         state,
         destination: destination,
       ),
-      SetTopic(:final topic) => _copy(state, topic: topic),
+      SetTopic(:final topic, :final topicPreposition) => _copy(
+        state,
+        topic: topic,
+        topicPreposition: topic == null
+            ? TopicPreposition.about
+            : topicPreposition,
+      ),
       SetBeneficiary(:final beneficiary) => _copy(
         state,
         beneficiary: beneficiary,
@@ -1410,8 +1422,9 @@ class ConfigurationEngine {
   NounPhrase? _surfaceAfterActionChange(
     NounPhrase? noun,
     Verb action,
-    PrepositionalParticipantSurface surface,
-  ) {
+    PrepositionalParticipantSurface surface, {
+    TopicPreposition topicPreposition = TopicPreposition.about,
+  }) {
     if (noun == null) {
       return null;
     }
@@ -1422,7 +1435,7 @@ class ConfigurationEngine {
 
     if (!_predicatePathAcceptsNoun(
       action,
-      _predicatePathKindForSurface(surface),
+      _predicatePathKindForSurface(surface, topicPreposition: topicPreposition),
       noun,
     )) {
       return null;
@@ -1432,14 +1445,18 @@ class ConfigurationEngine {
   }
 
   PredicatePathKind _predicatePathKindForSurface(
-    PrepositionalParticipantSurface surface,
-  ) {
+    PrepositionalParticipantSurface surface, {
+    TopicPreposition topicPreposition = TopicPreposition.about,
+  }) {
     return switch (surface.kind) {
       PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
       PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
       PrepositionalParticipantKind.destination =>
         PredicatePathKind.toDestination,
-      PrepositionalParticipantKind.topic => PredicatePathKind.aboutTopic,
+      PrepositionalParticipantKind.topic => switch (topicPreposition) {
+        TopicPreposition.about => PredicatePathKind.aboutTopic,
+        TopicPreposition.of => PredicatePathKind.ofTopic,
+      },
       PrepositionalParticipantKind.beneficiary =>
         PredicatePathKind.forBeneficiary,
       PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
@@ -1670,6 +1687,7 @@ class ConfigurationEngine {
     Object? companion = _unchanged,
     Object? destination = _unchanged,
     Object? topic = _unchanged,
+    TopicPreposition? topicPreposition,
     Object? beneficiary = _unchanged,
     Object? source = _unchanged,
     Object? rightAction = _unchanged,
@@ -1715,6 +1733,7 @@ class ConfigurationEngine {
           ? state.destination
           : destination as NounPhrase?,
       topic: identical(topic, _unchanged) ? state.topic : topic as NounPhrase?,
+      topicPreposition: topicPreposition ?? state.topicPreposition,
       beneficiary: identical(beneficiary, _unchanged)
           ? state.beneficiary
           : beneficiary as NounPhrase?,

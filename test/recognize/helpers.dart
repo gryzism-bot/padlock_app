@@ -86,6 +86,22 @@ void expectDestination(
   }
 }
 
+void expectTopic(
+  SentenceState state, {
+  required String text,
+  Determiner? determiner,
+  Adjective? adjective,
+  List<Adjective>? adjectives,
+}) {
+  expect(state.topic, isNotNull);
+  expect(state.topic!.text.toLowerCase(), text.toLowerCase());
+  expect(state.topic!.determiner, determiner);
+  expect(state.topic!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.topic!.adjectiveList, adjectives);
+  }
+}
+
 void expectAddressee(
   SentenceState state, {
   required String text,

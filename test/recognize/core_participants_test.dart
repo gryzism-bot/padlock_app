@@ -16,6 +16,7 @@ import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
 import 'package:padlock_app/models/grammar/recipient_preposition.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -395,6 +396,17 @@ void main() {
       expectObject(state, text: 'grammar');
       expectAddressee(state, text: 'mary');
       expect(state.action, explain);
+      expect(state.recipient, isNull);
+    });
+
+    test('topic can recognize an of phrase', () {
+      final state = engine.recognize('John thought of Mary.');
+
+      expectAgent(state, text: 'john');
+      expectTopic(state, text: 'mary');
+      expect(state.action, think);
+      expect(state.topicPreposition, TopicPreposition.of);
+      expect(state.object, isNull);
       expect(state.recipient, isNull);
     });
 

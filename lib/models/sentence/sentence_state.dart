@@ -12,6 +12,7 @@ import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -26,6 +27,7 @@ class SentenceState {
   final NounPhrase? companion;
   final NounPhrase? destination;
   final NounPhrase? topic;
+  final TopicPreposition topicPreposition;
   final NounPhrase? beneficiary;
   final NounPhrase? source;
   final Verb? rightAction;
@@ -63,6 +65,7 @@ class SentenceState {
     this.companion,
     this.destination,
     this.topic,
+    this.topicPreposition = TopicPreposition.about,
     this.beneficiary,
     this.source,
     this.rightAction,
@@ -102,6 +105,7 @@ class SentenceState {
       'companion=${_nounPhraseSummary(companion)}',
       'destination=${_nounPhraseSummary(destination)}',
       'topic=${_nounPhraseSummary(topic)}',
+      'topicPreposition=${topicPreposition.name}',
       'beneficiary=${_nounPhraseSummary(beneficiary)}',
       'source=${_nounPhraseSummary(source)}',
       'rightAction=${rightAction?.infinitive}',
@@ -138,6 +142,7 @@ Addressee: ${addressee?.text}
 Companion: ${companion?.text}
 Destination: ${destination?.text}
 Topic: ${topic?.text}
+Topic Preposition: $topicPreposition
 Beneficiary: ${beneficiary?.text}
 Source: ${source?.text}
 Right Action: ${rightAction?.infinitive}

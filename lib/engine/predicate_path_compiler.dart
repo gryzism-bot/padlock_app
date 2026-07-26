@@ -1,6 +1,7 @@
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
 ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
@@ -11,7 +12,14 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
     PredicatePathKind.toAddressee => SetAddressee(_first(path.nouns, path)),
     PredicatePathKind.withCompanion => SetCompanion(_first(path.nouns, path)),
     PredicatePathKind.toDestination => SetDestination(_first(path.nouns, path)),
-    PredicatePathKind.aboutTopic => SetTopic(_first(path.nouns, path)),
+    PredicatePathKind.aboutTopic => SetTopic(
+      _first(path.nouns, path),
+      topicPreposition: TopicPreposition.about,
+    ),
+    PredicatePathKind.ofTopic => SetTopic(
+      _first(path.nouns, path),
+      topicPreposition: TopicPreposition.of,
+    ),
     PredicatePathKind.forBeneficiary => SetBeneficiary(
       _first(path.nouns, path),
     ),

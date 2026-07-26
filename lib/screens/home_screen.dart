@@ -325,7 +325,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       configuration = lock.applyMove(
         configuration,
-        _setNounPhraseMove(slot, _carrySafeNounModifiers(nounPhrase, variant)),
+        _setNounPhraseMove(
+          configuration.sentenceState,
+          slot,
+          _carrySafeNounModifiers(nounPhrase, variant),
+        ),
       );
       final sentence = grammar.generate(configuration.sentenceState).text;
       logicStopwatch.stop();
@@ -1288,7 +1292,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       'companion -> ${_nounTraceText(companion)}',
     SetDestination(:final destination) =>
       'destination -> ${_nounTraceText(destination)}',
-    SetTopic(:final topic) => 'topic -> ${_nounTraceText(topic)}',
+    SetTopic(:final topic, :final topicPreposition) =>
+      'topic (${topicPreposition.text}) -> ${_nounTraceText(topic)}',
     SetBeneficiary(:final beneficiary) =>
       'beneficiary -> ${_nounTraceText(beneficiary)}',
     SetSource(:final source) => 'source -> ${_nounTraceText(source)}',
