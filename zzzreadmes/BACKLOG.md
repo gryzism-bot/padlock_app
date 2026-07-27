@@ -41,12 +41,12 @@ Best low-effort / high-value moves for the developer cockpit:
    - output markdown/jsonl evidence for missing laws and stale paths
 5. Current: finish PredicatePath route migration.
    - keep moving predicate-bound phrase tails into verb-owned routes
-   - done recently: `at` and `in` location routes
+   - done recently: `at`, `in`, and `on` location routes
    - next likely route families:
-     - `on` location/topic
+     - source place: `come from school`, `go from work`
+     - `on` topic/object: `work on grammar`, `think of Mary`
      - instrument: `open with a key`
      - purpose/for-purpose: `use for work`, `walk to exercise`
-     - source place: `come from school`, `go from work`
 6. Next: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
@@ -135,7 +135,85 @@ Next audit actions:
 
 ## Night Configuration Run Takeaways
 
-Latest 6-hour configuration run:
+Latest 6-hour render run:
+
+- guided moves accepted: 18,505,171
+- direct law probe attempts: 737,315,475
+- Compass leaks: 0
+- render failures: 0
+- Compass collection average: 0.99 ms
+- Lock/render transition average: 0.03 ms
+
+Interpretation:
+
+- The current Compass -> Lock -> Grammar render route is stable.
+- Candidate law output is not a failure list. Most rows are direct probes
+  intentionally asking impossible questions such as "does this verb take an
+  object?" or "can passive focus exist in active voice?"
+- The useful signal is where a blocked probe looks like a sentence the product
+  should eventually support.
+
+Candidate-law sorting from the run:
+
+1. Already-solid structural guardrails:
+   - active voice requires an agent
+   - passive focus belongs to passive voice
+   - passive agent visibility belongs to passive voice
+   - passive object focus requires an object
+   - imperatives are present-simple and modal-free
+   - pronouns do not take determiners/adjectives
+   - noun determiners must match number and article sound
+2. Verb-frame facts that should stay explicit:
+   - many verbs do not take objects, recipients, addressees, companions,
+     destinations, sources, topics, complements, or right actions
+   - fixed object shelves are working:
+     - `learn` only takes fixed subject/language objects
+     - `read`/`write` only take fixed text objects
+     - `drive` only takes vehicles
+     - `use` only takes tools
+     - `open`/`close` only take openable objects
+     - `play` only takes fixed activity objects
+3. Product-route candidates surfaced by the probes:
+   - source-place route family:
+     - `go from work`
+     - `come from school`
+     - `leave from home`
+     - `return from the office`
+   - on-topic/object route family:
+     - `work on grammar`
+     - `think of Mary`
+     - `think about something`
+   - instrument route family:
+     - `open with a key`
+     - `write with a pen`
+     - `cut with a knife`
+   - verb data review:
+     - `photograph` probably should take visual objects
+     - some activity verbs such as `box`/`wrestle` may need opponent or
+       companion routes rather than broad object routes
+4. Semantic C-section candidates, not lower grammar bugs:
+   - odd food/object combinations such as boiling bridges
+   - odd lexical `be` plus time combinations
+   - doubled path feel where broad phrases stack on top of authored routes
+   - adjective stacking/order restraint
+
+Backlog additions from this run:
+
+- implement source-place PredicatePaths before adding more broad place data
+- implement `onTopic` / `ofTopic` as topic-object routes, separate from
+  `onLocation`
+- implement instrument `with`, separate from companion `with`
+- review verbs that look too narrow after probing:
+  - `photograph`
+  - `box`
+  - `wrestle`
+  - possibly `work`, `think`, `return`, `walk`, `run`, `come`, `leave`, `travel`
+- add an audit section to the render runner that groups blocked probes by verb,
+  so "verb needs review" becomes visible without reading raw law rows
+- keep shrinking broad `placePhrase` pressure as predicate-bound routes are
+  migrated
+
+Previous 6-hour configuration run:
 
 - guided moves accepted: 85,148,753
 - direct law probe attempts: 1,117,577,405

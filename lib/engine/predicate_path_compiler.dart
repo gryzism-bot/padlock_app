@@ -36,6 +36,10 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
       _first(path.places, path),
       placeMeaning: PlaceMeaning.location,
     ),
+    PredicatePathKind.fromLocation => SetPlacePhrase(
+      _first(path.places, path),
+      placeMeaning: PlaceMeaning.source,
+    ),
     PredicatePathKind.placePhrase => SetPlacePhrase(
       _first(path.places, path),
       placeMeaning: owner?.usesDestinationPlace == true

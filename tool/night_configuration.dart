@@ -64,6 +64,7 @@ Future<void> main(List<String> args) async {
 }
 
 class _NightConfigurationOptions {
+  final String name;
   final int minutes;
   final int seed;
   final int maxStepsPerWalk;
@@ -76,6 +77,7 @@ class _NightConfigurationOptions {
   final bool exitZero;
 
   const _NightConfigurationOptions({
+    required this.name,
     required this.minutes,
     required this.seed,
     required this.maxStepsPerWalk,
@@ -89,19 +91,27 @@ class _NightConfigurationOptions {
   });
 
   factory _NightConfigurationOptions.parse(List<String> args) {
+    var name = 'night_configuration';
     var minutes = 1;
     var seed = DateTime.now().millisecondsSinceEpoch;
     var maxStepsPerWalk = 24;
     var checkpointEvery = 1000;
     var probeEvery = 3;
     var sampleEvery = 250;
-    var reportPath = 'build/night_configuration_report.md';
-    var jsonlPath = 'build/night_configuration_findings.jsonl';
+    String? reportPath;
+    String? jsonlPath;
     var failOnCompassLeak = false;
     var exitZero = false;
 
     for (final arg in args) {
-      if (arg.startsWith('--minutes=')) {
+      if (arg.startsWith('--name=')) {
+        name = arg.substring('--name='.length);
+        if (!_isSafeFileStem(name)) {
+          throw ArgumentError(
+            '--name may only contain letters, numbers, underscore, and dash',
+          );
+        }
+      } else if (arg.startsWith('--minutes=')) {
         minutes = int.parse(arg.substring('--minutes='.length));
         if (minutes < 1) {
           throw ArgumentError('--minutes must be at least 1');
@@ -146,6 +156,7 @@ Usage:
   dart run tool/night_configuration.dart [options]
 
 Options:
+  --name=STEM              Run/report name. Defaults to night_configuration.
   --minutes=N              Run for N minutes. Must be at least 1.
   --seed=N                 Deterministic random seed.
   --max-steps=N            Reset to initial state after N guided moves.
@@ -164,18 +175,23 @@ Options:
     }
 
     return _NightConfigurationOptions(
+      name: name,
       minutes: minutes,
       seed: seed,
       maxStepsPerWalk: maxStepsPerWalk,
       checkpointEvery: checkpointEvery,
       probeEvery: probeEvery,
       sampleEvery: sampleEvery,
-      reportPath: reportPath,
-      jsonlPath: jsonlPath,
+      reportPath: reportPath ?? 'build/${name}_report.md',
+      jsonlPath: jsonlPath ?? 'build/${name}_findings.jsonl',
       failOnCompassLeak: failOnCompassLeak,
       exitZero: exitZero,
     );
   }
+}
+
+bool _isSafeFileStem(String value) {
+  return RegExp(r'^[A-Za-z0-9_-]+$').hasMatch(value);
 }
 
 class _NightConfigurationRunner {
@@ -203,6 +219,7 @@ class _NightConfigurationRunner {
     _prepareOutputFiles(startedAt);
     _writeJsonl({
       'type': 'run_started',
+      'name': options.name,
       'startedAt': startedAt.toIso8601String(),
       'minutes': options.minutes,
       'seed': options.seed,
@@ -304,6 +321,7 @@ class _NightConfigurationRunner {
     _writeReport(startedAt, stats, interrupted: _stopRequested);
     _writeJsonl({
       'type': 'run_finished',
+      'name': options.name,
       'finishedAt': DateTime.now().toIso8601String(),
       'interrupted': _stopRequested,
       'guidedMoves': stats.guidedMoves,
@@ -478,7 +496,7 @@ class _NightConfigurationRunner {
     }
 
     File(options.reportPath).writeAsStringSync(
-      '# Configuration Night Contract\n\n'
+      '# ${_reportTitle(options.name)}\n\n'
       'Started: ${startedAt.toIso8601String()}\n\n'
       'Run in progress. Press Ctrl+C for a graceful checkpoint.\n',
     );
@@ -516,7 +534,7 @@ class _NightConfigurationRunner {
       );
 
     final buffer = StringBuffer()
-      ..writeln('# Configuration Night Contract')
+      ..writeln('# ${_reportTitle(options.name)}')
       ..writeln()
       ..writeln('Started: ${startedAt.toIso8601String()}')
       ..writeln('Updated: ${now.toIso8601String()}')
@@ -680,6 +698,14 @@ class _NightConfigurationRunner {
       return _RenderResult._('<render failed>', error.toString());
     }
   }
+}
+
+String _reportTitle(String name) {
+  return name
+      .split(RegExp('[-_]'))
+      .where((part) => part.isNotEmpty)
+      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
 }
 
 class _ConfigurationNightStats {

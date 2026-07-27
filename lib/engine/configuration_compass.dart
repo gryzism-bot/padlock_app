@@ -77,6 +77,7 @@ enum ConfigurationCompassSlot {
   passiveAgentNoun,
   modal,
   placePhrase,
+  sourcePlace,
   timePhrase,
   frequencyPhrase,
   mannerPhrase,
@@ -559,7 +560,10 @@ class ConfigurationCompass {
               ),
             ),
       ConfigurationCompassSlot.placePhrase => [
-        ..._placePhraseCandidates(sentence),
+        ..._placePhraseCandidates(sentence, sourceOnly: false),
+      ],
+      ConfigurationCompassSlot.sourcePlace => [
+        ..._placePhraseCandidates(sentence, sourceOnly: true),
       ],
       ConfigurationCompassSlot.timePhrase => [
         _CompassCandidate(
@@ -789,12 +793,46 @@ class ConfigurationCompass {
     return choices;
   }
 
-  List<PlacePhrase>? _placeChoicesForPath(SentenceState sentence) {
+  List<_AuthoredPlaceChoice>? _placeChoicesForPath(
+    SentenceState sentence, {
+    required bool sourceOnly,
+  }) {
     if (predicatePathMode != PredicatePathMode.authoredTracks) {
       return null;
     }
 
-    return predicateAuthoredPlaceChoicesFor(_boundTailOwner(sentence));
+    final owner = _boundTailOwner(sentence);
+    final choices = <_AuthoredPlaceChoice>[];
+    final seen = <String>{};
+
+    for (final path in predicatePathsFor(owner)) {
+      final allowedKinds = sourceOnly
+          ? predicateSourceLocationPathKinds
+          : [...predicateLocationPathKinds, PredicatePathKind.placePhrase];
+      if (!allowedKinds.contains(path.kind)) {
+        continue;
+      }
+
+      for (final place in path.places) {
+        final meaning = _meaningForAuthoredPlacePath(owner, path.kind);
+        final key = [
+          path.kind.name,
+          place.render(meaning),
+        ].join('|').toLowerCase();
+
+        if (seen.add(key)) {
+          choices.add(
+            _AuthoredPlaceChoice(
+              kind: path.kind,
+              place: place,
+              meaning: meaning,
+            ),
+          );
+        }
+      }
+    }
+
+    return choices;
   }
 
   List<MannerPhrase>? _mannerChoicesForPath(SentenceState sentence) {
@@ -808,13 +846,24 @@ class ConfigurationCompass {
     );
   }
 
-  Iterable<_CompassCandidate> _placePhraseCandidates(SentenceState sentence) {
-    final authoredChoices = _placeChoicesForPath(sentence);
+  Iterable<_CompassCandidate> _placePhraseCandidates(
+    SentenceState sentence, {
+    required bool sourceOnly,
+  }) {
+    final authoredChoices = _placeChoicesForPath(
+      sentence,
+      sourceOnly: sourceOnly,
+    );
+    final selectedPlaceBelongsToSlot =
+        sentence.placePhrase != null &&
+        (sourceOnly
+            ? _effectivePlaceMeaning(sentence) == PlaceMeaning.source
+            : _effectivePlaceMeaning(sentence) != PlaceMeaning.source);
     if (predicatePathMode == PredicatePathMode.authoredTracks &&
         broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.place) &&
         authoredChoices != null &&
         authoredChoices.isEmpty &&
-        sentence.placePhrase == null) {
+        !selectedPlaceBelongsToSlot) {
       return const <_CompassCandidate>[];
     }
 
@@ -825,7 +874,14 @@ class ConfigurationCompass {
         sentence.placePhrase == null ? 130 : 120,
         isSelected: sentence.placePhrase == null,
       ),
-      ..._placePhraseCandidatesForState(sentence, authoredChoices ?? places),
+      if (authoredChoices == null)
+        ..._placePhraseCandidatesForState(sentence, places)
+      else
+        ..._authoredPlacePhraseCandidatesForState(
+          sentence,
+          authoredChoices,
+          includeCurrentIfMissing: selectedPlaceBelongsToSlot,
+        ),
     ];
   }
 
@@ -1062,11 +1118,74 @@ List<_CompassCandidate> _placePhraseCandidatesForState(
   return candidates;
 }
 
+List<_CompassCandidate> _authoredPlacePhraseCandidatesForState(
+  SentenceState sentence,
+  List<_AuthoredPlaceChoice> choices, {
+  required bool includeCurrentIfMissing,
+}) {
+  final candidates = <_CompassCandidate>[];
+  final selectedMeaning = _effectivePlaceMeaning(sentence);
+  final selectedPlace = sentence.placePhrase;
+
+  for (final choice in choices) {
+    candidates.add(
+      _CompassCandidate(
+        SetPlacePhrase(choice.place, placeMeaning: choice.meaning),
+        choice.place.render(choice.meaning),
+        _placePriority(sentence.action, choice.place),
+        isSelected:
+            choice.place == selectedPlace && choice.meaning == selectedMeaning,
+      ),
+    );
+  }
+
+  if (includeCurrentIfMissing &&
+      selectedPlace != null &&
+      !choices.any(
+        (choice) =>
+            choice.place == selectedPlace && choice.meaning == selectedMeaning,
+      )) {
+    candidates.add(
+      _CompassCandidate(
+        SetPlacePhrase(selectedPlace, placeMeaning: selectedMeaning),
+        selectedPlace.render(selectedMeaning),
+        _placePriority(sentence.action, selectedPlace),
+        isSelected: true,
+      ),
+    );
+  }
+
+  return candidates;
+}
+
+PlaceMeaning _meaningForAuthoredPlacePath(Verb owner, PredicatePathKind kind) {
+  return switch (kind) {
+    PredicatePathKind.fromLocation => PlaceMeaning.source,
+    PredicatePathKind.placePhrase =>
+      owner.usesDestinationPlace
+          ? PlaceMeaning.destination
+          : PlaceMeaning.location,
+    _ => PlaceMeaning.location,
+  };
+}
+
 PlaceMeaning _effectivePlaceMeaning(SentenceState sentence) {
   return sentence.placeMeaning ??
       (sentence.action.usesDestinationPlace
           ? PlaceMeaning.destination
           : PlaceMeaning.location);
+}
+
+class _AuthoredPlaceChoice {
+  final PredicatePathKind kind;
+  final PlacePhrase place;
+  final PlaceMeaning meaning;
+
+  const _AuthoredPlaceChoice({
+    required this.kind,
+    required this.place,
+    required this.meaning,
+  });
 }
 
 int _determinerPriority(NounPhrase phrase, Determiner determiner) {

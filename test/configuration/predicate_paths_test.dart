@@ -73,6 +73,7 @@ void main() {
             PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.inLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.onLocation => isA<SetPlacePhrase>(),
+            PredicatePathKind.fromLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
             PredicatePathKind.timePhrase => isA<SetTimePhrase>(),
             PredicatePathKind.frequencyPhrase => isA<SetFrequencyPhrase>(),
@@ -126,6 +127,11 @@ void main() {
             action: sleep,
             kind: PredicatePathKind.onLocation,
             text: 'You sleep on the bed.',
+          ),
+          (
+            action: come,
+            kind: PredicatePathKind.fromLocation,
+            text: 'You come from home.',
           ),
           (
             action: go,
@@ -537,6 +543,15 @@ void main() {
                   reason: '$reason -> ${place.render(PlaceMeaning.location)}',
                 );
               }
+            case PredicatePathKind.fromLocation:
+              expect(path.places, isNotEmpty, reason: reason);
+              for (final place in path.places) {
+                expect(
+                  place.render(PlaceMeaning.source).startsWith('from '),
+                  isTrue,
+                  reason: '$reason -> ${place.render(PlaceMeaning.source)}',
+                );
+              }
             case PredicatePathKind.placePhrase:
               expect(path.places, isNotEmpty, reason: reason);
             case PredicatePathKind.timePhrase:
@@ -643,6 +658,20 @@ void main() {
           PredicatePathKind.onLocation,
         ).map((place) => place.noun),
         contains('table'),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          come,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          go,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work', 'shop']),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -764,6 +793,7 @@ void main() {
             PredicatePathKind.atLocation => <Object>[...path.places],
             PredicatePathKind.inLocation => <Object>[...path.places],
             PredicatePathKind.onLocation => <Object>[...path.places],
+            PredicatePathKind.fromLocation => <Object>[...path.places],
             PredicatePathKind.placePhrase => <Object>[...path.places],
             PredicatePathKind.mannerPhrase => <Object>[...path.manners],
             _ => const <Object>[],
@@ -800,7 +830,14 @@ void main() {
           .map((suggestion) => suggestion.label)
           .toList();
 
+      final sourcePlaceLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
       expect(placeLabels, containsAll(['home', 'to school', 'to the shop']));
+      expect(placeLabels, isNot(contains('from work')));
+      expect(sourcePlaceLabels, containsAll(['from work', 'from school']));
       expect(placeLabels, isNot(contains('bed')));
       expect(mannerLabels, containsAll(['quickly', 'away', 'back']));
       expect(mannerLabels, isNot(contains('closely')));
@@ -832,6 +869,14 @@ void main() {
           action: work,
           move: const SetPlacePhrase(itDomainPlacePhrase),
           text: 'You work in IT.',
+        ),
+        (
+          action: go,
+          move: const SetPlacePhrase(
+            workPlacePhrase,
+            placeMeaning: PlaceMeaning.source,
+          ),
+          text: 'You go from work.',
         ),
       ];
 
@@ -898,7 +943,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(be, _ReviewedRouteKind.lexicalBeNounComplement),
   _ReviewedRoute(be, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(be, _ReviewedRouteKind.place, text: 'school'),
-  _ReviewedRoute(be, _ReviewedRouteKind.sourcePlace, status: _pending),
+  _ReviewedRoute(be, _ReviewedRouteKind.sourcePlace),
   _ReviewedRoute(be, _ReviewedRouteKind.companion),
   _ReviewedRoute(
     be,
@@ -1101,7 +1146,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'back'),
   _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'now'),
-  _ReviewedRoute(come, _ReviewedRouteKind.sourcePlace, status: _pending),
+  _ReviewedRoute(come, _ReviewedRouteKind.sourcePlace),
 
   _ReviewedRoute(get, _ReviewedRouteKind.directObject),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'book'),
@@ -1516,7 +1561,11 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
     case _ReviewedRouteKind.place:
       return _placePathHas(route.verb, text);
     case _ReviewedRouteKind.sourcePlace:
-      return false;
+      return _placePathHas(
+        route.verb,
+        text,
+        kind: PredicatePathKind.fromLocation,
+      );
     case _ReviewedRouteKind.time:
       return _timePathHas(route.verb, text);
     case _ReviewedRouteKind.manner:
@@ -1559,8 +1608,10 @@ bool _verbPathHas(Verb verb, PredicatePathKind kind, String? text) {
   );
 }
 
-bool _placePathHas(Verb verb, String? text) {
-  final choices = predicateAuthoredPlaceChoicesFor(verb);
+bool _placePathHas(Verb verb, String? text, {PredicatePathKind? kind}) {
+  final choices = kind == null
+      ? predicateAuthoredPlaceChoicesFor(verb)
+      : predicatePlaceChoicesFor(verb, kind);
   if (text == null || text == 'somewhere') {
     return choices.isNotEmpty;
   }

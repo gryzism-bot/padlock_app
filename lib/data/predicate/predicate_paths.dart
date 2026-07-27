@@ -50,6 +50,7 @@ enum PredicatePathKind {
   atLocation,
   inLocation,
   onLocation,
+  fromLocation,
   placePhrase,
   timePhrase,
   frequencyPhrase,
@@ -62,8 +63,11 @@ const predicateLocationPathKinds = [
   PredicatePathKind.onLocation,
 ];
 
+const predicateSourceLocationPathKinds = [PredicatePathKind.fromLocation];
+
 const predicateAuthoredPlacePathKinds = [
   ...predicateLocationPathKinds,
+  ...predicateSourceLocationPathKinds,
   PredicatePathKind.placePhrase,
 ];
 
@@ -72,6 +76,7 @@ String? predicatePlaceConnectorFor(PredicatePathKind kind) {
     PredicatePathKind.atLocation => 'at',
     PredicatePathKind.inLocation => 'in',
     PredicatePathKind.onLocation => 'on',
+    PredicatePathKind.fromLocation => 'from',
     _ => null,
   };
 }
@@ -133,6 +138,9 @@ class PredicatePath {
 
   const PredicatePath.onLocation(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.onLocation, places: places);
+
+  const PredicatePath.fromLocation(List<PlacePhrase> places)
+    : this._(kind: PredicatePathKind.fromLocation, places: places);
 
   const PredicatePath.placePhrase(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.placePhrase, places: places);
@@ -479,6 +487,7 @@ PredicateUnlocks _destinationWithCompanion(Verb verb) {
     paths: [
       PredicatePath.toDestination(_people),
       if (verb.takesCompanion) PredicatePath.withCompanion(_people),
+      _fromLocations(_homeSchoolWorkPlaces),
     ],
   );
 }
@@ -521,16 +530,31 @@ PredicatePath _onLocations(List<PlacePhrase> places) {
   return PredicatePath.onLocation(_locationsWithPreposition(places, 'on'));
 }
 
+PredicatePath _fromLocations(List<PlacePhrase> places) {
+  return PredicatePath.fromLocation(
+    _placesWithMeaningPreposition(places, PlaceMeaning.source, 'from'),
+  );
+}
+
 List<PlacePhrase> _locationsWithPreposition(
   List<PlacePhrase> places,
   String preposition,
 ) {
+  return _placesWithMeaningPreposition(
+    places,
+    PlaceMeaning.location,
+    preposition,
+  );
+}
+
+List<PlacePhrase> _placesWithMeaningPreposition(
+  List<PlacePhrase> places,
+  PlaceMeaning meaning,
+  String preposition,
+) {
   return _uniquePlacesByText(
     places
-        .where(
-          (place) =>
-              place.prepositions[PlaceMeaning.location]?.text == preposition,
-        )
+        .where((place) => place.prepositions[meaning]?.text == preposition)
         .toList(),
   );
 }
@@ -554,6 +578,12 @@ final guidedPredicateUnlocks = [
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _onLocations(_surfacePlaces),
+      _fromLocations([
+        place_data.polandPlacePhrase,
+        place_data.europePlacePhrase,
+        place_data.homePlacePhrase,
+        place_data.schoolPlacePhrase,
+      ]),
       _times(_todayTimes),
       _manners([
         manner_data.quietlyMannerPhrase,
@@ -651,6 +681,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toDestination(_people),
       PredicatePath.withCompanion(_people),
       _places(_everydayPlaces),
+      _fromLocations(_everydayPlaces),
       _times(_basicTimes),
       _manners([
         ..._movementManners,
@@ -667,6 +698,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toDestination(_people),
       PredicatePath.withCompanion(_people),
       _places(_homeSchoolWorkPlaces),
+      _fromLocations(_homeSchoolWorkPlaces),
       _times(_basicTimes),
       _manners([
         ..._movementManners,
@@ -682,6 +714,7 @@ final guidedPredicateUnlocks = [
       _sources(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
+      _fromLocations(_homeSchoolWorkPlaces),
       _times(_todayTimes),
     ],
   ),
@@ -702,6 +735,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _atLocations(_everydayPlaces),
       _inLocations(_everydayPlaces),
+      _fromLocations(_everydayPlaces),
       _manners(_movementManners),
       _times(_todayTimes),
     ],
@@ -1474,6 +1508,14 @@ List<PlacePhrase> predicateAuthoredPlaceChoicesFor(Verb verb) {
 List<String> predicateLocationConnectorsFor(Verb verb) {
   return [
     for (final kind in predicateLocationPathKinds)
+      if (predicatePlaceChoicesFor(verb, kind).isNotEmpty)
+        predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+List<String> predicateSourceLocationConnectorsFor(Verb verb) {
+  return [
+    for (final kind in predicateSourceLocationPathKinds)
       if (predicatePlaceChoicesFor(verb, kind).isNotEmpty)
         predicatePlaceConnectorFor(kind)!,
   ];

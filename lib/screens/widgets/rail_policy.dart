@@ -161,6 +161,12 @@ List<String> _ownerLocationConnectors(ConfigurationState configuration) {
   );
 }
 
+List<String> _ownerSourceLocationConnectors(ConfigurationState configuration) {
+  return predicateSourceLocationConnectorsFor(
+    _railBoundTailOwner(configuration.sentenceState),
+  );
+}
+
 String _placeRailTitle(ConfigurationState configuration) {
   final connectors = _ownerLocationConnectors(configuration);
 
@@ -176,6 +182,22 @@ String _placeRailTitle(ConfigurationState configuration) {
 
 String? _placeRailSurfaceMarker(ConfigurationState configuration) {
   final connectors = _ownerLocationConnectors(configuration);
+
+  return connectors.isEmpty ? null : connectors.join('/');
+}
+
+String _sourcePlaceRailTitle(ConfigurationState configuration) {
+  final connectors = _ownerSourceLocationConnectors(configuration);
+
+  if (connectors.length == 1) {
+    return 'Source place';
+  }
+
+  return 'Source place';
+}
+
+String? _sourcePlaceRailSurfaceMarker(ConfigurationState configuration) {
+  final connectors = _ownerSourceLocationConnectors(configuration);
 
   return connectors.isEmpty ? null : connectors.join('/');
 }
@@ -280,6 +302,7 @@ const _rightActionOwnedRailSlots = [
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
   ConfigurationCompassSlot.source,
+  ConfigurationCompassSlot.sourcePlace,
 ];
 
 final _prepositionalSurfaceRailPolicies = [
@@ -648,6 +671,17 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: false,
     canRenderCollapsedWhen: (_) => false,
     canRenderWhenEmpty: (state) => state.placePhrase != null,
+  ),
+  ConfigurationCompassSlot.sourcePlace: _RailPolicy(
+    slot: ConfigurationCompassSlot.sourcePlace,
+    title: _sourcePlaceRailTitle,
+    unlockHint: (_) =>
+        'Choose a movement/source verb that can open from-place.',
+    surfaceMarker: _sourcePlaceRailSurfaceMarker,
+    isControlled: false,
+    canRenderCollapsedWhen: (_) => false,
+    canRenderWhenEmpty: (state) =>
+        state.placePhrase != null && state.placeMeaning == PlaceMeaning.source,
   ),
   ConfigurationCompassSlot.timePhrase: _RailPolicy(
     slot: ConfigurationCompassSlot.timePhrase,

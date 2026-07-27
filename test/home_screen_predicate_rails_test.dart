@@ -224,7 +224,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-go')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
   });
 
@@ -422,6 +422,9 @@ void main() {
       delta: -500,
     );
 
+    expect(find.text('Place phrase:'), findsOneWidget);
+    expect(find.text('Source place:'), findsOneWidget);
+    expectRailSurfaceMarker(tester, 'Source place', 'from');
     expect(find.byTooltip('You go from work.'), findsOneWidget);
 
     await tapAfterScroll(tester, find.byTooltip('You go from work.'));
@@ -654,6 +657,8 @@ class _FixedRailRoute {
 
 Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
   final titles = <String>{};
+  final locationConnectors = predicateLocationConnectorsFor(verb);
+  final sourceLocationConnectors = predicateSourceLocationConnectorsFor(verb);
 
   for (final influence in predicateInfluencesFor(verb)) {
     switch (influence.key) {
@@ -689,13 +694,17 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Source');
       case 'at-location':
       case 'in-location':
+      case 'on-location':
+      case 'from-location':
         break;
       case 'right-action':
         titles.add('Right action');
       case 'complement':
         titles.addAll(['Noun complement', 'Adjective complement']);
       case 'place':
-        titles.add('Place phrase');
+        if (locationConnectors.isEmpty) {
+          titles.add('Place phrase');
+        }
       case 'time':
         titles.add('Time phrase');
       case 'frequency':
@@ -708,7 +717,6 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
     }
   }
 
-  final locationConnectors = predicateLocationConnectorsFor(verb);
   if (locationConnectors.length > 1) {
     titles.add('Location');
   } else if (locationConnectors.length == 1) {
@@ -716,6 +724,10 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
     titles.add(
       '${connector[0].toUpperCase()}${connector.substring(1)} location',
     );
+  }
+
+  if (sourceLocationConnectors.isNotEmpty) {
+    titles.add('Source place');
   }
 
   return titles;
