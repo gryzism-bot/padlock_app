@@ -46,17 +46,11 @@ const _diagnosticsDockCollapsedHeight = 52.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
 const _actionSuggestionLimit = 192;
-const _initialSuggestionPaintCount = 24;
-const _suggestionPaintBatchSize = 48;
-const _initialVerbPaintCount = 48;
-const _verbPaintBatchSize = 72;
-const _maxSuggestionPaintCount = 72;
-const _maxVerbPaintCount = 120;
 const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
-const _verbRailMaxHeight = 214.0;
+const _verbRailMaxHeight = 236.0;
 
 const _padlockIntellijDarkColors = ColorScheme.dark(
   primary: Color(0xFF8AADF4),
@@ -2467,17 +2461,13 @@ class _CompassSlotSection extends StatefulWidget {
 
 class _CompassSlotSectionState extends State<_CompassSlotSection> {
   late String _suggestionsSignature;
-  late int _visibleSuggestionCount;
   final TextEditingController _filterController = TextEditingController();
   String _filterQuery = '';
-  bool _paintBatchQueued = false;
 
   @override
   void initState() {
     super.initState();
     _suggestionsSignature = _suggestionsSignatureFor(widget.suggestions);
-    _visibleSuggestionCount = _initialVisibleSuggestionCount();
-    _queueNextPaintBatch();
   }
 
   @override
@@ -2495,36 +2485,11 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
         oldWidget.title != widget.title ||
         nextSignature != _suggestionsSignature) {
       _suggestionsSignature = nextSignature;
-      _visibleSuggestionCount = _initialVisibleSuggestionCount();
-      _paintBatchQueued = false;
+      if (oldWidget.title != widget.title) {
+        _filterController.clear();
+        _filterQuery = '';
+      }
     }
-
-    _queueNextPaintBatch();
-  }
-
-  int _initialVisibleSuggestionCount() {
-    if (!widget.isExpanded) {
-      return 0;
-    }
-
-    final filteredCount = _filteredSuggestions.length;
-    final initialCount = widget.title == 'Verb'
-        ? _initialVerbPaintCount
-        : _initialSuggestionPaintCount;
-    return min(initialCount, filteredCount);
-  }
-
-  int get _currentPaintBatchSize =>
-      widget.title == 'Verb' ? _verbPaintBatchSize : _suggestionPaintBatchSize;
-
-  int get _maxPaintCount {
-    if (_filterQuery.trim().isNotEmpty) {
-      return widget.title == 'Verb' ? _actionSuggestionLimit : _suggestionLimit;
-    }
-
-    return widget.title == 'Verb'
-        ? _maxVerbPaintCount
-        : _maxSuggestionPaintCount;
   }
 
   List<ConfigurationSuggestion> get _filteredSuggestions {
@@ -2540,42 +2505,9 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
     ];
   }
 
-  void _queueNextPaintBatch() {
-    final paintTarget = min(_filteredSuggestions.length, _maxPaintCount);
-    if (!widget.isExpanded ||
-        _paintBatchQueued ||
-        _visibleSuggestionCount >= paintTarget) {
-      return;
-    }
-
-    _paintBatchQueued = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        final nextPaintTarget = min(
-          _filteredSuggestions.length,
-          _maxPaintCount,
-        );
-        _paintBatchQueued = false;
-        _visibleSuggestionCount = min(
-          nextPaintTarget,
-          _visibleSuggestionCount + _currentPaintBatchSize,
-        );
-      });
-
-      _queueNextPaintBatch();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final filteredSuggestions = _filteredSuggestions;
-    final visibleSuggestions = filteredSuggestions.take(
-      min(_visibleSuggestionCount, _maxPaintCount),
-    );
     final showSearch =
         widget.isExpanded &&
         (widget.suggestions.length > _railSearchThreshold ||
@@ -2599,17 +2531,10 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
             controller: _filterController,
             resultCount: filteredSuggestions.length,
             totalCount: widget.suggestions.length,
-            visibleCount: min(
-              _visibleSuggestionCount,
-              filteredSuggestions.length,
-            ),
             onChanged: (value) {
               setState(() {
                 _filterQuery = value;
-                _visibleSuggestionCount = _initialVisibleSuggestionCount();
-                _paintBatchQueued = false;
               });
-              _queueNextPaintBatch();
             },
             onClear: _filterQuery.isEmpty
                 ? null
@@ -2617,11 +2542,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
                     _filterController.clear();
                     setState(() {
                       _filterQuery = '';
-                      _visibleSuggestionCount =
-                          _initialVisibleSuggestionCount();
-                      _paintBatchQueued = false;
                     });
-                    _queueNextPaintBatch();
                   },
           ),
         if (widget.isExpanded &&
@@ -2634,38 +2555,138 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
             onChanged: widget.onNounNumberChanged!,
           ),
       ],
-      children: !widget.isExpanded
-          ? const []
+      body: !widget.isExpanded
+          ? null
           : filteredSuggestions.isEmpty
-          ? [
-              Text(
+          ? Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
                 _filterQuery.isEmpty
                     ? widget.unlockHint
                     : 'No ${widget.title.toLowerCase()} choices match "$_filterQuery".',
                 style: TextStyle(color: Theme.of(context).disabledColor),
               ),
-            ]
-          : [
-              for (final suggestion in visibleSuggestions)
-                _SuggestionButton(
-                  suggestion: suggestion,
-                  currentSentence: widget.currentSentence,
-                  displayMode: widget.displayMode,
-                  verbTranslation: widget.showVerbTranslations
-                      ? _verbTranslationForSuggestion(
-                          widget.translateVerb,
-                          suggestion,
-                        )
-                      : null,
-                  preview: widget.displayMode == SuggestionDisplayMode.word
-                      ? null
-                      : widget.renderPreview(suggestion.preview.sentenceState),
-                  onPressed: () => widget.onMove(suggestion.move),
-                  onPreviewChanged: widget.onPreviewChanged,
-                ),
-            ],
+            )
+          : _VirtualizedSuggestionRail(
+              railTitle: widget.title,
+              suggestions: filteredSuggestions,
+              currentSentence: widget.currentSentence,
+              displayMode: widget.displayMode,
+              showVerbTranslations: widget.showVerbTranslations,
+              translateVerb: widget.translateVerb,
+              renderPreview: widget.renderPreview,
+              onMove: widget.onMove,
+              onPreviewChanged: widget.onPreviewChanged,
+            ),
+      children: const [],
     );
   }
+}
+
+class _VirtualizedSuggestionRail extends StatelessWidget {
+  final String railTitle;
+  final List<ConfigurationSuggestion> suggestions;
+  final String currentSentence;
+  final SuggestionDisplayMode displayMode;
+  final bool showVerbTranslations;
+  final String? Function(Verb verb) translateVerb;
+  final String Function(SentenceState state) renderPreview;
+  final ValueChanged<ConfigurationMove> onMove;
+  final ValueChanged<ConfigurationState?>? onPreviewChanged;
+
+  const _VirtualizedSuggestionRail({
+    required this.railTitle,
+    required this.suggestions,
+    required this.currentSentence,
+    required this.displayMode,
+    required this.showVerbTranslations,
+    required this.translateVerb,
+    required this.renderPreview,
+    required this.onMove,
+    required this.onPreviewChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (suggestions.length <= _railSearchThreshold) {
+      return Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (final suggestion in suggestions) _buttonFor(suggestion),
+        ],
+      );
+    }
+
+    return SizedBox(
+      height: _railMaxHeightFor(
+        title: railTitle,
+        suggestionCount: suggestions.length,
+      ),
+      child: GridView.builder(
+        key: Key('rail-virtual-grid-$railTitle'),
+        primary: false,
+        padding: EdgeInsets.zero,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: _railTileMaxWidthFor(
+            title: railTitle,
+            displayMode: displayMode,
+          ),
+          mainAxisExtent: _railTileHeightFor(
+            title: railTitle,
+            displayMode: displayMode,
+            showVerbTranslations: showVerbTranslations,
+          ),
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
+        ),
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) => _buttonFor(suggestions[index]),
+      ),
+    );
+  }
+
+  Widget _buttonFor(ConfigurationSuggestion suggestion) {
+    return _SuggestionButton(
+      suggestion: suggestion,
+      currentSentence: currentSentence,
+      displayMode: displayMode,
+      verbTranslation: showVerbTranslations
+          ? _verbTranslationForSuggestion(translateVerb, suggestion)
+          : null,
+      preview: displayMode == SuggestionDisplayMode.word
+          ? null
+          : renderPreview(suggestion.preview.sentenceState),
+      dense: true,
+      onPressed: () => onMove(suggestion.move),
+      onPreviewChanged: onPreviewChanged,
+    );
+  }
+}
+
+double _railTileMaxWidthFor({
+  required String title,
+  required SuggestionDisplayMode displayMode,
+}) {
+  if (title == 'Verb') {
+    return displayMode == SuggestionDisplayMode.word ? 108 : 174;
+  }
+
+  return displayMode == SuggestionDisplayMode.word ? 148 : 238;
+}
+
+double _railTileHeightFor({
+  required String title,
+  required SuggestionDisplayMode displayMode,
+  required bool showVerbTranslations,
+}) {
+  final translationExtra = title == 'Verb' && showVerbTranslations ? 16.0 : 0.0;
+  if (title == 'Verb') {
+    return (displayMode == SuggestionDisplayMode.word ? 90.0 : 112.0) +
+        translationExtra;
+  }
+
+  return displayMode == SuggestionDisplayMode.word ? 48.0 : 58.0;
 }
 
 class _RailSearchField extends StatelessWidget {
@@ -2673,7 +2694,6 @@ class _RailSearchField extends StatelessWidget {
   final TextEditingController controller;
   final int resultCount;
   final int totalCount;
-  final int visibleCount;
   final ValueChanged<String> onChanged;
   final VoidCallback? onClear;
 
@@ -2682,7 +2702,6 @@ class _RailSearchField extends StatelessWidget {
     required this.controller,
     required this.resultCount,
     required this.totalCount,
-    required this.visibleCount,
     required this.onChanged,
     required this.onClear,
   });
@@ -2712,9 +2731,9 @@ class _RailSearchField extends StatelessWidget {
                   onPressed: onClear,
                   icon: const Icon(Icons.close),
                 ),
-          suffixText: '$visibleCount/$resultCount',
+          suffixText: '$resultCount/$totalCount',
           hintText: 'filter $railTitle',
-          helperText: totalCount == resultCount ? null : '$totalCount total',
+          helperText: totalCount == resultCount ? null : 'filtered',
           helperStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: colors.onSurfaceVariant,
             height: 0.8,

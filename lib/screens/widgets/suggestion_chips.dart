@@ -6,6 +6,7 @@ class _SuggestionButton extends StatelessWidget {
   final SuggestionDisplayMode displayMode;
   final String? verbTranslation;
   final String? preview;
+  final bool dense;
   final VoidCallback onPressed;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
 
@@ -15,6 +16,7 @@ class _SuggestionButton extends StatelessWidget {
     required this.displayMode,
     required this.verbTranslation,
     required this.preview,
+    this.dense = false,
     required this.onPressed,
     required this.onPreviewChanged,
   });
@@ -23,6 +25,22 @@ class _SuggestionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final wakeSignal = _verbWakeSignal(suggestion, colors);
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (wakeSignal != null) ...[
+          _VerbWakeSignalView(signal: wakeSignal),
+          const SizedBox(height: 1),
+        ],
+        _SuggestionLabel(
+          suggestion: suggestion,
+          currentSentence: currentSentence,
+          displayMode: displayMode,
+          verbTranslation: verbTranslation,
+          preview: preview,
+        ),
+      ],
+    );
 
     return MouseRegion(
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
@@ -38,22 +56,9 @@ class _SuggestionButton extends StatelessWidget {
             colors: colors,
           ),
           onPressed: onPressed,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (wakeSignal != null) ...[
-                _VerbWakeSignalView(signal: wakeSignal),
-                const SizedBox(height: 1),
-              ],
-              _SuggestionLabel(
-                suggestion: suggestion,
-                currentSentence: currentSentence,
-                displayMode: displayMode,
-                verbTranslation: verbTranslation,
-                preview: preview,
-              ),
-            ],
-          ),
+          child: dense
+              ? FittedBox(fit: BoxFit.scaleDown, child: content)
+              : content,
         ),
       ),
     );

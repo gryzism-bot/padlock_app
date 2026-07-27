@@ -38,6 +38,7 @@ class _SectionFrame extends StatelessWidget {
   final String? surfaceMarker;
   final List<Widget> controls;
   final List<Widget> children;
+  final Widget? body;
   final double? expandedMaxHeight;
   final bool expandIntoPage;
 
@@ -50,13 +51,14 @@ class _SectionFrame extends StatelessWidget {
     this.controls = const [],
     this.expandedMaxHeight,
     this.expandIntoPage = false,
+    this.body,
     required this.children,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final railContent = Wrap(
+    final railHeader = Wrap(
       spacing: 6,
       runSpacing: 6,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -102,11 +104,25 @@ class _SectionFrame extends StatelessWidget {
               context,
             ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
           ),
-        if (isExpanded) ...[if (controls.isNotEmpty) ...controls, ...children],
+        if (isExpanded && controls.isNotEmpty) ...controls,
+      ],
+    );
+    final railBody =
+        body ?? Wrap(spacing: 6, runSpacing: 6, children: children);
+    final railContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        railHeader,
+        if (isExpanded && (body != null || children.isNotEmpty)) ...[
+          const SizedBox(height: 6),
+          railBody,
+        ],
       ],
     );
     final usePageScroll =
-        isExpanded && (expandIntoPage || _railUsesPageScroll(context));
+        body == null &&
+        isExpanded &&
+        (expandIntoPage || _railUsesPageScroll(context));
 
     final content = DecoratedBox(
       key: ValueKey('section-frame-$title'),
@@ -120,7 +136,9 @@ class _SectionFrame extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: usePageScroll
+        child: body != null
+            ? railContent
+            : usePageScroll
             ? railContent
             : ConstrainedBox(
                 constraints: BoxConstraints(

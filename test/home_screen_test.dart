@@ -68,12 +68,22 @@ void main() {
 
     await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
     await tester.pumpAndSettle();
-    if (descendantButton.evaluate().isNotEmpty ||
-        ancestorButton.evaluate().isNotEmpty) {
-      tester.widget<OutlinedButton>(target).onPressed?.call();
-    } else if (descendantIconButton.evaluate().isNotEmpty ||
-        ancestorIconButton.evaluate().isNotEmpty) {
-      tester.widget<IconButton>(target).onPressed?.call();
+
+    final buttonTarget = descendantButton.evaluate().isNotEmpty
+        ? descendantButton.first
+        : ancestorButton.evaluate().isNotEmpty
+        ? ancestorButton.first
+        : null;
+    final iconButtonTarget = descendantIconButton.evaluate().isNotEmpty
+        ? descendantIconButton.first
+        : ancestorIconButton.evaluate().isNotEmpty
+        ? ancestorIconButton.first
+        : null;
+
+    if (buttonTarget != null) {
+      tester.widget<OutlinedButton>(buttonTarget).onPressed?.call();
+    } else if (iconButtonTarget != null) {
+      tester.widget<IconButton>(iconButtonTarget).onPressed?.call();
     } else {
       await tester.tap(target, warnIfMissed: false);
     }
@@ -112,6 +122,14 @@ void main() {
   ) async {
     await tester.enterText(find.byKey(Key('rail-search-$railTitle')), query);
     await tester.pumpAndSettle();
+  }
+
+  Future<void> selectVerb(WidgetTester tester, String verbKey) async {
+    await filterRail(tester, 'Verb', verbKey);
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-action-$verbKey')),
+    );
   }
 
   Future<void> expandRail(WidgetTester tester, String title) async {
@@ -195,7 +213,7 @@ void main() {
     expect(find.byTooltip('Current: You learn.'), findsWidgets);
     expect(find.byType(SelectableText), findsWidgets);
 
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await selectVerb(tester, 'give');
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
@@ -226,7 +244,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You work.'));
+    await selectVerb(tester, 'work');
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'You work.');
@@ -277,7 +295,7 @@ void main() {
     expect(find.text('0 moves'), findsOneWidget);
     expect(find.text('No moves since reset.'), findsOneWidget);
 
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
 
@@ -313,7 +331,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await selectVerb(tester, 'give');
 
     expect(find.text('Move trace'), findsOneWidget);
     expect(find.textContaining('verb -> give'), findsWidgets);
@@ -410,7 +428,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You want.'));
+    await selectVerb(tester, 'want');
     await expandRail(tester, 'Right action');
     await tapAfterScroll(tester, find.byTooltip('You want to go.'));
 
@@ -428,7 +446,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You are.'));
+    await selectVerb(tester, 'be');
 
     await expandRail(tester, 'Adjective complement');
     await tapAfterScroll(tester, find.byTooltip('You are happy.'));
@@ -436,7 +454,7 @@ void main() {
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
-    await tapAfterScroll(tester, find.byTooltip('You work.'), delta: -500);
+    await selectVerb(tester, 'work');
     await tester.drag(mainScroll, const Offset(0, 1000));
     await tester.pumpAndSettle();
 
@@ -448,9 +466,10 @@ void main() {
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You buy.'));
+    await selectVerb(tester, 'buy');
 
     expect(renderedSentence(tester), 'You buy.');
+    await filterRail(tester, 'Verb', 'work');
     expect(find.byTooltip('You work.'), findsWidgets);
   });
 
@@ -465,13 +484,18 @@ void main() {
 
     await tapVisible(tester, find.text('Word'));
 
-    expect(find.text('give', findRichText: true), findsOneWidget);
+    await filterRail(tester, 'Verb', 'give');
+    expect(
+      find.byKey(const Key('suggestion-label-action-give')),
+      findsOneWidget,
+    );
     expect(find.text('You give.'), findsNothing);
   });
 
   testWidgets('Suggestion chips expose selectable text labels', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
+    await filterRail(tester, 'Verb', 'teach');
     final teachLabel = tester.widget<Text>(
       find.byKey(const Key('suggestion-label-action-teach')),
     );
@@ -542,26 +566,26 @@ void main() {
     expect(titleTops.reduce(max) - titleTops.reduce(min), lessThan(2));
   });
 
-  testWidgets(
-    'Portrait rails expand into the page instead of tiny rail scrolls',
-    (tester) async {
-      tester.view.physicalSize = const Size(430, 930);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets('Portrait rails use a virtualized vocabulary viewport', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 930);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
 
-      final verbRailSize = tester.getSize(
-        find.byKey(const ValueKey('section-frame-Verb')),
-      );
+    final verbRailSize = tester.getSize(
+      find.byKey(const ValueKey('section-frame-Verb')),
+    );
 
-      expect(verbRailSize.height, greaterThan(300));
-    },
-  );
+    expect(find.byKey(const Key('rail-virtual-grid-Verb')), findsOneWidget);
+    expect(verbRailSize.height, lessThan(360));
+  });
 
-  testWidgets('Wide verb rail expands into the page for full vocabulary', (
+  testWidgets('Wide verb rail uses a virtualized grid for full vocabulary', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(2048, 1000);
@@ -576,14 +600,17 @@ void main() {
       find.byKey(const ValueKey('section-frame-Verb')),
     );
 
-    expect(verbRailSize.height, greaterThan(300));
+    expect(find.byKey(const Key('rail-virtual-grid-Verb')), findsOneWidget);
+    expect(verbRailSize.height, lessThan(360));
   });
 
   testWidgets(
-    'Verb rail hydrates late vocabulary without a show-more control',
+    'Verb rail search reaches late vocabulary without a show-more control',
     (tester) async {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
       await tester.pumpAndSettle();
+
+      await filterRail(tester, 'Verb', 'practice');
 
       expect(
         find.byKey(const Key('suggestion-label-action-practice')),
@@ -602,20 +629,14 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       expect(renderedSentence(tester), 'You learn.');
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-want')),
-      );
+      await selectVerb(tester, 'want');
 
       expect(renderedSentence(tester), 'You want.');
       expect(find.text('Place phrase:'), findsNothing);
       expect(find.text('Manner phrase:'), findsNothing);
       expect(find.text('Time phrase:'), findsOneWidget);
 
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-go')),
-      );
+      await selectVerb(tester, 'go');
 
       expect(renderedSentence(tester), 'You go.');
       expect(find.text('Place phrase:'), findsOneWidget);
@@ -634,7 +655,7 @@ void main() {
       expect(find.text('Object determiner:'), findsNothing);
       expect(find.text('By-agent:'), findsNothing);
 
-      await tapAfterScroll(tester, find.byTooltip('You want.'));
+      await selectVerb(tester, 'want');
 
       expect(find.text('Right action:'), findsOneWidget);
       await expandRail(tester, 'Right action');
@@ -648,10 +669,7 @@ void main() {
       );
       expect(renderedSentence(tester), 'You want.');
 
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-give')),
-      );
+      await selectVerb(tester, 'give');
 
       expect(renderedSentence(tester), 'You give.');
       expect(find.text('Object:'), findsOneWidget);
@@ -691,10 +709,7 @@ void main() {
       );
       expect(renderedSentence(tester), 'Book is given by Mary.');
 
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-be')),
-      );
+      await selectVerb(tester, 'be');
 
       expect(renderedSentence(tester), 'Mary is.');
       expect(find.text('Noun complement:'), findsOneWidget);
@@ -711,10 +726,7 @@ void main() {
 
       await tapVisible(tester, find.text('Word'));
       await filterRail(tester, 'Verb', 'introduce');
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-introduce')),
-      );
+      await selectVerb(tester, 'introduce');
       await expandRail(tester, 'Addressee');
       await filterRail(tester, 'Addressee', 'teacher');
       await tapAfterScroll(
@@ -728,6 +740,7 @@ void main() {
       expect(renderedSentence(tester), 'You introduce to a teacher.');
 
       await expandRail(tester, 'Object');
+      await filterRail(tester, 'Object', 'dog');
       await tapAfterScroll(tester, find.text('dog', findRichText: true));
       expect(renderedSentence(tester), 'You introduce dog to a teacher.');
 
@@ -762,14 +775,12 @@ void main() {
       expect(find.text('By-agent:'), findsOneWidget);
 
       await filterRail(tester, 'Verb', 'see');
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-see')),
-      );
+      await selectVerb(tester, 'see');
       expect(renderedSentence(tester), 'Dog will be seen.');
       expect(find.text('By-agent:'), findsOneWidget);
 
       await expandRail(tester, 'Object');
+      await filterRail(tester, 'Object', 'cat');
       await tapAfterScroll(tester, find.text('cat', findRichText: true));
       expect(renderedSentence(tester), 'Cat will be seen.');
       expect(find.text('By-agent:'), findsOneWidget);
@@ -794,10 +805,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-introduce')),
-      );
+      await selectVerb(tester, 'introduce');
       await expandRail(tester, 'Addressee');
       await tapAfterScroll(tester, find.text('a cat', findRichText: true));
       expect(renderedSentence(tester), 'You introduce to a cat.');
@@ -831,10 +839,7 @@ void main() {
       expect(renderedSentence(tester), 'Bread will be introduced to this cat.');
       expect(find.text('By-agent:'), findsOneWidget);
 
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-see')),
-      );
+      await selectVerb(tester, 'see');
       expect(renderedSentence(tester), 'Bread will be seen.');
       expect(find.text('By-agent:'), findsOneWidget);
 
@@ -862,10 +867,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-give')),
-      );
+      await selectVerb(tester, 'give');
       expect(find.text('Object:'), findsOneWidget);
       expect(find.text('Recipient:'), findsNothing);
 
@@ -900,10 +902,7 @@ void main() {
       await tapVisible(tester, find.byTooltip('Reset'));
       expect(renderedSentence(tester), 'You learn.');
 
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-want')),
-      );
+      await selectVerb(tester, 'want');
       expect(renderedSentence(tester), 'You want.');
       expect(find.text('Right action:'), findsOneWidget);
 
@@ -969,10 +968,7 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn to speak English with anyone.');
 
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-build')),
-    );
+    await selectVerb(tester, 'build');
 
     expect(renderedSentence(tester), 'You build.');
     expect(find.textContaining('right action -> none'), findsNothing);
@@ -1000,10 +996,7 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn to speak English with anyone.');
 
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-teach')),
-    );
+    await selectVerb(tester, 'teach');
 
     expect(renderedSentence(tester), 'You teach English with anyone.');
   });
@@ -1043,9 +1036,10 @@ void main() {
   testWidgets('Change preview highlights whole changed words', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    await tapAfterScroll(tester, find.byTooltip('You give.'));
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(tester, find.byTooltip('You give book.'));
+    await filterRail(tester, 'Verb', 'buy');
     await tester.scrollUntilVisible(
       find.byTooltip('You buy book.'),
       -500,
@@ -1063,10 +1057,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-give')),
-    );
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(
       tester,
@@ -1094,16 +1085,14 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-give')),
-    );
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-book')),
     );
     await expandRail(tester, 'Recipient');
+    await filterRail(tester, 'Recipient', 'him');
     await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
@@ -1130,10 +1119,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-give')),
-    );
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(
       tester,
@@ -1167,10 +1153,7 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await tapAfterScroll(
-        tester,
-        find.byKey(const Key('suggestion-label-action-give')),
-      );
+      await selectVerb(tester, 'give');
       await expandRail(tester, 'Object');
       await tapAfterScroll(
         tester,
@@ -1199,22 +1182,21 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-action-give')),
-    );
+    await selectVerb(tester, 'give');
     await expandRail(tester, 'Object');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-book')),
     );
     await expandRail(tester, 'Recipient');
+    await filterRail(tester, 'Recipient', 'him');
     await tapAfterScroll(tester, find.text('him', findRichText: true));
     await tapAfterScroll(tester, find.text('past'));
     await tapAfterScroll(tester, find.text('passive'));
 
     expect(renderedSentence(tester), 'Book was given to him by you.');
 
+    await filterRail(tester, 'Recipient', 'no recipient');
     await tapAfterScroll(tester, find.text('no recipient', findRichText: true));
 
     expect(renderedSentence(tester), 'Book was given by you.');
@@ -1234,7 +1216,11 @@ void main() {
 
     expect(headerMode.selected, {HeaderPreviewMode.hover});
     expect(renderedSentence(tester), 'You learn.');
-    expect(find.text('give', findRichText: true), findsOneWidget);
+    await filterRail(tester, 'Verb', 'give');
+    expect(
+      find.byKey(const Key('suggestion-label-action-give')),
+      findsOneWidget,
+    );
     expect(find.text('You give.'), findsNothing);
 
     final giveSuggestion = find.byTooltip('give');
