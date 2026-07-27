@@ -93,3 +93,38 @@ const grammar = NounPhrase(
   number: Number.singular,
   translations: {Language.pl: 'gramatyka'},
 );
+
+const physique = NounPhrase(
+  text: 'physique',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'sylwetka'},
+);
+
+const skill = NounPhrase(
+  text: 'skill',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'umiejetnosc'},
+);
+
+const skills = NounPhrase(
+  text: 'skills',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'umiejetnosci'},
+);
+
+const swimming = NounPhrase(
+  text: 'swimming',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'plywanie'},
+);
+
+const skating = NounPhrase(
+  text: 'skating',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'jazda na lyzwach'},
+);

@@ -1050,12 +1050,31 @@ void main() {
 
       expect(workLabels, contains('on grammar'));
       expect(
+        workLabels,
+        containsAll([
+          'on car',
+          'on cars',
+          'on physique',
+          'on skills',
+          'on swimming',
+          'on skating',
+        ]),
+      );
+      expect(
         render(
           workSuggestions
               .firstWhere((suggestion) => suggestion.label == 'on grammar')
               .preview,
         ),
         'You work on grammar.',
+      );
+      expect(
+        render(
+          workSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'on cars')
+              .preview,
+        ),
+        'You work on cars.',
       );
     });
 

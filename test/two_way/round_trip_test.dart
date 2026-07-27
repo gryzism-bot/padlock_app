@@ -194,6 +194,7 @@ void main() {
         'John thinks about Mary.',
         'John thinks of Mary.',
         'John works on grammar.',
+        'John works on cars.',
         'She learned about the old books.',
         'They should have read about grammar.',
         'You learn about science with Mary.',

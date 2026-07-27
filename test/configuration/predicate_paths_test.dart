@@ -629,7 +629,18 @@ void main() {
           work,
           PredicatePathKind.onTopic,
         ).map((topic) => topic.text),
-        containsAll(['English', 'grammar', 'science']),
+        containsAll([
+          'English',
+          'grammar',
+          'science',
+          'car',
+          'cars',
+          'physique',
+          'skill',
+          'skills',
+          'swimming',
+          'skating',
+        ]),
       );
       expect(predicateTopicConnectorsFor(work), ['on']);
       expect(predicateTopicConnectorsFor(think), ['about', 'of']);
@@ -1376,6 +1387,12 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'manually'),
   _ReviewedRoute(work, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(work, _ReviewedRouteKind.onTopic),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'car'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'cars'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'physique'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'skills'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'swimming'),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'skating'),
 
   _ReviewedRoute(buy, _ReviewedRouteKind.directObject),
   _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'food'),

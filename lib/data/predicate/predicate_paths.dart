@@ -382,6 +382,16 @@ final _learnSubjects = [
   fixed_object.history,
   fixed_object.science,
 ];
+final _workTopics = _uniqueByText([
+  ..._learnSubjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  fixed_object.physique,
+  fixed_object.skill,
+  fixed_object.skills,
+  fixed_object.swimming,
+  fixed_object.skating,
+]);
 final _basicTopics = _uniqueByText([
   ..._learnSubjects,
   ..._textObjects,
@@ -876,7 +886,7 @@ final guidedPredicateUnlocks = [
     verb: work,
     paths: [
       PredicatePath.withCompanion(_people),
-      PredicatePath.onTopic(_learnSubjects),
+      PredicatePath.onTopic(_workTopics),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations([..._homeSchoolWorkPlaces, place_data.itDomainPlacePhrase]),

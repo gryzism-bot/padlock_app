@@ -376,6 +376,34 @@ void main() {
       find.byKey(const Key('suggestion-label-topic-on-grammar')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-car')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-physique')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-swimming')),
+      findsOneWidget,
+    );
+
+    await tapVisible(
+      tester,
+      find.descendant(
+        of: find.byKey(const Key('noun-number-switch-Topic')),
+        matching: find.text('pl'),
+      ),
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-cars')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-skills')),
+      findsOneWidget,
+    );
 
     await tapAfterScroll(
       tester,

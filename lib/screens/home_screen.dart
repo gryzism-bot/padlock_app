@@ -2392,16 +2392,22 @@ class _HeaderPreviewModeSection extends StatelessWidget {
 }
 
 class _NounNumberSwitch extends StatelessWidget {
+  final String railTitle;
   final Number value;
   final ValueChanged<Number> onChanged;
 
-  const _NounNumberSwitch({required this.value, required this.onChanged});
+  const _NounNumberSwitch({
+    required this.railTitle,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 32,
       child: SegmentedButton<Number>(
+        key: Key('noun-number-switch-$railTitle'),
         style: SegmentedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -2545,6 +2551,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
             widget.nounNumber != null &&
             widget.onNounNumberChanged != null)
           _NounNumberSwitch(
+            railTitle: widget.title,
             value: widget.nounNumber!,
             onChanged: widget.onNounNumberChanged!,
           ),
