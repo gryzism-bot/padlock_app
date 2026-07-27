@@ -228,6 +228,28 @@ void main() {
     );
   });
 
+  testWidgets('Verb rail search matches predicate influence labels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tester.enterText(
+      find.byKey(const Key('rail-search-Verb')),
+      'right action',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('suggestion-label-action-learn')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-action-need')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('suggestion-label-action-be')), findsNothing);
+  });
+
   testWidgets('Predicate extension rails appear only when their frame opens', (
     tester,
   ) async {

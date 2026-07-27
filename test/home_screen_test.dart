@@ -105,6 +105,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> filterRail(
+    WidgetTester tester,
+    String railTitle,
+    String query,
+  ) async {
+    await tester.enterText(find.byKey(Key('rail-search-$railTitle')), query);
+    await tester.pumpAndSettle();
+  }
+
   Future<void> expandRail(WidgetTester tester, String title) async {
     await tapAfterScroll(tester, find.byTooltip('Open $title rail'));
   }
@@ -701,11 +710,13 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
+      await filterRail(tester, 'Verb', 'introduce');
       await tapAfterScroll(
         tester,
         find.byKey(const Key('suggestion-label-action-introduce')),
       );
       await expandRail(tester, 'Addressee');
+      await filterRail(tester, 'Addressee', 'teacher');
       await tapAfterScroll(
         tester,
         find.byKey(const Key('suggestion-label-addressee-teacher')),
@@ -750,6 +761,7 @@ void main() {
       );
       expect(find.text('By-agent:'), findsOneWidget);
 
+      await filterRail(tester, 'Verb', 'see');
       await tapAfterScroll(
         tester,
         find.byKey(const Key('suggestion-label-action-see')),
