@@ -678,6 +678,11 @@ class ConfigurationCompass {
       PredicatePathKind.ofTopic,
       owner: owner,
     );
+    final authoredOnChoices = _nounChoicesForPath(
+      sentence,
+      PredicatePathKind.onTopic,
+      owner: owner,
+    );
     final choicesByPreposition =
         <({TopicPreposition preposition, List<NounPhrase> choices})>[
           if (authoredAboutChoices != null)
@@ -687,6 +692,8 @@ class ConfigurationCompass {
             ),
           if (authoredOfChoices != null)
             (preposition: TopicPreposition.of, choices: authoredOfChoices),
+          if (authoredOnChoices != null)
+            (preposition: TopicPreposition.on, choices: authoredOnChoices),
         ];
 
     final effectiveChoices = choicesByPreposition.isEmpty
@@ -921,8 +928,10 @@ int _topicPriority(TopicPreposition preposition, NounPhrase noun) {
   return switch ((preposition, noun.text.toLowerCase())) {
     (TopicPreposition.about, 'grammar') => 112,
     (TopicPreposition.of, 'john') => 112,
+    (TopicPreposition.on, 'grammar') => 112,
     (TopicPreposition.about, 'science') => 111,
     (TopicPreposition.of, 'mary') => 111,
+    (TopicPreposition.on, 'science') => 111,
     _ => 100,
   };
 }

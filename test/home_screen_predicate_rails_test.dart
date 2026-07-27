@@ -180,7 +180,7 @@ void main() {
     expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-think-topic')), findsOneWidget);
-    expect(find.byKey(const Key('verb-wake-work-beneficiary')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-topic')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-read-addressee')), findsOneWidget);
@@ -370,6 +370,12 @@ void main() {
       find.byKey(const Key('suggestion-label-action-work')),
     );
     expectRailSurfaceMarker(tester, 'Beneficiary', 'for');
+    expectRailSurfaceMarker(tester, 'Topic', 'on');
+    await expandRail(tester, 'Topic');
+    expect(
+      find.byKey(const Key('suggestion-label-topic-on-grammar')),
+      findsOneWidget,
+    );
 
     await tapAfterScroll(
       tester,

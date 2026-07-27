@@ -20,6 +20,10 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
       _first(path.nouns, path),
       topicPreposition: TopicPreposition.of,
     ),
+    PredicatePathKind.onTopic => SetTopic(
+      _first(path.nouns, path),
+      topicPreposition: TopicPreposition.on,
+    ),
     PredicatePathKind.forBeneficiary => SetBeneficiary(
       _first(path.nouns, path),
     ),

@@ -270,6 +270,7 @@ const work = Verb(
   pastParticiple: 'worked',
   ingForm: 'working',
   takesCompanion: true,
+  takesTopic: true,
   takesBeneficiary: true,
   translations: {Language.pl: 'pracować'},
 );

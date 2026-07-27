@@ -68,6 +68,7 @@ void main() {
             PredicatePathKind.toDestination => isA<SetDestination>(),
             PredicatePathKind.aboutTopic => isA<SetTopic>(),
             PredicatePathKind.ofTopic => isA<SetTopic>(),
+            PredicatePathKind.onTopic => isA<SetTopic>(),
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
             PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
@@ -112,6 +113,11 @@ void main() {
             action: work,
             kind: PredicatePathKind.forBeneficiary,
             text: 'You work for John.',
+          ),
+          (
+            action: work,
+            kind: PredicatePathKind.onTopic,
+            text: 'You work on English.',
           ),
           (
             action: work,
@@ -508,6 +514,7 @@ void main() {
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.aboutTopic:
             case PredicatePathKind.ofTopic:
+            case PredicatePathKind.onTopic:
               expect(unlocks.verb.takesTopic, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.forBeneficiary:
@@ -617,6 +624,15 @@ void main() {
         ).map((topic) => topic.text),
         containsAll(['grammar', 'science', 'Mary']),
       );
+      expect(
+        predicateNounChoicesFor(
+          work,
+          PredicatePathKind.onTopic,
+        ).map((topic) => topic.text),
+        containsAll(['English', 'grammar', 'science']),
+      );
+      expect(predicateTopicConnectorsFor(work), ['on']);
+      expect(predicateTopicConnectorsFor(think), ['about', 'of']);
       expect(
         predicatePlaceChoicesFor(
           work,
@@ -1359,7 +1375,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'manually'),
   _ReviewedRoute(work, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(work, _ReviewedRouteKind.onTopic, status: _pending),
+  _ReviewedRoute(work, _ReviewedRouteKind.onTopic),
 
   _ReviewedRoute(buy, _ReviewedRouteKind.directObject),
   _ReviewedRoute(buy, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1554,6 +1570,8 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return _nounPathHas(route.verb, PredicatePathKind.aboutTopic, text);
     case _ReviewedRouteKind.ofTopic:
       return _nounPathHas(route.verb, PredicatePathKind.ofTopic, text);
+    case _ReviewedRouteKind.onTopic:
+      return _nounPathHas(route.verb, PredicatePathKind.onTopic, text);
     case _ReviewedRouteKind.beneficiary:
       return _nounPathHas(route.verb, PredicatePathKind.forBeneficiary, text);
     case _ReviewedRouteKind.source:
@@ -1581,7 +1599,6 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
           (text == null || _objectAdjectiveComplements.contains(text));
     case _ReviewedRouteKind.instrument:
     case _ReviewedRouteKind.purpose:
-    case _ReviewedRouteKind.onTopic:
       return false;
   }
 }

@@ -1456,6 +1456,7 @@ class ConfigurationEngine {
       PrepositionalParticipantKind.topic => switch (topicPreposition) {
         TopicPreposition.about => PredicatePathKind.aboutTopic,
         TopicPreposition.of => PredicatePathKind.ofTopic,
+        TopicPreposition.on => PredicatePathKind.onTopic,
       },
       PrepositionalParticipantKind.beneficiary =>
         PredicatePathKind.forBeneficiary,

@@ -309,7 +309,8 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: addresseeSurface,
     title: 'Addressee',
-    unlockHint: 'Choose a verb that can speak, talk, or write to someone.',
+    unlockHint: (_) =>
+        'Choose a verb that can speak, talk, or write to someone.',
     slot: ConfigurationCompassSlot.addressee,
     determinerSlot: ConfigurationCompassSlot.addresseeDeterminer,
     adjectiveSlot: ConfigurationCompassSlot.addresseeAdjective,
@@ -317,7 +318,7 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: companionSurface,
     title: 'Companion',
-    unlockHint:
+    unlockHint: (_) =>
         'Choose verb be or a verb that can happen with someone, like speak, work, run, or go.',
     slot: ConfigurationCompassSlot.companion,
     determinerSlot: ConfigurationCompassSlot.companionDeterminer,
@@ -326,7 +327,7 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: destinationSurface,
     title: 'Destination',
-    unlockHint:
+    unlockHint: (_) =>
         'Choose a movement verb like go, come, travel, arrive, leave, or return.',
     slot: ConfigurationCompassSlot.destination,
     determinerSlot: ConfigurationCompassSlot.destinationDeterminer,
@@ -335,8 +336,7 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: topicSurface,
     title: 'Topic',
-    unlockHint:
-        'Choose a verb that can open an about/of topic, like think, talk, learn, read, or explain.',
+    unlockHint: _topicUnlockHint,
     slot: ConfigurationCompassSlot.topic,
     determinerSlot: ConfigurationCompassSlot.topicDeterminer,
     adjectiveSlot: ConfigurationCompassSlot.topicAdjective,
@@ -344,7 +344,7 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: beneficiarySurface,
     title: 'Beneficiary',
-    unlockHint:
+    unlockHint: (_) =>
         'Choose a verb that can open a for-beneficiary, like work, sing, read, write, play, buy, or cook.',
     slot: ConfigurationCompassSlot.beneficiary,
     determinerSlot: ConfigurationCompassSlot.beneficiaryDeterminer,
@@ -353,7 +353,7 @@ final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(
     surface: sourceSurface,
     title: 'Source',
-    unlockHint:
+    unlockHint: (_) =>
         'Choose a verb that can open a from-source, like learn, get, take, buy, or hear.',
     slot: ConfigurationCompassSlot.source,
     determinerSlot: ConfigurationCompassSlot.sourceDeterminer,
@@ -364,7 +364,7 @@ final _prepositionalSurfaceRailPolicies = [
 List<_RailPolicy> _prepositionalSurfaceRailPolicy({
   required PrepositionalParticipantSurface surface,
   required String title,
-  required String unlockHint,
+  required _RailHintBuilder unlockHint,
   required ConfigurationCompassSlot slot,
   required ConfigurationCompassSlot determinerSlot,
   required ConfigurationCompassSlot adjectiveSlot,
@@ -377,10 +377,12 @@ List<_RailPolicy> _prepositionalSurfaceRailPolicy({
     _RailPolicy(
       slot: slot,
       title: (_) => title,
-      unlockHint: (_) => unlockHint,
-      surfaceMarker: (_) => surface.kind == PrepositionalParticipantKind.topic
-          ? 'about/of'
-          : surface.preposition,
+      unlockHint: surface.kind == PrepositionalParticipantKind.topic
+          ? _topicUnlockHint
+          : unlockHint,
+      surfaceMarker: surface.kind == PrepositionalParticipantKind.topic
+          ? _topicRailSurfaceMarker
+          : (_) => surface.preposition,
       isControlled: true,
       canRenderCollapsedWhen: (state) =>
           (surface.lexicalBeAllows && state.action.infinitive == 'be') ||
@@ -414,6 +416,28 @@ List<_RailPolicy> _prepositionalSurfaceRailPolicy({
           surface.read(state)?.canTakeModifiers ?? false,
     ),
   ];
+}
+
+String _topicUnlockHint(ConfigurationState configuration) {
+  final connectors = _ownerTopicConnectors(configuration);
+
+  if (connectors.isEmpty) {
+    return 'Choose a verb that can open a topic, like think, talk, learn, read, work, or explain.';
+  }
+
+  return 'This predicate can open ${connectors.map((connector) => '[$connector]').join(', ')} topic choices.';
+}
+
+String? _topicRailSurfaceMarker(ConfigurationState configuration) {
+  final connectors = _ownerTopicConnectors(configuration);
+
+  return connectors.isEmpty ? null : connectors.join('/');
+}
+
+List<String> _ownerTopicConnectors(ConfigurationState configuration) {
+  return predicateTopicConnectorsFor(
+    _railBoundTailOwner(configuration.sentenceState),
+  );
 }
 
 final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {

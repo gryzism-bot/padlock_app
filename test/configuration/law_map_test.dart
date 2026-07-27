@@ -174,6 +174,7 @@ void main() {
             PredicatePathKind.toDestination => 'destination',
             PredicatePathKind.aboutTopic => 'topic',
             PredicatePathKind.ofTopic => 'topic',
+            PredicatePathKind.onTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
             PredicatePathKind.fromSource => 'source',
             PredicatePathKind.atLocation => 'at-location',

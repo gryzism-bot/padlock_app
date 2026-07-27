@@ -175,8 +175,14 @@ PredicateInfluence _influenceForPath(
       'destination',
       40,
     ),
-    PredicatePathKind.aboutTopic || PredicatePathKind.ofTopic =>
-      _predicateProperty(action, 'topic', 'topic', 44),
+    PredicatePathKind.aboutTopic ||
+    PredicatePathKind.ofTopic ||
+    PredicatePathKind.onTopic => _predicateProperty(
+      action,
+      'topic',
+      'topic',
+      44,
+    ),
     PredicatePathKind.forBeneficiary => _predicateProperty(
       action,
       'beneficiary',

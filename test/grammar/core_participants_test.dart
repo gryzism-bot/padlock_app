@@ -542,6 +542,21 @@ void main() {
       expect(sentence, 'John thinks of Mary.');
     });
 
+    test('topic surface can render as an on phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: work,
+          topic: grammar,
+          topicPreposition: TopicPreposition.on,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John works on grammar.');
+    });
+
     test('topic surface keeps noun phrase modifiers', () {
       final sentence = render(
         SentenceState(

@@ -1013,11 +1013,11 @@ void main() {
       );
     });
 
-    test('topic suggestions can use about and of routes', () {
+    test('topic suggestions can use about of and on routes', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
-      final state = lock.applyMove(
+      var state = lock.applyMove(
         ConfigurationState.initial(),
         const SetAction(think),
       );
@@ -1038,6 +1038,24 @@ void main() {
               .preview,
         ),
         'You think of John.',
+      );
+
+      state = lock.applyMove(state, const SetAction(work));
+      final workSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final workLabels = workSuggestions.map((suggestion) => suggestion.label);
+
+      expect(workLabels, contains('on grammar'));
+      expect(
+        render(
+          workSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'on grammar')
+              .preview,
+        ),
+        'You work on grammar.',
       );
     });
 
@@ -1139,6 +1157,12 @@ void main() {
           slot: ConfigurationCompassSlot.topic,
           choice: 'about grammar',
           sentence: 'You learn about grammar.',
+        ),
+        (
+          action: work,
+          slot: ConfigurationCompassSlot.topic,
+          choice: 'on grammar',
+          sentence: 'You work on grammar.',
         ),
         (
           action: work,

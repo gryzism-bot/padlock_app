@@ -45,6 +45,7 @@ enum PredicatePathKind {
   toDestination,
   aboutTopic,
   ofTopic,
+  onTopic,
   forBeneficiary,
   fromSource,
   atLocation,
@@ -65,6 +66,12 @@ const predicateLocationPathKinds = [
 
 const predicateSourceLocationPathKinds = [PredicatePathKind.fromLocation];
 
+const predicateTopicPathKinds = [
+  PredicatePathKind.aboutTopic,
+  PredicatePathKind.ofTopic,
+  PredicatePathKind.onTopic,
+];
+
 const predicateAuthoredPlacePathKinds = [
   ...predicateLocationPathKinds,
   ...predicateSourceLocationPathKinds,
@@ -77,6 +84,15 @@ String? predicatePlaceConnectorFor(PredicatePathKind kind) {
     PredicatePathKind.inLocation => 'in',
     PredicatePathKind.onLocation => 'on',
     PredicatePathKind.fromLocation => 'from',
+    _ => null,
+  };
+}
+
+String? predicateTopicConnectorFor(PredicatePathKind kind) {
+  return switch (kind) {
+    PredicatePathKind.aboutTopic => 'about',
+    PredicatePathKind.ofTopic => 'of',
+    PredicatePathKind.onTopic => 'on',
     _ => null,
   };
 }
@@ -123,6 +139,9 @@ class PredicatePath {
 
   const PredicatePath.ofTopic(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.ofTopic, nouns: nouns);
+
+  const PredicatePath.onTopic(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.onTopic, nouns: nouns);
 
   const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
@@ -857,6 +876,7 @@ final guidedPredicateUnlocks = [
     verb: work,
     paths: [
       PredicatePath.withCompanion(_people),
+      PredicatePath.onTopic(_learnSubjects),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations([..._homeSchoolWorkPlaces, place_data.itDomainPlacePhrase]),
@@ -1518,6 +1538,14 @@ List<String> predicateSourceLocationConnectorsFor(Verb verb) {
     for (final kind in predicateSourceLocationPathKinds)
       if (predicatePlaceChoicesFor(verb, kind).isNotEmpty)
         predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+List<String> predicateTopicConnectorsFor(Verb verb) {
+  return [
+    for (final kind in predicateTopicPathKinds)
+      if (predicateNounChoicesFor(verb, kind).isNotEmpty)
+        predicateTopicConnectorFor(kind)!,
   ];
 }
 

@@ -1255,7 +1255,10 @@ class RecognitionEngine {
       return true;
     }
 
-    if (token == 'about' && owner?.takesTopic == true) {
+    if (TopicPreposition.values.any(
+          (preposition) => preposition.text == token,
+        ) &&
+        owner?.takesTopic == true) {
       return true;
     }
 
@@ -2322,18 +2325,22 @@ class RecognitionEngine {
   }
 
   TopicPreposition? _firstTopicPreposition(List<String> tokens) {
-    final aboutIndex = _phraseWordIndex(tokens, TopicPreposition.about.text);
-    final ofIndex = _phraseWordIndex(tokens, TopicPreposition.of.text);
+    TopicPreposition? firstPreposition;
+    var firstIndex = -1;
 
-    if (aboutIndex < 0) {
-      return ofIndex < 0 ? null : TopicPreposition.of;
+    for (final preposition in TopicPreposition.values) {
+      final index = _phraseWordIndex(tokens, preposition.text);
+      if (index < 0) {
+        continue;
+      }
+
+      if (firstIndex < 0 || index < firstIndex) {
+        firstPreposition = preposition;
+        firstIndex = index;
+      }
     }
 
-    if (ofIndex < 0 || aboutIndex < ofIndex) {
-      return TopicPreposition.about;
-    }
-
-    return TopicPreposition.of;
+    return firstPreposition;
   }
 
   void _recognizeBeneficiaryPhrase(
