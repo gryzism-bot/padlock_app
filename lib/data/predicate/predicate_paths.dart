@@ -174,8 +174,16 @@ List<PlacePhrase> _uniquePlacesByText(List<PlacePhrase> places) {
 
   return [
     for (final place in places)
-      if (seen.add(place.noun.toLowerCase())) place,
+      if (seen.add(_placeRouteKey(place))) place,
   ];
+}
+
+String _placeRouteKey(PlacePhrase place) {
+  return [
+    place.render(PlaceMeaning.location),
+    place.render(PlaceMeaning.destination),
+    place.render(PlaceMeaning.source),
+  ].join('|').toLowerCase();
 }
 
 List<TimePhrase> _uniqueTimesByText(List<TimePhrase> times) {
@@ -387,6 +395,7 @@ final _everydayPlaces = _uniquePlacesByText([
   place_data.parkPlacePhrase,
   place_data.restaurantPlacePhrase,
   place_data.hospitalPlacePhrase,
+  place_data.roomPlacePhrase,
 ]);
 final _basicTimes = [
   time_data.todayTimePhrase,
@@ -798,7 +807,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
-      _inLocations(_homeSchoolWorkPlaces),
+      _inLocations([..._homeSchoolWorkPlaces, place_data.itDomainPlacePhrase]),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.carefullyMannerPhrase,
@@ -923,7 +932,8 @@ final guidedPredicateUnlocks = [
     verb: sleep,
     paths: [
       PredicatePath.withCompanion(_people),
-      _places([place_data.homePlacePhrase, place_data.bedPlacePhrase]),
+      _atLocations([place_data.homePlacePhrase]),
+      _inLocations([place_data.inBedPlacePhrase]),
       _times([time_data.atNightTimePhrase, ..._todayTimes]),
       _manners([
         manner_data.wellMannerPhrase,

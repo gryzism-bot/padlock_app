@@ -161,6 +161,26 @@ const livingRoomPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'salon'},
 );
 
+const roomPlacePhrase = PlacePhrase(
+  noun: 'room',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'pokoj'},
+);
+
+const itDomainPlacePhrase = PlacePhrase(
+  noun: 'IT',
+  takesArticle: false,
+  prepositions: {PlaceMeaning.location: inPreposition},
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'IT'},
+);
+
 const restaurantPlacePhrase = PlacePhrase(
   noun: 'restaurant',
   takesArticle: true,
@@ -233,6 +253,14 @@ const bedPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'łóżko'},
 );
 
+const inBedPlacePhrase = PlacePhrase(
+  noun: 'bed',
+  takesArticle: false,
+  prepositions: {PlaceMeaning.location: inPreposition},
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'lozko'},
+);
+
 List<PlacePhrase> placePhrases = [
   homePlacePhrase,
   workPlacePhrase,
@@ -247,10 +275,13 @@ List<PlacePhrase> placePhrases = [
   bathroomPlacePhrase,
   bedroomPlacePhrase,
   livingRoomPlacePhrase,
+  roomPlacePhrase,
+  itDomainPlacePhrase,
   restaurantPlacePhrase,
   hospitalPlacePhrase,
   shopPlacePhrase,
   bridgePlacePhrase,
   tablePlacePhrase,
   bedPlacePhrase,
+  inBedPlacePhrase,
 ];

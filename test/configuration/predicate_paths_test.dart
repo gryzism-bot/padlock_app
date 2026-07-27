@@ -599,7 +599,14 @@ void main() {
           work,
           PredicatePathKind.inLocation,
         ).map((place) => place.noun),
-        contains('office'),
+        containsAll(['office', 'IT']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          findVerb,
+          PredicatePathKind.inLocation,
+        ).map((place) => place.noun),
+        contains('room'),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -686,10 +693,7 @@ void main() {
         containsAll(['today', 'now']),
       );
       expect(
-        predicatePlaceChoicesFor(
-          sleep,
-          PredicatePathKind.placePhrase,
-        ).map((place) => place.noun),
+        predicateAuthoredPlaceChoicesFor(sleep).map((place) => place.noun),
         containsAll(['home', 'bed']),
       );
     });
@@ -786,8 +790,18 @@ void main() {
         ),
         (
           action: sleep,
-          move: const SetPlacePhrase(bedPlacePhrase),
-          text: 'You sleep on the bed.',
+          move: const SetPlacePhrase(inBedPlacePhrase),
+          text: 'You sleep in bed.',
+        ),
+        (
+          action: findVerb,
+          move: const SetPlacePhrase(roomPlacePhrase),
+          text: 'You find in the room.',
+        ),
+        (
+          action: work,
+          move: const SetPlacePhrase(itDomainPlacePhrase),
+          text: 'You work in IT.',
         ),
       ];
 
@@ -955,6 +969,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'room'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
@@ -1263,6 +1278,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'work'),
+  _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'IT'),
   _ReviewedRoute(work, _ReviewedRouteKind.beneficiary),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'carefully'),

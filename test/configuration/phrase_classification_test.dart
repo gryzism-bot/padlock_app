@@ -60,11 +60,14 @@ void main() {
         'bathroom',
         'bedroom',
         'living room',
+        'room',
+        'IT',
         'restaurant',
         'hospital',
         'shop',
         'bridge',
         'table',
+        'bed',
         'bed',
       ]);
       expect(
@@ -85,6 +88,12 @@ void main() {
           PredicateRouteHint.source,
         ]),
       );
+      expect(currentPhraseClassificationFor(inBedPlacePhrase)!.routeHints, {
+        PredicateRouteHint.location,
+      });
+      expect(currentPhraseClassificationFor(itDomainPlacePhrase)!.routeHints, {
+        PredicateRouteHint.location,
+      });
     });
 
     test('time and frequency stay clause-level modifiers for now', () {

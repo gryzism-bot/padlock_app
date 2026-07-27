@@ -1554,9 +1554,19 @@ class ConfigurationEngine {
       return false;
     }
 
-    return choices.any(
-      (choice) => choice.noun.toLowerCase() == phrase.noun.toLowerCase(),
-    );
+    return choices.any((choice) => _samePlaceRoute(choice, phrase));
+  }
+
+  bool _samePlaceRoute(PlacePhrase left, PlacePhrase right) {
+    return _placeRouteKey(left) == _placeRouteKey(right);
+  }
+
+  String _placeRouteKey(PlacePhrase phrase) {
+    return [
+      phrase.render(PlaceMeaning.location),
+      phrase.render(PlaceMeaning.destination),
+      phrase.render(PlaceMeaning.source),
+    ].join('|').toLowerCase();
   }
 
   bool _predicatePathAcceptsTime(Verb action, TimePhrase phrase) {

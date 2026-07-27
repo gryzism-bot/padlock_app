@@ -1289,8 +1289,16 @@ List<PlacePhrase> _uniquePlaceChoices(List<PlacePhrase> choices) {
 
   return [
     for (final choice in choices)
-      if (seen.add(choice.noun.toLowerCase())) choice,
+      if (seen.add(_placeChoiceKey(choice))) choice,
   ];
+}
+
+String _placeChoiceKey(PlacePhrase choice) {
+  return [
+    choice.render(PlaceMeaning.location),
+    choice.render(PlaceMeaning.destination),
+    choice.render(PlaceMeaning.source),
+  ].join('|').toLowerCase();
 }
 
 List<TimePhrase> _uniqueTimeChoices(List<TimePhrase> choices) {

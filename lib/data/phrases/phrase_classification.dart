@@ -3,6 +3,8 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 
 enum PhraseSurfaceFamily { place, time, frequency, manner }
@@ -38,11 +40,7 @@ final currentPhraseClassifications = <CurrentPhraseClassification>[
       label: phrase.noun,
       family: PhraseSurfaceFamily.place,
       role: PhraseSurfaceRole.predicateBoundRoute,
-      routeHints: const {
-        PredicateRouteHint.location,
-        PredicateRouteHint.destination,
-        PredicateRouteHint.source,
-      },
+      routeHints: _placeRouteHints(phrase),
       note:
           'Place choices should be exposed as verb-owned right routes in Guided Mode.',
     ),
@@ -80,6 +78,17 @@ final currentPhraseClassifications = <CurrentPhraseClassification>[
           'Current manner choices should be authored per predicate before product Guided Mode exposes them.',
     ),
 ];
+
+Set<PredicateRouteHint> _placeRouteHints(PlacePhrase phrase) {
+  return {
+    if (phrase.prepositions.containsKey(PlaceMeaning.location))
+      PredicateRouteHint.location,
+    if (phrase.prepositions.containsKey(PlaceMeaning.destination))
+      PredicateRouteHint.destination,
+    if (phrase.prepositions.containsKey(PlaceMeaning.source))
+      PredicateRouteHint.source,
+  };
+}
 
 CurrentPhraseClassification? currentPhraseClassificationFor(Object phrase) {
   for (final classification in currentPhraseClassifications) {
