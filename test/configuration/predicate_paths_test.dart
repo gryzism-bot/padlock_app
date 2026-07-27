@@ -71,6 +71,7 @@ void main() {
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
             PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
+            PredicatePathKind.inLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
             PredicatePathKind.timePhrase => isA<SetTimePhrase>(),
             PredicatePathKind.frequencyPhrase => isA<SetFrequencyPhrase>(),
@@ -114,6 +115,11 @@ void main() {
             action: work,
             kind: PredicatePathKind.atLocation,
             text: 'You work at home.',
+          ),
+          (
+            action: buy,
+            kind: PredicatePathKind.inLocation,
+            text: 'You buy in the shop.',
           ),
           (
             action: go,
@@ -507,6 +513,15 @@ void main() {
                   reason: '$reason -> ${place.render(PlaceMeaning.location)}',
                 );
               }
+            case PredicatePathKind.inLocation:
+              expect(path.places, isNotEmpty, reason: reason);
+              for (final place in path.places) {
+                expect(
+                  place.render(PlaceMeaning.location).startsWith('in '),
+                  isTrue,
+                  reason: '$reason -> ${place.render(PlaceMeaning.location)}',
+                );
+              }
             case PredicatePathKind.placePhrase:
               expect(path.places, isNotEmpty, reason: reason);
             case PredicatePathKind.timePhrase:
@@ -578,6 +593,27 @@ void main() {
           PredicatePathKind.atLocation,
         ).map((place) => place.noun),
         containsAll(['home', 'school', 'work']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          work,
+          PredicatePathKind.inLocation,
+        ).map((place) => place.noun),
+        contains('office'),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          buy,
+          PredicatePathKind.inLocation,
+        ).map((place) => place.noun),
+        contains('shop'),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          lose,
+          PredicatePathKind.inLocation,
+        ).map((place) => place.noun),
+        contains('park'),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -693,6 +729,7 @@ void main() {
         for (final path in unlocks.paths) {
           final phrases = switch (path.kind) {
             PredicatePathKind.atLocation => <Object>[...path.places],
+            PredicatePathKind.inLocation => <Object>[...path.places],
             PredicatePathKind.placePhrase => <Object>[...path.places],
             PredicatePathKind.mannerPhrase => <Object>[...path.manners],
             _ => const <Object>[],
@@ -1479,6 +1516,7 @@ bool _verbPathHas(Verb verb, PredicatePathKind kind, String? text) {
 bool _placePathHas(Verb verb, String? text) {
   final choices = [
     ...predicatePlaceChoicesFor(verb, PredicatePathKind.atLocation),
+    ...predicatePlaceChoicesFor(verb, PredicatePathKind.inLocation),
     ...predicatePlaceChoicesFor(verb, PredicatePathKind.placePhrase),
   ];
   if (text == null || text == 'somewhere') {

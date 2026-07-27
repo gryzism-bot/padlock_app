@@ -1551,6 +1551,7 @@ class ConfigurationEngine {
 
     final choices = [
       ...predicatePlaceChoicesFor(action, PredicatePathKind.atLocation),
+      ...predicatePlaceChoicesFor(action, PredicatePathKind.inLocation),
       ...predicatePlaceChoicesFor(action, PredicatePathKind.placePhrase),
     ];
     if (choices.isEmpty) {

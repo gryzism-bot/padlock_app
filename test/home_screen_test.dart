@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -571,7 +572,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-learn')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(6),
+      findsNWidgets(7),
     );
     expect(
       find.descendant(
@@ -1056,7 +1057,7 @@ void main() {
     },
   );
 
-  testWidgets('Guided UI names authored at-location rail explicitly', (
+  testWidgets('Guided UI names authored location rails explicitly', (
     tester,
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
@@ -1067,13 +1068,26 @@ void main() {
     );
 
     expect(renderedSentence(tester), 'You work.');
-    expect(find.text('At location:'), findsOneWidget);
+    expect(find.text('Location:'), findsOneWidget);
     expect(find.text('Place phrase:'), findsNothing);
-    expectRailSurfaceMarker(tester, 'At location', 'at');
+    expectRailSurfaceMarker(tester, 'Location', 'at/in');
 
     await tapAfterScroll(tester, find.byTooltip('You work at school.'));
 
     expect(renderedSentence(tester), 'You work at school.');
+
+    await tapAfterScroll(tester, find.byTooltip('Reset'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-buy')),
+    );
+
+    expect(renderedSentence(tester), 'You buy.');
+    expect(find.text('In location:'), findsOneWidget);
+    expectRailSurfaceMarker(tester, 'In location', 'in');
+    await tapAfterScroll(tester, find.byTooltip('You buy in the shop.'));
+
+    expect(renderedSentence(tester), 'You buy in the shop.');
   });
 
   testWidgets('Guided UI exposes reviewed phrase routes for think', (
@@ -2105,7 +2119,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
       case 'source':
         titles.add('Source');
       case 'at-location':
-        titles.add('At location');
+      case 'in-location':
+        break;
       case 'right-action':
         titles.add('Right action');
       case 'complement':
@@ -2122,6 +2137,22 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
       case 'object-complement':
         break;
     }
+  }
+
+  final hasAtLocation = predicatePlaceChoicesFor(
+    verb,
+    PredicatePathKind.atLocation,
+  ).isNotEmpty;
+  final hasInLocation = predicatePlaceChoicesFor(
+    verb,
+    PredicatePathKind.inLocation,
+  ).isNotEmpty;
+  if (hasAtLocation && hasInLocation) {
+    titles.add('Location');
+  } else if (hasAtLocation) {
+    titles.add('At location');
+  } else if (hasInLocation) {
+    titles.add('In location');
   }
 
   return titles;

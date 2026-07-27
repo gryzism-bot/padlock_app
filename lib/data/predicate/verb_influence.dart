@@ -195,6 +195,12 @@ PredicateInfluence _influenceForPath(
       'at location',
       35,
     ),
+    PredicatePathKind.inLocation => _predicateProperty(
+      action,
+      'in-location',
+      'in location',
+      35,
+    ),
     PredicatePathKind.placePhrase => _predicateProperty(
       action,
       'place',
@@ -280,7 +286,18 @@ int predicateDoorwayOutputCount(Verb action) {
     return 0;
   }
 
-  return _visibleOutputCountByVerb[action.infinitive] ?? influences.length;
+  final visibleKeys = {
+    for (final influence in influences) _visibleOutputKey(influence.key),
+  };
+
+  return _visibleOutputCountByVerb[action.infinitive] ?? visibleKeys.length;
+}
+
+String _visibleOutputKey(String key) {
+  return switch (key) {
+    'at-location' || 'in-location' || 'place' => 'location',
+    _ => key,
+  };
 }
 
 int predicateDoorwayPriority(Verb action) {

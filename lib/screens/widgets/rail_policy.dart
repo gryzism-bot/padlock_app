@@ -162,14 +162,37 @@ bool _ownerHasAtLocationRoute(ConfigurationState configuration) {
   ).isNotEmpty;
 }
 
+bool _ownerHasInLocationRoute(ConfigurationState configuration) {
+  return predicatePlaceChoicesFor(
+    _railBoundTailOwner(configuration.sentenceState),
+    PredicatePathKind.inLocation,
+  ).isNotEmpty;
+}
+
 String _placeRailTitle(ConfigurationState configuration) {
-  return _ownerHasAtLocationRoute(configuration)
-      ? 'At location'
-      : 'Place phrase';
+  final hasAt = _ownerHasAtLocationRoute(configuration);
+  final hasIn = _ownerHasInLocationRoute(configuration);
+
+  if (hasAt && hasIn) {
+    return 'Location';
+  }
+  if (hasAt) {
+    return 'At location';
+  }
+  if (hasIn) {
+    return 'In location';
+  }
+
+  return 'Place phrase';
 }
 
 String? _placeRailSurfaceMarker(ConfigurationState configuration) {
-  return _ownerHasAtLocationRoute(configuration) ? 'at' : null;
+  final markers = [
+    if (_ownerHasAtLocationRoute(configuration)) 'at',
+    if (_ownerHasInLocationRoute(configuration)) 'in',
+  ];
+
+  return markers.isEmpty ? null : markers.join('/');
 }
 
 String _objectUnlockHint(ConfigurationState configuration) {

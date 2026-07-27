@@ -797,6 +797,7 @@ class ConfigurationCompass {
     final owner = _boundTailOwner(sentence);
     return _uniquePlaceChoices([
       ...predicatePlaceChoicesFor(owner, PredicatePathKind.atLocation),
+      ...predicatePlaceChoicesFor(owner, PredicatePathKind.inLocation),
       ...predicatePlaceChoicesFor(owner, PredicatePathKind.placePhrase),
     ]);
   }
