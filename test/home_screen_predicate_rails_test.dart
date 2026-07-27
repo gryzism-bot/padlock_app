@@ -1,0 +1,702 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
+import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
+import 'package:padlock_app/screens/home_screen.dart';
+
+void main() {
+  final mainScroll = find
+      .descendant(
+        of: find.byKey(const Key('main-scroll')),
+        matching: find.byType(Scrollable),
+      )
+      .first;
+
+  String renderedSentence(WidgetTester tester) {
+    return tester
+        .widget<SelectableText>(find.byKey(const Key('rendered-sentence')))
+        .data!;
+  }
+
+  Future<void> tapAfterScroll(
+    WidgetTester tester,
+    Finder finder, {
+    double delta = 500,
+  }) async {
+    final descendantButton = find.descendant(
+      of: finder,
+      matching: find.byType(OutlinedButton),
+    );
+    final ancestorButton = find.ancestor(
+      of: finder,
+      matching: find.byType(OutlinedButton),
+    );
+    final descendantIconButton = find.descendant(
+      of: finder,
+      matching: find.byType(IconButton),
+    );
+    final ancestorIconButton = find.ancestor(
+      of: finder,
+      matching: find.byType(IconButton),
+    );
+    final target = descendantButton.evaluate().isNotEmpty
+        ? descendantButton.first
+        : ancestorButton.evaluate().isNotEmpty
+        ? ancestorButton.first
+        : descendantIconButton.evaluate().isNotEmpty
+        ? descendantIconButton.first
+        : ancestorIconButton.evaluate().isNotEmpty
+        ? ancestorIconButton.first
+        : finder;
+
+    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
+    await tester.pumpAndSettle();
+    if (descendantButton.evaluate().isNotEmpty ||
+        ancestorButton.evaluate().isNotEmpty) {
+      tester.widget<OutlinedButton>(target).onPressed?.call();
+    } else if (descendantIconButton.evaluate().isNotEmpty ||
+        ancestorIconButton.evaluate().isNotEmpty) {
+      tester.widget<IconButton>(target).onPressed?.call();
+    } else {
+      await tester.tap(target, warnIfMissed: false);
+    }
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> tapVisible(WidgetTester tester, Finder finder) async {
+    await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
+
+    final segmentedButton = find.ancestor(
+      of: finder,
+      matching: find.byWidgetPredicate((widget) => widget is SegmentedButton),
+    );
+    if (segmentedButton.evaluate().isNotEmpty) {
+      final label = tester.widget<Text>(finder).data;
+      final dynamic segmented = tester.widget(segmentedButton.first);
+      final Object? segment = segmented.segments.cast<dynamic>().firstWhere(
+        (dynamic segment) => (segment.label as Text).data == label,
+      );
+      final dynamic selection = segmented.selected.toSet();
+      selection
+        ..clear()
+        ..add((segment as dynamic).value);
+      segmented.onSelectionChanged(selection);
+    } else {
+      await tester.tap(finder, warnIfMissed: false);
+    }
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> expandRail(WidgetTester tester, String title) async {
+    await tapAfterScroll(tester, find.byTooltip('Open $title rail'));
+  }
+
+  void expectRailSurfaceMarker(
+    WidgetTester tester,
+    String railTitle,
+    String marker,
+  ) {
+    final markerFinder = find.byKey(Key('rail-surface-marker-$railTitle'));
+
+    expect(markerFinder, findsOneWidget);
+    expect(tester.widget<Text>(markerFinder).data, '[$marker]');
+  }
+
+  Future<void> runFixedRailRoute(
+    WidgetTester tester,
+    _FixedRailRoute route,
+  ) async {
+    await tapVisible(tester, find.byTooltip('Reset'));
+    await tapVisible(tester, find.text('Word'));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-action-${route.actionKey}')),
+    );
+
+    expect(renderedSentence(tester), route.emptySentence);
+    expect(find.text('${route.railTitle}:'), findsOneWidget);
+    expect(
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+      findsNothing,
+    );
+
+    await expandRail(tester, route.railTitle);
+    expect(
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+      findsOneWidget,
+      reason: '${route.actionKey} should expose ${route.choiceKey}',
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+    );
+
+    expect(renderedSentence(tester), route.filledSentence);
+    expect(find.text('${route.railTitle}:'), findsOneWidget);
+  }
+
+  testWidgets('right action keeps owned object and companion rails reachable', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(tester, find.byTooltip('You learn to speak.'));
+
+    expect(renderedSentence(tester), 'You learn to speak.');
+    expect(find.text('Language:'), findsOneWidget);
+    expect(find.text('Companion:'), findsOneWidget);
+    expect(
+      find.byKey(const Key('suggestion-label-object-polish')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-object-science')),
+      findsNothing,
+    );
+
+    await tapAfterScroll(tester, find.byTooltip('You learn to speak Polish.'));
+    expect(renderedSentence(tester), 'You learn to speak Polish.');
+
+    await tapAfterScroll(
+      tester,
+      find.byTooltip('You learn to speak Polish with anyone.'),
+    );
+    expect(renderedSentence(tester), 'You learn to speak Polish with anyone.');
+  });
+
+  testWidgets('Verb chips mark predicate extensions they can wake', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.byKey(const Key('verb-wake-be-complement')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-think-topic')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-beneficiary')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-play-activity')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-read-addressee')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-read-companion')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-drive-vehicle')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-time')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-run-destination')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
+    expect(find.byKey(const Key('verb-wake-output-be')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-output-give')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-output-play')), findsOneWidget);
+
+    final giveRecipientIcon = tester.widget<Icon>(
+      find
+          .descendant(
+            of: find.byKey(const Key('verb-wake-give-recipient')),
+            matching: find.byType(Icon),
+          )
+          .first,
+    );
+    expect(giveRecipientIcon.icon, Icons.pan_tool_outlined);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-give')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(2),
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-learn')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(7),
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('verb-wake-output-go')),
+        matching: find.byType(Icon),
+      ),
+      findsNWidgets(2),
+    );
+  });
+
+  testWidgets('Predicate extension rails appear only when their frame opens', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Verb:'), findsOneWidget);
+    expect(find.text('Subject:'), findsOneWidget);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+    expect(find.text('Object:'), findsNothing);
+    expect(find.text('Recipient:'), findsNothing);
+    expect(find.text('Noun complement:'), findsNothing);
+    expect(find.text('Adjective complement:'), findsNothing);
+
+    expect(find.byTooltip('You learn English.'), findsNothing);
+    await expandRail(tester, 'Subject');
+    expect(find.byTooltip('You learn English.'), findsWidgets);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('You play.'), delta: -500);
+
+    expect(find.text('Activity:'), findsOneWidget);
+    expect(find.byTooltip('You play volleyball.'), findsNothing);
+    expect(find.text('Object:'), findsNothing);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await expandRail(tester, 'Activity');
+    await tapAfterScroll(tester, find.byTooltip('You play volleyball.'));
+
+    expect(renderedSentence(tester), 'You play volleyball.');
+    expect(find.text('Activity:'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You are.'));
+
+    expect(find.text('Noun complement:'), findsOneWidget);
+    expect(find.text('Adjective complement:'), findsOneWidget);
+    expect(find.text('Object:'), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('You buy.'), delta: -500);
+
+    expect(find.text('Object:'), findsOneWidget);
+    expect(find.byTooltip('You buy book.'), findsNothing);
+    expect(find.text('Object determiner:'), findsNothing);
+    expect(find.text('Object adjective:'), findsNothing);
+
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(tester, find.byTooltip('You buy book.'));
+
+    expect(find.text('Object determiner:'), findsOneWidget);
+    expect(find.byTooltip('You buy a book.'), findsNothing);
+    expect(find.text('Object adjective:'), findsOneWidget);
+    expect(find.text('Recipient:'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You give book.'), delta: -500);
+
+    expect(find.text('Recipient:'), findsOneWidget);
+  });
+
+  testWidgets('Rail policy exposes every fixed semantic object rail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    const routes = [
+      _FixedRailRoute(
+        actionKey: 'play',
+        railTitle: 'Activity',
+        choiceKey: 'volleyball',
+        emptySentence: 'You play.',
+        filledSentence: 'You play volleyball.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'learn',
+        railTitle: 'Subject',
+        choiceKey: 'english',
+        emptySentence: 'You learn.',
+        filledSentence: 'You learn English.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'speak',
+        railTitle: 'Language',
+        choiceKey: 'english',
+        emptySentence: 'You speak.',
+        filledSentence: 'You speak English.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'read',
+        railTitle: 'Text',
+        choiceKey: 'book',
+        emptySentence: 'You read.',
+        filledSentence: 'You read book.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'use',
+        railTitle: 'Tool',
+        choiceKey: 'phone',
+        emptySentence: 'You use.',
+        filledSentence: 'You use phone.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'watch',
+        railTitle: 'Media',
+        choiceKey: 'television',
+        emptySentence: 'You watch.',
+        filledSentence: 'You watch television.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'drive',
+        railTitle: 'Vehicle',
+        choiceKey: 'car',
+        emptySentence: 'You drive.',
+        filledSentence: 'You drive car.',
+      ),
+      _FixedRailRoute(
+        actionKey: 'close',
+        railTitle: 'Openable',
+        choiceKey: 'door',
+        emptySentence: 'You close.',
+        filledSentence: 'You close door.',
+      ),
+    ];
+
+    for (final route in routes) {
+      await runFixedRailRoute(tester, route);
+    }
+  });
+
+  testWidgets('Rails label their surface connector words', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    expectRailSurfaceMarker(tester, 'Subject', '-');
+    expectRailSurfaceMarker(tester, 'Companion', 'with');
+    expectRailSurfaceMarker(tester, 'Right action', 'to');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-work')),
+    );
+    expectRailSurfaceMarker(tester, 'Beneficiary', 'for');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-learn')),
+    );
+    expectRailSurfaceMarker(tester, 'Source', 'from');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-introduce')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Object', '-');
+    expectRailSurfaceMarker(tester, 'Addressee', 'to');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-give')),
+    );
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Object', '-');
+    expectRailSurfaceMarker(tester, 'Recipient', 'to/for/-');
+
+    await tapAfterScroll(tester, find.text('passive'));
+
+    expectRailSurfaceMarker(tester, 'By-agent', 'by');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-be')),
+    );
+
+    expectRailSurfaceMarker(tester, 'Noun complement', '-');
+    expectRailSurfaceMarker(tester, 'Adjective complement', '-');
+  });
+
+  testWidgets('Movement place rail exposes source-place choices', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-go')),
+      delta: -500,
+    );
+
+    expect(find.byTooltip('You go from work.'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You go from work.'));
+
+    expect(renderedSentence(tester), 'You go from work.');
+  });
+
+  testWidgets('Essential verb chips expose their expected cockpit rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    for (final verb in essentialVerbs) {
+      await tapVisible(tester, find.byTooltip('Reset'));
+      await tapAfterScroll(
+        tester,
+        find.byKey(Key('suggestion-label-action-${verb.infinitive}')),
+      );
+
+      expect(
+        renderedSentence(tester),
+        isNotEmpty,
+        reason: '${verb.infinitive} should render after its action chip.',
+      );
+      expect(
+        find.textContaining('[blocked'),
+        findsNothing,
+        reason: '${verb.infinitive} should be directly selectable.',
+      );
+
+      for (final title in _expectedImmediateRailTitlesFor(verb)) {
+        expect(
+          find.text('$title:'),
+          findsOneWidget,
+          reason:
+              '${verb.infinitive} advertises ${title.toLowerCase()} and should expose that rail.',
+        );
+      }
+    }
+  });
+
+  testWidgets('Object complement rails open after object-complement verbs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tapVisible(tester, find.text('Word'));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-make')),
+    );
+    expect(find.text('Object complement:'), findsNothing);
+    expect(find.text('Object adjective complement:'), findsNothing);
+
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
+
+    expect(renderedSentence(tester), 'You make book.');
+    expect(find.text('Object complement:'), findsOneWidget);
+    expect(find.text('Object adjective complement:'), findsOneWidget);
+
+    await expandRail(tester, 'Object adjective complement');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectAdjectiveComplement-calm')),
+    );
+
+    expect(renderedSentence(tester), 'You make book calm.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(
+        const Key(
+          'suggestion-label-objectAdjectiveComplement-no-object-adjective-complement',
+        ),
+      ),
+    );
+    expect(renderedSentence(tester), 'You make book.');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-call')),
+    );
+    await expandRail(tester, 'Object');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-cat')),
+    );
+    await expandRail(tester, 'Object complement');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectComplement-a-teacher')),
+    );
+
+    expect(renderedSentence(tester), 'You call cat a teacher.');
+    expect(find.text('Object complement determiner:'), findsOneWidget);
+    expect(find.text('Object complement adjective:'), findsOneWidget);
+  });
+
+  testWidgets('Core participant surface maps predicate doors to rails', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.text('Core participant surface:'), findsOneWidget);
+    expect(find.text('predicate: learn (filled)'), findsOneWidget);
+    expect(find.text('subject: you (filled)'), findsOneWidget);
+    expect(find.text('study subject: none (awake)'), findsOneWidget);
+    expect(find.text('recipient: none (asleep)'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.byTooltip('You give.'));
+
+    expect(find.text('predicate: give (filled)'), findsOneWidget);
+    expect(find.text('object: none (awake)'), findsOneWidget);
+    expect(find.text('recipient: none (awake)'), findsOneWidget);
+    expect(find.text('Object:'), findsOneWidget);
+    expect(find.text('Recipient:'), findsNothing);
+    expect(find.byTooltip('You give book.'), findsNothing);
+
+    await tapAfterScroll(tester, find.text('recipient: none (awake)'));
+
+    expect(find.text('recipient: none (open)'), findsOneWidget);
+    expect(find.text('Recipient:'), findsNothing);
+
+    await tapAfterScroll(tester, find.text('object: none (awake)'));
+
+    expect(find.text('object: none (open)'), findsOneWidget);
+    expect(find.byTooltip('You give book.'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('You give book.'));
+
+    expect(renderedSentence(tester), 'You give book.');
+    expect(find.text('Recipient:'), findsOneWidget);
+  });
+
+  testWidgets('Guided UI names authored location rails explicitly', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-work')),
+    );
+
+    expect(renderedSentence(tester), 'You work.');
+    expect(find.text('Location:'), findsOneWidget);
+    expect(find.text('Place phrase:'), findsNothing);
+    expectRailSurfaceMarker(tester, 'Location', 'at/in');
+
+    await tapAfterScroll(tester, find.byTooltip('You work at school.'));
+
+    expect(renderedSentence(tester), 'You work at school.');
+
+    await tapAfterScroll(tester, find.byTooltip('Reset'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-buy')),
+    );
+
+    expect(renderedSentence(tester), 'You buy.');
+    expect(find.text('In location:'), findsOneWidget);
+    expectRailSurfaceMarker(tester, 'In location', 'in');
+    await tapAfterScroll(tester, find.byTooltip('You buy in the shop.'));
+
+    expect(renderedSentence(tester), 'You buy in the shop.');
+  });
+
+  testWidgets('Guided UI exposes reviewed phrase routes for think', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-think')),
+    );
+
+    expect(renderedSentence(tester), 'You think.');
+    expect(find.text('Topic:'), findsOneWidget);
+    expect(find.text('Companion:'), findsOneWidget);
+    expect(find.text('Manner phrase:'), findsOneWidget);
+    expect(find.text('Time phrase:'), findsOneWidget);
+    await expandRail(tester, 'Topic');
+    expect(find.byTooltip('You think about grammar.'), findsOneWidget);
+    expect(find.byTooltip('You think of John.'), findsOneWidget);
+    expect(find.byTooltip('You think carefully.'), findsOneWidget);
+    expect(find.byTooltip('You think quickly.'), findsOneWidget);
+    expect(find.byTooltip('You think today.'), findsOneWidget);
+    expect(find.byTooltip('You think now.'), findsOneWidget);
+  });
+}
+
+class _FixedRailRoute {
+  final String actionKey;
+  final String railTitle;
+  final String choiceKey;
+  final String emptySentence;
+  final String filledSentence;
+
+  const _FixedRailRoute({
+    required this.actionKey,
+    required this.railTitle,
+    required this.choiceKey,
+    required this.emptySentence,
+    required this.filledSentence,
+  });
+}
+
+Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
+  final titles = <String>{};
+
+  for (final influence in predicateInfluencesFor(verb)) {
+    switch (influence.key) {
+      case 'activity':
+        titles.add('Activity');
+      case 'subject':
+        titles.add('Subject');
+      case 'language':
+        titles.add('Language');
+      case 'text':
+        titles.add('Text');
+      case 'tool':
+        titles.add('Tool');
+      case 'media':
+        titles.add('Media');
+      case 'vehicle':
+        titles.add('Vehicle');
+      case 'openable':
+        titles.add('Openable');
+      case 'object':
+        titles.add('Object');
+      case 'addressee':
+        titles.add('Addressee');
+      case 'companion':
+        titles.add('Companion');
+      case 'destination':
+        titles.add('Destination');
+      case 'topic':
+        titles.add('Topic');
+      case 'beneficiary':
+        titles.add('Beneficiary');
+      case 'source':
+        titles.add('Source');
+      case 'at-location':
+      case 'in-location':
+        break;
+      case 'right-action':
+        titles.add('Right action');
+      case 'complement':
+        titles.addAll(['Noun complement', 'Adjective complement']);
+      case 'place':
+        titles.add('Place phrase');
+      case 'time':
+        titles.add('Time phrase');
+      case 'frequency':
+        titles.add('Frequency phrase');
+      case 'manner':
+        titles.add('Manner phrase');
+      case 'recipient':
+      case 'object-complement':
+        break;
+    }
+  }
+
+  final locationConnectors = predicateLocationConnectorsFor(verb);
+  if (locationConnectors.length > 1) {
+    titles.add('Location');
+  } else if (locationConnectors.length == 1) {
+    final connector = locationConnectors.single;
+    titles.add(
+      '${connector[0].toUpperCase()}${connector.substring(1)} location',
+    );
+  }
+
+  return titles;
+}
