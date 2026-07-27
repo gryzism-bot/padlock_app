@@ -2139,20 +2139,14 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
     }
   }
 
-  final hasAtLocation = predicatePlaceChoicesFor(
-    verb,
-    PredicatePathKind.atLocation,
-  ).isNotEmpty;
-  final hasInLocation = predicatePlaceChoicesFor(
-    verb,
-    PredicatePathKind.inLocation,
-  ).isNotEmpty;
-  if (hasAtLocation && hasInLocation) {
+  final locationConnectors = predicateLocationConnectorsFor(verb);
+  if (locationConnectors.length > 1) {
     titles.add('Location');
-  } else if (hasAtLocation) {
-    titles.add('At location');
-  } else if (hasInLocation) {
-    titles.add('In location');
+  } else if (locationConnectors.length == 1) {
+    final connector = locationConnectors.single;
+    titles.add(
+      '${connector[0].toUpperCase()}${connector.substring(1)} location',
+    );
   }
 
   return titles;

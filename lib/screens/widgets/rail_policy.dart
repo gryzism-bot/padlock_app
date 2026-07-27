@@ -155,44 +155,29 @@ String _fixedObjectAdjectiveTitle(ConfigurationState configuration) {
   return '${_fixedObjectTitle(configuration)} adjective';
 }
 
-bool _ownerHasAtLocationRoute(ConfigurationState configuration) {
-  return predicatePlaceChoicesFor(
+List<String> _ownerLocationConnectors(ConfigurationState configuration) {
+  return predicateLocationConnectorsFor(
     _railBoundTailOwner(configuration.sentenceState),
-    PredicatePathKind.atLocation,
-  ).isNotEmpty;
-}
-
-bool _ownerHasInLocationRoute(ConfigurationState configuration) {
-  return predicatePlaceChoicesFor(
-    _railBoundTailOwner(configuration.sentenceState),
-    PredicatePathKind.inLocation,
-  ).isNotEmpty;
+  );
 }
 
 String _placeRailTitle(ConfigurationState configuration) {
-  final hasAt = _ownerHasAtLocationRoute(configuration);
-  final hasIn = _ownerHasInLocationRoute(configuration);
+  final connectors = _ownerLocationConnectors(configuration);
 
-  if (hasAt && hasIn) {
+  if (connectors.length > 1) {
     return 'Location';
   }
-  if (hasAt) {
-    return 'At location';
-  }
-  if (hasIn) {
-    return 'In location';
+  if (connectors.length == 1) {
+    return '${connectors.single[0].toUpperCase()}${connectors.single.substring(1)} location';
   }
 
   return 'Place phrase';
 }
 
 String? _placeRailSurfaceMarker(ConfigurationState configuration) {
-  final markers = [
-    if (_ownerHasAtLocationRoute(configuration)) 'at',
-    if (_ownerHasInLocationRoute(configuration)) 'in',
-  ];
+  final connectors = _ownerLocationConnectors(configuration);
 
-  return markers.isEmpty ? null : markers.join('/');
+  return connectors.isEmpty ? null : connectors.join('/');
 }
 
 String _objectUnlockHint(ConfigurationState configuration) {

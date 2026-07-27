@@ -55,6 +55,24 @@ enum PredicatePathKind {
   mannerPhrase,
 }
 
+const predicateLocationPathKinds = [
+  PredicatePathKind.atLocation,
+  PredicatePathKind.inLocation,
+];
+
+const predicateAuthoredPlacePathKinds = [
+  ...predicateLocationPathKinds,
+  PredicatePathKind.placePhrase,
+];
+
+String? predicatePlaceConnectorFor(PredicatePathKind kind) {
+  return switch (kind) {
+    PredicatePathKind.atLocation => 'at',
+    PredicatePathKind.inLocation => 'in',
+    _ => null,
+  };
+}
+
 class PredicatePath {
   final PredicatePathKind kind;
   final List<NounPhrase> nouns;
@@ -1390,6 +1408,21 @@ List<PlacePhrase> predicatePlaceChoicesFor(Verb verb, PredicatePathKind kind) {
     ).where((path) => path.kind == kind))
       ...path.places,
   ]);
+}
+
+List<PlacePhrase> predicateAuthoredPlaceChoicesFor(Verb verb) {
+  return _uniquePlacesByText([
+    for (final kind in predicateAuthoredPlacePathKinds)
+      ...predicatePlaceChoicesFor(verb, kind),
+  ]);
+}
+
+List<String> predicateLocationConnectorsFor(Verb verb) {
+  return [
+    for (final kind in predicateLocationPathKinds)
+      if (predicatePlaceChoicesFor(verb, kind).isNotEmpty)
+        predicatePlaceConnectorFor(kind)!,
+  ];
 }
 
 List<TimePhrase> predicateTimeChoicesFor(Verb verb, PredicatePathKind kind) {

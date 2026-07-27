@@ -1549,11 +1549,7 @@ class ConfigurationEngine {
       return true;
     }
 
-    final choices = [
-      ...predicatePlaceChoicesFor(action, PredicatePathKind.atLocation),
-      ...predicatePlaceChoicesFor(action, PredicatePathKind.inLocation),
-      ...predicatePlaceChoicesFor(action, PredicatePathKind.placePhrase),
-    ];
+    final choices = predicateAuthoredPlaceChoicesFor(action);
     if (choices.isEmpty) {
       return false;
     }

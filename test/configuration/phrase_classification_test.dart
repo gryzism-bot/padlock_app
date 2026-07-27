@@ -242,8 +242,8 @@ void main() {
 
       final labels = suggestions.map((suggestion) => suggestion.label);
 
-      expect(labels, ['no place', 'school']);
-      expect(labels, isNot(contains('home')));
+      expect(labels, ['no place', 'at school']);
+      expect(labels, isNot(contains('at home')));
       expect(
         suggestions
             .singleWhere((suggestion) => suggestion.label == 'no place')
@@ -311,7 +311,7 @@ void main() {
           .map((suggestion) => suggestion.label)
           .toList();
 
-      expect(placeLabels, containsAll(['no place', 'home', 'school']));
+      expect(placeLabels, containsAll(['no place', 'at home', 'at school']));
       expect(mannerLabels, containsAll(['no manner', 'quickly', 'carefully']));
     });
 

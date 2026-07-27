@@ -1514,11 +1514,7 @@ bool _verbPathHas(Verb verb, PredicatePathKind kind, String? text) {
 }
 
 bool _placePathHas(Verb verb, String? text) {
-  final choices = [
-    ...predicatePlaceChoicesFor(verb, PredicatePathKind.atLocation),
-    ...predicatePlaceChoicesFor(verb, PredicatePathKind.inLocation),
-    ...predicatePlaceChoicesFor(verb, PredicatePathKind.placePhrase),
-  ];
+  final choices = predicateAuthoredPlaceChoicesFor(verb);
   if (text == null || text == 'somewhere') {
     return choices.isNotEmpty;
   }
