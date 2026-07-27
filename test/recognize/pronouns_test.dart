@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
@@ -633,5 +634,38 @@ void main() {
     expectAgent(recipientFocus, text: 'him');
     expect(recipientFocus.voice, Voice.passive);
     expect(recipientFocus.passiveFocus, PassiveFocus.recipient);
+  });
+
+  test('Right-side participant pronouns recognize object case', () {
+    final source = engine.recognize('Someone will buy from me.');
+    expectAgent(source, text: 'someone');
+    expectSource(source, text: 'me');
+    expect(source.action, buy);
+    expect(source.tense, Tense.future);
+    expect(source.aspect, Aspect.simple);
+
+    final addressee = engine.recognize('Anyone can sell a book to them.');
+    expectAgent(addressee, text: 'anyone');
+    expectObject(addressee, text: 'book', determiner: aDeterminer);
+    expectAddressee(addressee, text: 'them');
+    expect(addressee.action, sell);
+    expect(addressee.modal, can);
+    expect(addressee.tense, Tense.present);
+    expect(addressee.aspect, Aspect.simple);
+
+    final pluralSource = engine.recognize('Nobody should learn from us.');
+    expectAgent(pluralSource, text: 'nobody');
+    expectSource(pluralSource, text: 'us');
+    expect(pluralSource.action, learn);
+    expect(pluralSource.modal, should);
+    expect(pluralSource.tense, Tense.present);
+    expect(pluralSource.aspect, Aspect.simple);
+
+    final companion = engine.recognize('Everyone talked with her.');
+    expectAgent(companion, text: 'everyone');
+    expectCompanion(companion, text: 'her');
+    expect(companion.action, talk);
+    expect(companion.tense, Tense.past);
+    expect(companion.aspect, Aspect.simple);
   });
 }

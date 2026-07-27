@@ -297,7 +297,7 @@ Map<ConfigurationCompassSlot, Number> _syncNounNumbersWithState(
 }
 
 bool _sameNounFamily(NounPhrase left, NounPhrase right) {
-  return objectNumberFamilyKey(left.text) == objectNumberFamilyKey(right.text);
+  return _nounNumberFamilyKey(left) == _nounNumberFamilyKey(right);
 }
 
 String objectNumberFamilyKey(String text) {
@@ -337,6 +337,55 @@ String objectNumberFamilyKey(String text) {
 
   return lower;
 }
+
+String _nounNumberFamilyKey(NounPhrase nounPhrase) {
+  final pronounFamily = _personalPronounNumberFamilyKey(nounPhrase);
+  if (pronounFamily != null) {
+    return pronounFamily;
+  }
+
+  return objectNumberFamilyKey(nounPhrase.text);
+}
+
+String? _personalPronounNumberFamilyKey(NounPhrase nounPhrase) {
+  final lower = nounPhrase.text.toLowerCase();
+
+  if (_plainPersonalPronouns.contains(lower)) {
+    return 'pronoun:plain:${nounPhrase.person.name}';
+  }
+
+  if (_reflexivePersonalPronouns.contains(lower)) {
+    return 'pronoun:reflexive:${nounPhrase.person.name}';
+  }
+
+  return null;
+}
+
+const _plainPersonalPronouns = {
+  'i',
+  'me',
+  'we',
+  'us',
+  'you',
+  'he',
+  'him',
+  'she',
+  'her',
+  'it',
+  'they',
+  'them',
+};
+
+const _reflexivePersonalPronouns = {
+  'myself',
+  'ourselves',
+  'yourself',
+  'yourselves',
+  'himself',
+  'herself',
+  'itself',
+  'themselves',
+};
 
 NounPhrase _carrySafeNounModifiers(NounPhrase previous, NounPhrase next) {
   final adjectives = previous.adjectiveList;

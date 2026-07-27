@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
+import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -532,5 +534,59 @@ void main() {
         expect(sentence.text, 'A book was given to him.');
       },
     );
+
+    test('Right-side participant pronouns render in object case', () {
+      final cases = [
+        (
+          state: SentenceState(
+            agent: someone,
+            action: buy,
+            source: i,
+            tense: Tense.future,
+            aspect: Aspect.simple,
+          ),
+          text: 'Someone will buy from me.',
+        ),
+        (
+          state: SentenceState(
+            agent: anyone,
+            action: sell,
+            object: book.toNounPhrase(Number.singular, determiner: aDeterminer),
+            addressee: they,
+            modal: can,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          text: 'Anyone can sell a book to them.',
+        ),
+        (
+          state: SentenceState(
+            agent: nobody,
+            action: learn,
+            source: we,
+            modal: should,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          text: 'Nobody should learn from us.',
+        ),
+        (
+          state: SentenceState(
+            agent: everyone,
+            action: talk,
+            companion: she,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+          text: 'Everyone talked with her.',
+        ),
+      ];
+
+      for (final example in cases) {
+        final sentence = engine.generate(example.state);
+
+        expect(sentence.text, example.text);
+      }
+    });
   });
 }

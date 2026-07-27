@@ -102,6 +102,22 @@ void expectTopic(
   }
 }
 
+void expectSource(
+  SentenceState state, {
+  required String text,
+  Determiner? determiner,
+  Adjective? adjective,
+  List<Adjective>? adjectives,
+}) {
+  expect(state.source, isNotNull);
+  expect(state.source!.text.toLowerCase(), text.toLowerCase());
+  expect(state.source!.determiner, determiner);
+  expect(state.source!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.source!.adjectiveList, adjectives);
+  }
+}
+
 void expectAddressee(
   SentenceState state, {
   required String text,
