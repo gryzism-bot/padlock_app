@@ -420,6 +420,32 @@ void main() {
     },
   );
 
+  testWidgets('Dark mode toggles the developer console theme', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    expect(find.byTooltip('Dark mode'), findsOneWidget);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).brightness,
+      Brightness.light,
+    );
+
+    await tapVisible(tester, find.byTooltip('Dark mode'));
+
+    expect(find.byTooltip('Light mode'), findsOneWidget);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).brightness,
+      Brightness.dark,
+    );
+
+    await tapVisible(tester, find.byTooltip('Light mode'));
+
+    expect(find.byTooltip('Dark mode'), findsOneWidget);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).brightness,
+      Brightness.light,
+    );
+  });
+
   testWidgets('Guided UI opens right action rail from a verb that wakes it', (
     tester,
   ) async {

@@ -55,6 +55,69 @@ const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
 const _verbRailMaxHeight = 214.0;
 
+const _padlockIntellijDarkColors = ColorScheme.dark(
+  primary: Color(0xFF8AADF4),
+  onPrimary: Color(0xFF10151F),
+  primaryContainer: Color(0xFF25324A),
+  onPrimaryContainer: Color(0xFFD7E4FF),
+  secondary: Color(0xFFA6DA95),
+  onSecondary: Color(0xFF101C10),
+  secondaryContainer: Color(0xFF243321),
+  onSecondaryContainer: Color(0xFFD9F6CD),
+  tertiary: Color(0xFFF5A97F),
+  onTertiary: Color(0xFF251509),
+  tertiaryContainer: Color(0xFF3B2A22),
+  onTertiaryContainer: Color(0xFFFFDCC7),
+  error: Color(0xFFFF7B86),
+  onError: Color(0xFF2B0D11),
+  errorContainer: Color(0xFF4B1D24),
+  onErrorContainer: Color(0xFFFFD6DA),
+  surface: Color(0xFF1E1F22),
+  onSurface: Color(0xFFCED0D6),
+  onSurfaceVariant: Color(0xFF9DA3AE),
+  outline: Color(0xFF5E6470),
+  outlineVariant: Color(0xFF3D424C),
+  shadow: Color(0xFF000000),
+  scrim: Color(0xFF000000),
+  inverseSurface: Color(0xFFDADCE3),
+  onInverseSurface: Color(0xFF23252A),
+  inversePrimary: Color(0xFF365FAD),
+);
+
+final _padlockIntellijDarkTheme = ThemeData(
+  useMaterial3: true,
+  brightness: Brightness.dark,
+  colorScheme: _padlockIntellijDarkColors,
+  scaffoldBackgroundColor: const Color(0xFF2B2D30),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Color(0xFF2B2D30),
+    foregroundColor: Color(0xFFDADCE3),
+    elevation: 0,
+    surfaceTintColor: Colors.transparent,
+  ),
+  cardTheme: const CardThemeData(
+    color: Color(0xFF1E1F22),
+    surfaceTintColor: Colors.transparent,
+  ),
+  dividerTheme: const DividerThemeData(color: Color(0xFF3D424C)),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor: _padlockIntellijDarkColors.onSurface,
+      backgroundColor: const Color(0xFF2B2D30),
+      side: const BorderSide(color: Color(0xFF5E6470)),
+    ),
+  ),
+  iconButtonTheme: IconButtonThemeData(
+    style: IconButton.styleFrom(
+      foregroundColor: _padlockIntellijDarkColors.onSurfaceVariant,
+    ),
+  ),
+  textTheme: Typography.material2021().white.apply(
+    bodyColor: _padlockIntellijDarkColors.onSurface,
+    displayColor: _padlockIntellijDarkColors.onSurface,
+  ),
+);
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -77,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
   PreviewCacheMode? previewCacheMode;
   bool showTranslation = true;
   bool showVerbTranslations = false;
+  bool isDarkMode = false;
   bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
@@ -390,7 +454,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final sentenceText = previewCache.render(configuration.sentenceState);
     _syncPreviewCacheSizeAfterFrame();
 
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(title: const Text('Padlock Developer Console')),
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
@@ -429,6 +493,12 @@ class _HomeScreenState extends State<HomeScreen> {
         onToggleVerbTranslations: () {
           setState(() {
             showVerbTranslations = !showVerbTranslations;
+          });
+        },
+        isDarkMode: isDarkMode,
+        onToggleDarkMode: () {
+          setState(() {
+            isDarkMode = !isDarkMode;
           });
         },
         onReset: _reset,
@@ -549,6 +619,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+
+    if (!isDarkMode) {
+      return scaffold;
+    }
+
+    return Theme(data: _padlockIntellijDarkTheme, child: scaffold);
   }
 
   List<_VisibleCompassSlot> _visibleSlotSections(ConfigurationCompass compass) {
@@ -771,6 +847,8 @@ class _BottomDock extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool showVerbTranslations;
   final VoidCallback onToggleVerbTranslations;
+  final bool isDarkMode;
+  final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -792,6 +870,8 @@ class _BottomDock extends StatelessWidget {
     required this.onToggleTranslation,
     required this.showVerbTranslations,
     required this.onToggleVerbTranslations,
+    required this.isDarkMode,
+    required this.onToggleDarkMode,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -844,6 +924,8 @@ class _BottomDock extends StatelessWidget {
                             onToggleTranslation: onToggleTranslation,
                             showVerbTranslations: showVerbTranslations,
                             onToggleVerbTranslations: onToggleVerbTranslations,
+                            isDarkMode: isDarkMode,
+                            onToggleDarkMode: onToggleDarkMode,
                             onReset: onReset,
                             onRandomSentence: onRandomSentence,
                             cacheStrip: cacheStrip,
@@ -942,6 +1024,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool showVerbTranslations;
   final VoidCallback onToggleVerbTranslations;
+  final bool isDarkMode;
+  final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
   final Widget cacheStrip;
@@ -959,6 +1043,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.onToggleTranslation,
     required this.showVerbTranslations,
     required this.onToggleVerbTranslations,
+    required this.isDarkMode,
+    required this.onToggleDarkMode,
     required this.onReset,
     required this.onRandomSentence,
     required this.cacheStrip,
@@ -1013,6 +1099,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           onToggleTranslation: onToggleTranslation,
           showVerbTranslations: showVerbTranslations,
           onToggleVerbTranslations: onToggleVerbTranslations,
+          isDarkMode: isDarkMode,
+          onToggleDarkMode: onToggleDarkMode,
           onReset: onReset,
           onRandomSentence: onRandomSentence,
         );
@@ -1111,6 +1199,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool showVerbTranslations;
   final VoidCallback onToggleVerbTranslations;
+  final bool isDarkMode;
+  final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1123,6 +1213,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.onToggleTranslation,
     required this.showVerbTranslations,
     required this.onToggleVerbTranslations,
+    required this.isDarkMode,
+    required this.onToggleDarkMode,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1164,6 +1256,15 @@ class _DiagnosticsToolStrip extends StatelessWidget {
               showVerbTranslations
                   ? Icons.subtitles_off_outlined
                   : Icons.subtitles_outlined,
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            tooltip: isDarkMode ? 'Light mode' : 'Dark mode',
+            visualDensity: VisualDensity.compact,
+            onPressed: onToggleDarkMode,
+            icon: Icon(
+              isDarkMode ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
             ),
           ),
           const SizedBox(width: 4),
