@@ -29,16 +29,25 @@ Best low-effort / high-value moves for the developer cockpit:
    - target: repeated `GrammarEngine.generate` calls while rendering nearby
      suggestions
    - value: likely visible in verb/object/phrase rails
-3. Next: make large rails unrestricted but lazy.
+3. Done: make large rails unrestricted but lazy.
    - no `show more` gate in the product feeling
    - keep choices scrollable like faces on a physical object
-   - render only the visible/near-visible chip widgets when a rail becomes big
-   - value: lets vocabulary grow without freezing the cockpit
-4. Soon: add a configuration nightly runner.
+   - large rails now hydrate chips progressively instead of blocking the whole
+     frame
+   - value: vocabulary can grow while still feeling like a physical word table
+4. Done: add a configuration nightly runner.
    - no Flutter or Chrome
    - walk Compass-visible moves and Lock responses
    - output markdown/jsonl evidence for missing laws and stale paths
-5. Later: path-scoped Compass for the product UI.
+5. Current: finish PredicatePath route migration.
+   - keep moving predicate-bound phrase tails into verb-owned routes
+   - done recently: `at` and `in` location routes
+   - next likely route families:
+     - `on` location/topic
+     - instrument: `open with a key`
+     - purpose/for-purpose: `use for work`, `walk to exercise`
+     - source place: `come from school`, `go from work`
+6. Next: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -48,7 +57,7 @@ Postpone for now:
 - broad semantic blockers such as `eat street`
 - semi-modal / right-side verb frames such as `have to go`
 - browser/UI nightly automation
-- rail virtualization, until paging and render caching are not enough
+- deeper rail virtualization, until progressive hydration is not enough
 
 ## Executable Review Audit
 
@@ -57,8 +66,8 @@ The essential verb review sheet is now executable through
 
 Current audit count:
 
-- 345 reviewed essential verb routes
-- 288 implemented as achievable PredicatePaths
+- 347 reviewed essential verb routes
+- 290 implemented as achievable PredicatePaths
 - 57 pending right-hand examples from `zzzreadmes/VERB_REVIEW.md`
 - 28 essential verbs still have at least one pending reviewed route
 
@@ -71,13 +80,14 @@ Interpretation:
   - `purpose`: `use for something`
   - `onTopic`: `work on something`
   - `sourcePlace`: `be from somewhere`, `come from somewhere`
-- `at` already exists in the old broad `PlacePhrase` surface through
-  `PlaceMeaning.location`, so sentences such as `You work at school.` can be
-  rendered.
-- `at` is not yet atomized as a verb-owned right-hand route like
-  `with -> person`, `to -> destination`, `about -> topic`, or
-  `from -> source`. Treat this as a phrase-tail migration task, not as missing
-  Grammar Engine logic.
+- `at` and `in` are now atomized as verb-owned location routes, compiled back
+  into the existing `PlacePhrase` surface for Grammar Engine.
+- Recent shelf items covered by that migration:
+  - `You find in the room.`
+  - `You work in IT.`
+  - `You sleep in bed.`
+- `on` is the remaining obvious location/topic connector from the old phrase
+  bag.
 
 Constraint sorting for PredicatePaths:
 
@@ -120,7 +130,8 @@ Next audit actions:
   - instrument
   - purpose/for-purpose
   - on-topic
-  - atomized `at` / `in` / `on` location routes
+  - atomized `on` location/topic routes
+  - source-place routes
 
 ## Night Configuration Run Takeaways
 
@@ -212,7 +223,7 @@ Recommendation:
 - Keep Recognition parsing app-English into the same explicit fields.
 - Extract shared frame metadata only when duplication starts causing drift.
 
-## Current Priority: Core Participant Surface
+## Core Participant Surface
 
 Goal:
 
@@ -239,7 +250,7 @@ Done recently:
   `myself`, `yourself`, `himself`, `herself`, `itself`, `ourselves`,
   `yourselves`, `themselves`
 
-Next crease candidates:
+Remaining crease candidates:
 
 - participant identity law after reflexive surface:
   - decide whether Guided Mode transforms `You gave you a book.` into
@@ -284,11 +295,13 @@ Architectural rule:
 - this is not a second predicate in the Padlock machine; it is another surface
   unlocked by the predicate
 
-Likely first model:
+Implemented first model:
 
-- add `rightAction` or `nonFiniteAction` to `SentenceState`
-- add `rightActionRole` when the roles begin to diverge
-- add verb-data frame facts such as:
+- `rightAction` exists on `SentenceState`
+- right actions are compiled from PredicatePaths
+- Grammar, Recognition, Lock, Compass, and the developer console can carry
+  `to + bare verb` surfaces
+- verb-data frame facts can now say:
   - `want` wakes `to` action complement
   - `try` wakes `to` action complement
   - `need` wakes `to` action complement
@@ -297,7 +310,7 @@ Likely first model:
 - keep choices verb-bound and data-driven, just like fixed object frames and
   participant rails
 
-First wow target:
+Covered first wow target:
 
 - `I want to go.`
 - `You try to learn.`
@@ -306,17 +319,9 @@ First wow target:
 - `You learn to speak.`
 - `I want to watch Netflix.`
 
-Order from safest to most expansive:
+Remaining order from safest to most expansive:
 
-1. right action `to` complements:
-   - `I want to go.`
-   - `I try to learn.`
-   - `I need to work.`
-   - `I like to swim.`
-   - `I learn to speak.`
-   - this is the smallest powerful crease because the first verb remains the
-     finite predicate and the second verb stays bare after `to`
-2. semi-modal `to` frames:
+1. semi-modal `to` frames:
    - `I have to go to school.`
    - `I need to learn English.`
    - `He has to work.`
@@ -326,13 +331,13 @@ Order from safest to most expansive:
    - this is closest to the existing modal wheel, but it must conjugate like a
      normal verb and support DO questions/negatives:
      `Does he have to go?`, `He does not have to go.`
-3. ability/permission/expectation frames:
+2. ability/permission/expectation frames:
    - `He is able to go.`
    - `He is allowed to go.`
    - `He is supposed to go.`
    - likely a separate subtype of the same semi-modal surface because these use
      lexical `be` plus adjective/participle plus `to`
-4. purpose infinitives:
+3. purpose infinitives:
    - `He walks to exercise.`
    - `I run to forget.`
    - `I listen to visualize.`
@@ -345,19 +350,12 @@ Implementation notes:
 
 - Do not merge these directly into normal `Modal` unless the verb-chain rules
   prove identical. They are not identical: `should go`, but `have to go`.
-- Start with right action `to` complements because they provide the biggest
-  visible expressiveness jump while preserving one finite predicate.
-- Add Grammar and Recognition tests first:
-  - present: `I want to go.`
-  - third person: `She wants to work.`
-  - past: `They tried to learn.`
-  - future/modal chain: `You will want to watch.`
-  - negative: `He does not want to go.`
-  - question: `Does he want to go?`
-  - skill: `You learn to speak.`
-- In UI, this probably belongs near the modal control, but it should visually
-  show that `to` is part of the wrapper and the following verb remains the real
-  action.
+- Keep `rightAction` as the plain inferior verb slot until the next role truly
+  needs another field.
+- Add new tests first when the next role begins:
+  - semi-modal: `Does he have to go?`, `He does not have to go.`
+  - purpose: `He walks to exercise.`
+  - ability frame: `He is able to go.`
 - Semantic filtering remains important, but it mostly removes wrongness. This
   crease expands what the machine can say.
 
@@ -505,22 +503,32 @@ recorded.
 - keep chips, rails, diagnostic panels, and control cards reusable
 - keep Material icons configurable from data through `SemanticIcon`
 - allow asset paths later for Noun Project or hand-drawn icons
-- use consistent icon shapes for influence types
-- keep rail-unlock count visible without swallowing the selected verb
+- done: use consistent icon shapes for influence types
+- done: keep rail-unlock count visible without swallowing the selected verb
+- done: keep verb translations available behind a developer toggle
+- next: review Polish verb translations and improve number/person-sensitive
+  translation fragments
 
 ### Diagnostic Body
 
-- keep Language Alert and Last Moves glued above the footer
-- Language Alert should show all triggered Lock laws in one panel
-- each alert should name its layer:
+- done: keep Language Alert and Last Moves glued above the footer
+- done: make the diagnostic body collapsible while keeping the move count
+  visible
+- done: Language Alert shows triggered Lock laws in one panel
+- each alert should keep naming its layer:
   - Lock law alert
   - Compass path alert
   - UI rail alert
 - keep developer phrasing available, then later add educational phrasing from
   the same source
-- Last Moves should keep the last 10 moves, scroll if needed, and reset with
+- done: Last Moves keeps the last 10 moves, scrolls if needed, and resets with
   the reset button
-- random sentence should record itself as a random move
+- done: random sentence records itself as a random move
+- done: move trace records logic and UI timing
+- done: cache size, bounded/unbounded mode, and wipe cache control live in the
+  diagnostic strip
+- next: make educational alert phrasing friendlier without losing developer
+  detail
 
 ### Rail Interaction
 
@@ -532,8 +540,12 @@ recorded.
   - recipient-capable verbs wake object and recipient
   - destination verbs wake place/direction
   - fixed-object verbs wake fixed activity/object rail
-- rail headers should explain what woke them
+- done: rail headers show connector hints such as `with`, `to`, `about`,
+  `from`, `at`, and `in`
+- rail headers should explain what woke them in friendlier educational language
 - rail content should start inline with the title when compact
+- next: keep shaving/switching behavior visible when verb changes remove
+  incompatible right-side material
 
 ### Control Panel
 
@@ -548,6 +560,8 @@ recorded.
 - modal grid should stay compact and unselectable by clicking the selected
   modal again if that becomes cleaner than a `no modal` chip
 - passive focus and passive agent visibility should keep stable positions
+- done: dark mode toggle exists in the diagnostic strip
+- done: sentence translation can be toggled separately from verb translation
 
 ### General Performance Tweaks
 
@@ -666,16 +680,22 @@ Final UI direction:
 
 ### Copy And QA
 
-- sentence preview should be copyable plain text
-- SentenceState debug text should remain copyable
+- done: sentence preview is copyable plain text
+- done: SentenceState debug text remains copyable
 - keep random/reset as development tools
-- configuration nightly runner:
+- done: configuration nightly runner:
   - `tool/night_configuration.dart`
   - walks Compass-visible moves without opening Flutter or Chrome
   - probes nearby direct moves against the Lock
   - reports candidate law messages, Compass leaks, rail wake counts, and guided
     move distribution
   - output markdown/jsonl evidence like the engine night runner
+- next: enhance the configuration nightly runner with route-audit buckets that
+  separate:
+  - missing PredicatePath data
+  - missing route kind
+  - stale Compass exposure
+  - semantic blocker candidate
 - later UI/browser nightly runner:
   - press random sentence repeatedly in the developer cockpit
   - collect sentence, state, alerts, and last moves
