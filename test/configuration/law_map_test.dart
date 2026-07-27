@@ -178,6 +178,7 @@ void main() {
             PredicatePathKind.fromSource => 'source',
             PredicatePathKind.atLocation => 'at-location',
             PredicatePathKind.inLocation => 'in-location',
+            PredicatePathKind.onLocation => 'on-location',
             PredicatePathKind.placePhrase => 'place',
             PredicatePathKind.timePhrase => 'time',
             PredicatePathKind.frequencyPhrase => 'frequency',

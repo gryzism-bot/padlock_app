@@ -49,6 +49,7 @@ enum PredicatePathKind {
   fromSource,
   atLocation,
   inLocation,
+  onLocation,
   placePhrase,
   timePhrase,
   frequencyPhrase,
@@ -58,6 +59,7 @@ enum PredicatePathKind {
 const predicateLocationPathKinds = [
   PredicatePathKind.atLocation,
   PredicatePathKind.inLocation,
+  PredicatePathKind.onLocation,
 ];
 
 const predicateAuthoredPlacePathKinds = [
@@ -69,6 +71,7 @@ String? predicatePlaceConnectorFor(PredicatePathKind kind) {
   return switch (kind) {
     PredicatePathKind.atLocation => 'at',
     PredicatePathKind.inLocation => 'in',
+    PredicatePathKind.onLocation => 'on',
     _ => null,
   };
 }
@@ -127,6 +130,9 @@ class PredicatePath {
 
   const PredicatePath.inLocation(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.inLocation, places: places);
+
+  const PredicatePath.onLocation(List<PlacePhrase> places)
+    : this._(kind: PredicatePathKind.onLocation, places: places);
 
   const PredicatePath.placePhrase(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.placePhrase, places: places);
@@ -386,6 +392,11 @@ final _homeSchoolWorkPlaces = [
   place_data.workPlacePhrase,
   place_data.officePlacePhrase,
 ];
+final _surfacePlaces = [
+  place_data.tablePlacePhrase,
+  place_data.bedPlacePhrase,
+  place_data.bridgePlacePhrase,
+];
 final _everydayPlaces = _uniquePlacesByText([
   place_data.homePlacePhrase,
   place_data.schoolPlacePhrase,
@@ -506,6 +517,10 @@ PredicatePath _inLocations(List<PlacePhrase> places) {
   return PredicatePath.inLocation(_locationsWithPreposition(places, 'in'));
 }
 
+PredicatePath _onLocations(List<PlacePhrase> places) {
+  return PredicatePath.onLocation(_locationsWithPreposition(places, 'on'));
+}
+
 List<PlacePhrase> _locationsWithPreposition(
   List<PlacePhrase> places,
   String preposition,
@@ -538,6 +553,7 @@ final guidedPredicateUnlocks = [
     paths: [
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
+      _onLocations(_surfacePlaces),
       _times(_todayTimes),
       _manners([
         manner_data.quietlyMannerPhrase,
@@ -575,6 +591,7 @@ final guidedPredicateUnlocks = [
     paths: [
       _atLocations(_everydayPlaces),
       _inLocations(_everydayPlaces),
+      _onLocations(_surfacePlaces),
       PredicatePath.withCompanion(_people),
       _manners([
         manner_data.quicklyMannerPhrase,
@@ -612,6 +629,7 @@ final guidedPredicateUnlocks = [
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
+      _onLocations([place_data.bedPlacePhrase, place_data.tablePlacePhrase]),
       _times([time_data.atNightTimePhrase, ..._todayTimes]),
       _manners([manner_data.carefullyMannerPhrase]),
     ],
@@ -858,6 +876,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRightAction([education_data.research]),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
+      _onLocations([place_data.bedPlacePhrase]),
       _manners([
         manner_data.closelyMannerPhrase,
         manner_data.quietlyMannerPhrase,
@@ -870,6 +889,7 @@ final guidedPredicateUnlocks = [
     paths: [
       _atLocations(_everydayPlaces),
       _inLocations(_everydayPlaces),
+      _onLocations(_surfacePlaces),
       _manners(_mistakeManners),
       _times(_todayTimes),
     ],
@@ -884,6 +904,7 @@ final guidedPredicateUnlocks = [
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
+      _onLocations(_surfacePlaces),
       _manners(_performanceManners),
     ],
   ),
@@ -934,6 +955,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _atLocations([place_data.homePlacePhrase]),
       _inLocations([place_data.inBedPlacePhrase]),
+      _onLocations([place_data.bedPlacePhrase]),
       _times([time_data.atNightTimePhrase, ..._todayTimes]),
       _manners([
         manner_data.wellMannerPhrase,
@@ -997,6 +1019,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
+      _onLocations([place_data.tablePlacePhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -1085,6 +1108,27 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(sail),
   _destinationWithCompanion(skate),
   _destinationWithCompanion(ski),
+  PredicateUnlocks(
+    verb: sit,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _onLocations([place_data.bedPlacePhrase, place_data.tablePlacePhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: stand,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _onLocations([place_data.bridgePlacePhrase, place_data.tablePlacePhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: lie,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _onLocations([place_data.bedPlacePhrase]),
+    ],
+  ),
   _destinationWithCompanion(travel_data.travel),
   _destinationWithCompanion(travel_data.arrive),
   _destinationWithCompanion(travel_data.leave),

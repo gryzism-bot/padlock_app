@@ -124,11 +124,25 @@ class SentenceState {
       'polarity=$polarity',
       'form=$sentenceForm',
       'time=${timePhrase?.text}',
-      'place=${placePhrase?.noun}',
+      'place=${_placePhraseSummary()}',
       'placeMeaning=${placeMeaning?.name}',
       'frequency=${frequencyPhrase?.text}',
       'manner=${mannerPhrase?.text}',
     ].join(', ');
+  }
+
+  String? _placePhraseSummary() {
+    final phrase = placePhrase;
+    if (phrase == null) {
+      return null;
+    }
+
+    final meaning =
+        placeMeaning ??
+        (action.usesDestinationPlace
+            ? PlaceMeaning.destination
+            : PlaceMeaning.location);
+    return phrase.render(meaning);
   }
 
   @override

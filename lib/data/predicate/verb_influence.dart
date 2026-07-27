@@ -201,6 +201,12 @@ PredicateInfluence _influenceForPath(
       'in location',
       35,
     ),
+    PredicatePathKind.onLocation => _predicateProperty(
+      action,
+      'on-location',
+      'on location',
+      35,
+    ),
     PredicatePathKind.placePhrase => _predicateProperty(
       action,
       'place',
@@ -295,7 +301,7 @@ int predicateDoorwayOutputCount(Verb action) {
 
 String _visibleOutputKey(String key) {
   return switch (key) {
-    'at-location' || 'in-location' || 'place' => 'location',
+    'at-location' || 'in-location' || 'on-location' || 'place' => 'location',
     _ => key,
   };
 }

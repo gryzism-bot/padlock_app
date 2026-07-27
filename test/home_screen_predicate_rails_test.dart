@@ -91,7 +91,10 @@ void main() {
   }
 
   Future<void> expandRail(WidgetTester tester, String title) async {
-    await tapAfterScroll(tester, find.byTooltip('Open $title rail'));
+    final opener = find.byTooltip('Open $title rail');
+    if (opener.evaluate().isNotEmpty) {
+      await tapAfterScroll(tester, opener);
+    }
   }
 
   void expectRailSurfaceMarker(
@@ -589,6 +592,23 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You buy in the shop.'));
 
     expect(renderedSentence(tester), 'You buy in the shop.');
+
+    await tapAfterScroll(tester, find.byTooltip('Reset'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-action-sleep')),
+    );
+
+    expect(renderedSentence(tester), 'You sleep.');
+    expect(find.text('Location:'), findsOneWidget);
+    expectRailSurfaceMarker(tester, 'Location', 'at/in/on');
+    await expandRail(tester, 'Location');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-placePhrase-on-the-bed')),
+    );
+
+    expect(renderedSentence(tester), 'You sleep on the bed.');
   });
 
   testWidgets('Guided UI exposes reviewed phrase routes for think', (

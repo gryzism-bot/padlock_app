@@ -155,6 +155,7 @@ const stand = Verb(
   pastSimple: 'stood',
   pastParticiple: 'stood',
   ingForm: 'standing',
+  takesCompanion: true,
   translations: {Language.pl: 'stać'},
 );
 
@@ -164,6 +165,7 @@ const sit = Verb(
   pastSimple: 'sat',
   pastParticiple: 'sat',
   ingForm: 'sitting',
+  takesCompanion: true,
   translations: {Language.pl: 'siedzieć'},
 );
 
@@ -173,6 +175,7 @@ const lie = Verb(
   pastSimple: 'lay',
   pastParticiple: 'lain',
   ingForm: 'lying',
+  takesCompanion: true,
   translations: {Language.pl: 'leżeć'},
 );
 
