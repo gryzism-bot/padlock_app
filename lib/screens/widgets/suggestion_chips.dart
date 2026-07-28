@@ -24,6 +24,7 @@ class _SuggestionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isVerbChip = suggestion.slot == ConfigurationCompassSlot.action;
     final wakeSignal = _verbWakeSignal(suggestion, colors);
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -35,6 +36,7 @@ class _SuggestionButton extends StatelessWidget {
           displayMode: displayMode,
           verbTranslation: verbTranslation,
           preview: preview,
+          wakeSignal: wakeSignal,
         ),
       ],
     );
@@ -54,10 +56,42 @@ class _SuggestionButton extends StatelessWidget {
           ),
           onPressed: onPressed,
           child: dense
-              ? FittedBox(fit: BoxFit.scaleDown, child: content)
+              ? _DenseSuggestionBody(
+                  isVerbChip: isVerbChip,
+                  hasTranslation: verbTranslation != null,
+                  child: content,
+                )
               : content,
         ),
       ),
+    );
+  }
+}
+
+class _DenseSuggestionBody extends StatelessWidget {
+  final bool isVerbChip;
+  final bool hasTranslation;
+  final Widget child;
+
+  const _DenseSuggestionBody({
+    required this.isVerbChip,
+    required this.hasTranslation,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isVerbChip) {
+      return SizedBox(
+        width: 92,
+        height: hasTranslation ? 48 : 38,
+        child: Center(child: child),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 72, minHeight: 24),
+      child: FittedBox(fit: BoxFit.scaleDown, child: child),
     );
   }
 }
@@ -68,6 +102,7 @@ class _SuggestionLabel extends StatelessWidget {
   final SuggestionDisplayMode displayMode;
   final String? verbTranslation;
   final String? preview;
+  final _VerbWakeSignal? wakeSignal;
 
   const _SuggestionLabel({
     required this.suggestion,
@@ -75,6 +110,7 @@ class _SuggestionLabel extends StatelessWidget {
     required this.displayMode,
     required this.verbTranslation,
     required this.preview,
+    required this.wakeSignal,
   });
 
   @override
@@ -98,6 +134,7 @@ class _SuggestionLabel extends StatelessWidget {
         labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
+        wakeSignal: wakeSignal,
       );
     }
 
@@ -109,22 +146,28 @@ class _SuggestionLabel extends StatelessWidget {
         labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
+        wakeSignal: wakeSignal,
       );
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text.rich(
-          _changedSuggestionSpan(
-            currentSentence: currentSentence,
-            preview: renderedPreview,
-            suggestion: suggestion,
-            colors: colors,
-            baseStyle: baseStyle,
+        _InlineWakeOutputs(
+          wakeSignal: wakeSignal,
+          child: Text.rich(
+            _changedSuggestionSpan(
+              currentSentence: currentSentence,
+              preview: renderedPreview,
+              suggestion: suggestion,
+              colors: colors,
+              baseStyle: baseStyle,
+            ),
+            key: key,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          key: key,
-          textAlign: TextAlign.center,
         ),
         if (verbTranslation != null) _VerbTranslationGloss(verbTranslation!),
       ],
@@ -138,6 +181,7 @@ class _SuggestionLabelText extends StatelessWidget {
   final Key labelKey;
   final TextAlign textAlign;
   final TextStyle style;
+  final _VerbWakeSignal? wakeSignal;
 
   const _SuggestionLabelText({
     required this.label,
@@ -145,20 +189,30 @@ class _SuggestionLabelText extends StatelessWidget {
     required this.labelKey,
     required this.textAlign,
     required this.style,
+    required this.wakeSignal,
   });
 
   @override
   Widget build(BuildContext context) {
+    final labelWidget = _InlineWakeOutputs(
+      wakeSignal: wakeSignal,
+      child: Text(
+        label,
+        key: labelKey,
+        textAlign: textAlign,
+        style: style,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+
     if (translation == null) {
-      return Text(label, key: labelKey, textAlign: textAlign, style: style);
+      return labelWidget;
     }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(label, key: labelKey, textAlign: textAlign, style: style),
-        _VerbTranslationGloss(translation!),
-      ],
+      children: [labelWidget, _VerbTranslationGloss(translation!)],
     );
   }
 }
@@ -223,6 +277,32 @@ class _VerbWakeSignalView extends StatelessWidget {
             ),
             if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _InlineWakeOutputs extends StatelessWidget {
+  final _VerbWakeSignal? wakeSignal;
+  final Widget child;
+
+  const _InlineWakeOutputs({required this.wakeSignal, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final signal = wakeSignal;
+    if (signal == null) {
+      return child;
+    }
+
+    return Tooltip(
+      message: signal.tooltip,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Flexible(child: child),
           const SizedBox(width: 3),
           _VerbWakeOutputs(signal: signal),
         ],
@@ -238,13 +318,17 @@ class _VerbWakeOutputs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SizedBox(
       key: Key('verb-wake-output-${signal.actionKey}'),
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var index = 0; index < signal.outputCount; index++)
-          Icon(_materialOutputIcon, size: 7, color: signal.color),
-      ],
+      width: signal.outputCount > 4 ? 11 : 5,
+      child: Wrap(
+        spacing: -1,
+        runSpacing: -2,
+        children: [
+          for (var index = 0; index < signal.outputCount; index++)
+            Icon(_materialOutputIcon, size: 5, color: signal.color),
+        ],
+      ),
     );
   }
 }
@@ -262,10 +346,10 @@ class _PredicateIconGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (slot.assetPath.isNotEmpty) {
-      return Icon(Icons.image_outlined, size: 12, color: color);
+      return Icon(Icons.image_outlined, size: 11, color: color);
     }
 
-    return Icon(_materialIconFor(slot.materialIcon), size: 12, color: color);
+    return Icon(_materialIconFor(slot.materialIcon), size: 11, color: color);
   }
 }
 
@@ -311,16 +395,13 @@ _VerbWakeSignal? _verbWakeSignal(
     for (final influence in influences)
       if (!_isPhraseInfluence(influence)) influence,
   ];
-  final coreInfluenceKeys = [
-    for (final influence in coreInfluences) influence.key,
-  ];
   final profile = predicateSemanticIconProfileFor(
     infinitive: action.infinitive,
     influenceKeys: influenceKeys,
   );
   final outputCount = predicateSemanticOutputCount(
     infinitive: action.infinitive,
-    influenceKeys: coreInfluenceKeys,
+    influenceKeys: influenceKeys,
     profile: profile,
   );
 

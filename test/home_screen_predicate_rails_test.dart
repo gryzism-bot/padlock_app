@@ -216,7 +216,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-learn')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(7),
+      findsNWidgets(8),
     );
 
     await filterRail(tester, 'Verb', 'think');
@@ -240,7 +240,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-go')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(3),
+      findsNWidgets(5),
     );
 
     await filterRail(tester, 'Verb', 'read');

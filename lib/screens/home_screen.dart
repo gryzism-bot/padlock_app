@@ -50,7 +50,7 @@ const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
-const _verbRailMaxHeight = 236.0;
+const _verbRailMaxHeight = 184.0;
 
 const _padlockIntellijDarkColors = ColorScheme.dark(
   primary: Color(0xFF8AADF4),
@@ -2612,41 +2612,56 @@ class _VirtualizedSuggestionRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (suggestions.length <= _railSearchThreshold) {
-      return Wrap(
-        spacing: 6,
-        runSpacing: 6,
-        children: [
-          for (final suggestion in suggestions) _buttonFor(suggestion),
-        ],
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const spacing = 4.0;
+        final tileMaxWidth = _railTileMaxWidthFor(
+          title: railTitle,
+          displayMode: displayMode,
+        );
+        final tileHeight = _railTileHeightFor(
+          title: railTitle,
+          displayMode: displayMode,
+          showVerbTranslations: showVerbTranslations,
+        );
+        final availableWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width;
+        final columnCount = max(
+          1,
+          ((availableWidth + spacing) / (tileMaxWidth + spacing)).floor(),
+        );
+        final rowCount = (suggestions.length / columnCount).ceil();
+        final naturalHeight =
+            (rowCount * tileHeight) + (max(0, rowCount - 1) * spacing);
+        final height = min(
+          _railMaxHeightFor(
+            title: railTitle,
+            suggestionCount: suggestions.length,
+          ),
+          naturalHeight,
+        );
 
-    return SizedBox(
-      height: _railMaxHeightFor(
-        title: railTitle,
-        suggestionCount: suggestions.length,
-      ),
-      child: GridView.builder(
-        key: Key('rail-virtual-grid-$railTitle'),
-        primary: false,
-        padding: EdgeInsets.zero,
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: _railTileMaxWidthFor(
-            title: railTitle,
-            displayMode: displayMode,
+        return SizedBox(
+          height: height,
+          child: GridView.builder(
+            key: Key('rail-virtual-grid-$railTitle'),
+            primary: false,
+            padding: EdgeInsets.zero,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: tileMaxWidth,
+              mainAxisExtent: tileHeight,
+              crossAxisSpacing: spacing,
+              mainAxisSpacing: spacing,
+            ),
+            itemCount: suggestions.length,
+            itemBuilder: (context, index) => Align(
+              alignment: Alignment.centerLeft,
+              child: _buttonFor(suggestions[index]),
+            ),
           ),
-          mainAxisExtent: _railTileHeightFor(
-            title: railTitle,
-            displayMode: displayMode,
-            showVerbTranslations: showVerbTranslations,
-          ),
-          crossAxisSpacing: 6,
-          mainAxisSpacing: 6,
-        ),
-        itemCount: suggestions.length,
-        itemBuilder: (context, index) => _buttonFor(suggestions[index]),
-      ),
+        );
+      },
     );
   }
 
@@ -2673,10 +2688,10 @@ double _railTileMaxWidthFor({
   required SuggestionDisplayMode displayMode,
 }) {
   if (title == 'Verb') {
-    return displayMode == SuggestionDisplayMode.word ? 108 : 174;
+    return displayMode == SuggestionDisplayMode.word ? 82 : 126;
   }
 
-  return displayMode == SuggestionDisplayMode.word ? 148 : 238;
+  return displayMode == SuggestionDisplayMode.word ? 112 : 190;
 }
 
 double _railTileHeightFor({
@@ -2686,11 +2701,11 @@ double _railTileHeightFor({
 }) {
   final translationExtra = title == 'Verb' && showVerbTranslations ? 16.0 : 0.0;
   if (title == 'Verb') {
-    return (displayMode == SuggestionDisplayMode.word ? 90.0 : 112.0) +
+    return (displayMode == SuggestionDisplayMode.word ? 52.0 : 56.0) +
         translationExtra;
   }
 
-  return displayMode == SuggestionDisplayMode.word ? 48.0 : 58.0;
+  return displayMode == SuggestionDisplayMode.word ? 36.0 : 42.0;
 }
 
 class _RailSearchField extends StatelessWidget {

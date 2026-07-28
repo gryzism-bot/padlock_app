@@ -320,7 +320,7 @@ ButtonStyle _compactOutlinedStyle({
 }) {
   return OutlinedButton.styleFrom(
     visualDensity: VisualDensity.compact,
-    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     minimumSize: const Size(0, 26),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     foregroundColor: selected ? colors.primary : null,
