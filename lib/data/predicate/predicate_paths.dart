@@ -42,6 +42,7 @@ enum PredicatePathKind {
   toRecipient,
   toAddressee,
   withCompanion,
+  withInstrument,
   toDestination,
   aboutTopic,
   ofTopic,
@@ -130,6 +131,9 @@ class PredicatePath {
 
   const PredicatePath.withCompanion(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.withCompanion, nouns: nouns);
+
+  const PredicatePath.withInstrument(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.withInstrument, nouns: nouns);
 
   const PredicatePath.toDestination(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.toDestination, nouns: nouns);
@@ -292,6 +296,51 @@ final _toolObjects = _uniqueByText([
   ...object_categories.singularToolObjects,
   ...object_categories.pluralToolObjects,
 ]);
+final _writingInstruments = _objectsWithText(_toolObjects, [
+  'pen',
+  'pens',
+  'pencil',
+  'pencils',
+  'keyboard',
+  'keyboards',
+  'computer',
+  'computers',
+  'laptop',
+  'laptops',
+]);
+final _openingInstruments = _objectsWithText(_toolObjects, ['key', 'keys']);
+final _cuttingInstruments = _objectsWithText(_toolObjects, ['knife', 'knives']);
+final _eatingInstruments = _objectsWithText(_toolObjects, [
+  'fork',
+  'forks',
+  'spoon',
+  'spoons',
+]);
+final _mixingInstruments = _objectsWithText(_toolObjects, ['spoon', 'spoons']);
+final _photoInstruments = _objectsWithText(_toolObjects, [
+  'camera',
+  'cameras',
+  'phone',
+  'phones',
+]);
+final _navigationInstruments = _objectsWithText(_toolObjects, [
+  'map',
+  'maps',
+  'phone',
+  'phones',
+]);
+
+List<NounPhrase> _objectsWithText(
+  List<NounPhrase> objects,
+  List<String> texts,
+) {
+  final wanted = texts.map((text) => text.toLowerCase()).toSet();
+  return [
+    for (final object in objects)
+      if (wanted.contains(object.text.toLowerCase())) object,
+  ];
+}
+
 final _deviceObjects = _uniqueByText([
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
@@ -886,6 +935,7 @@ final guidedPredicateUnlocks = [
     verb: work,
     paths: [
       PredicatePath.withCompanion(_people),
+      PredicatePath.withInstrument(_toolObjects),
       PredicatePath.onTopic(_workTopics),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
@@ -1031,12 +1081,20 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     open,
     _openableObjects,
-    paths: [_manners(_carefulManners), _times(_todayTimes)],
+    paths: [
+      PredicatePath.withInstrument(_openingInstruments),
+      _manners(_carefulManners),
+      _times(_todayTimes),
+    ],
   ),
   _directWithPaths(
     close,
     _openableObjects,
-    paths: [_manners(_carefulManners), _times(_todayTimes)],
+    paths: [
+      PredicatePath.withInstrument(_openingInstruments),
+      _manners(_carefulManners),
+      _times(_todayTimes),
+    ],
   ),
   PredicateUnlocks(
     verb: help,
@@ -1082,6 +1140,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRecipient(_people),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
+      PredicatePath.withInstrument(_writingInstruments),
       _beneficiaries(),
       _onLocations([place_data.tablePlacePhrase]),
     ],
@@ -1197,21 +1256,71 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(travel_data.arrive),
   _destinationWithCompanion(travel_data.leave),
   _destinationWithCompanion(travel_data.returnVerb),
-  _directWithPaths(cooking_data.cook, _foodObjects, paths: [_beneficiaries()]),
+  PredicateUnlocks(
+    verb: travel_data.navigate,
+    paths: [
+      PredicatePath.withInstrument(_navigationInstruments),
+      _fromLocations(_everydayPlaces),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: travel_data.photograph,
+    paths: [
+      PredicatePath.directObject(
+        _uniqueByText([..._peopleAndAnimals, ..._mediaObjects]),
+      ),
+      PredicatePath.withInstrument(_photoInstruments),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+    ],
+  ),
+  _directWithPaths(
+    cooking_data.cook,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_mixingInstruments), _beneficiaries()],
+  ),
   _direct(cooking_data.bake, _foodObjects),
   _direct(cooking_data.fry, _foodObjects),
   _direct(cooking_data.boil, _foodObjects),
   _direct(cooking_data.grill, _foodObjects),
-  _direct(cooking_data.eat, _foodObjects),
+  _directWithPaths(
+    cooking_data.eat,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_eatingInstruments)],
+  ),
   _direct(cooking_data.drink, _drinkObjects),
   _direct(cooking_data.roast, _foodObjects),
   _direct(cooking_data.steam, _foodObjects),
-  _direct(cooking_data.cut, _foodObjects),
-  _direct(cooking_data.chop, _foodObjects),
-  _direct(cooking_data.slice, _foodObjects),
-  _direct(cooking_data.peel, _foodObjects),
-  _direct(cooking_data.mix, _foodObjects),
-  _direct(cooking_data.stir, _foodObjects),
+  _directWithPaths(
+    cooking_data.cut,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_cuttingInstruments)],
+  ),
+  _directWithPaths(
+    cooking_data.chop,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_cuttingInstruments)],
+  ),
+  _directWithPaths(
+    cooking_data.slice,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_cuttingInstruments)],
+  ),
+  _directWithPaths(
+    cooking_data.peel,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_cuttingInstruments)],
+  ),
+  _directWithPaths(
+    cooking_data.mix,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_mixingInstruments)],
+  ),
+  _directWithPaths(
+    cooking_data.stir,
+    _foodObjects,
+    paths: [PredicatePath.withInstrument(_mixingInstruments)],
+  ),
   _direct(cooking_data.pour, _foodObjects),
   _direct(cooking_data.add, _foodObjects),
   _direct(cooking_data.serve, _foodObjects),

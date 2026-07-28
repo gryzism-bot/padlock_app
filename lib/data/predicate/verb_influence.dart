@@ -92,6 +92,10 @@ List<PredicateInfluence> predicateInfluencesFor(Verb action) {
     add(_predicateProperty(action, 'companion', 'companion', 46));
   }
 
+  if (action.takesInstrument) {
+    add(_predicateProperty(action, 'instrument', 'instrument', 45));
+  }
+
   if (action.takesTopic) {
     add(_predicateProperty(action, 'topic', 'topic', 44));
   }
@@ -168,6 +172,12 @@ PredicateInfluence _influenceForPath(
       'companion',
       'companion',
       46,
+    ),
+    PredicatePathKind.withInstrument => _predicateProperty(
+      action,
+      'instrument',
+      'instrument',
+      45,
     ),
     PredicatePathKind.toDestination => _predicateProperty(
       action,

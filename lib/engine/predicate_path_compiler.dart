@@ -11,6 +11,7 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
     PredicatePathKind.toRecipient => SetRecipient(_first(path.nouns, path)),
     PredicatePathKind.toAddressee => SetAddressee(_first(path.nouns, path)),
     PredicatePathKind.withCompanion => SetCompanion(_first(path.nouns, path)),
+    PredicatePathKind.withInstrument => SetInstrument(_first(path.nouns, path)),
     PredicatePathKind.toDestination => SetDestination(_first(path.nouns, path)),
     PredicatePathKind.aboutTopic => SetTopic(
       _first(path.nouns, path),

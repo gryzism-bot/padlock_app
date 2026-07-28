@@ -9,6 +9,7 @@ const cook = Verb(
   ingForm: 'cooking',
   takesObject: true,
   takesBeneficiary: true,
+  takesInstrument: true,
   translations: {Language.pl: 'gotować'},
 );
 
@@ -59,6 +60,7 @@ const eat = Verb(
   pastParticiple: 'eaten',
   ingForm: 'eating',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'jeść'},
 );
 
@@ -99,6 +101,7 @@ const cut = Verb(
   pastParticiple: 'cut',
   ingForm: 'cutting',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'kroić'},
 );
 
@@ -109,6 +112,7 @@ const chop = Verb(
   pastParticiple: 'chopped',
   ingForm: 'chopping',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'siekać'},
 );
 
@@ -119,6 +123,7 @@ const slice = Verb(
   pastParticiple: 'sliced',
   ingForm: 'slicing',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'kroić w plastry'},
 );
 
@@ -129,6 +134,7 @@ const peel = Verb(
   pastParticiple: 'peeled',
   ingForm: 'peeling',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'obierać'},
 );
 
@@ -139,6 +145,7 @@ const mix = Verb(
   pastParticiple: 'mixed',
   ingForm: 'mixing',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'mieszać'},
 );
 
@@ -149,6 +156,7 @@ const stir = Verb(
   pastParticiple: 'stirred',
   ingForm: 'stirring',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'mieszać'},
 );
 

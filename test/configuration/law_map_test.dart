@@ -28,12 +28,13 @@ void main() {
         'destination',
         'about-topic',
         'companion',
+        'instrument',
         'beneficiary',
         'source',
       ]);
       expect(
         prepositionalParticipantSurfaces.map((surface) => surface.preposition),
-        ['to', 'to', 'about', 'with', 'for', 'from'],
+        ['to', 'to', 'about', 'with', 'with', 'for', 'from'],
       );
       expect(
         prepositionalParticipantSurfaces.where(
@@ -171,6 +172,7 @@ void main() {
             PredicatePathKind.toRecipient => 'recipient',
             PredicatePathKind.toAddressee => 'addressee',
             PredicatePathKind.withCompanion => 'companion',
+            PredicatePathKind.withInstrument => 'instrument',
             PredicatePathKind.toDestination => 'destination',
             PredicatePathKind.aboutTopic => 'topic',
             PredicatePathKind.ofTopic => 'topic',

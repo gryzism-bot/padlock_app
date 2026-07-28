@@ -35,11 +35,18 @@ Best low-effort / high-value moves for the developer cockpit:
    - large rails now hydrate chips progressively instead of blocking the whole
      frame
    - value: vocabulary can grow while still feeling like a physical word table
-4. Done: add a configuration nightly runner.
+4. Done: virtualize large rail bodies.
+   - large rails now use builder-backed viewport rendering instead of keeping
+     every chip alive as a widget
+   - small rails still render as simple wraps
+   - rail-local search stays the way to summon late vocabulary immediately
+   - value: another visible cut in verb-click render time and better alignment
+     with the final combination-padlock UI
+5. Done: add a configuration nightly runner.
    - no Flutter or Chrome
    - walk Compass-visible moves and Lock responses
    - output markdown/jsonl evidence for missing laws and stale paths
-5. Current: finish PredicatePath route migration.
+6. Current: finish PredicatePath route migration.
    - keep moving predicate-bound phrase tails into verb-owned routes
    - done recently: `at`, `in`, and `on` location routes
    - next likely route families:
@@ -47,7 +54,7 @@ Best low-effort / high-value moves for the developer cockpit:
      - `on` topic/object: `work on grammar`, `think of Mary`
      - instrument: `open with a key`
      - purpose/for-purpose: `use for work`, `walk to exercise`
-6. Next: path-scoped Compass for the product UI.
+7. Next: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -57,7 +64,8 @@ Postpone for now:
 - broad semantic blockers such as `eat street`
 - semi-modal / right-side verb frames such as `have to go`
 - browser/UI nightly automation
-- deeper rail virtualization, until progressive hydration is not enough
+- deeper browser/runtime profiling, until the current sub-500 ms cockpit feel
+  stops holding under larger data
 
 ## Executable Review Audit
 
@@ -541,6 +549,45 @@ Next Compass side quests:
 This is not Grammar Engine work. These are meaningfulness laws over otherwise
 valid grammar.
 
+### Clause Force / Semantic Polarity
+
+The existing `Polarity` field answers whether the verb chain has grammatical
+negation:
+
+- `He buys books.`
+- `He does not buy books.`
+
+Some English words need a wider clause-level meaning check. Example:
+
+- `Nobody buys books anymore.` is grammatically positive in the verb chain, but
+  negative in clause force because `nobody` carries negation.
+- `Everybody buys books anymore.` should not be offered in Guided Mode.
+
+Candidate abstraction:
+
+- `ClauseForce.affirmative`
+- `ClauseForce.negative`
+
+Potential sources of negative clause force:
+
+- negative polarity: `does not`
+- negative subjects: `nobody`, `no one`
+- negative objects/determiners: `nothing`, `no books`
+- later adverbs: `never`
+
+First use:
+
+- `anymore` wakes only in negative clause force:
+  - `Nobody buys books anymore.`
+  - `He does not buy books anymore.`
+  - not `Everybody buys books anymore.`
+
+Likely related future clause modifiers:
+
+- `yet`: negative/question/perfect-ish contexts
+- `already`: positive/perfect-ish contexts
+- `ever`: question/negative/conditional-ish contexts
+
 First semantic rails:
 
 - `play`:
@@ -674,6 +721,11 @@ Done recently:
   - object, recipient, companion, destination, and phrase rails use the same
     transparent batching
   - vocabulary stays unrestricted; there is no `show more` interaction
+- true rail virtualization now handles large rail bodies:
+  - big rails use a builder-backed grid viewport
+  - only visible/near-visible chips are alive as widgets
+  - small rails still use a normal wrap so compact controls stay simple
+  - rail search is the intentional way to reach late options instantly
 - closed participant rails are now decided from the current `SentenceState`
   shape, and full suggestions are generated only after the rail is expanded
 - Backleg save: rail titles, wake hints, collapsed visibility, and empty-state

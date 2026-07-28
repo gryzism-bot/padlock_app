@@ -13,6 +13,7 @@ import 'package:padlock_app/data/subjects/third_person/geography.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
@@ -792,6 +793,81 @@ void main() {
       );
 
       expect(sentence, 'John spoke well with Mary.');
+    });
+
+    test('instrument surface renders as a with tool phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: write,
+          object: letter.toNounPhrase(Number.singular, determiner: aDeterminer),
+          instrument: pen.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You wrote a letter with a pen.');
+    });
+
+    test('instrument surface stays separate from companion surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: write,
+          object: letter.toNounPhrase(Number.singular, determiner: aDeterminer),
+          companion: mary.toNounPhrase(Number.singular),
+          instrument: pencil.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You write a letter with Mary with a pencil.');
+    });
+
+    test('instrument surface survives passive voice', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: open,
+          object: door.toNounPhrase(Number.singular, determiner: aDeterminer),
+          instrument: key.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'A door was opened with a key by John.');
+    });
+
+    test('instrument surface works with cooking verbs', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: cooking_data.cut,
+          object: bread.toNounPhrase(Number.singular),
+          instrument: knife.toNounPhrase(
+            Number.singular,
+            determiner: aDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She cuts bread with a knife.');
     });
 
     test('motion verbs can render manner before destination place', () {

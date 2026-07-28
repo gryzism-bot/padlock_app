@@ -82,6 +82,7 @@ enum NounPhraseTarget {
   recipient,
   addressee,
   companion,
+  instrument,
   destination,
   topic,
   beneficiary,
@@ -267,6 +268,12 @@ class SetCompanion extends ConfigurationMove {
   final NounPhrase? companion;
 
   const SetCompanion(this.companion);
+}
+
+class SetInstrument extends ConfigurationMove {
+  final NounPhrase? instrument;
+
+  const SetInstrument(this.instrument);
 }
 
 class SetDestination extends ConfigurationMove {
@@ -481,6 +488,7 @@ class ConfigurationEngine {
         recipient: null,
         addressee: null,
         companion: state.companion,
+        instrument: null,
         destination: null,
         topic: null,
         beneficiary: null,
@@ -512,6 +520,11 @@ class ConfigurationEngine {
       state.companion,
       tailOwner,
       companionSurface,
+    );
+    final instrument = _surfaceAfterActionChange(
+      state.instrument,
+      tailOwner,
+      instrumentSurface,
     );
     final destination = _surfaceAfterActionChange(
       state.destination,
@@ -574,6 +587,7 @@ class ConfigurationEngine {
       recipient: recipient,
       addressee: addressee,
       companion: companion,
+      instrument: instrument,
       destination: destination,
       topic: topic,
       topicPreposition: topic == null
@@ -610,6 +624,7 @@ class ConfigurationEngine {
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetAddressee(:final addressee) => _copy(state, addressee: addressee),
       SetCompanion(:final companion) => _copy(state, companion: companion),
+      SetInstrument(:final instrument) => _copy(state, instrument: instrument),
       SetDestination(:final destination) => _copy(
         state,
         destination: destination,
@@ -677,6 +692,7 @@ class ConfigurationEngine {
         object: null,
         recipient: null,
         addressee: null,
+        instrument: null,
         destination: null,
         topic: null,
         beneficiary: null,
@@ -694,6 +710,7 @@ class ConfigurationEngine {
         object: null,
         recipient: null,
         addressee: null,
+        instrument: null,
         destination: null,
         topic: null,
         beneficiary: null,
@@ -826,6 +843,9 @@ class ConfigurationEngine {
     if (previous.companion != null && current.companion == null) {
       fields.add('companion');
     }
+    if (previous.instrument != null && current.instrument == null) {
+      fields.add('instrument');
+    }
     if (previous.destination != null && current.destination == null) {
       fields.add('destination');
     }
@@ -944,6 +964,8 @@ class ConfigurationEngine {
     return switch (surface.kind) {
       PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
       PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
+      PrepositionalParticipantKind.instrument =>
+        PredicatePathKind.withInstrument,
       PrepositionalParticipantKind.destination =>
         PredicatePathKind.toDestination,
       PrepositionalParticipantKind.topic => switch (topicPreposition) {
@@ -1186,6 +1208,7 @@ class ConfigurationEngine {
     Object? recipient = _unchanged,
     Object? addressee = _unchanged,
     Object? companion = _unchanged,
+    Object? instrument = _unchanged,
     Object? destination = _unchanged,
     Object? topic = _unchanged,
     TopicPreposition? topicPreposition,
@@ -1230,6 +1253,9 @@ class ConfigurationEngine {
       companion: identical(companion, _unchanged)
           ? state.companion
           : companion as NounPhrase?,
+      instrument: identical(instrument, _unchanged)
+          ? state.instrument
+          : instrument as NounPhrase?,
       destination: identical(destination, _unchanged)
           ? state.destination
           : destination as NounPhrase?,
@@ -1313,6 +1339,10 @@ class ConfigurationEngine {
         state.companion == null
             ? state
             : _copy(state, companion: transform(state.companion!)),
+      NounPhraseTarget.instrument =>
+        state.instrument == null
+            ? state
+            : _copy(state, instrument: transform(state.instrument!)),
       NounPhraseTarget.destination =>
         state.destination == null
             ? state

@@ -252,6 +252,7 @@ const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.recipient,
   ConfigurationCompassSlot.addressee,
   ConfigurationCompassSlot.companion,
+  ConfigurationCompassSlot.instrument,
   ConfigurationCompassSlot.destination,
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
@@ -298,6 +299,7 @@ const _rightActionOwnedRailSlots = [
   ConfigurationCompassSlot.object,
   ConfigurationCompassSlot.addressee,
   ConfigurationCompassSlot.companion,
+  ConfigurationCompassSlot.instrument,
   ConfigurationCompassSlot.destination,
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
@@ -323,6 +325,15 @@ final _prepositionalSurfaceRailPolicies = [
     slot: ConfigurationCompassSlot.companion,
     determinerSlot: ConfigurationCompassSlot.companionDeterminer,
     adjectiveSlot: ConfigurationCompassSlot.companionAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: instrumentSurface,
+    title: 'Instrument',
+    unlockHint: (_) =>
+        'Choose a verb that can use a tool, like write, open, cut, eat, mix, or stir.',
+    slot: ConfigurationCompassSlot.instrument,
+    determinerSlot: ConfigurationCompassSlot.instrumentDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.instrumentAdjective,
   ),
   ..._prepositionalSurfaceRailPolicy(
     surface: destinationSurface,

@@ -65,6 +65,7 @@ void main() {
             PredicatePathKind.toRecipient => isA<SetRecipient>(),
             PredicatePathKind.toAddressee => isA<SetAddressee>(),
             PredicatePathKind.withCompanion => isA<SetCompanion>(),
+            PredicatePathKind.withInstrument => isA<SetInstrument>(),
             PredicatePathKind.toDestination => isA<SetDestination>(),
             PredicatePathKind.aboutTopic => isA<SetTopic>(),
             PredicatePathKind.ofTopic => isA<SetTopic>(),
@@ -508,6 +509,9 @@ void main() {
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.withCompanion:
               expect(unlocks.verb.takesCompanion, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.withInstrument:
+              expect(unlocks.verb.takesInstrument, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.toDestination:
               expect(unlocks.verb.usesDestinationPlace, isTrue, reason: reason);
@@ -1543,7 +1547,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'box'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'carefully'),
-  _ReviewedRoute(open, _ReviewedRouteKind.instrument, status: _pending),
+  _ReviewedRoute(open, _ReviewedRouteKind.instrument),
   _ReviewedRoute(open, _ReviewedRouteKind.beneficiary, status: _pending),
 
   _ReviewedRoute(close, _ReviewedRouteKind.directObject),
@@ -1553,7 +1557,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'box'),
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'carefully'),
-  _ReviewedRoute(close, _ReviewedRouteKind.instrument, status: _pending),
+  _ReviewedRoute(close, _ReviewedRouteKind.instrument),
   _ReviewedRoute(close, _ReviewedRouteKind.beneficiary, status: _pending),
 
   _ReviewedRoute(help, _ReviewedRouteKind.directObject),
@@ -1615,6 +1619,7 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return route.verb.takesObjectComplement &&
           (text == null || _objectAdjectiveComplements.contains(text));
     case _ReviewedRouteKind.instrument:
+      return _nounPathHas(route.verb, PredicatePathKind.withInstrument, text);
     case _ReviewedRouteKind.purpose:
       return false;
   }

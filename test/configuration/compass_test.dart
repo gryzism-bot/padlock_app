@@ -952,6 +952,98 @@ void main() {
       expect(render(suggestions.last.preview), 'You speak with Mary.');
     });
 
+    test('instrument suggestions stay separate from companion suggestions', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(write),
+      );
+
+      final companionSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.companion,
+        limit: 0,
+      );
+      final instrumentSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.instrument,
+        limit: 0,
+      );
+
+      expect(
+        companionSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['Mary', 'John', 'friend']),
+      );
+      expect(
+        instrumentSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['pen', 'pencil', 'keyboard']),
+      );
+      expect(
+        render(
+          companionSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You write with Mary.',
+      );
+      expect(
+        render(
+          instrumentSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'pen')
+              .preview,
+        ),
+        'You write with pen.',
+      );
+    });
+
+    test('work can wake companion with people and instrument with tools', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(work),
+      );
+
+      final companionSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.companion,
+        limit: 0,
+      );
+      final instrumentSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.instrument,
+        limit: 0,
+      );
+
+      expect(
+        companionSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['Mary', 'John', 'friend']),
+      );
+      expect(
+        instrumentSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['computer', 'pen', 'key']),
+      );
+      expect(
+        render(
+          companionSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You work with Mary.',
+      );
+      expect(
+        render(
+          instrumentSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'computer')
+              .preview,
+        ),
+        'You work with computer.',
+      );
+    });
+
     test('destination suggestions require movement destination frame', () {
       var state = lock.applyMove(
         ConfigurationState.initial(),
@@ -1164,6 +1256,12 @@ void main() {
           slot: ConfigurationCompassSlot.companion,
           choice: 'Mary',
           sentence: 'You speak with Mary.',
+        ),
+        (
+          action: write,
+          slot: ConfigurationCompassSlot.instrument,
+          choice: 'pen',
+          sentence: 'You write with pen.',
         ),
         (
           action: go,

@@ -3,6 +3,7 @@ import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
@@ -1251,7 +1252,9 @@ class RecognitionEngine {
     }
 
     if (token == 'with' &&
-        (builder.action == be || owner?.takesCompanion == true)) {
+        (builder.action == be ||
+            owner?.takesCompanion == true ||
+            owner?.takesInstrument == true)) {
       return true;
     }
 
@@ -1374,6 +1377,12 @@ class RecognitionEngine {
 
     if (recipientEnd < participantStart ||
         objectStart > builder.tokens.length - 1) {
+      builder.objectStart = participantStart;
+      builder.objectEnd = builder.tokens.length - 1;
+      return;
+    }
+
+    if (_startsNonParticipantPhrase(builder, objectStart)) {
       builder.objectStart = participantStart;
       builder.objectEnd = builder.tokens.length - 1;
       return;
@@ -1588,6 +1597,7 @@ class RecognitionEngine {
       builder.placePhraseStart,
       builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
       builder.companionStart > 0 ? builder.companionStart - 1 : -1,
+      builder.instrumentStart > 0 ? builder.instrumentStart - 1 : -1,
       builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
       builder.topicStart > 0 ? builder.topicStart - 1 : -1,
       builder.beneficiaryStart > 0 ? builder.beneficiaryStart - 1 : -1,
@@ -1647,6 +1657,14 @@ class RecognitionEngine {
       firstPhraseStart,
     )) {
       builder.companionEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
+      builder.instrumentStart,
+      builder.instrumentEnd,
+      firstPhraseStart,
+    )) {
+      builder.instrumentEnd = firstPhraseStart - 1;
     }
 
     if (_crossesPhrase(
@@ -1756,6 +1774,11 @@ class RecognitionEngine {
       builder.companionStart = frontPhraseEnd + 1;
     }
 
+    if (builder.instrumentStart >= 0 &&
+        builder.instrumentStart <= frontPhraseEnd) {
+      builder.instrumentStart = frontPhraseEnd + 1;
+    }
+
     if (builder.destinationStart >= 0 &&
         builder.destinationStart <= frontPhraseEnd) {
       builder.destinationStart = frontPhraseEnd + 1;
@@ -1842,6 +1865,16 @@ class RecognitionEngine {
         builder.tokens.sublist(
           builder.companionStart,
           builder.companionEnd + 1,
+        ),
+      );
+    }
+
+    if (builder.instrumentStart >= 0 &&
+        builder.instrumentEnd >= builder.instrumentStart) {
+      builder.instrument = _recognizeNounPhrase(
+        builder.tokens.sublist(
+          builder.instrumentStart,
+          builder.instrumentEnd + 1,
         ),
       );
     }
@@ -2068,6 +2101,7 @@ class RecognitionEngine {
     _recognizeFrequencyPhrase(builder, phraseTokens);
     _recognizeDestinationPhrase(builder, phraseTokens);
     _recognizeAddresseePhrase(builder, phraseTokens);
+    _recognizeInstrumentPhrase(builder, phraseTokens);
     _recognizeCompanionPhrase(builder, phraseTokens);
     _recognizeTopicPhrase(builder, phraseTokens);
     _recognizeBeneficiaryPhrase(builder, phraseTokens);
@@ -2187,6 +2221,28 @@ class RecognitionEngine {
     return -1;
   }
 
+  List<int> _phraseWordIndexes(List<String> tokens, String phraseText) {
+    final phraseWords = phraseText.toLowerCase().split(' ');
+    final indexes = <int>[];
+
+    for (var i = 0; i <= tokens.length - phraseWords.length; i++) {
+      var matches = true;
+
+      for (var j = 0; j < phraseWords.length; j++) {
+        if (tokens[i + j].toLowerCase() != phraseWords[j]) {
+          matches = false;
+          break;
+        }
+      }
+
+      if (matches) {
+        indexes.add(i);
+      }
+    }
+
+    return indexes;
+  }
+
   void _recognizeFrequencyPhrase(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2226,21 +2282,45 @@ class RecognitionEngine {
       return;
     }
 
-    final wordsBefore = _phraseWordIndex(tokens, 'with');
+    for (final wordsBefore in _phraseWordIndexes(tokens, 'with')) {
+      final withIndex = builder.verbChainEnd + 1 + wordsBefore;
+      final companionStart = withIndex + 1;
 
-    if (wordsBefore < 0) {
+      if (companionStart == builder.instrumentStart) {
+        continue;
+      }
+
+      if (!_looksLikeCompanionPhrase(builder, companionStart)) {
+        continue;
+      }
+
+      builder.companionStart = companionStart;
+      builder.companionEnd = _nounPhraseEnd(builder, companionStart);
+      return;
+    }
+  }
+
+  void _recognizeInstrumentPhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (owner?.takesInstrument != true) {
       return;
     }
 
-    final withIndex = builder.verbChainEnd + 1 + wordsBefore;
-    final companionStart = withIndex + 1;
+    for (final wordsBefore in _phraseWordIndexes(tokens, 'with')) {
+      final withIndex = builder.verbChainEnd + 1 + wordsBefore;
+      final instrumentStart = withIndex + 1;
 
-    if (!_looksLikeCompanionPhrase(builder, companionStart)) {
+      if (!_looksLikeInstrumentPhrase(builder, instrumentStart, owner!)) {
+        continue;
+      }
+
+      builder.instrumentStart = instrumentStart;
+      builder.instrumentEnd = _nounPhraseEnd(builder, instrumentStart);
       return;
     }
-
-    builder.companionStart = companionStart;
-    builder.companionEnd = _nounPhraseEnd(builder, companionStart);
   }
 
   void _recognizeAddresseePhrase(
@@ -2444,6 +2524,33 @@ class RecognitionEngine {
     return _lookupNoun(text) != null || _lookupFixedObject(text) != null;
   }
 
+  bool _looksLikeInstrumentPhrase(
+    _RecognitionBuilder builder,
+    int start,
+    Verb owner,
+  ) {
+    if (start >= builder.tokens.length) {
+      return false;
+    }
+
+    final end = _nounPhraseEnd(builder, start);
+    if (end < start) {
+      return false;
+    }
+
+    final phrase = _recognizeNounPhrase(builder.tokens.sublist(start, end + 1));
+    final choices = predicateNounChoicesFor(
+      owner,
+      PredicatePathKind.withInstrument,
+    );
+
+    return choices.any(
+      (choice) =>
+          choice.text.toLowerCase() == phrase.text.toLowerCase() &&
+          choice.number == phrase.number,
+    );
+  }
+
   void _recognizeMannerPhrase(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2539,6 +2646,9 @@ class _RecognitionBuilder {
   int companionStart = -1;
   int companionEnd = -1;
 
+  int instrumentStart = -1;
+  int instrumentEnd = -1;
+
   int destinationStart = -1;
   int destinationEnd = -1;
 
@@ -2587,6 +2697,7 @@ class _RecognitionBuilder {
   NounPhrase? recipient;
   NounPhrase? addressee;
   NounPhrase? companion;
+  NounPhrase? instrument;
   NounPhrase? destination;
   NounPhrase? topic;
   TopicPreposition topicPreposition = TopicPreposition.about;
@@ -2629,6 +2740,7 @@ class _RecognitionBuilder {
       recipient: recipient,
       addressee: addressee,
       companion: companion,
+      instrument: instrument,
       destination: destination,
       topic: topic,
       topicPreposition: topicPreposition,
@@ -2668,6 +2780,7 @@ class _RecognitionBuilder {
       'recipient: $recipientStart -> $recipientEnd (${_tokensBetween(recipientStart, recipientEnd)}) = ${recipient?.text}',
       'addressee: $addresseeStart -> $addresseeEnd (${_tokensBetween(addresseeStart, addresseeEnd)}) = ${addressee?.text}',
       'companion: $companionStart -> $companionEnd (${_tokensBetween(companionStart, companionEnd)}) = ${companion?.text}',
+      'instrument: $instrumentStart -> $instrumentEnd (${_tokensBetween(instrumentStart, instrumentEnd)}) = ${instrument?.text}',
       'destination: $destinationStart -> $destinationEnd (${_tokensBetween(destinationStart, destinationEnd)}) = ${destination?.text}',
       'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topicPreposition.text} ${topic?.text}',
       'beneficiary: $beneficiaryStart -> $beneficiaryEnd (${_tokensBetween(beneficiaryStart, beneficiaryEnd)}) = ${beneficiary?.text}',

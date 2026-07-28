@@ -81,6 +81,7 @@ class GrammarEngine {
         subject: builder.state.agent!,
         addressee: builder.state.addressee,
         companion: builder.state.companion,
+        instrument: builder.state.instrument,
         destination: builder.state.destination,
         topic: builder.state.topic,
         beneficiary: builder.state.beneficiary,
@@ -101,6 +102,7 @@ class GrammarEngine {
           recipient: builder.state.recipient,
           addressee: builder.state.addressee,
           companion: builder.state.companion,
+          instrument: builder.state.instrument,
           destination: builder.state.destination,
           topic: builder.state.topic,
           beneficiary: builder.state.beneficiary,
@@ -125,6 +127,7 @@ class GrammarEngine {
               recipient: builder.state.recipient,
               addressee: builder.state.addressee,
               companion: builder.state.companion,
+              instrument: builder.state.instrument,
               destination: builder.state.destination,
               topic: builder.state.topic,
               beneficiary: builder.state.beneficiary,
@@ -149,6 +152,7 @@ class GrammarEngine {
               object: builder.state.object,
               addressee: builder.state.addressee,
               companion: builder.state.companion,
+              instrument: builder.state.instrument,
               destination: builder.state.destination,
               topic: builder.state.topic,
               beneficiary: builder.state.beneficiary,
@@ -692,6 +696,7 @@ class GrammarEngine {
     return switch (surface.kind) {
       PrepositionalParticipantKind.addressee => builder.displayAddressee,
       PrepositionalParticipantKind.companion => builder.displayCompanion,
+      PrepositionalParticipantKind.instrument => builder.displayInstrument,
       PrepositionalParticipantKind.destination => builder.displayDestination,
       PrepositionalParticipantKind.topic => builder.displayTopic,
       PrepositionalParticipantKind.beneficiary => builder.displayBeneficiary,
@@ -744,6 +749,7 @@ class GrammarEngine {
         builder.mannerPhrase.isNotEmpty &&
         (builder.displayAddressee != null ||
             builder.displayCompanion != null ||
+            builder.displayInstrument != null ||
             builder.displayDestination != null ||
             builder.displayTopic != null ||
             builder.displayBeneficiary != null ||
@@ -767,6 +773,7 @@ class _SentenceBuilder {
   NounPhrase? displayRecipient;
   NounPhrase? displayAddressee;
   NounPhrase? displayCompanion;
+  NounPhrase? displayInstrument;
   NounPhrase? displayDestination;
   NounPhrase? displayTopic;
   NounPhrase? displayBeneficiary;
@@ -796,6 +803,7 @@ class _SentenceBuilder {
     NounPhrase? recipient,
     NounPhrase? addressee,
     NounPhrase? companion,
+    NounPhrase? instrument,
     NounPhrase? destination,
     NounPhrase? topic,
     NounPhrase? beneficiary,
@@ -811,6 +819,7 @@ class _SentenceBuilder {
     displayRecipient = recipient;
     displayAddressee = addressee;
     displayCompanion = companion;
+    displayInstrument = instrument;
     displayDestination = destination;
     displayTopic = topic;
     displayBeneficiary = beneficiary;
@@ -831,6 +840,7 @@ class _SentenceBuilder {
       'displayRecipient: ${displayRecipient?.text}',
       'displayAddressee: ${displayAddressee?.text}',
       'displayCompanion: ${displayCompanion?.text}',
+      'displayInstrument: ${displayInstrument?.text}',
       'displayDestination: ${displayDestination?.text}',
       'displayTopic: ${displayTopic?.text}',
       'displayBeneficiary: ${displayBeneficiary?.text}',

@@ -224,6 +224,7 @@ void main() {
 
     await filterRail(tester, 'Verb', 'work');
     expect(find.byKey(const Key('verb-wake-work-topic')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-work-instrument')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-work-object')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-recipient')), findsNothing);
     expect(find.byKey(const Key('verb-wake-work-complement')), findsNothing);
@@ -257,7 +258,7 @@ void main() {
     final giveRecipientIcon = tester.widget<Icon>(
       find
           .descendant(
-            of: find.byKey(const Key('verb-wake-give-recipient')),
+            of: find.byKey(const Key('verb-wake-icon-give-recipient')),
             matching: find.byType(Icon),
           )
           .first,
@@ -750,6 +751,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         titles.add('Addressee');
       case 'companion':
         titles.add('Companion');
+      case 'instrument':
+        titles.add('Instrument');
       case 'destination':
         titles.add('Destination');
       case 'topic':

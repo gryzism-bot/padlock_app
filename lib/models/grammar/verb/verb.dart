@@ -11,6 +11,7 @@ class Verb {
   final bool takesRecipient;
   final bool takesAddressee;
   final bool takesCompanion;
+  final bool takesInstrument;
   final bool takesTopic;
   final bool takesBeneficiary;
   final bool takesSource;
@@ -32,6 +33,7 @@ class Verb {
     this.takesRecipient = false,
     this.takesAddressee = false,
     this.takesCompanion = false,
+    this.takesInstrument = false,
     this.takesTopic = false,
     this.takesBeneficiary = false,
     this.takesSource = false,

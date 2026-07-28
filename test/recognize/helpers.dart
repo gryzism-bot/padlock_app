@@ -70,6 +70,22 @@ void expectCompanion(
   }
 }
 
+void expectInstrument(
+  SentenceState state, {
+  required String text,
+  Determiner? determiner,
+  Adjective? adjective,
+  List<Adjective>? adjectives,
+}) {
+  expect(state.instrument, isNotNull);
+  expect(state.instrument!.text.toLowerCase(), text.toLowerCase());
+  expect(state.instrument!.determiner, determiner);
+  expect(state.instrument!.adjective, adjective);
+  if (adjectives != null) {
+    expect(state.instrument!.adjectiveList, adjectives);
+  }
+}
+
 void expectDestination(
   SentenceState state, {
   required String text,

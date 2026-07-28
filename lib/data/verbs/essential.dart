@@ -270,6 +270,7 @@ const work = Verb(
   pastParticiple: 'worked',
   ingForm: 'working',
   takesCompanion: true,
+  takesInstrument: true,
   takesTopic: true,
   takesBeneficiary: true,
   translations: {Language.pl: 'pracować'},
@@ -395,6 +396,7 @@ const open = Verb(
   pastParticiple: 'opened',
   ingForm: 'opening',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'otwierać'},
 );
 
@@ -405,6 +407,7 @@ const close = Verb(
   pastParticiple: 'closed',
   ingForm: 'closing',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'zamykać'},
 );
 

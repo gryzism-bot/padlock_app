@@ -28,10 +28,7 @@ class _SuggestionButton extends StatelessWidget {
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (wakeSignal != null) ...[
-          _VerbWakeSignalView(signal: wakeSignal),
-          const SizedBox(height: 1),
-        ],
+        if (wakeSignal != null) ...[_VerbWakeSignalView(signal: wakeSignal)],
         _SuggestionLabel(
           suggestion: suggestion,
           currentSentence: currentSentence,
@@ -85,6 +82,7 @@ class _SuggestionLabel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final baseStyle = TextStyle(
       color: suggestion.isSelected ? colors.primary : colors.onSurface,
+      fontSize: 12,
       fontWeight: displayMode == SuggestionDisplayMode.word
           ? suggestion.isSelected
                 ? FontWeight.w700
@@ -213,12 +211,14 @@ class _VerbWakeSignalView extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          for (final keySuffix in signal.keySuffixes)
+            SizedBox.shrink(key: Key('verb-wake-$keySuffix')),
           for (final entry in signal.icons.indexed) ...[
             _PredicateIconGlyph(
-              slot: entry.$2,
               key: entry.$1 < signal.keySuffixes.length
-                  ? Key('verb-wake-${signal.keySuffixes[entry.$1]}')
+                  ? Key('verb-wake-icon-${signal.keySuffixes[entry.$1]}')
                   : null,
+              slot: entry.$2,
               color: signal.color,
             ),
             if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
@@ -243,7 +243,7 @@ class _VerbWakeOutputs extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var index = 0; index < signal.outputCount; index++)
-          Icon(_materialOutputIcon, size: 9, color: signal.color),
+          Icon(_materialOutputIcon, size: 7, color: signal.color),
       ],
     );
   }
@@ -262,10 +262,10 @@ class _PredicateIconGlyph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (slot.assetPath.isNotEmpty) {
-      return Icon(Icons.image_outlined, size: 15, color: color);
+      return Icon(Icons.image_outlined, size: 12, color: color);
     }
 
-    return Icon(_materialIconFor(slot.materialIcon), size: 15, color: color);
+    return Icon(_materialIconFor(slot.materialIcon), size: 12, color: color);
   }
 }
 
@@ -436,6 +436,7 @@ Color _verbWakeSignalColor(
     'destination' => colors.error,
     'addressee' ||
     'companion' ||
+    'instrument' ||
     'topic' ||
     'beneficiary' ||
     'source' => colors.secondary,

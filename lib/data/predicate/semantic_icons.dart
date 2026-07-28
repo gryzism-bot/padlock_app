@@ -175,6 +175,12 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
     ];
   }
+  if (influenceKeys.contains('instrument')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.panToolOutlined),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
   if (influenceKeys.contains('object')) {
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.lightbulbOutline),

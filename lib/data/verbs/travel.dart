@@ -141,6 +141,7 @@ const navigate = Verb(
   pastSimple: 'navigated',
   pastParticiple: 'navigated',
   ingForm: 'navigating',
+  takesInstrument: true,
   translations: {Language.pl: 'nawigować'},
 );
 
@@ -168,6 +169,8 @@ const photograph = Verb(
   pastSimple: 'photographed',
   pastParticiple: 'photographed',
   ingForm: 'photographing',
+  takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'fotografować'},
 );
 

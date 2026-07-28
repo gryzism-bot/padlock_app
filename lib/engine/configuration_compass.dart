@@ -54,6 +54,9 @@ enum ConfigurationCompassSlot {
   companion,
   companionDeterminer,
   companionAdjective,
+  instrument,
+  instrumentDeterminer,
+  instrumentAdjective,
   destination,
   destinationDeterminer,
   destinationAdjective,
@@ -378,6 +381,18 @@ class ConfigurationCompass {
         companionSurface.read(sentence),
         _nounTargetForSurface(companionSurface),
       ),
+      ConfigurationCompassSlot.instrument => _prepositionalSurfaceCandidates(
+        sentence,
+        instrumentSurface,
+      ),
+      ConfigurationCompassSlot.instrumentDeterminer => _determinerCandidates(
+        instrumentSurface.read(sentence),
+        _nounTargetForSurface(instrumentSurface),
+      ),
+      ConfigurationCompassSlot.instrumentAdjective => _adjectiveCandidates(
+        instrumentSurface.read(sentence),
+        _nounTargetForSurface(instrumentSurface),
+      ),
       ConfigurationCompassSlot.destination => _prepositionalSurfaceCandidates(
         sentence,
         destinationSurface,
@@ -640,7 +655,9 @@ class ConfigurationCompass {
           _predicatePathKindForSurface(surface),
           owner: _boundTailOwner(sentence),
         ) ??
-        recipients;
+        (surface.kind == PrepositionalParticipantKind.instrument
+            ? objects
+            : recipients);
 
     return [
       if (current != null)
@@ -943,6 +960,7 @@ ConfigurationMove _setPrepositionalSurface(
   return switch (surface.kind) {
     PrepositionalParticipantKind.addressee => SetAddressee(noun),
     PrepositionalParticipantKind.companion => SetCompanion(noun),
+    PrepositionalParticipantKind.instrument => SetInstrument(noun),
     PrepositionalParticipantKind.destination => SetDestination(noun),
     PrepositionalParticipantKind.topic => SetTopic(noun),
     PrepositionalParticipantKind.beneficiary => SetBeneficiary(noun),
@@ -956,6 +974,7 @@ NounPhraseTarget _nounTargetForSurface(
   return switch (surface.kind) {
     PrepositionalParticipantKind.addressee => NounPhraseTarget.addressee,
     PrepositionalParticipantKind.companion => NounPhraseTarget.companion,
+    PrepositionalParticipantKind.instrument => NounPhraseTarget.instrument,
     PrepositionalParticipantKind.destination => NounPhraseTarget.destination,
     PrepositionalParticipantKind.topic => NounPhraseTarget.topic,
     PrepositionalParticipantKind.beneficiary => NounPhraseTarget.beneficiary,
@@ -969,6 +988,7 @@ PredicatePathKind _predicatePathKindForSurface(
   return switch (surface.kind) {
     PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
     PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
+    PrepositionalParticipantKind.instrument => PredicatePathKind.withInstrument,
     PrepositionalParticipantKind.destination => PredicatePathKind.toDestination,
     PrepositionalParticipantKind.topic => PredicatePathKind.aboutTopic,
     PrepositionalParticipantKind.beneficiary =>

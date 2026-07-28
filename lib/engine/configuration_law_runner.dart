@@ -60,6 +60,7 @@ void _validateNounPhraseSurfaces(_ValidationContext context) {
     (label: 'Recipient', phrase: state.recipient),
     (label: 'Addressee', phrase: state.addressee),
     (label: 'Companion', phrase: state.companion),
+    (label: 'Instrument', phrase: state.instrument),
     (label: 'Destination', phrase: state.destination),
     (label: 'Topic', phrase: state.topic),
     (label: 'Beneficiary', phrase: state.beneficiary),

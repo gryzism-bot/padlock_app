@@ -5,6 +5,7 @@ import 'package:padlock_app/models/sentence/sentence_state.dart';
 enum PrepositionalParticipantKind {
   addressee,
   companion,
+  instrument,
   destination,
   topic,
   beneficiary,
@@ -30,6 +31,7 @@ class PrepositionalParticipantSurface {
     return switch (kind) {
       PrepositionalParticipantKind.addressee => state.addressee,
       PrepositionalParticipantKind.companion => state.companion,
+      PrepositionalParticipantKind.instrument => state.instrument,
       PrepositionalParticipantKind.destination => state.destination,
       PrepositionalParticipantKind.topic => state.topic,
       PrepositionalParticipantKind.beneficiary => state.beneficiary,
@@ -41,6 +43,7 @@ class PrepositionalParticipantSurface {
     return switch (kind) {
       PrepositionalParticipantKind.addressee => verb.takesAddressee,
       PrepositionalParticipantKind.companion => verb.takesCompanion,
+      PrepositionalParticipantKind.instrument => verb.takesInstrument,
       PrepositionalParticipantKind.destination => verb.usesDestinationPlace,
       PrepositionalParticipantKind.topic => verb.takesTopic,
       PrepositionalParticipantKind.beneficiary => verb.takesBeneficiary,
@@ -72,6 +75,13 @@ const companionSurface = PrepositionalParticipantSurface(
   preposition: 'with',
   blockedNounLabel: 'a companion',
   lexicalBeAllows: true,
+);
+
+const instrumentSurface = PrepositionalParticipantSurface(
+  kind: PrepositionalParticipantKind.instrument,
+  label: 'instrument',
+  preposition: 'with',
+  blockedNounLabel: 'an instrument',
 );
 
 const destinationSurface = PrepositionalParticipantSurface(
@@ -107,12 +117,14 @@ const prepositionalParticipantSurfaces = [
   destinationSurface,
   topicSurface,
   companionSurface,
+  instrumentSurface,
   beneficiarySurface,
   sourceSurface,
 ];
 
 const predicateFrameValidatedPrepositionalSurfaces = [
   companionSurface,
+  instrumentSurface,
   destinationSurface,
   topicSurface,
   beneficiarySurface,

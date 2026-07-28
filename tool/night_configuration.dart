@@ -1017,6 +1017,8 @@ String _moveLabel(ConfigurationMove move) {
       'addressee -> ${_nounPhraseLabel(addressee)}',
     SetCompanion(:final companion) =>
       'companion -> ${_nounPhraseLabel(companion)}',
+    SetInstrument(:final instrument) =>
+      'instrument -> ${_nounPhraseLabel(instrument)}',
     SetDestination(:final destination) =>
       'destination -> ${_nounPhraseLabel(destination)}',
     SetTopic(:final topic) => 'topic -> ${_nounPhraseLabel(topic)}',

@@ -64,6 +64,13 @@ final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
     move: (_, nounPhrase) => SetCompanion(nounPhrase),
     traceLabel: 'companion',
   ),
+  ConfigurationCompassSlot.instrument: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.instrument,
+    read: (state) => state.instrument,
+    choices: (compass, _) => compass.objects,
+    move: (_, nounPhrase) => SetInstrument(nounPhrase),
+    traceLabel: 'instrument',
+  ),
   ConfigurationCompassSlot.destination: _NounRailSlotPolicy(
     slot: ConfigurationCompassSlot.destination,
     read: (state) => state.destination,
@@ -252,6 +259,10 @@ _nounRailStateFromMove(ConfigurationMove move) {
     SetCompanion(:final companion) => (
       slot: ConfigurationCompassSlot.companion,
       nounPhrase: companion,
+    ),
+    SetInstrument(:final instrument) => (
+      slot: ConfigurationCompassSlot.instrument,
+      nounPhrase: instrument,
     ),
     SetDestination(:final destination) => (
       slot: ConfigurationCompassSlot.destination,

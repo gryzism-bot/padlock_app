@@ -356,6 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case ConfigurationCompassSlot.addressee:
         case ConfigurationCompassSlot.recipient:
         case ConfigurationCompassSlot.companion:
+        case ConfigurationCompassSlot.instrument:
         case ConfigurationCompassSlot.destination:
         case ConfigurationCompassSlot.topic:
         case ConfigurationCompassSlot.beneficiary:
@@ -1388,6 +1389,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       'addressee -> ${_nounTraceText(addressee)}',
     SetCompanion(:final companion) =>
       'companion -> ${_nounTraceText(companion)}',
+    SetInstrument(:final instrument) =>
+      'instrument -> ${_nounTraceText(instrument)}',
     SetDestination(:final destination) =>
       'destination -> ${_nounTraceText(destination)}',
     SetTopic(:final topic, :final topicPreposition) =>
@@ -1457,6 +1460,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.recipient => 'recipient',
     NounPhraseTarget.addressee => 'addressee',
     NounPhraseTarget.companion => 'companion',
+    NounPhraseTarget.instrument => 'instrument',
     NounPhraseTarget.destination => 'destination',
     NounPhraseTarget.topic => 'topic',
     NounPhraseTarget.beneficiary => 'beneficiary',

@@ -25,6 +25,7 @@ class SentenceState {
   final NounPhrase? recipient;
   final NounPhrase? addressee;
   final NounPhrase? companion;
+  final NounPhrase? instrument;
   final NounPhrase? destination;
   final NounPhrase? topic;
   final TopicPreposition topicPreposition;
@@ -63,6 +64,7 @@ class SentenceState {
     this.recipient,
     this.addressee,
     this.companion,
+    this.instrument,
     this.destination,
     this.topic,
     this.topicPreposition = TopicPreposition.about,
@@ -103,6 +105,7 @@ class SentenceState {
       'recipient=${_nounPhraseSummary(recipient)}',
       'addressee=${_nounPhraseSummary(addressee)}',
       'companion=${_nounPhraseSummary(companion)}',
+      'instrument=${_nounPhraseSummary(instrument)}',
       'destination=${_nounPhraseSummary(destination)}',
       'topic=${_nounPhraseSummary(topic)}',
       'topicPreposition=${topicPreposition.name}',
@@ -154,6 +157,7 @@ Object: ${object?.text}
 Recipient: ${recipient?.text}
 Addressee: ${addressee?.text}
 Companion: ${companion?.text}
+Instrument: ${instrument?.text}
 Destination: ${destination?.text}
 Topic: ${topic?.text}
 Topic Preposition: $topicPreposition

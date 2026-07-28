@@ -8,6 +8,7 @@ import 'package:padlock_app/data/subjects/adjectives/quality.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
@@ -600,7 +601,51 @@ void main() {
       expectAgent(state, text: 'john');
       expect(state.action, work);
       expect(state.companion, isNull);
+      expect(state.instrument, isNull);
       expect(state.mannerPhrase, withCareMannerPhrase);
+    });
+
+    test('with instrument phrase recognizes as a tool, not a companion', () {
+      final state = engine.recognize('Mary wrote a letter with a pen.');
+
+      expectAgent(state, text: 'mary');
+      expectObject(state, text: 'letter', determiner: aDeterminer);
+      expectInstrument(state, text: 'pen', determiner: aDeterminer);
+      expect(state.action, write);
+      expect(state.companion, isNull);
+    });
+
+    test('with companion remains separate from with instrument', () {
+      final state = engine.recognize(
+        'You write a letter with Mary with a pencil.',
+      );
+
+      expectAgent(state, text: 'you');
+      expectObject(state, text: 'letter', determiner: aDeterminer);
+      expectCompanion(state, text: 'mary');
+      expectInstrument(state, text: 'pencil', determiner: aDeterminer);
+      expect(state.action, write);
+    });
+
+    test('passive with instrument keeps by-agent separate', () {
+      final state = engine.recognize('A door was opened with a key by John.');
+
+      expectObject(state, text: 'door', determiner: aDeterminer);
+      expectInstrument(state, text: 'key', determiner: aDeterminer);
+      expectAgent(state, text: 'john');
+      expect(state.action, open);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
+
+    test('cooking instruments recognize as tools', () {
+      final state = engine.recognize('She cut bread with a knife.');
+
+      expectAgent(state, text: 'she');
+      expectObject(state, text: 'bread');
+      expectInstrument(state, text: 'knife', determiner: aDeterminer);
+      expect(state.action, cooking_data.cut);
+      expect(state.companion, isNull);
     });
 
     test('active recipients recognize reflexive participants', () {
