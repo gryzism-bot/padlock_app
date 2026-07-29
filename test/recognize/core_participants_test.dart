@@ -683,6 +683,38 @@ void main() {
       expect(state.passiveFocus, PassiveFocus.object);
     });
 
+    test('purpose surface recognizes expanded verb shelves', () {
+      final cases = [
+        (sentence: 'You learn for school.', action: learn, purpose: 'school'),
+        (sentence: 'They run for health.', action: run, purpose: 'health'),
+        (
+          sentence: 'She cooked bread for dinner.',
+          action: cooking_data.cook,
+          purpose: 'dinner',
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = engine.recognize(entry.sentence);
+
+        expect(state.action, entry.action);
+        expectPurpose(state, text: entry.purpose);
+      }
+    });
+
+    test('for phrases split purpose nouns from beneficiary nouns', () {
+      final purposeState = engine.recognize('They read for school.');
+      expect(purposeState.action, read);
+      expectPurpose(purposeState, text: 'school');
+      expect(purposeState.beneficiary, isNull);
+
+      final beneficiaryState = engine.recognize('They read for him.');
+      expect(beneficiaryState.action, read);
+      expect(beneficiaryState.purpose, isNull);
+      expect(beneficiaryState.beneficiary, isNotNull);
+      expect(beneficiaryState.beneficiary!.text, 'him');
+    });
+
     test('active recipients recognize reflexive participants', () {
       final state = engine.recognize('You gave yourself a book.');
 

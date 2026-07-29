@@ -9,6 +9,7 @@ const walk = Verb(
   ingForm: 'walking',
   usesDestinationPlace: true,
   takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'chodzić'},
 );
 
@@ -20,6 +21,7 @@ const run = Verb(
   ingForm: 'running',
   usesDestinationPlace: true,
   takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'biegać'},
 );
 
@@ -39,6 +41,7 @@ const swim = Verb(
   pastParticiple: 'swum',
   ingForm: 'swimming',
   usesDestinationPlace: true,
+  takesPurpose: true,
   translations: {Language.pl: 'pływać'},
 );
 

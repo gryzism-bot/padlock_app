@@ -20,7 +20,11 @@ import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
 import 'package:padlock_app/data/subjects/third_person/people.dart'
     as people_data;
 import 'package:padlock_app/data/verbs/communication.dart';
+import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
+import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -122,6 +126,11 @@ void main() {
             action: use,
             kind: PredicatePathKind.forPurpose,
             text: 'You use for work.',
+          ),
+          (
+            action: learn,
+            kind: PredicatePathKind.forPurpose,
+            text: 'You learn for school.',
           ),
           (
             action: work,
@@ -810,7 +819,7 @@ void main() {
         _essentialVerbReviewRoutes
             .map((route) => route.verb.infinitive)
             .toSet(),
-        essentialVerbs.map((verb) => verb.infinitive).toSet(),
+        containsAll(essentialVerbs.map((verb) => verb.infinitive)),
         reason: 'Every essential verb should have at least one reviewed route.',
       );
 
@@ -1220,6 +1229,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(read, _ReviewedRouteKind.time, text: 'at night'),
   _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'work'),
   _ReviewedRoute(
     read,
     _ReviewedRouteKind.directObject,
@@ -1522,6 +1533,9 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(use, _ReviewedRouteKind.purpose),
   _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'work'),
   _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'exercise'),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'health'),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'fun'),
 
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject),
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'movie'),
@@ -1586,6 +1600,9 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(learn, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(learn, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'Polish'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.purpose, text: 'work'),
+  _ReviewedRoute(learn, _ReviewedRouteKind.purpose, text: 'grammar'),
 
   _ReviewedRoute(hate, _ReviewedRouteKind.directObject),
   _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1654,6 +1671,43 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(help, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(help, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(help, _ReviewedRouteKind.aboutTopic, status: _pending),
+
+  _ReviewedRoute(education_data.study, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(
+    education_data.study,
+    _ReviewedRouteKind.purpose,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.study,
+    _ReviewedRouteKind.purpose,
+    text: 'work',
+  ),
+  _ReviewedRoute(education_data.practice, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.purpose,
+    text: 'football',
+  ),
+  _ReviewedRoute(walk, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(walk, _ReviewedRouteKind.purpose, text: 'exercise'),
+  _ReviewedRoute(run, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(run, _ReviewedRouteKind.purpose, text: 'health'),
+  _ReviewedRoute(swim, _ReviewedRouteKind.purpose, text: 'fun'),
+  _ReviewedRoute(cooking_data.cook, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(cooking_data.cook, _ReviewedRouteKind.purpose, text: 'dinner'),
+  _ReviewedRoute(sport_data.train, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(
+    sport_data.train,
+    _ReviewedRouteKind.purpose,
+    text: 'football',
+  ),
+  _ReviewedRoute(sport_data.exercise, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(
+    sport_data.exercise,
+    _ReviewedRouteKind.purpose,
+    text: 'health',
+  ),
 ];
 
 bool _reviewedRouteExists(_ReviewedRoute route) {

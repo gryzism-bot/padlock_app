@@ -7,6 +7,7 @@ const train = Verb(
   pastSimple: 'trained',
   pastParticiple: 'trained',
   ingForm: 'training',
+  takesPurpose: true,
   translations: {Language.pl: 'trenować'},
 );
 
@@ -16,6 +17,7 @@ const exercise = Verb(
   pastSimple: 'exercised',
   pastParticiple: 'exercised',
   ingForm: 'exercising',
+  takesPurpose: true,
   translations: {Language.pl: 'ćwiczyć'},
 );
 

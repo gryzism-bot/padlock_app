@@ -59,6 +59,34 @@ const exerciseNoun = NounPhrase(
   translations: {Language.pl: 'cwiczenia'},
 );
 
+const schoolNoun = NounPhrase(
+  text: 'school',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'szkola'},
+);
+
+const healthNoun = NounPhrase(
+  text: 'health',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'zdrowie'},
+);
+
+const funNoun = NounPhrase(
+  text: 'fun',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'zabawa'},
+);
+
+const dinnerNoun = NounPhrase(
+  text: 'dinner',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'kolacja'},
+);
+
 const english = NounPhrase(
   text: 'English',
   person: Person.third,

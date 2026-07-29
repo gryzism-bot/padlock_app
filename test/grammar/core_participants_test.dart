@@ -770,6 +770,46 @@ void main() {
       expect(sentence, 'A key was used for exercise by John.');
     });
 
+    test('purpose surface works for learning movement and cooking verbs', () {
+      final cases = [
+        (
+          state: SentenceState(
+            agent: you,
+            action: learn,
+            purpose: schoolNoun,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'You learn for school.',
+        ),
+        (
+          state: SentenceState(
+            agent: they,
+            action: run,
+            purpose: healthNoun,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'They run for health.',
+        ),
+        (
+          state: SentenceState(
+            agent: she,
+            action: cooking_data.cook,
+            object: bread.toNounPhrase(Number.singular),
+            purpose: dinnerNoun,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'She cooked bread for dinner.',
+        ),
+      ];
+
+      for (final entry in cases) {
+        expect(render(entry.state), entry.sentence);
+      }
+    });
+
     test('manner can stay before bound addressee phrase', () {
       final sentence = render(
         SentenceState(

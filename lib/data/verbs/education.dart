@@ -10,6 +10,7 @@ const study = Verb(
   takesObject: true,
   takesCompanion: true,
   takesTopic: true,
+  takesPurpose: true,
   translations: {Language.pl: 'uczyć się'},
 );
 
@@ -93,6 +94,7 @@ const practice = Verb(
   pastParticiple: 'practiced',
   ingForm: 'practicing',
   takesObject: true,
+  takesPurpose: true,
   translations: {Language.pl: 'ćwiczyć'},
 );
 

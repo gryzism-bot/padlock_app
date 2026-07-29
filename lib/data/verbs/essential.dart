@@ -86,6 +86,7 @@ const read = Verb(
   takesCompanion: true,
   takesTopic: true,
   takesBeneficiary: true,
+  takesPurpose: true,
   translations: {Language.pl: 'czytać'},
 );
 
@@ -365,6 +366,7 @@ const learn = Verb(
   takesCompanion: true,
   takesTopic: true,
   takesSource: true,
+  takesPurpose: true,
   translations: {Language.pl: 'uczyć się'},
 );
 

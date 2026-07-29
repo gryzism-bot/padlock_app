@@ -10,6 +10,7 @@ const cook = Verb(
   takesObject: true,
   takesBeneficiary: true,
   takesInstrument: true,
+  takesPurpose: true,
   translations: {Language.pl: 'gotować'},
 );
 

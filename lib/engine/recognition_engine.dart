@@ -2464,6 +2464,16 @@ class RecognitionEngine {
     final forIndex = builder.verbChainEnd + 1 + wordsBefore;
     final beneficiaryStart = forIndex + 1;
 
+    if (owner?.takesPurpose == true &&
+        _looksLikePredicatePathNoun(
+          builder,
+          beneficiaryStart,
+          owner!,
+          PredicatePathKind.forPurpose,
+        )) {
+      return;
+    }
+
     if (!_looksLikeCompanionPhrase(builder, beneficiaryStart)) {
       return;
     }
@@ -2490,7 +2500,12 @@ class RecognitionEngine {
     final forIndex = builder.verbChainEnd + 1 + wordsBefore;
     final purposeStart = forIndex + 1;
 
-    if (!_looksLikeCompanionPhrase(builder, purposeStart)) {
+    if (!_looksLikePredicatePathNoun(
+      builder,
+      purposeStart,
+      owner!,
+      PredicatePathKind.forPurpose,
+    )) {
       return;
     }
 
@@ -2578,6 +2593,20 @@ class RecognitionEngine {
     int start,
     Verb owner,
   ) {
+    return _looksLikePredicatePathNoun(
+      builder,
+      start,
+      owner,
+      PredicatePathKind.withInstrument,
+    );
+  }
+
+  bool _looksLikePredicatePathNoun(
+    _RecognitionBuilder builder,
+    int start,
+    Verb owner,
+    PredicatePathKind kind,
+  ) {
     if (start >= builder.tokens.length) {
       return false;
     }
@@ -2588,10 +2617,7 @@ class RecognitionEngine {
     }
 
     final phrase = _recognizeNounPhrase(builder.tokens.sublist(start, end + 1));
-    final choices = predicateNounChoicesFor(
-      owner,
-      PredicatePathKind.withInstrument,
-    );
+    final choices = predicateNounChoicesFor(owner, kind);
 
     return choices.any(
       (choice) =>
@@ -2978,6 +3004,10 @@ const _knownFixedObjects = [
   fixed_object.golf,
   fixed_object.workNoun,
   fixed_object.exerciseNoun,
+  fixed_object.schoolNoun,
+  fixed_object.healthNoun,
+  fixed_object.funNoun,
+  fixed_object.dinnerNoun,
   fixed_object.english,
   fixed_object.polish,
   fixed_object.spanish,
