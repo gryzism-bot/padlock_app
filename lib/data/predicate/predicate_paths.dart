@@ -470,7 +470,7 @@ final _rightActionLoves = [go, work, learn, swim, speak, watch];
 final _rightActionBegins = [work, learn, speak, swim];
 final _rightActionLearns = [speak, swim, work];
 final _rightActionRemembers = [go, call, work, learn];
-final _rightActionHates = [go, work, learn, swim, speak, watch, sleep];
+final _rightActionHates = [go, work, learn, swim, speak, watch, sleep, lose];
 final _rightActionHelps = [work, learn, speak];
 final _homeSchoolWorkPlaces = [
   place_data.homePlacePhrase,
@@ -723,6 +723,7 @@ final guidedPredicateUnlocks = [
     breakVerb,
     _breakableObjects,
     paths: [
+      PredicatePath.withInstrument(_toolObjects),
       _manners([..._mistakeManners, manner_data.quicklyMannerPhrase]),
       _times(_todayTimes),
     ],
@@ -790,6 +791,7 @@ final guidedPredicateUnlocks = [
     _everydayObjects,
     paths: [
       _sources(),
+      _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _fromLocations(_homeSchoolWorkPlaces),
@@ -823,6 +825,8 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_transferObjects),
       PredicatePath.toRecipient(_people),
+      PredicatePath.withCompanion(_people),
+      _beneficiaries(),
       _times(_todayTimes),
     ],
   ),
@@ -853,6 +857,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_textObjects),
       PredicatePath.toAddressee(_people),
+      PredicatePath.aboutTopic(_basicTopics),
       _manners(_speechManners),
     ],
   ),
@@ -874,6 +879,7 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._everydayObjects, ..._people]),
       ),
       PredicatePath.toRightAction(_rightActionWants),
+      PredicatePath.withCompanion(_people),
       _times([time_data.nowTimePhrase]),
     ],
   ),
@@ -899,6 +905,7 @@ final guidedPredicateUnlocks = [
         ]),
       ),
       PredicatePath.toRightAction(_rightActionLikes),
+      PredicatePath.withCompanion(_people),
       _frequencies(_basicFrequencies),
     ],
   ),
@@ -914,6 +921,7 @@ final guidedPredicateUnlocks = [
         ]),
       ),
       PredicatePath.toRightAction(_rightActionLoves),
+      PredicatePath.withCompanion(_people),
       _frequencies(_basicFrequencies),
     ],
   ),
@@ -987,7 +995,10 @@ final guidedPredicateUnlocks = [
     _mediaObjects,
     paths: [
       PredicatePath.withCompanion(_people),
-      PredicatePath.toRightAction([education_data.research]),
+      PredicatePath.toRightAction([
+        education_data.research,
+        education_data.analyze,
+      ]),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _onLocations([place_data.bedPlacePhrase]),
@@ -1083,6 +1094,7 @@ final guidedPredicateUnlocks = [
     _openableObjects,
     paths: [
       PredicatePath.withInstrument(_openingInstruments),
+      _beneficiaries(),
       _manners(_carefulManners),
       _times(_todayTimes),
     ],
@@ -1092,6 +1104,7 @@ final guidedPredicateUnlocks = [
     _openableObjects,
     paths: [
       PredicatePath.withInstrument(_openingInstruments),
+      _beneficiaries(),
       _manners(_carefulManners),
       _times(_todayTimes),
     ],

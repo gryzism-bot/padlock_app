@@ -13,6 +13,8 @@ import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as fixed_object;
 import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
     as people_categories;
 import 'package:padlock_app/data/subjects/third_person/people.dart'
@@ -920,6 +922,88 @@ void main() {
         expect(grammar.generate(state.sentenceState).text, example.text);
       }
     });
+
+    test(
+      'newly reviewed right-hand predicate routes render through the lock',
+      () {
+        final cases =
+            <
+              ({
+                Verb action,
+                List<ConfigurationMove> preMoves,
+                ConfigurationMove move,
+                String text,
+              })
+            >[
+              (
+                action: breakVerb,
+                preMoves: [
+                  SetObject(object_data.window.toNounPhrase(Number.singular)),
+                ],
+                move: SetInstrument(
+                  object_data.key.toNounPhrase(Number.singular),
+                ),
+                text: 'You break window with key.',
+              ),
+              (
+                action: get,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: SetBeneficiary(
+                  people_data.mary.toNounPhrase(Number.singular),
+                ),
+                text: 'You get book for Mary.',
+              ),
+              (
+                action: give,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: SetCompanion(
+                  people_data.john.toNounPhrase(Number.singular),
+                ),
+                text: 'You give book with John.',
+              ),
+              (
+                action: say,
+                preMoves: const [],
+                move: SetTopic(fixed_object.grammar),
+                text: 'You say about grammar.',
+              ),
+              (
+                action: want,
+                preMoves: const [],
+                move: SetCompanion(
+                  people_data.john.toNounPhrase(Number.singular),
+                ),
+                text: 'You want with John.',
+              ),
+              (
+                action: open,
+                preMoves: [
+                  SetObject(object_data.door.toNounPhrase(Number.singular)),
+                ],
+                move: SetBeneficiary(
+                  people_data.mary.toNounPhrase(Number.singular),
+                ),
+                text: 'You open door for Mary.',
+              ),
+            ];
+
+        for (final example in cases) {
+          var state = ConfigurationState.initial();
+          state = lock.applyMove(state, SetAction(example.action));
+          for (final move in example.preMoves) {
+            state = lock.applyMove(state, move);
+          }
+          state = lock.applyMove(state, example.move);
+
+          expect(wasBlocked(state), isFalse, reason: example.text);
+          expect(grammar.generate(state.sentenceState).text, example.text);
+        }
+      },
+    );
   });
 }
 
@@ -1115,7 +1199,7 @@ const _essentialVerbReviewRoutes = [
     text: 'cup',
     status: _pending,
   ),
-  _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument, status: _pending),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument),
 
   _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'books'),
@@ -1198,7 +1282,7 @@ const _essentialVerbReviewRoutes = [
     text: 'job',
     status: _pending,
   ),
-  _ReviewedRoute(get, _ReviewedRouteKind.beneficiary, status: _pending),
+  _ReviewedRoute(get, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(make, _ReviewedRouteKind.directObject),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1252,8 +1336,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
   _ReviewedRoute(give, _ReviewedRouteKind.recipient),
   _ReviewedRoute(give, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(give, _ReviewedRouteKind.beneficiary, status: _pending),
-  _ReviewedRoute(give, _ReviewedRouteKind.companion, status: _pending),
+  _ReviewedRoute(give, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(give, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(know, _ReviewedRouteKind.directObject),
   _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'Mary'),
@@ -1282,7 +1366,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(say, _ReviewedRouteKind.addressee),
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'loudly'),
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'quietly'),
-  _ReviewedRoute(say, _ReviewedRouteKind.aboutTopic, status: _pending),
+  _ReviewedRoute(say, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(
     say,
     _ReviewedRouteKind.directObject,
@@ -1330,7 +1414,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'speak'),
   _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'sleep'),
   _ReviewedRoute(want, _ReviewedRouteKind.time, text: 'now'),
-  _ReviewedRoute(want, _ReviewedRouteKind.companion, status: _pending),
+  _ReviewedRoute(want, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(need, _ReviewedRouteKind.directObject),
   _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1369,7 +1453,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'learn'),
   _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'swim'),
   _ReviewedRoute(like, _ReviewedRouteKind.rightAction, text: 'watch'),
-  _ReviewedRoute(like, _ReviewedRouteKind.companion, status: _pending),
+  _ReviewedRoute(like, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(love, _ReviewedRouteKind.directObject),
   _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'music'),
@@ -1378,7 +1462,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'learn'),
   _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'swim'),
   _ReviewedRoute(love, _ReviewedRouteKind.rightAction, text: 'watch'),
-  _ReviewedRoute(love, _ReviewedRouteKind.companion, status: _pending),
+  _ReviewedRoute(love, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(work, _ReviewedRouteKind.companion),
   _ReviewedRoute(work, _ReviewedRouteKind.place, text: 'school'),
@@ -1447,12 +1531,7 @@ const _essentialVerbReviewRoutes = [
     text: 'game',
     status: _pending,
   ),
-  _ReviewedRoute(
-    watch,
-    _ReviewedRouteKind.rightAction,
-    text: 'analyze',
-    status: _pending,
-  ),
+  _ReviewedRoute(watch, _ReviewedRouteKind.rightAction, text: 'analyze'),
 
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject),
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'key'),
@@ -1513,12 +1592,7 @@ const _essentialVerbReviewRoutes = [
     text: 'waiting',
     status: _pending,
   ),
-  _ReviewedRoute(
-    hate,
-    _ReviewedRouteKind.rightAction,
-    text: 'lose',
-    status: _pending,
-  ),
+  _ReviewedRoute(hate, _ReviewedRouteKind.rightAction, text: 'lose'),
   _ReviewedRoute(hate, _ReviewedRouteKind.companion, status: _pending),
 
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject),
@@ -1548,7 +1622,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(open, _ReviewedRouteKind.instrument),
-  _ReviewedRoute(open, _ReviewedRouteKind.beneficiary, status: _pending),
+  _ReviewedRoute(open, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(close, _ReviewedRouteKind.directObject),
   _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'door'),
@@ -1558,7 +1632,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(close, _ReviewedRouteKind.instrument),
-  _ReviewedRoute(close, _ReviewedRouteKind.beneficiary, status: _pending),
+  _ReviewedRoute(close, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(help, _ReviewedRouteKind.directObject),
   _ReviewedRoute(help, _ReviewedRouteKind.directObject, text: 'friend'),

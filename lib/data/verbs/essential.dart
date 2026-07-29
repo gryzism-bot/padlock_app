@@ -71,6 +71,7 @@ const breakVerb = Verb(
   pastParticiple: 'broken',
   ingForm: 'breaking',
   takesObject: true,
+  takesInstrument: true,
   translations: {Language.pl: 'złamać'},
 );
 
@@ -128,6 +129,7 @@ const get = Verb(
   pastParticiple: 'got',
   ingForm: 'getting',
   takesObject: true,
+  takesBeneficiary: true,
   takesSource: true,
   translations: {Language.pl: 'dostać'},
 );
@@ -165,6 +167,8 @@ const give = Verb(
   ingForm: 'giving',
   takesObject: true,
   takesRecipient: true,
+  takesCompanion: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'dać'},
 );
 
@@ -198,6 +202,7 @@ const say = Verb(
   ingForm: 'saying',
   takesObject: true,
   takesAddressee: true,
+  takesTopic: true,
   translations: {Language.pl: 'powiedzieć'},
 );
 
@@ -219,6 +224,7 @@ const want = Verb(
   pastParticiple: 'wanted',
   ingForm: 'wanting',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'chcieć'},
 );
 
@@ -250,6 +256,7 @@ const like = Verb(
   pastParticiple: 'liked',
   ingForm: 'liking',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'lubić'},
 );
 
@@ -260,6 +267,7 @@ const love = Verb(
   pastParticiple: 'loved',
   ingForm: 'loving',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'kochać'},
 );
 
@@ -397,6 +405,7 @@ const open = Verb(
   ingForm: 'opening',
   takesObject: true,
   takesInstrument: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'otwierać'},
 );
 
@@ -408,6 +417,7 @@ const close = Verb(
   ingForm: 'closing',
   takesObject: true,
   takesInstrument: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'zamykać'},
 );
 

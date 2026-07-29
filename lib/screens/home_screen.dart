@@ -51,7 +51,7 @@ const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
-const _verbRailMaxHeight = 184.0;
+const _verbRailMaxHeight = 216.0;
 
 const _padlockIntellijDarkColors = ColorScheme.dark(
   primary: Color(0xFF8AADF4),
@@ -527,6 +527,8 @@ class _HomeScreenState extends State<HomeScreen> {
               fixedHeadHeight,
               max(_stickyHeaderHeight, constraints.maxHeight - 64),
             );
+            final fixedHeadNeedsScroll =
+                fixedHeadHeight > effectiveFixedHeadHeight;
 
             return Stack(
               children: [
@@ -590,7 +592,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       elevation: 2,
                       child: ClipRect(
                         child: SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
+                          physics: fixedHeadNeedsScroll
+                              ? const ClampingScrollPhysics()
+                              : const NeverScrollableScrollPhysics(),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -777,7 +781,7 @@ double _fixedWorkbenchHeadHeight({
   const controlDeckHeight = 104.0;
   const expandedCoreSurfaceHeight = 70.0;
   const collapsedCoreSurfaceHeight = 46.0;
-  const expandedVerbRailHeight = _verbRailMaxHeight + 54.0;
+  const expandedVerbRailHeight = _verbRailMaxHeight + 64.0;
   const collapsedVerbRailHeight = 46.0;
 
   return _stickyHeaderHeight +

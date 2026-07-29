@@ -758,8 +758,11 @@ void main() {
 
       expect(outputCounts, orderedEquals(sortedOutputCounts));
       expect(outputCountFor('work'), greaterThan(outputCountFor('get')));
-      expect(outputCountFor('go'), greaterThan(outputCountFor('get')));
-      expect(outputCountFor('get'), greaterThan(outputCountFor('give')));
+      expect(outputCountFor('go'), greaterThanOrEqualTo(outputCountFor('get')));
+      expect(
+        outputCountFor('get'),
+        greaterThanOrEqualTo(outputCountFor('give')),
+      );
     });
 
     test('lexical be keeps the normal predicate doorway order', () {

@@ -91,9 +91,10 @@ The essential verb review sheet is now executable through
 Current audit count:
 
 - 347 reviewed essential verb routes
-- 290 implemented as achievable PredicatePaths
-- 57 pending right-hand examples from `zzzreadmes/VERB_REVIEW.md`
-- 28 essential verbs still have at least one pending reviewed route
+- 353 reviewed essential verb routes
+- 313 implemented as achievable PredicatePaths
+- 40 pending right-hand examples from `zzzreadmes/VERB_REVIEW.md`
+- 20 essential verbs still have at least one pending reviewed route
 
 Interpretation:
 

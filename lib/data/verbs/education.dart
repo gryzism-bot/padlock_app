@@ -136,6 +136,17 @@ const research = Verb(
   translations: {Language.pl: 'prowadzić badania'},
 );
 
+const analyze = Verb(
+  infinitive: 'analyze',
+  presentThirdPerson: 'analyzes',
+  pastSimple: 'analyzed',
+  pastParticiple: 'analyzed',
+  ingForm: 'analyzing',
+  takesObject: true,
+  takesTopic: true,
+  translations: {Language.pl: 'analizowaÄ‡'},
+);
+
 List<Verb> educationVerbs = [
   study,
   teach,
@@ -150,4 +161,5 @@ List<Verb> educationVerbs = [
   improve,
   graduate,
   research,
+  analyze,
 ];
