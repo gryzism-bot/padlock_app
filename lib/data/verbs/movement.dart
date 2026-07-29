@@ -101,6 +101,7 @@ const dance = Verb(
   pastSimple: 'danced',
   pastParticiple: 'danced',
   ingForm: 'dancing',
+  takesCompanion: true,
   translations: {Language.pl: 'tańczyć'},
 );
 

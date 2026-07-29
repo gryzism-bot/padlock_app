@@ -86,6 +86,7 @@ const win = Verb(
   pastSimple: 'won',
   pastParticiple: 'won',
   ingForm: 'winning',
+  takesObject: true,
   translations: {Language.pl: 'wygrywać'},
 );
 
@@ -95,6 +96,8 @@ const compete = Verb(
   pastSimple: 'competed',
   pastParticiple: 'competed',
   ingForm: 'competing',
+  takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'rywalizować'},
 );
 
@@ -104,6 +107,7 @@ const box = Verb(
   pastSimple: 'boxed',
   pastParticiple: 'boxed',
   ingForm: 'boxing',
+  takesCompanion: true,
   translations: {Language.pl: 'boksować'},
 );
 
@@ -113,6 +117,7 @@ const wrestle = Verb(
   pastSimple: 'wrestled',
   pastParticiple: 'wrestled',
   ingForm: 'wrestling',
+  takesCompanion: true,
   translations: {Language.pl: 'uprawiać zapasy'},
 );
 

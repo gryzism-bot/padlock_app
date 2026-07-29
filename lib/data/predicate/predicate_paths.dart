@@ -365,6 +365,10 @@ final _moneyObjects = _uniqueByText([
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
 ]);
+final _clothingObjects = _uniqueByText([
+  ...object_categories.singularClothingObjects,
+  ...object_categories.pluralClothingObjects,
+]);
 final _musicObjects = _uniqueByText([
   fixed_object.music,
   ...object_categories.singularMusicObjects,
@@ -381,6 +385,16 @@ final _drivableObjects = _uniqueByText([
 final _rideableObjects = _uniqueByText([
   ...object_categories.singularRideableObjects,
   ...object_categories.pluralRideableObjects,
+]);
+final _travelObjects = _uniqueByText([
+  ..._moneyObjects,
+  ..._openableObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
 ]);
 final _saleObjects = _uniqueByText([
   ..._moneyObjects,
@@ -1190,6 +1204,22 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRecipient(_people),
     ],
   ),
+  PredicateUnlocks(
+    verb: ask,
+    paths: [
+      PredicatePath.toAddressee(_peopleAndAnimals),
+      PredicatePath.aboutTopic(_basicTopics),
+      _manners(_speechManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: answer,
+    paths: [
+      PredicatePath.directObject(_textObjects),
+      PredicatePath.toAddressee(_people),
+      _manners(_speechManners),
+    ],
+  ),
   _direct(call, _peopleAndAnimals),
   _addressee(listen, _peopleAndAnimals),
   PredicateUnlocks(verb: hear, paths: [_sources()]),
@@ -1213,8 +1243,41 @@ final guidedPredicateUnlocks = [
       PredicatePath.toAddressee(_people),
     ],
   ),
+  _directWithPaths(
+    describe,
+    _basicTopics,
+    paths: [
+      _manners([manner_data.clearlyMannerPhrase]),
+    ],
+  ),
+  _directWithPaths(
+    discuss,
+    _basicTopics,
+    paths: [PredicatePath.withCompanion(_people), _manners(_speechManners)],
+  ),
   _companion(agree),
   _companion(disagree),
+  PredicateUnlocks(
+    verb: laugh,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.loudlyMannerPhrase,
+        manner_data.quietlyMannerPhrase,
+        manner_data.happilyMannerPhrase,
+      ]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: smile,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.happilyMannerPhrase,
+        manner_data.politelyMannerPhrase,
+      ]),
+    ],
+  ),
   _addressee(shout, _peopleAndAnimals),
   _addressee(whisper, _peopleAndAnimals),
   PredicateUnlocks(
@@ -1267,6 +1330,16 @@ final guidedPredicateUnlocks = [
     education_data.improve,
     _uniqueByText([..._learnSubjects, ..._textObjects]),
   ),
+  PredicateUnlocks(
+    verb: education_data.graduate,
+    paths: [
+      _fromLocations([
+        place_data.schoolPlacePhrase,
+        place_data.universityPlacePhrase,
+      ]),
+      _times([time_data.todayTimePhrase, time_data.laterTimePhrase]),
+    ],
+  ),
   _directWithPaths(
     education_data.research,
     _learnSubjects,
@@ -1274,8 +1347,34 @@ final guidedPredicateUnlocks = [
   ),
   _destinationWithCompanion(walk, paths: [_purposes(_movementPurposes)]),
   _destinationWithCompanion(run, paths: [_purposes(_movementPurposes)]),
+  PredicateUnlocks(
+    verb: jump,
+    paths: [_manners(_movementManners), _atLocations(_everydayPlaces)],
+  ),
   _destinationWithCompanion(swim, paths: [_purposes(_movementPurposes)]),
   _destinationWithCompanion(fly),
+  PredicateUnlocks(
+    verb: climb,
+    paths: [_manners(_movementManners), _onLocations(_surfacePlaces)],
+  ),
+  PredicateUnlocks(verb: crawl, paths: [_manners(_movementManners)]),
+  PredicateUnlocks(
+    verb: dance,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners(_performanceManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: dive,
+    paths: [_manners(_movementManners), _inLocations(_everydayPlaces)],
+  ),
+  PredicateUnlocks(
+    verb: fall,
+    paths: [
+      _manners([manner_data.byAccidentMannerPhrase]),
+    ],
+  ),
   PredicateUnlocks(
     verb: drive,
     paths: [
@@ -1317,7 +1416,51 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(travel_data.travel),
   _destinationWithCompanion(travel_data.arrive),
   _destinationWithCompanion(travel_data.leave),
+  _directWithPaths(
+    travel_data.visit,
+    _peopleAndAnimals,
+    paths: [
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: travel_data.depart,
+    paths: [_fromLocations(_everydayPlaces), _times(_basicTimes)],
+  ),
   _destinationWithCompanion(travel_data.returnVerb),
+  _directWithPaths(
+    travel_data.explore,
+    _uniqueByText([..._everydayObjects, ..._peopleAndAnimals]),
+    paths: [
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _manners(_movementManners),
+    ],
+  ),
+  _directWithPaths(
+    travel_data.book,
+    _travelObjects,
+    paths: [_beneficiaries(), _times(_todayTimes)],
+  ),
+  _directWithPaths(
+    travel_data.pack,
+    _uniqueByText([..._openableObjects, ..._clothingObjects, ..._toolObjects]),
+    paths: [_times(_basicTimes)],
+  ),
+  _directWithPaths(
+    travel_data.unpack,
+    _uniqueByText([..._openableObjects, ..._clothingObjects, ..._toolObjects]),
+    paths: [_atLocations(_homeSchoolWorkPlaces)],
+  ),
+  _direct(travel_data.board, _uniqueByText([..._drivableObjects])),
+  PredicateUnlocks(
+    verb: travel_data.land,
+    paths: [_atLocations(_everydayPlaces), _inLocations(_everydayPlaces)],
+  ),
+  _direct(travel_data.rent, _travelObjects),
+  _direct(travel_data.reserve, _travelObjects),
   PredicateUnlocks(
     verb: travel_data.navigate,
     paths: [
@@ -1336,6 +1479,34 @@ final guidedPredicateUnlocks = [
       _inLocations(_everydayPlaces),
     ],
   ),
+  PredicateUnlocks(
+    verb: travel_data.camp,
+    paths: [
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _manners([manner_data.happilyMannerPhrase]),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: travel_data.hike,
+    paths: [
+      _atLocations(_everydayPlaces),
+      _fromLocations(_everydayPlaces),
+      _manners(_movementManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: travel_data.stay,
+    paths: [
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _times(_basicTimes),
+    ],
+  ),
+  _direct(travel_data.cross, [
+    object_data.bridge.toNounPhrase(Number.singular),
+    object_data.bridge.toNounPhrase(Number.plural),
+  ]),
   _directWithPaths(
     cooking_data.cook,
     _foodObjects,
@@ -1405,6 +1576,41 @@ final guidedPredicateUnlocks = [
     verb: sport_data.exercise,
     paths: [_purposes(_movementPurposes)],
   ),
+  PredicateUnlocks(
+    verb: sport_data.score,
+    paths: [_manners(_performanceManners)],
+  ),
+  _directWithPaths(
+    sport_data.win,
+    _gameObjects,
+    paths: [_manners(_performanceManners)],
+  ),
+  PredicateUnlocks(
+    verb: sport_data.compete,
+    paths: [PredicatePath.withCompanion(_people), _purposes(_trainingPurposes)],
+  ),
+  PredicateUnlocks(
+    verb: sport_data.box,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners(_performanceManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: sport_data.wrestle,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _manners(_performanceManners),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: sport_data.surf,
+    paths: [_atLocations(_everydayPlaces), _manners(_movementManners)],
+  ),
+  PredicateUnlocks(
+    verb: sport_data.cycle,
+    paths: [_atLocations(_everydayPlaces), _manners(_movementManners)],
+  ),
   _direct(
     work_data.build,
     _uniqueByText([
@@ -1448,6 +1654,7 @@ final guidedPredicateUnlocks = [
     _uniqueByText([..._textObjects, ..._toolObjects]),
   ),
   _direct(work_data.manage, _uniqueByText([..._people, ..._textObjects])),
+  _direct(work_data.lead, _people),
   _direct(
     work_data.deliver,
     _uniqueByText([..._textObjects, ..._moneyObjects]),

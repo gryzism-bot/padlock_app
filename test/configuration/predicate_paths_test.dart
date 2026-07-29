@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
@@ -193,6 +194,15 @@ void main() {
 
       expect(verbs, containsAll(['learn', 'talk', 'write', 'go']));
       expect(verbs.toSet(), hasLength(verbs.length));
+    });
+
+    test('every visible verb has at least one predicate influence', () {
+      final silentVerbs = [
+        for (final verb in verbs)
+          if (predicateInfluencesFor(verb).isEmpty) verb.infinitive,
+      ];
+
+      expect(silentVerbs, isEmpty);
     });
 
     test('predicate paths consume reusable noun pools from data files', () {

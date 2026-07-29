@@ -18,6 +18,7 @@ const visit = Verb(
   pastSimple: 'visited',
   pastParticiple: 'visited',
   ingForm: 'visiting',
+  takesObject: true,
   translations: {Language.pl: 'odwiedzać'},
 );
 
@@ -69,6 +70,7 @@ const explore = Verb(
   pastSimple: 'explored',
   pastParticiple: 'explored',
   ingForm: 'exploring',
+  takesObject: true,
   translations: {Language.pl: 'odkrywać'},
 );
 
@@ -78,6 +80,8 @@ const book = Verb(
   pastSimple: 'booked',
   pastParticiple: 'booked',
   ingForm: 'booking',
+  takesObject: true,
+  takesBeneficiary: true,
   translations: {Language.pl: 'rezerwować'},
 );
 
@@ -87,6 +91,7 @@ const pack = Verb(
   pastSimple: 'packed',
   pastParticiple: 'packed',
   ingForm: 'packing',
+  takesObject: true,
   translations: {Language.pl: 'pakować'},
 );
 
@@ -96,6 +101,7 @@ const unpack = Verb(
   pastSimple: 'unpacked',
   pastParticiple: 'unpacked',
   ingForm: 'unpacking',
+  takesObject: true,
   translations: {Language.pl: 'rozpakowywać'},
 );
 
@@ -105,6 +111,7 @@ const board = Verb(
   pastSimple: 'boarded',
   pastParticiple: 'boarded',
   ingForm: 'boarding',
+  takesObject: true,
   translations: {Language.pl: 'wsiadać'},
 );
 
@@ -123,6 +130,7 @@ const rent = Verb(
   pastSimple: 'rented',
   pastParticiple: 'rented',
   ingForm: 'renting',
+  takesObject: true,
   translations: {Language.pl: 'wynajmować'},
 );
 
@@ -132,6 +140,7 @@ const reserve = Verb(
   pastSimple: 'reserved',
   pastParticiple: 'reserved',
   ingForm: 'reserving',
+  takesObject: true,
   translations: {Language.pl: 'rezerwować'},
 );
 
@@ -189,6 +198,7 @@ const cross = Verb(
   pastSimple: 'crossed',
   pastParticiple: 'crossed',
   ingForm: 'crossing',
+  takesObject: true,
   translations: {Language.pl: 'przekraczać'},
 );
 

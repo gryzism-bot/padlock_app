@@ -43,6 +43,8 @@ const ask = Verb(
   pastSimple: 'asked',
   pastParticiple: 'asked',
   ingForm: 'asking',
+  takesAddressee: true,
+  takesTopic: true,
   translations: {Language.pl: 'pytać'},
 );
 
@@ -52,6 +54,8 @@ const answer = Verb(
   pastSimple: 'answered',
   pastParticiple: 'answered',
   ingForm: 'answering',
+  takesObject: true,
+  takesAddressee: true,
   translations: {Language.pl: 'odpowiadać'},
 );
 
@@ -119,6 +123,7 @@ const describe = Verb(
   pastSimple: 'described',
   pastParticiple: 'described',
   ingForm: 'describing',
+  takesObject: true,
   translations: {Language.pl: 'opisywać'},
 );
 
@@ -128,6 +133,8 @@ const discuss = Verb(
   pastSimple: 'discussed',
   pastParticiple: 'discussed',
   ingForm: 'discussing',
+  takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'dyskutować'},
 );
 
@@ -157,6 +164,7 @@ const laugh = Verb(
   pastSimple: 'laughed',
   pastParticiple: 'laughed',
   ingForm: 'laughing',
+  takesCompanion: true,
   translations: {Language.pl: 'śmiać się'},
 );
 
@@ -166,6 +174,7 @@ const smile = Verb(
   pastSimple: 'smiled',
   pastParticiple: 'smiled',
   ingForm: 'smiling',
+  takesCompanion: true,
   translations: {Language.pl: 'uśmiechać się'},
 );
 

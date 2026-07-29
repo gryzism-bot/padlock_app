@@ -127,6 +127,7 @@ const lead = Verb(
   pastSimple: 'led',
   pastParticiple: 'led',
   ingForm: 'leading',
+  takesObject: true,
   translations: {Language.pl: 'prowadzić'},
 );
 
