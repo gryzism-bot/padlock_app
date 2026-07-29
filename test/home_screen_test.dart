@@ -279,9 +279,11 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(renderedSentence(tester), 'You learn.');
-    expect(find.text('Padlock Developer Console'), findsOneWidget);
     expect(find.byKey(const Key('app-footer-brand')), findsOneWidget);
-    expect(find.text('Logos Dynamics 2026'), findsOneWidget);
+    expect(
+      find.text('Padlock Developer Console, Logos Dynamics 2026'),
+      findsOneWidget,
+    );
     expect(find.text('Verb:'), findsOneWidget);
     expect(find.text('Verb'), findsNothing);
     expect(find.byTooltip('Current: You learn.'), findsWidgets);
@@ -474,14 +476,6 @@ void main() {
   testWidgets('Dark mode toggles the developer console theme', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
-    expect(find.byTooltip('Dark mode'), findsOneWidget);
-    expect(
-      Theme.of(tester.element(find.byType(Scaffold))).brightness,
-      Brightness.light,
-    );
-
-    await tapVisible(tester, find.byTooltip('Dark mode'));
-
     expect(find.byTooltip('Light mode'), findsOneWidget);
     expect(
       Theme.of(tester.element(find.byType(Scaffold))).brightness,
@@ -494,6 +488,14 @@ void main() {
     expect(
       Theme.of(tester.element(find.byType(Scaffold))).brightness,
       Brightness.light,
+    );
+
+    await tapVisible(tester, find.byTooltip('Dark mode'));
+
+    expect(find.byTooltip('Light mode'), findsOneWidget);
+    expect(
+      Theme.of(tester.element(find.byType(Scaffold))).brightness,
+      Brightness.dark,
     );
   });
 
@@ -614,6 +616,44 @@ void main() {
 
     expect(find.byType(OutlinedButton), findsWidgets);
     expect(find.byType(OutlinedButton).evaluate().length, greaterThan(6));
+  });
+
+  testWidgets('Pinned core surface and verb rail can collapse in place', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2048, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Core participant surface:'), findsOneWidget);
+    expect(find.text('predicate: learn (filled)'), findsOneWidget);
+    expect(
+      find.byKey(const Key('suggestion-label-action-learn')),
+      findsOneWidget,
+    );
+
+    await tester.tap(
+      find.byKey(const Key('rail-toggle-Core participant surface')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Core participant surface:'), findsOneWidget);
+    expect(find.text('Click to show participant doors.'), findsOneWidget);
+    expect(find.text('predicate: learn (filled)'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('rail-toggle-Verb')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Verb:'), findsOneWidget);
+    expect(find.text('Click to open Verb choices.'), findsOneWidget);
+    expect(
+      find.byKey(const Key('suggestion-label-action-learn')),
+      findsNothing,
+    );
   });
 
   testWidgets('Wide control deck keeps primary groups on one row', (

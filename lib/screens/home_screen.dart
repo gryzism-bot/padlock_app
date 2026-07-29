@@ -148,6 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
+  bool isCoreSurfaceExpanded = true;
+  bool isVerbRailExpanded = true;
   int previewCacheEntryCount = 0;
 
   @override
@@ -452,10 +454,24 @@ class _HomeScreenState extends State<HomeScreen> {
     previewCache.setMaxEntries(_cacheEntryLimitForMode(cacheMode));
     final sentenceText = previewCache.render(configuration.sentenceState);
     final sections = _visibleSlotSections(compass);
+    _VisibleCompassSlot? verbSection;
+    for (final section in sections) {
+      if (section.slot == ConfigurationCompassSlot.action) {
+        verbSection = section;
+        break;
+      }
+    }
+    final lowerSections = [
+      for (final section in sections)
+        if (section.slot != ConfigurationCompassSlot.action) section,
+    ];
+    final fixedHeadHeight = _fixedWorkbenchHeadHeight(
+      isCoreSurfaceExpanded: isCoreSurfaceExpanded,
+      isVerbRailExpanded: isVerbRailExpanded,
+    );
     _syncPreviewCacheSizeAfterFrame();
 
     final scaffold = Scaffold(
-      appBar: AppBar(title: const Text('Padlock Developer Console')),
       bottomNavigationBar: _BottomDock(
         messages: configuration.messages,
         moveTraceListenable: moveTraceNotifier,
@@ -505,117 +521,207 @@ class _HomeScreenState extends State<HomeScreen> {
         onRandomSentence: _shuffle,
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              key: const Key('main-scroll'),
-              padding: const EdgeInsets.fromLTRB(
-                12,
-                _stickyHeaderHeight + 8,
-                12,
-                12,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _ControlDeck(
-                    currentSentence: sentenceText,
-                    modalSuggestions: compass.suggestionsFor(
-                      configuration,
-                      ConfigurationCompassSlot.modal,
-                      limit: 9,
-                    ),
-                    passiveFocusSuggestions: compass.suggestionsFor(
-                      configuration,
-                      ConfigurationCompassSlot.passiveFocus,
-                      limit: 3,
-                    ),
-                    passiveAgentSuggestions: compass.suggestionsFor(
-                      configuration,
-                      ConfigurationCompassSlot.passiveAgent,
-                      limit: 2,
-                    ),
-                    configuration: configuration,
-                    onMove: _move,
-                    onPreviewChanged: previewMode == HeaderPreviewMode.hover
-                        ? _setHoveredConfiguration
-                        : null,
-                  ),
-                  const SizedBox(height: 8),
-                  _CoreParticipantSurfaceMap(
-                    configuration: configuration,
-                    expandedRails: expandedRails,
-                    onToggleRail: _toggleRail,
-                  ),
-                  const SizedBox(height: 8),
-                  for (final section in sections) ...[
-                    _CompassSlotSection(
-                      title: section.title,
-                      unlockHint: section.unlockHint,
-                      surfaceMarker: section.surfaceMarker,
-                      isExpanded: section.isExpanded,
-                      onToggle: section.canToggle
-                          ? () => _toggleRail(section.slot)
-                          : null,
-                      currentSentence: sentenceText,
-                      displayMode: displayMode,
-                      showVerbTranslations: showVerbTranslations,
-                      translateVerb: translator.translateVerb,
-                      suggestions: section.suggestions,
-                      nounNumber: _nounNumberForSlot(section.slot),
-                      onNounNumberChanged:
-                          _nounNumberForSlot(section.slot) == null
-                          ? null
-                          : (number) => _changeNounNumber(
-                              compass,
-                              section.slot,
-                              number,
-                            ),
-                      renderPreview: previewCache.render,
-                      onMove: _move,
-                      onPreviewChanged: previewMode == HeaderPreviewMode.hover
-                          ? _setHoveredConfiguration
-                          : null,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ],
-              ),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ValueListenableBuilder<ConfigurationState?>(
-                valueListenable: hoveredConfiguration,
-                builder: (context, hovered, child) {
-                  final headerConfiguration =
-                      previewMode == HeaderPreviewMode.hover && hovered != null
-                      ? hovered
-                      : configuration;
-                  final headerSentence = previewCache.render(
-                    headerConfiguration.sentenceState,
-                  );
-                  final displayedHeaderSentence = showTranslation
-                      ? translator.translateSentence(
-                          renderedSentence: headerSentence,
-                          state: headerConfiguration.sentenceState,
-                        )
-                      : headerSentence;
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final effectiveFixedHeadHeight = min(
+              fixedHeadHeight,
+              max(_stickyHeaderHeight, constraints.maxHeight - 64),
+            );
 
-                  return _StickySentenceHeader(
-                    child: _SentencePanel(
-                      sentence: headerSentence,
-                      translation: showTranslation
-                          ? displayedHeaderSentence
-                          : null,
-                      summary: headerConfiguration.sentenceState.summary,
+            return Stack(
+              children: [
+                Positioned(
+                  top: effectiveFixedHeadHeight + 8,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: SingleChildScrollView(
+                    key: const Key('main-scroll'),
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final section in lowerSections) ...[
+                          _CompassSlotSection(
+                            title: section.title,
+                            unlockHint: section.unlockHint,
+                            surfaceMarker: section.surfaceMarker,
+                            isExpanded: section.isExpanded,
+                            onToggle: section.canToggle
+                                ? () => _toggleRail(section.slot)
+                                : null,
+                            currentSentence: sentenceText,
+                            displayMode: displayMode,
+                            showVerbTranslations: showVerbTranslations,
+                            translateVerb: translator.translateVerb,
+                            suggestions: section.suggestions,
+                            nounNumber: _nounNumberForSlot(section.slot),
+                            onNounNumberChanged:
+                                _nounNumberForSlot(section.slot) == null
+                                ? null
+                                : (number) => _changeNounNumber(
+                                    compass,
+                                    section.slot,
+                                    number,
+                                  ),
+                            renderPreview: previewCache.render,
+                            onMove: _move,
+                            onPreviewChanged:
+                                previewMode == HeaderPreviewMode.hover
+                                ? _setHoveredConfiguration
+                                : null,
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ],
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    height: effectiveFixedHeadHeight,
+                    child: Material(
+                      color: _pinnedWorkbenchColor(
+                        Theme.of(context).colorScheme,
+                      ),
+                      elevation: 2,
+                      child: ClipRect(
+                        child: SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              ValueListenableBuilder<ConfigurationState?>(
+                                valueListenable: hoveredConfiguration,
+                                builder: (context, hovered, child) {
+                                  final headerConfiguration =
+                                      previewMode == HeaderPreviewMode.hover &&
+                                          hovered != null
+                                      ? hovered
+                                      : configuration;
+                                  final headerSentence = previewCache.render(
+                                    headerConfiguration.sentenceState,
+                                  );
+                                  final displayedHeaderSentence =
+                                      showTranslation
+                                      ? translator.translateSentence(
+                                          renderedSentence: headerSentence,
+                                          state:
+                                              headerConfiguration.sentenceState,
+                                        )
+                                      : headerSentence;
+
+                                  return _StickySentenceHeader(
+                                    child: _SentencePanel(
+                                      sentence: headerSentence,
+                                      translation: showTranslation
+                                          ? displayedHeaderSentence
+                                          : null,
+                                      summary: headerConfiguration
+                                          .sentenceState
+                                          .summary,
+                                    ),
+                                  );
+                                },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  8,
+                                  12,
+                                  0,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _ControlDeck(
+                                      currentSentence: sentenceText,
+                                      modalSuggestions: compass.suggestionsFor(
+                                        configuration,
+                                        ConfigurationCompassSlot.modal,
+                                        limit: 9,
+                                      ),
+                                      passiveFocusSuggestions: compass
+                                          .suggestionsFor(
+                                            configuration,
+                                            ConfigurationCompassSlot
+                                                .passiveFocus,
+                                            limit: 3,
+                                          ),
+                                      passiveAgentSuggestions: compass
+                                          .suggestionsFor(
+                                            configuration,
+                                            ConfigurationCompassSlot
+                                                .passiveAgent,
+                                            limit: 2,
+                                          ),
+                                      configuration: configuration,
+                                      onMove: _move,
+                                      onPreviewChanged:
+                                          previewMode == HeaderPreviewMode.hover
+                                          ? _setHoveredConfiguration
+                                          : null,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _CoreParticipantSurfaceMap(
+                                      configuration: configuration,
+                                      expandedRails: expandedRails,
+                                      isExpanded: isCoreSurfaceExpanded,
+                                      onToggleSection: () {
+                                        setState(() {
+                                          isCoreSurfaceExpanded =
+                                              !isCoreSurfaceExpanded;
+                                        });
+                                      },
+                                      onToggleRail: _toggleRail,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (verbSection != null)
+                                      _CompassSlotSection(
+                                        title: verbSection.title,
+                                        unlockHint: verbSection.unlockHint,
+                                        surfaceMarker:
+                                            verbSection.surfaceMarker,
+                                        isExpanded: isVerbRailExpanded,
+                                        onToggle: () {
+                                          setState(() {
+                                            isVerbRailExpanded =
+                                                !isVerbRailExpanded;
+                                          });
+                                        },
+                                        currentSentence: sentenceText,
+                                        displayMode: displayMode,
+                                        showVerbTranslations:
+                                            showVerbTranslations,
+                                        translateVerb: translator.translateVerb,
+                                        suggestions: verbSection.suggestions,
+                                        nounNumber: null,
+                                        onNounNumberChanged: null,
+                                        renderPreview: previewCache.render,
+                                        onMove: _move,
+                                        onPreviewChanged:
+                                            previewMode ==
+                                                HeaderPreviewMode.hover
+                                            ? _setHoveredConfiguration
+                                            : null,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -651,6 +757,39 @@ int? _cacheEntryLimitForMode(PreviewCacheMode mode) {
     PreviewCacheMode.unbounded => null,
     PreviewCacheMode.bounded => _SentencePreviewCache.defaultMaxEntries,
   };
+}
+
+Color _pinnedWorkbenchColor(ColorScheme colors) {
+  if (colors.brightness == Brightness.dark) {
+    return colors.surface;
+  }
+
+  return Color.alphaBlend(
+    colors.primary.withValues(alpha: 0.035),
+    colors.surfaceContainerHighest,
+  );
+}
+
+double _fixedWorkbenchHeadHeight({
+  required bool isCoreSurfaceExpanded,
+  required bool isVerbRailExpanded,
+}) {
+  const controlDeckHeight = 104.0;
+  const expandedCoreSurfaceHeight = 70.0;
+  const collapsedCoreSurfaceHeight = 46.0;
+  const expandedVerbRailHeight = _verbRailMaxHeight + 54.0;
+  const collapsedVerbRailHeight = 46.0;
+
+  return _stickyHeaderHeight +
+      8 +
+      controlDeckHeight +
+      8 +
+      (isCoreSurfaceExpanded
+          ? expandedCoreSurfaceHeight
+          : collapsedCoreSurfaceHeight) +
+      8 +
+      (isVerbRailExpanded ? expandedVerbRailHeight : collapsedVerbRailHeight) +
+      8;
 }
 
 class _SentencePreviewCache {
@@ -704,11 +843,15 @@ class _SentencePreviewCache {
 class _CoreParticipantSurfaceMap extends StatelessWidget {
   final ConfigurationState configuration;
   final Set<ConfigurationCompassSlot> expandedRails;
+  final bool isExpanded;
+  final VoidCallback onToggleSection;
   final ValueChanged<ConfigurationCompassSlot> onToggleRail;
 
   const _CoreParticipantSurfaceMap({
     required this.configuration,
     required this.expandedRails,
+    required this.isExpanded,
+    required this.onToggleSection,
     required this.onToggleRail,
   });
 
@@ -718,6 +861,9 @@ class _CoreParticipantSurfaceMap extends StatelessWidget {
 
     return _SectionFrame(
       title: 'Core participant surface',
+      isExpanded: isExpanded,
+      onToggle: onToggleSection,
+      collapsedHint: 'Click to show participant doors.',
       children: [
         for (final door in participantDoors)
           _ParticipantDoorChip(
@@ -1488,7 +1634,7 @@ class _StickyFooter extends StatelessWidget {
         height: _stickyFooterHeight,
         child: Center(
           child: Text(
-            'Logos Dynamics 2026',
+            'Padlock Developer Console, Logos Dynamics 2026',
             key: const Key('app-footer-brand'),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: colors.onSurfaceVariant,
