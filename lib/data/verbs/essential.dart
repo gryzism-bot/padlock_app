@@ -318,6 +318,7 @@ const use = Verb(
   ingForm: 'using',
   takesObject: true,
   takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'używać'},
 );
 

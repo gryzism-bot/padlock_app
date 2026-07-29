@@ -45,6 +45,20 @@ const music = NounPhrase(
   translations: {Language.pl: 'muzyka'},
 );
 
+const workNoun = NounPhrase(
+  text: 'work',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'praca'},
+);
+
+const exerciseNoun = NounPhrase(
+  text: 'exercise',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'cwiczenia'},
+);
+
 const english = NounPhrase(
   text: 'English',
   person: Person.third,

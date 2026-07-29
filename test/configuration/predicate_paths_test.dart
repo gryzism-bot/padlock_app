@@ -74,6 +74,7 @@ void main() {
             PredicatePathKind.onTopic => isA<SetTopic>(),
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
+            PredicatePathKind.forPurpose => isA<SetPurpose>(),
             PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.inLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.onLocation => isA<SetPlacePhrase>(),
@@ -116,6 +117,11 @@ void main() {
             action: work,
             kind: PredicatePathKind.forBeneficiary,
             text: 'You work for John.',
+          ),
+          (
+            action: use,
+            kind: PredicatePathKind.forPurpose,
+            text: 'You use for work.',
           ),
           (
             action: work,
@@ -528,6 +534,9 @@ void main() {
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.fromSource:
               expect(unlocks.verb.takesSource, isTrue, reason: reason);
+              expect(path.nouns, isNotEmpty, reason: reason);
+            case PredicatePathKind.forPurpose:
+              expect(unlocks.verb.takesPurpose, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
             case PredicatePathKind.atLocation:
               expect(path.places, isNotEmpty, reason: reason);
@@ -1510,7 +1519,9 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(use, _ReviewedRouteKind.companion),
   _ReviewedRoute(use, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(use, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(use, _ReviewedRouteKind.purpose, status: _pending),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'work'),
+  _ReviewedRoute(use, _ReviewedRouteKind.purpose, text: 'exercise'),
 
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject),
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'movie'),
@@ -1671,6 +1682,8 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return _nounPathHas(route.verb, PredicatePathKind.forBeneficiary, text);
     case _ReviewedRouteKind.source:
       return _nounPathHas(route.verb, PredicatePathKind.fromSource, text);
+    case _ReviewedRouteKind.purpose:
+      return _nounPathHas(route.verb, PredicatePathKind.forPurpose, text);
     case _ReviewedRouteKind.place:
       return _placePathHas(route.verb, text);
     case _ReviewedRouteKind.sourcePlace:
@@ -1694,8 +1707,6 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
           (text == null || _objectAdjectiveComplements.contains(text));
     case _ReviewedRouteKind.instrument:
       return _nounPathHas(route.verb, PredicatePathKind.withInstrument, text);
-    case _ReviewedRouteKind.purpose:
-      return false;
   }
 }
 

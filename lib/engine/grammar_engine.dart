@@ -86,6 +86,7 @@ class GrammarEngine {
         topic: builder.state.topic,
         beneficiary: builder.state.beneficiary,
         source: builder.state.source,
+        purpose: builder.state.purpose,
         complement: builder.state.complement,
         adjectiveComplement: builder.state.adjectiveComplement,
       );
@@ -107,6 +108,7 @@ class GrammarEngine {
           topic: builder.state.topic,
           beneficiary: builder.state.beneficiary,
           source: builder.state.source,
+          purpose: builder.state.purpose,
           objectComplement: builder.state.objectComplement,
           objectAdjectiveComplement: builder.state.objectAdjectiveComplement,
         );
@@ -132,6 +134,7 @@ class GrammarEngine {
               topic: builder.state.topic,
               beneficiary: builder.state.beneficiary,
               source: builder.state.source,
+              purpose: builder.state.purpose,
               agent: builder.state.showPassiveAgent
                   ? builder.state.agent
                   : null,
@@ -157,6 +160,7 @@ class GrammarEngine {
               topic: builder.state.topic,
               beneficiary: builder.state.beneficiary,
               source: builder.state.source,
+              purpose: builder.state.purpose,
               agent: builder.state.showPassiveAgent
                   ? builder.state.agent
                   : null,
@@ -701,6 +705,7 @@ class GrammarEngine {
       PrepositionalParticipantKind.topic => builder.displayTopic,
       PrepositionalParticipantKind.beneficiary => builder.displayBeneficiary,
       PrepositionalParticipantKind.source => builder.displaySource,
+      PrepositionalParticipantKind.purpose => builder.displayPurpose,
     };
   }
 
@@ -754,6 +759,7 @@ class GrammarEngine {
             builder.displayTopic != null ||
             builder.displayBeneficiary != null ||
             builder.displaySource != null ||
+            builder.displayPurpose != null ||
             (builder.state.action.usesDestinationPlace &&
                 builder.placePhrase.isNotEmpty));
   }
@@ -778,6 +784,7 @@ class _SentenceBuilder {
   NounPhrase? displayTopic;
   NounPhrase? displayBeneficiary;
   NounPhrase? displaySource;
+  NounPhrase? displayPurpose;
   NounPhrase? displayAgent;
   NounPhrase? displayObjectComplement;
   Adjective? displayObjectAdjectiveComplement;
@@ -808,6 +815,7 @@ class _SentenceBuilder {
     NounPhrase? topic,
     NounPhrase? beneficiary,
     NounPhrase? source,
+    NounPhrase? purpose,
     NounPhrase? agent,
     NounPhrase? objectComplement,
     Adjective? objectAdjectiveComplement,
@@ -824,6 +832,7 @@ class _SentenceBuilder {
     displayTopic = topic;
     displayBeneficiary = beneficiary;
     displaySource = source;
+    displayPurpose = purpose;
     displayAgent = agent;
     displayObjectComplement = objectComplement;
     displayObjectAdjectiveComplement = objectAdjectiveComplement;
@@ -845,6 +854,7 @@ class _SentenceBuilder {
       'displayTopic: ${displayTopic?.text}',
       'displayBeneficiary: ${displayBeneficiary?.text}',
       'displaySource: ${displaySource?.text}',
+      'displayPurpose: ${displayPurpose?.text}',
       'rightAction: ${state.rightAction?.infinitive}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',

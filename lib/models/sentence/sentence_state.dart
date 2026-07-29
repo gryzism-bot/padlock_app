@@ -31,6 +31,7 @@ class SentenceState {
   final TopicPreposition topicPreposition;
   final NounPhrase? beneficiary;
   final NounPhrase? source;
+  final NounPhrase? purpose;
   final Verb? rightAction;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
@@ -70,6 +71,7 @@ class SentenceState {
     this.topicPreposition = TopicPreposition.about,
     this.beneficiary,
     this.source,
+    this.purpose,
     this.rightAction,
     this.recipientPlacement = RecipientPlacement.beforeObject,
     this.recipientPreposition = RecipientPreposition.to,
@@ -111,6 +113,7 @@ class SentenceState {
       'topicPreposition=${topicPreposition.name}',
       'beneficiary=${_nounPhraseSummary(beneficiary)}',
       'source=${_nounPhraseSummary(source)}',
+      'purpose=${_nounPhraseSummary(purpose)}',
       'rightAction=${rightAction?.infinitive}',
       'recipientPlacement=$recipientPlacement',
       'recipientPreposition=$recipientPreposition',
@@ -163,6 +166,7 @@ Topic: ${topic?.text}
 Topic Preposition: $topicPreposition
 Beneficiary: ${beneficiary?.text}
 Source: ${source?.text}
+Purpose: ${purpose?.text}
 Right Action: ${rightAction?.infinitive}
 Recipient Placement: $recipientPlacement
 Recipient Preposition: $recipientPreposition

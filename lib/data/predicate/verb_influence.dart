@@ -205,6 +205,12 @@ PredicateInfluence _influenceForPath(
       'source',
       42,
     ),
+    PredicatePathKind.forPurpose => _predicateProperty(
+      action,
+      'purpose',
+      'purpose',
+      41,
+    ),
     PredicatePathKind.atLocation => _predicateProperty(
       action,
       'at-location',

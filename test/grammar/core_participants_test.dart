@@ -720,6 +720,56 @@ void main() {
       expect(sentence, 'A book was taken from Mary by John.');
     });
 
+    test('purpose surface renders as a for phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: use,
+          object: key.toNounPhrase(Number.singular, determiner: aDeterminer),
+          purpose: workNoun,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You use a key for work.');
+    });
+
+    test('purpose surface keeps noun phrase modifiers', () {
+      final sentence = render(
+        SentenceState(
+          agent: she,
+          action: use,
+          object: computer.toNounPhrase(Number.singular),
+          purpose: skill.copyWith(
+            determiner: theDeterminer,
+            adjective: newAdjective,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'She used computer for the new skill.');
+    });
+
+    test('purpose surface survives passive voice', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: use,
+          object: key.toNounPhrase(Number.singular, determiner: aDeterminer),
+          purpose: exerciseNoun,
+          voice: Voice.passive,
+          passiveFocus: PassiveFocus.object,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'A key was used for exercise by John.');
+    });
+
     test('manner can stay before bound addressee phrase', () {
       final sentence = render(
         SentenceState(

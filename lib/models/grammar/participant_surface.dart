@@ -10,6 +10,7 @@ enum PrepositionalParticipantKind {
   topic,
   beneficiary,
   source,
+  purpose,
 }
 
 class PrepositionalParticipantSurface {
@@ -36,6 +37,7 @@ class PrepositionalParticipantSurface {
       PrepositionalParticipantKind.topic => state.topic,
       PrepositionalParticipantKind.beneficiary => state.beneficiary,
       PrepositionalParticipantKind.source => state.source,
+      PrepositionalParticipantKind.purpose => state.purpose,
     };
   }
 
@@ -48,6 +50,7 @@ class PrepositionalParticipantSurface {
       PrepositionalParticipantKind.topic => verb.takesTopic,
       PrepositionalParticipantKind.beneficiary => verb.takesBeneficiary,
       PrepositionalParticipantKind.source => verb.takesSource,
+      PrepositionalParticipantKind.purpose => verb.takesPurpose,
     };
   }
 
@@ -112,6 +115,13 @@ const sourceSurface = PrepositionalParticipantSurface(
   blockedNounLabel: 'a source',
 );
 
+const purposeSurface = PrepositionalParticipantSurface(
+  kind: PrepositionalParticipantKind.purpose,
+  label: 'purpose',
+  preposition: 'for',
+  blockedNounLabel: 'a purpose',
+);
+
 const prepositionalParticipantSurfaces = [
   addresseeSurface,
   destinationSurface,
@@ -120,6 +130,7 @@ const prepositionalParticipantSurfaces = [
   instrumentSurface,
   beneficiarySurface,
   sourceSurface,
+  purposeSurface,
 ];
 
 const predicateFrameValidatedPrepositionalSurfaces = [
@@ -129,6 +140,7 @@ const predicateFrameValidatedPrepositionalSurfaces = [
   topicSurface,
   beneficiarySurface,
   sourceSurface,
+  purposeSurface,
 ];
 
 const activeVoicePrepositionalSurfaces = [
@@ -136,4 +148,5 @@ const activeVoicePrepositionalSurfaces = [
   topicSurface,
   beneficiarySurface,
   sourceSurface,
+  purposeSurface,
 ];

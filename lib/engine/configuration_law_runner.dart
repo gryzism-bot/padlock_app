@@ -65,6 +65,7 @@ void _validateNounPhraseSurfaces(_ValidationContext context) {
     (label: 'Topic', phrase: state.topic),
     (label: 'Beneficiary', phrase: state.beneficiary),
     (label: 'Source', phrase: state.source),
+    (label: 'Purpose', phrase: state.purpose),
     (label: 'Complement', phrase: state.complement),
   ];
 

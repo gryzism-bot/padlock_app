@@ -100,6 +100,13 @@ final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
     move: (_, nounPhrase) => SetSource(nounPhrase),
     traceLabel: 'source',
   ),
+  ConfigurationCompassSlot.purpose: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.purpose,
+    read: (state) => state.purpose,
+    choices: (compass, _) => compass.objects,
+    move: (_, nounPhrase) => SetPurpose(nounPhrase),
+    traceLabel: 'purpose',
+  ),
   ConfigurationCompassSlot.passiveAgentNoun: _NounRailSlotPolicy(
     slot: ConfigurationCompassSlot.passiveAgentNoun,
     read: (state) => state.agent,
@@ -279,6 +286,10 @@ _nounRailStateFromMove(ConfigurationMove move) {
     SetSource(:final source) => (
       slot: ConfigurationCompassSlot.source,
       nounPhrase: source,
+    ),
+    SetPurpose(:final purpose) => (
+      slot: ConfigurationCompassSlot.purpose,
+      nounPhrase: purpose,
     ),
     SetAgent(:final agent) => (
       slot: ConfigurationCompassSlot.passiveAgentNoun,

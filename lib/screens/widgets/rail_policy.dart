@@ -257,6 +257,7 @@ const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
   ConfigurationCompassSlot.source,
+  ConfigurationCompassSlot.purpose,
   ConfigurationCompassSlot.rightAction,
   ConfigurationCompassSlot.passiveAgentNoun,
   ConfigurationCompassSlot.complement,
@@ -304,6 +305,7 @@ const _rightActionOwnedRailSlots = [
   ConfigurationCompassSlot.topic,
   ConfigurationCompassSlot.beneficiary,
   ConfigurationCompassSlot.source,
+  ConfigurationCompassSlot.purpose,
   ConfigurationCompassSlot.sourcePlace,
 ];
 
@@ -369,6 +371,14 @@ final _prepositionalSurfaceRailPolicies = [
     slot: ConfigurationCompassSlot.source,
     determinerSlot: ConfigurationCompassSlot.sourceDeterminer,
     adjectiveSlot: ConfigurationCompassSlot.sourceAdjective,
+  ),
+  ..._prepositionalSurfaceRailPolicy(
+    surface: purposeSurface,
+    title: 'Purpose',
+    unlockHint: (_) => 'Choose a verb that can open a for-purpose, like use.',
+    slot: ConfigurationCompassSlot.purpose,
+    determinerSlot: ConfigurationCompassSlot.purposeDeterminer,
+    adjectiveSlot: ConfigurationCompassSlot.purposeAdjective,
   ),
 ];
 

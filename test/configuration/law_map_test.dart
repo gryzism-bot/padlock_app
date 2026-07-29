@@ -31,10 +31,11 @@ void main() {
         'instrument',
         'beneficiary',
         'source',
+        'purpose',
       ]);
       expect(
         prepositionalParticipantSurfaces.map((surface) => surface.preposition),
-        ['to', 'to', 'about', 'with', 'with', 'for', 'from'],
+        ['to', 'to', 'about', 'with', 'with', 'for', 'from', 'for'],
       );
       expect(
         prepositionalParticipantSurfaces.where(
@@ -179,6 +180,7 @@ void main() {
             PredicatePathKind.onTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
             PredicatePathKind.fromSource => 'source',
+            PredicatePathKind.forPurpose => 'purpose',
             PredicatePathKind.atLocation => 'at-location',
             PredicatePathKind.inLocation => 'in-location',
             PredicatePathKind.onLocation => 'on-location',

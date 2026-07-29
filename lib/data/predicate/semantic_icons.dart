@@ -265,6 +265,12 @@ List<PredicateIconSlot> _fallbackIconsForInfluences(
       PredicateIconSlot(materialIcon: MaterialIconKey.arrowBack),
     ];
   }
+  if (influenceKeys.contains('purpose')) {
+    return const [
+      PredicateIconSlot(materialIcon: MaterialIconKey.lightbulbOutline),
+      PredicateIconSlot(materialIcon: MaterialIconKey.arrowForward),
+    ];
+  }
   if (influenceKeys.contains('right-action')) {
     return const [
       PredicateIconSlot(materialIcon: MaterialIconKey.accountTreeOutlined),

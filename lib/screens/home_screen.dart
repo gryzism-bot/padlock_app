@@ -364,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case ConfigurationCompassSlot.topic:
         case ConfigurationCompassSlot.beneficiary:
         case ConfigurationCompassSlot.source:
+        case ConfigurationCompassSlot.purpose:
         case ConfigurationCompassSlot.passiveAgentNoun:
         case ConfigurationCompassSlot.complement:
           break;
@@ -1553,6 +1554,7 @@ String _moveTraceLabel(ConfigurationMove move) {
     SetBeneficiary(:final beneficiary) =>
       'beneficiary -> ${_nounTraceText(beneficiary)}',
     SetSource(:final source) => 'source -> ${_nounTraceText(source)}',
+    SetPurpose(:final purpose) => 'purpose -> ${_nounTraceText(purpose)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>
@@ -1620,6 +1622,7 @@ String _nounPhraseTargetTraceText(NounPhraseTarget target) {
     NounPhraseTarget.topic => 'topic',
     NounPhraseTarget.beneficiary => 'beneficiary',
     NounPhraseTarget.source => 'source',
+    NounPhraseTarget.purpose => 'purpose',
     NounPhraseTarget.complement => 'complement',
   };
 }

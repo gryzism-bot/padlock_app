@@ -1266,7 +1266,9 @@ class RecognitionEngine {
     }
 
     if (token == 'for' &&
-        (owner?.takesBeneficiary == true || owner?.takesRecipient == true)) {
+        (owner?.takesBeneficiary == true ||
+            owner?.takesRecipient == true ||
+            owner?.takesPurpose == true)) {
       return true;
     }
 
@@ -1602,6 +1604,7 @@ class RecognitionEngine {
       builder.topicStart > 0 ? builder.topicStart - 1 : -1,
       builder.beneficiaryStart > 0 ? builder.beneficiaryStart - 1 : -1,
       builder.sourceStart > 0 ? builder.sourceStart - 1 : -1,
+      builder.purposeStart > 0 ? builder.purposeStart - 1 : -1,
       builder.rightActionStart,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
@@ -1700,6 +1703,14 @@ class RecognitionEngine {
     }
 
     if (_crossesPhrase(
+      builder.purposeStart,
+      builder.purposeEnd,
+      firstPhraseStart,
+    )) {
+      builder.purposeEnd = firstPhraseStart - 1;
+    }
+
+    if (_crossesPhrase(
       builder.agentStart,
       builder.agentEnd,
       firstPhraseStart,
@@ -1795,6 +1806,10 @@ class RecognitionEngine {
 
     if (builder.sourceStart >= 0 && builder.sourceStart <= frontPhraseEnd) {
       builder.sourceStart = frontPhraseEnd + 1;
+    }
+
+    if (builder.purposeStart >= 0 && builder.purposeStart <= frontPhraseEnd) {
+      builder.purposeStart = frontPhraseEnd + 1;
     }
 
     if (builder.rightActionStart >= 0 &&
@@ -1908,6 +1923,13 @@ class RecognitionEngine {
     if (builder.sourceStart >= 0 && builder.sourceEnd >= builder.sourceStart) {
       builder.source = _recognizeNounPhrase(
         builder.tokens.sublist(builder.sourceStart, builder.sourceEnd + 1),
+      );
+    }
+
+    if (builder.purposeStart >= 0 &&
+        builder.purposeEnd >= builder.purposeStart) {
+      builder.purpose = _recognizeNounPhrase(
+        builder.tokens.sublist(builder.purposeStart, builder.purposeEnd + 1),
       );
     }
 
@@ -2105,6 +2127,7 @@ class RecognitionEngine {
     _recognizeCompanionPhrase(builder, phraseTokens);
     _recognizeTopicPhrase(builder, phraseTokens);
     _recognizeBeneficiaryPhrase(builder, phraseTokens);
+    _recognizePurposePhrase(builder, phraseTokens);
     _recognizeSourcePhrase(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
   }
@@ -2449,6 +2472,32 @@ class RecognitionEngine {
     builder.beneficiaryEnd = _nounPhraseEnd(builder, beneficiaryStart);
   }
 
+  void _recognizePurposePhrase(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    final owner = _prepositionalParticipantOwner(builder);
+    if (owner?.takesPurpose != true || builder.beneficiaryStart >= 0) {
+      return;
+    }
+
+    final wordsBefore = _phraseWordIndex(tokens, 'for');
+
+    if (wordsBefore < 0) {
+      return;
+    }
+
+    final forIndex = builder.verbChainEnd + 1 + wordsBefore;
+    final purposeStart = forIndex + 1;
+
+    if (!_looksLikeCompanionPhrase(builder, purposeStart)) {
+      return;
+    }
+
+    builder.purposeStart = purposeStart;
+    builder.purposeEnd = _nounPhraseEnd(builder, purposeStart);
+  }
+
   void _recognizeSourcePhrase(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2661,6 +2710,9 @@ class _RecognitionBuilder {
   int sourceStart = -1;
   int sourceEnd = -1;
 
+  int purposeStart = -1;
+  int purposeEnd = -1;
+
   int rightActionStart = -1;
   int rightActionEnd = -1;
 
@@ -2703,6 +2755,7 @@ class _RecognitionBuilder {
   TopicPreposition topicPreposition = TopicPreposition.about;
   NounPhrase? beneficiary;
   NounPhrase? source;
+  NounPhrase? purpose;
   Verb? rightAction;
   RecipientPlacement recipientPlacement = RecipientPlacement.beforeObject;
   RecipientPreposition recipientPreposition = RecipientPreposition.to;
@@ -2746,6 +2799,7 @@ class _RecognitionBuilder {
       topicPreposition: topicPreposition,
       beneficiary: beneficiary,
       source: source,
+      purpose: purpose,
       rightAction: rightAction,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
@@ -2785,6 +2839,7 @@ class _RecognitionBuilder {
       'topic: $topicStart -> $topicEnd (${_tokensBetween(topicStart, topicEnd)}) = ${topicPreposition.text} ${topic?.text}',
       'beneficiary: $beneficiaryStart -> $beneficiaryEnd (${_tokensBetween(beneficiaryStart, beneficiaryEnd)}) = ${beneficiary?.text}',
       'source: $sourceStart -> $sourceEnd (${_tokensBetween(sourceStart, sourceEnd)}) = ${source?.text}',
+      'purpose: $purposeStart -> $purposeEnd (${_tokensBetween(purposeStart, purposeEnd)}) = ${purpose?.text}',
       'rightAction: $rightActionStart -> $rightActionEnd (${_tokensBetween(rightActionStart, rightActionEnd)}) = ${rightAction?.infinitive}',
       'recipientPlacement: $recipientPlacement',
       'recipientPreposition: $recipientPreposition',
@@ -2921,6 +2976,8 @@ const _knownFixedObjects = [
   fixed_object.volleyball,
   fixed_object.tennis,
   fixed_object.golf,
+  fixed_object.workNoun,
+  fixed_object.exerciseNoun,
   fixed_object.english,
   fixed_object.polish,
   fixed_object.spanish,
@@ -2928,4 +2985,9 @@ const _knownFixedObjects = [
   fixed_object.history,
   fixed_object.science,
   fixed_object.grammar,
+  fixed_object.physique,
+  fixed_object.skill,
+  fixed_object.skills,
+  fixed_object.swimming,
+  fixed_object.skating,
 ];

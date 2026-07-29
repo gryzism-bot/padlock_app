@@ -518,7 +518,8 @@ Color _verbWakeSignalColor(
     'instrument' ||
     'topic' ||
     'beneficiary' ||
-    'source' => colors.secondary,
+    'source' ||
+    'purpose' => colors.secondary,
     _ => colors.primary,
   };
 }

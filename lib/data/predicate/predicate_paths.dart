@@ -49,6 +49,7 @@ enum PredicatePathKind {
   onTopic,
   forBeneficiary,
   fromSource,
+  forPurpose,
   atLocation,
   inLocation,
   onLocation,
@@ -152,6 +153,9 @@ class PredicatePath {
 
   const PredicatePath.fromSource(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.fromSource, nouns: nouns);
+
+  const PredicatePath.forPurpose(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.forPurpose, nouns: nouns);
 
   const PredicatePath.atLocation(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.atLocation, places: places);
@@ -451,6 +455,13 @@ final _basicTopics = _uniqueByText([
   ...object_categories.pluralDeviceObjects,
 ]);
 final _basicBeneficiaries = _uniqueByText([..._people]);
+final _basicPurposes = _uniqueByText([
+  fixed_object.workNoun,
+  fixed_object.exerciseNoun,
+  fixed_object.grammar,
+  fixed_object.skill,
+  fixed_object.skills,
+]);
 final _spokenLanguages = [
   fixed_object.english,
   fixed_object.polish,
@@ -986,6 +997,7 @@ final guidedPredicateUnlocks = [
     _toolObjects,
     paths: [
       PredicatePath.withCompanion(_people),
+      PredicatePath.forPurpose(_basicPurposes),
       _manners(_carefulManners),
       _times(_todayTimes),
     ],

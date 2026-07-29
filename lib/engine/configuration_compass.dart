@@ -69,6 +69,9 @@ enum ConfigurationCompassSlot {
   source,
   sourceDeterminer,
   sourceAdjective,
+  purpose,
+  purposeDeterminer,
+  purposeAdjective,
   rightAction,
   complement,
   complementDeterminer,
@@ -443,6 +446,18 @@ class ConfigurationCompass {
       ConfigurationCompassSlot.sourceAdjective => _adjectiveCandidates(
         sourceSurface.read(sentence),
         _nounTargetForSurface(sourceSurface),
+      ),
+      ConfigurationCompassSlot.purpose => _prepositionalSurfaceCandidates(
+        sentence,
+        purposeSurface,
+      ),
+      ConfigurationCompassSlot.purposeDeterminer => _determinerCandidates(
+        purposeSurface.read(sentence),
+        _nounTargetForSurface(purposeSurface),
+      ),
+      ConfigurationCompassSlot.purposeAdjective => _adjectiveCandidates(
+        purposeSurface.read(sentence),
+        _nounTargetForSurface(purposeSurface),
       ),
       ConfigurationCompassSlot.rightAction => [
         if (sentence.rightAction != null)
@@ -971,6 +986,7 @@ ConfigurationMove _setPrepositionalSurface(
     PrepositionalParticipantKind.topic => SetTopic(noun),
     PrepositionalParticipantKind.beneficiary => SetBeneficiary(noun),
     PrepositionalParticipantKind.source => SetSource(noun),
+    PrepositionalParticipantKind.purpose => SetPurpose(noun),
   };
 }
 
@@ -985,6 +1001,7 @@ NounPhraseTarget _nounTargetForSurface(
     PrepositionalParticipantKind.topic => NounPhraseTarget.topic,
     PrepositionalParticipantKind.beneficiary => NounPhraseTarget.beneficiary,
     PrepositionalParticipantKind.source => NounPhraseTarget.source,
+    PrepositionalParticipantKind.purpose => NounPhraseTarget.purpose,
   };
 }
 
@@ -1000,6 +1017,7 @@ PredicatePathKind _predicatePathKindForSurface(
     PrepositionalParticipantKind.beneficiary =>
       PredicatePathKind.forBeneficiary,
     PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
+    PrepositionalParticipantKind.purpose => PredicatePathKind.forPurpose,
   };
 }
 

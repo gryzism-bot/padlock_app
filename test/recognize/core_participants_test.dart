@@ -648,6 +648,41 @@ void main() {
       expect(state.companion, isNull);
     });
 
+    test('purpose surface recognizes as a for-purpose phrase', () {
+      final state = engine.recognize('You use a key for work.');
+
+      expectAgent(state, text: 'you');
+      expectObject(state, text: 'key', determiner: aDeterminer);
+      expectPurpose(state, text: 'work');
+      expect(state.action, use);
+    });
+
+    test('purpose surface keeps noun phrase modifiers', () {
+      final state = engine.recognize('She used computer for the new skill.');
+
+      expectAgent(state, text: 'she');
+      expectObject(state, text: 'computer');
+      expectPurpose(
+        state,
+        text: 'skill',
+        determiner: theDeterminer,
+        adjective: newAdjective,
+      );
+      expect(state.action, use);
+      expect(state.tense, Tense.past);
+    });
+
+    test('passive purpose surface keeps by-agent separate', () {
+      final state = engine.recognize('A key was used for exercise by John.');
+
+      expectObject(state, text: 'key', determiner: aDeterminer);
+      expectPurpose(state, text: 'exercise');
+      expectAgent(state, text: 'john');
+      expect(state.action, use);
+      expect(state.voice, Voice.passive);
+      expect(state.passiveFocus, PassiveFocus.object);
+    });
+
     test('active recipients recognize reflexive participants', () {
       final state = engine.recognize('You gave yourself a book.');
 

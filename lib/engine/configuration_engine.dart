@@ -87,6 +87,7 @@ enum NounPhraseTarget {
   topic,
   beneficiary,
   source,
+  purpose,
   complement,
 }
 
@@ -301,6 +302,12 @@ class SetSource extends ConfigurationMove {
   const SetSource(this.source);
 }
 
+class SetPurpose extends ConfigurationMove {
+  final NounPhrase? purpose;
+
+  const SetPurpose(this.purpose);
+}
+
 class SetRightAction extends ConfigurationMove {
   final Verb? rightAction;
 
@@ -493,6 +500,7 @@ class ConfigurationEngine {
         topic: null,
         beneficiary: null,
         source: null,
+        purpose: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: null,
@@ -547,6 +555,11 @@ class ConfigurationEngine {
       tailOwner,
       sourceSurface,
     );
+    final purpose = _surfaceAfterActionChange(
+      state.purpose,
+      tailOwner,
+      purposeSurface,
+    );
     final placePhrase = _placePhraseAfterActionChange(
       state.placePhrase,
       tailOwner,
@@ -595,6 +608,7 @@ class ConfigurationEngine {
           : state.topicPreposition,
       beneficiary: beneficiary,
       source: source,
+      purpose: purpose,
       rightAction: rightAction,
       complement: null,
       adjectiveComplement: null,
@@ -641,6 +655,7 @@ class ConfigurationEngine {
         beneficiary: beneficiary,
       ),
       SetSource(:final source) => _copy(state, source: source),
+      SetPurpose(:final purpose) => _copy(state, purpose: purpose),
       SetRightAction(:final rightAction) => _copy(
         state,
         rightAction: rightAction,
@@ -697,6 +712,7 @@ class ConfigurationEngine {
         topic: null,
         beneficiary: null,
         source: null,
+        purpose: null,
         rightAction: null,
         complement: complement,
         adjectiveComplement: null,
@@ -715,6 +731,7 @@ class ConfigurationEngine {
         topic: null,
         beneficiary: null,
         source: null,
+        purpose: null,
         rightAction: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
@@ -858,6 +875,9 @@ class ConfigurationEngine {
     if (previous.source != null && current.source == null) {
       fields.add('source');
     }
+    if (previous.purpose != null && current.purpose == null) {
+      fields.add('purpose');
+    }
     if (previous.rightAction != null && current.rightAction == null) {
       fields.add('right action');
     }
@@ -976,6 +996,7 @@ class ConfigurationEngine {
       PrepositionalParticipantKind.beneficiary =>
         PredicatePathKind.forBeneficiary,
       PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
+      PrepositionalParticipantKind.purpose => PredicatePathKind.forPurpose,
     };
   }
 
@@ -1214,6 +1235,7 @@ class ConfigurationEngine {
     TopicPreposition? topicPreposition,
     Object? beneficiary = _unchanged,
     Object? source = _unchanged,
+    Object? purpose = _unchanged,
     Object? rightAction = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
@@ -1267,6 +1289,9 @@ class ConfigurationEngine {
       source: identical(source, _unchanged)
           ? state.source
           : source as NounPhrase?,
+      purpose: identical(purpose, _unchanged)
+          ? state.purpose
+          : purpose as NounPhrase?,
       rightAction: identical(rightAction, _unchanged)
           ? state.rightAction
           : rightAction as Verb?,
@@ -1359,6 +1384,10 @@ class ConfigurationEngine {
         state.source == null
             ? state
             : _copy(state, source: transform(state.source!)),
+      NounPhraseTarget.purpose =>
+        state.purpose == null
+            ? state
+            : _copy(state, purpose: transform(state.purpose!)),
       NounPhraseTarget.complement =>
         state.complement == null
             ? state
