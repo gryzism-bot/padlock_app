@@ -2840,6 +2840,12 @@ class _VirtualizedSuggestionRailState
   }
 
   Widget _buttonFor(ConfigurationSuggestion suggestion) {
+    final preview =
+        widget.displayMode == SuggestionDisplayMode.change ||
+            widget.onPreviewChanged != null
+        ? widget.renderPreview(suggestion.preview.sentenceState)
+        : null;
+
     return _SuggestionButton(
       suggestion: suggestion,
       currentSentence: widget.currentSentence,
@@ -2847,7 +2853,7 @@ class _VirtualizedSuggestionRailState
       verbTranslation: widget.showVerbTranslations
           ? _verbTranslationForSuggestion(widget.translateVerb, suggestion)
           : null,
-      preview: widget.renderPreview(suggestion.preview.sentenceState),
+      preview: preview,
       dense: true,
       onPressed: () => widget.onMove(suggestion.move),
       onPreviewChanged: widget.onPreviewChanged,

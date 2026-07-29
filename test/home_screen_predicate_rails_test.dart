@@ -386,44 +386,62 @@ void main() {
     expect(find.text('Noun complement:'), findsNothing);
     expect(find.text('Adjective complement:'), findsNothing);
 
-    expect(find.byTooltip('You learn English.'), findsNothing);
+    expect(
+      find.byKey(const Key('suggestion-label-object-english')),
+      findsNothing,
+    );
     await expandRail(tester, 'Subject');
-    expect(find.byTooltip('You learn English.'), findsWidgets);
+    expect(
+      find.byKey(const Key('suggestion-label-object-english')),
+      findsOneWidget,
+    );
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('You play.'), delta: -500);
+    await selectVerb(tester, 'play');
 
     expect(find.text('Activity:'), findsOneWidget);
-    expect(find.byTooltip('You play volleyball.'), findsNothing);
+    expect(
+      find.byKey(const Key('suggestion-label-object-volleyball')),
+      findsNothing,
+    );
     expect(find.text('Object:'), findsNothing);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
     await expandRail(tester, 'Activity');
-    await tapAfterScroll(tester, find.byTooltip('You play volleyball.'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-volleyball')),
+    );
 
     expect(renderedSentence(tester), 'You play volleyball.');
     expect(find.text('Activity:'), findsOneWidget);
 
-    await tapAfterScroll(tester, find.byTooltip('You are.'));
+    await selectVerb(tester, 'be');
 
     expect(find.text('Noun complement:'), findsOneWidget);
     expect(find.text('Adjective complement:'), findsOneWidget);
     expect(find.text('Object:'), findsNothing);
 
-    await tapAfterScroll(tester, find.byTooltip('You buy.'), delta: -500);
+    await selectVerb(tester, 'buy');
 
     expect(find.text('Object:'), findsOneWidget);
-    expect(find.byTooltip('You buy book.'), findsNothing);
+    expect(find.byKey(const Key('suggestion-label-object-book')), findsNothing);
     expect(find.text('Object determiner:'), findsNothing);
     expect(find.text('Object adjective:'), findsNothing);
 
     await expandRail(tester, 'Object');
-    await tapAfterScroll(tester, find.byTooltip('You buy book.'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-book')),
+    );
 
     expect(find.text('Object determiner:'), findsOneWidget);
-    expect(find.byTooltip('You buy a book.'), findsNothing);
+    expect(
+      find.byKey(const Key('suggestion-label-objectDeterminer-a')),
+      findsNothing,
+    );
     expect(find.text('Object adjective:'), findsOneWidget);
     expect(find.text('Recipient:'), findsOneWidget);
 

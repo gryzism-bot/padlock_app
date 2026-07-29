@@ -64,6 +64,7 @@ class _SuggestionButton extends StatelessWidget {
     }
 
     return MouseRegion(
+      key: Key(_suggestionHoverKey(suggestion)),
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
       onExit: (_) => onPreviewChanged?.call(null),
       child: button,
@@ -529,6 +530,12 @@ String _suggestionLabelKey(ConfigurationSuggestion suggestion) {
       .replaceAll(RegExp(r'^-|-$'), '');
 
   return 'suggestion-label-${suggestion.slot.name}-$safeLabel';
+}
+
+String _suggestionHoverKey(ConfigurationSuggestion suggestion) {
+  return _suggestionLabelKey(
+    suggestion,
+  ).replaceFirst('suggestion-label-', 'suggestion-hover-');
 }
 
 TextSpan _changedSuggestionSpan({

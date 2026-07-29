@@ -44,11 +44,15 @@ void main() {
       return;
     }
 
+    for (var i = 0; i < 24 && finder.evaluate().isEmpty; i += 1) {
+      await tester.drag(mainScroll, const Offset(0, 300));
+      await tester.pumpAndSettle();
+    }
+
     final direction = delta < 0 ? -1.0 : 1.0;
     final scrollDelta = direction * min(delta.abs(), 120);
-    final viewportDragPoint = tester.getCenter(find.byType(Scaffold));
-    for (var i = 0; i < 90 && finder.evaluate().isEmpty; i += 1) {
-      await tester.dragFrom(viewportDragPoint, Offset(0, -scrollDelta));
+    for (var i = 0; i < 120 && finder.evaluate().isEmpty; i += 1) {
+      await tester.drag(mainScroll, Offset(0, -scrollDelta));
       await tester.pumpAndSettle();
     }
   }
@@ -161,7 +165,12 @@ void main() {
     String railTitle,
     String query,
   ) async {
-    await tester.enterText(find.byKey(Key('rail-search-$railTitle')), query);
+    final searchField = find.byKey(Key('rail-search-$railTitle'));
+    if (searchField.evaluate().isEmpty) {
+      await revealLazyFinder(tester, find.text('$railTitle:'));
+    }
+
+    await tester.enterText(searchField, query);
     await tester.pumpAndSettle();
   }
 
@@ -175,6 +184,10 @@ void main() {
 
   Future<void> expandRail(WidgetTester tester, String title) async {
     final railToggle = find.byKey(Key('rail-toggle-$title'));
+    if (railToggle.evaluate().isEmpty) {
+      await revealLazyFinder(tester, find.text('$title:'));
+    }
+
     if (railToggle.evaluate().isNotEmpty) {
       tester.widget<IconButton>(railToggle.first).onPressed?.call();
       await tester.pumpAndSettle();
@@ -192,6 +205,9 @@ void main() {
     }
 
     final oldOpener = find.byTooltip('Open $title rail');
+    if (oldOpener.evaluate().isEmpty) {
+      await revealLazyFinder(tester, oldOpener);
+    }
     if (oldOpener.evaluate().isNotEmpty) {
       await tapAfterScroll(tester, oldOpener);
       return;
@@ -748,12 +764,14 @@ void main() {
       expect(renderedSentence(tester), 'You want.');
       expect(find.text('Place phrase:'), findsNothing);
       expect(find.text('Manner phrase:'), findsNothing);
+      await revealLazyFinder(tester, find.text('Time phrase:'));
       expect(find.text('Time phrase:'), findsOneWidget);
 
       await selectVerb(tester, 'go');
 
       expect(renderedSentence(tester), 'You go.');
-      expect(find.text('Place phrase:'), findsOneWidget);
+      await revealLazyFinder(tester, find.text('Destination:'));
+      expect(find.text('Destination:'), findsOneWidget);
       expect(find.text('Manner phrase:'), findsOneWidget);
     },
   );
@@ -1002,6 +1020,7 @@ void main() {
       expect(find.text('Object determiner:'), findsOneWidget);
 
       await expandRail(tester, 'Recipient');
+      await filterRail(tester, 'Recipient', 'teacher');
       await tapAfterScroll(tester, find.text('teacher', findRichText: true));
       expect(renderedSentence(tester), 'You give teacher a book.');
       expect(find.text('Recipient determiner:'), findsOneWidget);
@@ -1337,11 +1356,8 @@ void main() {
     );
     expect(find.text('You give.'), findsNothing);
 
-    final giveSuggestion = find.byTooltip('You give.');
     final hoverRegion = tester.widget<MouseRegion>(
-      find
-          .ancestor(of: giveSuggestion, matching: find.byType(MouseRegion))
-          .first,
+      find.byKey(const Key('suggestion-hover-action-give')),
     );
     hoverRegion.onEnter?.call(const PointerEnterEvent());
     await tester.pump();
