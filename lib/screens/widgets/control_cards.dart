@@ -82,6 +82,7 @@ class _SectionFrame extends StatelessWidget {
               ),
             if (onToggle != null) ...[
               IconButton(
+                key: Key('rail-toggle-$title'),
                 tooltip: isExpanded ? 'Close $title rail' : 'Open $title rail',
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,

@@ -54,7 +54,23 @@ Best low-effort / high-value moves for the developer cockpit:
      - `on` topic/object: `work on grammar`, `think of Mary`
      - instrument: `open with a key`
      - purpose/for-purpose: `use for work`, `walk to exercise`
-7. Next: path-scoped Compass for the product UI.
+7. Next: staged vocabulary saturation.
+   - recent performance work makes this much less risky:
+     - large rails are virtualized
+     - rail-local search can summon late vocabulary
+     - preview rendering is cached and bounded near visible choices
+     - closed rails no longer compute full suggestion bodies
+   - saturate in layers, checking move-trace timing after each:
+     - people, animals, pronoun-like nouns
+     - everyday objects and food/tool/openable/text shelves
+     - adjectives and simple adverbs
+     - verb-owned PredicatePath vocabulary
+     - Polish translation fragments
+   - target cockpit feel while saturating:
+     - ordinary verb switches stay around 400-600 ms
+     - occasional heavy first-open rails are acceptable if search and scrolling
+       stay responsive
+8. Later: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -64,8 +80,8 @@ Postpone for now:
 - broad semantic blockers such as `eat street`
 - semi-modal / right-side verb frames such as `have to go`
 - browser/UI nightly automation
-- deeper browser/runtime profiling, until the current sub-500 ms cockpit feel
-  stops holding under larger data
+- deeper browser/runtime profiling, unless the current 400-600 ms cockpit feel
+  stops holding during staged vocabulary saturation
 
 ## Executable Review Audit
 
@@ -734,6 +750,23 @@ Done recently:
   `SelectableText.rich` only for changed-word highlighting
 - rendered preview sentences are cached inside a single `HomeScreen` build pass,
   so repeated nearby `SentenceState` previews do not call Grammar Engine again
+- dark mode is the default developer-console theme, so testing starts in the
+  visual mode used most often
+- the verb rail keeps its overflow scrollbar visible, making dense vocabulary
+  discoverable without changing chip layout
+
+Vocabulary saturation readiness:
+
+- The cockpit is ready for a careful vocabulary expansion pass.
+- The app should no longer require artificial `show more` pages before adding
+  larger word shelves.
+- New vocabulary should be added in measured batches:
+  - add one data layer
+  - run focused unit/widget tests
+  - sample 10-20 developer-console moves
+  - record whether UI move trace stays roughly in the 400-600 ms band
+- If a batch causes a spike, prefer indexing/filtering that rail over reducing
+  visible vocabulary.
 
 Merged side quests:
 

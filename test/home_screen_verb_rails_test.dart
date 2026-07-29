@@ -17,11 +17,31 @@ void main() {
         .data!;
   }
 
+  Future<void> revealLazyFinder(
+    WidgetTester tester,
+    Finder finder, {
+    double delta = 500,
+  }) async {
+    if (finder.evaluate().isNotEmpty) {
+      return;
+    }
+
+    final direction = delta < 0 ? -1.0 : 1.0;
+    final scrollDelta = direction * 120;
+    final viewportDragPoint = tester.getCenter(find.byType(Scaffold));
+    for (var i = 0; i < 90 && finder.evaluate().isEmpty; i += 1) {
+      await tester.dragFrom(viewportDragPoint, Offset(0, -scrollDelta));
+      await tester.pumpAndSettle();
+    }
+  }
+
   Future<void> tapAfterScroll(
     WidgetTester tester,
     Finder finder, {
     double delta = 500,
   }) async {
+    await revealLazyFinder(tester, finder, delta: delta);
+
     final descendantButton = find.descendant(
       of: finder,
       matching: find.byType(OutlinedButton),
@@ -97,8 +117,62 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  String? participantDoorKeyForTitle(String title) {
+    return switch (title) {
+      'Object' || 'Subject' || 'Activity' || 'Text' || 'Openable' => 'object',
+      'Object complement' => 'objectComplement',
+      'Object adjective complement' => 'objectAdjectiveComplement',
+      'Recipient' => 'recipient',
+      'Addressee' => 'addressee',
+      'Companion' => 'companion',
+      'Instrument' => 'instrument',
+      'Destination' => 'destination',
+      'Topic' => 'topic',
+      'Beneficiary' => 'beneficiary',
+      'Source' => 'source',
+      'Right action' => 'rightAction',
+      'By-agent' => 'passiveAgent',
+      'Noun complement' => 'complement',
+      'Adjective complement' => 'adjectiveComplement',
+      _ => null,
+    };
+  }
+
   Future<void> expandRail(WidgetTester tester, String title) async {
-    await tapAfterScroll(tester, find.byTooltip('Open $title rail'));
+    final railToggle = find.byKey(Key('rail-toggle-$title'));
+    if (railToggle.evaluate().isNotEmpty) {
+      tester.widget<IconButton>(railToggle.first).onPressed?.call();
+      await tester.pumpAndSettle();
+      return;
+    }
+
+    final doorKey = participantDoorKeyForTitle(title);
+    if (doorKey != null) {
+      final doorOpener = find.byKey(Key('participant-door-$doorKey'));
+      if (doorOpener.evaluate().isNotEmpty) {
+        tester.widget<OutlinedButton>(doorOpener.first).onPressed?.call();
+        await tester.pumpAndSettle();
+        return;
+      }
+    }
+
+    final oldOpener = find.byTooltip('Open $title rail');
+    if (oldOpener.evaluate().isNotEmpty) {
+      await tapAfterScroll(tester, oldOpener);
+      return;
+    }
+
+    final normalizedTitle = title.toLowerCase();
+    final doorOpener = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text &&
+          widget.data != null &&
+          widget.data!.toLowerCase().startsWith('$normalizedTitle:') &&
+          widget.data!.contains('('),
+    );
+    if (doorOpener.evaluate().isNotEmpty) {
+      await tapAfterScroll(tester, doorOpener.first);
+    }
   }
 
   Future<void> filterRailIfPresent(

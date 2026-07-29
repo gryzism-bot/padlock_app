@@ -41,29 +41,32 @@ class _SuggestionButton extends StatelessWidget {
       ],
     );
 
+    final button = Tooltip(
+      message: _suggestionTooltipText(suggestion: suggestion, preview: preview),
+      child: OutlinedButton(
+        style: _compactOutlinedStyle(
+          selected: suggestion.isSelected,
+          colors: colors,
+        ),
+        onPressed: onPressed,
+        child: dense
+            ? _DenseSuggestionBody(
+                isVerbChip: isVerbChip,
+                hasTranslation: verbTranslation != null,
+                child: content,
+              )
+            : content,
+      ),
+    );
+
+    if (onPreviewChanged == null) {
+      return button;
+    }
+
     return MouseRegion(
       onEnter: (_) => onPreviewChanged?.call(suggestion.preview),
       onExit: (_) => onPreviewChanged?.call(null),
-      child: Tooltip(
-        message: _suggestionTooltipText(
-          suggestion: suggestion,
-          preview: preview,
-        ),
-        child: OutlinedButton(
-          style: _compactOutlinedStyle(
-            selected: suggestion.isSelected,
-            colors: colors,
-          ),
-          onPressed: onPressed,
-          child: dense
-              ? _DenseSuggestionBody(
-                  isVerbChip: isVerbChip,
-                  hasTranslation: verbTranslation != null,
-                  child: content,
-                )
-              : content,
-        ),
-      ),
+      child: button,
     );
   }
 }
@@ -260,25 +263,22 @@ class _VerbWakeSignalView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: signal.tooltip,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final keySuffix in signal.keySuffixes)
-            SizedBox.shrink(key: Key('verb-wake-$keySuffix')),
-          for (final entry in signal.icons.indexed) ...[
-            _PredicateIconGlyph(
-              key: entry.$1 < signal.keySuffixes.length
-                  ? Key('verb-wake-icon-${signal.keySuffixes[entry.$1]}')
-                  : null,
-              slot: entry.$2,
-              color: signal.color,
-            ),
-            if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
-          ],
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final keySuffix in signal.keySuffixes)
+          SizedBox.shrink(key: Key('verb-wake-$keySuffix')),
+        for (final entry in signal.icons.indexed) ...[
+          _PredicateIconGlyph(
+            key: entry.$1 < signal.keySuffixes.length
+                ? Key('verb-wake-icon-${signal.keySuffixes[entry.$1]}')
+                : null,
+            slot: entry.$2,
+            color: signal.color,
+          ),
+          if (entry.$1 != signal.icons.length - 1) const SizedBox(width: 2),
         ],
-      ),
+      ],
     );
   }
 }
@@ -296,17 +296,14 @@ class _InlineWakeOutputs extends StatelessWidget {
       return child;
     }
 
-    return Tooltip(
-      message: signal.tooltip,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Flexible(child: child),
-          const SizedBox(width: 3),
-          _VerbWakeOutputs(signal: signal),
-        ],
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Flexible(child: child),
+        const SizedBox(width: 3),
+        _VerbWakeOutputs(signal: signal),
+      ],
     );
   }
 }

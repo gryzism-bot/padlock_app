@@ -46,6 +46,7 @@ const _diagnosticsDockCollapsedHeight = 52.0;
 const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
 const _actionSuggestionLimit = 192;
+const _nounRailSuggestionLimit = _suggestionLimit * 3;
 const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
   PreviewCacheMode? previewCacheMode;
   bool showTranslation = true;
   bool showVerbTranslations = false;
-  bool isDarkMode = false;
+  bool isDarkMode = true;
   bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
     null,
@@ -328,7 +329,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
     return switch (slot) {
       ConfigurationCompassSlot.action => _actionSuggestionLimit,
-      _ when _slotHasNounNumberSwitch(slot) => 0,
+      _ when _slotHasNounNumberSwitch(slot) => _nounRailSuggestionLimit,
       _ => _suggestionLimit,
     };
   }
@@ -450,6 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final cacheMode = previewCacheMode ?? PreviewCacheMode.unbounded;
     previewCache.setMaxEntries(_cacheEntryLimitForMode(cacheMode));
     final sentenceText = previewCache.render(configuration.sentenceState);
+    final sections = _visibleSlotSections(compass);
     _syncPreviewCacheSizeAfterFrame();
 
     final scaffold = Scaffold(
@@ -546,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onToggleRail: _toggleRail,
                   ),
                   const SizedBox(height: 8),
-                  for (final section in _visibleSlotSections(compass)) ...[
+                  for (final section in sections) ...[
                     _CompassSlotSection(
                       title: section.title,
                       unlockHint: section.unlockHint,
@@ -778,6 +780,9 @@ class _ParticipantDoorChip extends StatelessWidget {
           ? '${door.label}: ${door.value}'
           : '${door.label}: ${door.value}. Click to ${isExpanded ? 'close' : 'open'} rail.',
       child: OutlinedButton.icon(
+        key: door.slot == null
+            ? null
+            : Key('participant-door-${door.slot!.name}'),
         style: OutlinedButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -2587,7 +2592,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
   }
 }
 
-class _VirtualizedSuggestionRail extends StatelessWidget {
+class _VirtualizedSuggestionRail extends StatefulWidget {
   final String railTitle;
   final List<ConfigurationSuggestion> suggestions;
   final String currentSentence;
@@ -2611,18 +2616,33 @@ class _VirtualizedSuggestionRail extends StatelessWidget {
   });
 
   @override
+  State<_VirtualizedSuggestionRail> createState() =>
+      _VirtualizedSuggestionRailState();
+}
+
+class _VirtualizedSuggestionRailState
+    extends State<_VirtualizedSuggestionRail> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         const spacing = 4.0;
         final tileMaxWidth = _railTileMaxWidthFor(
-          title: railTitle,
-          displayMode: displayMode,
+          title: widget.railTitle,
+          displayMode: widget.displayMode,
         );
         final tileHeight = _railTileHeightFor(
-          title: railTitle,
-          displayMode: displayMode,
-          showVerbTranslations: showVerbTranslations,
+          title: widget.railTitle,
+          displayMode: widget.displayMode,
+          showVerbTranslations: widget.showVerbTranslations,
         );
         final availableWidth = constraints.maxWidth.isFinite
             ? constraints.maxWidth
@@ -2631,33 +2651,41 @@ class _VirtualizedSuggestionRail extends StatelessWidget {
           1,
           ((availableWidth + spacing) / (tileMaxWidth + spacing)).floor(),
         );
-        final rowCount = (suggestions.length / columnCount).ceil();
+        final rowCount = (widget.suggestions.length / columnCount).ceil();
         final naturalHeight =
             (rowCount * tileHeight) + (max(0, rowCount - 1) * spacing);
         final height = min(
           _railMaxHeightFor(
-            title: railTitle,
-            suggestionCount: suggestions.length,
+            title: widget.railTitle,
+            suggestionCount: widget.suggestions.length,
           ),
           naturalHeight,
         );
+        final showScrollbar =
+            widget.railTitle == 'Verb' && naturalHeight > height;
 
         return SizedBox(
           height: height,
-          child: GridView.builder(
-            key: Key('rail-virtual-grid-$railTitle'),
-            primary: false,
-            padding: EdgeInsets.zero,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: tileMaxWidth,
-              mainAxisExtent: tileHeight,
-              crossAxisSpacing: spacing,
-              mainAxisSpacing: spacing,
-            ),
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) => Align(
-              alignment: Alignment.centerLeft,
-              child: _buttonFor(suggestions[index]),
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: showScrollbar,
+            trackVisibility: showScrollbar,
+            child: GridView.builder(
+              key: Key('rail-virtual-grid-${widget.railTitle}'),
+              controller: _scrollController,
+              primary: false,
+              padding: EdgeInsets.zero,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: tileMaxWidth,
+                mainAxisExtent: tileHeight,
+                crossAxisSpacing: spacing,
+                mainAxisSpacing: spacing,
+              ),
+              itemCount: widget.suggestions.length,
+              itemBuilder: (context, index) => Align(
+                alignment: Alignment.centerLeft,
+                child: _buttonFor(widget.suggestions[index]),
+              ),
             ),
           ),
         );
@@ -2668,17 +2696,15 @@ class _VirtualizedSuggestionRail extends StatelessWidget {
   Widget _buttonFor(ConfigurationSuggestion suggestion) {
     return _SuggestionButton(
       suggestion: suggestion,
-      currentSentence: currentSentence,
-      displayMode: displayMode,
-      verbTranslation: showVerbTranslations
-          ? _verbTranslationForSuggestion(translateVerb, suggestion)
+      currentSentence: widget.currentSentence,
+      displayMode: widget.displayMode,
+      verbTranslation: widget.showVerbTranslations
+          ? _verbTranslationForSuggestion(widget.translateVerb, suggestion)
           : null,
-      preview: displayMode == SuggestionDisplayMode.word
-          ? null
-          : renderPreview(suggestion.preview.sentenceState),
+      preview: widget.renderPreview(suggestion.preview.sentenceState),
       dense: true,
-      onPressed: () => onMove(suggestion.move),
-      onPreviewChanged: onPreviewChanged,
+      onPressed: () => widget.onMove(suggestion.move),
+      onPreviewChanged: widget.onPreviewChanged,
     );
   }
 }

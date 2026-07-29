@@ -165,6 +165,12 @@ class ConfigurationCompass {
     final validSuggestions = <ConfigurationSuggestion>[];
 
     for (final candidate in candidates) {
+      if (limit > 0 &&
+          validSuggestions.length >= limit &&
+          !candidate.isSelected) {
+        continue;
+      }
+
       final preview = lock.applyMove(state, candidate.move);
       if (_wasBlocked(preview)) {
         continue;
