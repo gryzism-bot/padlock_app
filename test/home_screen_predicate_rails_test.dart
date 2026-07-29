@@ -285,12 +285,13 @@ void main() {
 
     await filterRail(tester, 'Verb', 'learn');
     expect(find.byKey(const Key('verb-wake-learn-subject')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-learn-purpose')), findsOneWidget);
     expect(
       find.descendant(
         of: find.byKey(const Key('verb-wake-output-learn')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(8),
+      findsNWidgets(9),
     );
 
     await filterRail(tester, 'Verb', 'think');
@@ -325,7 +326,10 @@ void main() {
     expect(find.byKey(const Key('verb-wake-drive-vehicle')), findsOneWidget);
 
     await filterRail(tester, 'Verb', 'give');
+    expect(find.byKey(const Key('verb-wake-give-object')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-companion')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-beneficiary')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-time')), findsNothing);
     expect(find.byKey(const Key('verb-wake-output-give')), findsOneWidget);
 
@@ -343,7 +347,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-give')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(2),
+      findsNWidgets(4),
     );
 
     await filterRail(tester, 'Verb', 'run');
