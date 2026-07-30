@@ -109,6 +109,7 @@ const go = Verb(
   ingForm: 'going',
   usesDestinationPlace: true,
   takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'iść'},
 );
 

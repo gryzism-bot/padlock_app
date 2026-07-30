@@ -213,7 +213,7 @@ void main() {
         var state = ConfigurationState.initial();
         state = const ConfigurationEngine().applyMove(
           state,
-          const SetAction(speak),
+          const SetAction(introduce),
         );
 
         final labels = compass

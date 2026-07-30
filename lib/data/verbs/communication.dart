@@ -86,6 +86,7 @@ const hear = Verb(
   pastSimple: 'heard',
   pastParticiple: 'heard',
   ingForm: 'hearing',
+  takesTopic: true,
   takesSource: true,
   translations: {Language.pl: 'słyszeć'},
 );
@@ -145,6 +146,7 @@ const agree = Verb(
   pastParticiple: 'agreed',
   ingForm: 'agreeing',
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'zgadzać się'},
 );
 
@@ -155,6 +157,7 @@ const disagree = Verb(
   pastParticiple: 'disagreed',
   ingForm: 'disagreeing',
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'nie zgadzać się'},
 );
 

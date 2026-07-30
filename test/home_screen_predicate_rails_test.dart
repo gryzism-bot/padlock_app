@@ -310,12 +310,13 @@ void main() {
 
     await filterRail(tester, 'Verb', 'go');
     expect(find.byKey(const Key('verb-wake-go-destination')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-go-purpose')), findsOneWidget);
     expect(
       find.descendant(
         of: find.byKey(const Key('verb-wake-output-go')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(5),
+      findsNWidgets(6),
     );
 
     await filterRail(tester, 'Verb', 'read');
