@@ -177,55 +177,6 @@ bool _railUsesPageScroll(BuildContext context) {
   return size.height > size.width || size.width < 700;
 }
 
-class _InlineExpandableChipCluster extends StatefulWidget {
-  final List<Widget> children;
-  final String expandedLabel;
-  final List<Widget> expandedChildren;
-
-  const _InlineExpandableChipCluster({
-    required this.children,
-    required this.expandedLabel,
-    required this.expandedChildren,
-  });
-
-  @override
-  State<_InlineExpandableChipCluster> createState() =>
-      _InlineExpandableChipClusterState();
-}
-
-class _InlineExpandableChipClusterState
-    extends State<_InlineExpandableChipCluster> {
-  bool isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        ...widget.children,
-        IconButton(
-          tooltip: isExpanded
-              ? 'Hide ${widget.expandedLabel}'
-              : 'Show ${widget.expandedLabel}',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(width: 28, height: 28),
-          iconSize: 16,
-          onPressed: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
-        ),
-        if (isExpanded) ...widget.expandedChildren,
-      ],
-    );
-  }
-}
-
 class _InlineOptionRow extends StatelessWidget {
   final String label;
   final List<Widget> children;

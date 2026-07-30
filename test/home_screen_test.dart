@@ -615,8 +615,8 @@ void main() {
     expect(find.text('we'), findsOneWidget);
     expect(find.text('they'), findsOneWidget);
     expect(find.text('3rd person'), findsNothing);
-    expect(find.byTooltip('Show 3rd person singular nouns'), findsOneWidget);
-    expect(find.byTooltip('Show 3rd person plural nouns'), findsOneWidget);
+    expect(find.byTooltip('Choose 3rd person singular noun'), findsOneWidget);
+    expect(find.byTooltip('Choose 3rd person plural noun'), findsOneWidget);
     expect(find.text('Modal'), findsOneWidget);
     expect(find.text('Voice'), findsOneWidget);
     expect(find.text('Polarity'), findsOneWidget);
@@ -1134,7 +1134,9 @@ void main() {
     expect(renderedSentence(tester), 'You teach English with anyone.');
   });
 
-  testWidgets('Subject rows can expand into noun subjects', (tester) async {
+  testWidgets('Subject rows open noun subjects without stretching the deck', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     expect(find.text('I'), findsOneWidget);
@@ -1149,20 +1151,24 @@ void main() {
 
     await tapAfterScroll(
       tester,
-      find.byTooltip('Show 3rd person singular nouns'),
+      find.byTooltip('Choose 3rd person singular noun'),
     );
     expect(find.text('cat'), findsOneWidget);
 
-    await tapAfterScroll(tester, find.text('cat'));
+    await tester.tap(find.text('cat'));
+    await tester.pumpAndSettle();
     expect(renderedSentence(tester), 'Cat learns.');
+    expect(find.text('Subject determiner:'), findsOneWidget);
+    expect(find.text('Subject adjective:'), findsOneWidget);
 
     await tapAfterScroll(
       tester,
-      find.byTooltip('Show 3rd person plural nouns'),
+      find.byTooltip('Choose 3rd person plural noun'),
     );
     expect(find.text('cats'), findsOneWidget);
 
-    await tapAfterScroll(tester, find.text('cats'));
+    await tester.tap(find.text('cats'));
+    await tester.pumpAndSettle();
     expect(renderedSentence(tester), 'Cats learn.');
   });
 

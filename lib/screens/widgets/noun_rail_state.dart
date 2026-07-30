@@ -26,6 +26,13 @@ class _NounRailSlotPolicy {
 }
 
 final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
+  ConfigurationCompassSlot.passiveAgentNoun: _NounRailSlotPolicy(
+    slot: ConfigurationCompassSlot.passiveAgentNoun,
+    read: (state) => state.agent,
+    choices: (compass, _) => compass.recipients,
+    move: (_, nounPhrase) => SetAgent(nounPhrase),
+    traceLabel: 'by-agent',
+  ),
   ConfigurationCompassSlot.object: _NounRailSlotPolicy(
     slot: ConfigurationCompassSlot.object,
     read: (state) => state.object,
@@ -106,13 +113,6 @@ final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
     choices: (compass, _) => compass.objects,
     move: (_, nounPhrase) => SetPurpose(nounPhrase),
     traceLabel: 'purpose',
-  ),
-  ConfigurationCompassSlot.passiveAgentNoun: _NounRailSlotPolicy(
-    slot: ConfigurationCompassSlot.passiveAgentNoun,
-    read: (state) => state.agent,
-    choices: (compass, _) => compass.recipients,
-    move: (_, nounPhrase) => SetAgent(nounPhrase),
-    traceLabel: 'by-agent',
   ),
   ConfigurationCompassSlot.complement: _NounRailSlotPolicy(
     slot: ConfigurationCompassSlot.complement,

@@ -143,6 +143,11 @@ bool _isBodyRailSlot(ConfigurationCompassSlot slot) {
       slot != ConfigurationCompassSlot.passiveAgent;
 }
 
+bool _agentModifiersCanWake(SentenceState state) {
+  final agent = state.agent;
+  return agent != null && agent.canTakeModifiers;
+}
+
 String _fixedObjectTitle(ConfigurationState configuration) {
   return _fixedObjectSlotTitle(configuration) ?? 'Object';
 }
@@ -469,6 +474,24 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     isControlled: false,
     canRenderCollapsedWhen: (_) => false,
     canRenderWhenEmpty: (_) => true,
+  ),
+  ConfigurationCompassSlot.agentDeterminer: _RailPolicy(
+    slot: ConfigurationCompassSlot.agentDeterminer,
+    title: (_) => 'Subject determiner',
+    unlockHint: (_) =>
+        'Choose a subject noun first. Subject modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: _agentModifiersCanWake,
+    canRenderWhenEmpty: _agentModifiersCanWake,
+  ),
+  ConfigurationCompassSlot.agentAdjective: _RailPolicy(
+    slot: ConfigurationCompassSlot.agentAdjective,
+    title: (_) => 'Subject adjective',
+    unlockHint: (_) =>
+        'Choose a subject noun first. Subject modifiers wake after that noun exists.',
+    isControlled: true,
+    canRenderCollapsedWhen: _agentModifiersCanWake,
+    canRenderWhenEmpty: _agentModifiersCanWake,
   ),
   ConfigurationCompassSlot.object: _RailPolicy(
     slot: ConfigurationCompassSlot.object,

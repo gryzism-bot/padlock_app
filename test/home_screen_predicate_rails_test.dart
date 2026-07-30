@@ -696,12 +696,19 @@ void main() {
     await expandRail(tester, 'Object complement');
     await tapAfterScroll(
       tester,
-      find.byKey(const Key('suggestion-label-objectComplement-a-teacher')),
+      find.byKey(const Key('suggestion-label-objectComplement-teacher')),
     );
 
-    expect(renderedSentence(tester), 'You call cat a teacher.');
+    expect(renderedSentence(tester), 'You call cat teacher.');
     expect(find.text('Object complement determiner:'), findsOneWidget);
     expect(find.text('Object complement adjective:'), findsOneWidget);
+
+    await expandRail(tester, 'Object complement determiner');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-objectComplementDeterminer-a')),
+    );
+    expect(renderedSentence(tester), 'You call cat a teacher.');
   });
 
   testWidgets('Core participant surface maps predicate doors to rails', (

@@ -279,16 +279,21 @@ void main() {
       expect(
         recipientLabels,
         containsAll([
-          'a friend',
-          'my friend',
-          'our friend',
-          'that enemy',
+          'friend',
+          'enemy',
+          'cat',
+          'dog',
           'someone',
           'anyone',
           'nobody',
           'everyone',
         ]),
       );
+      expect(recipientLabels, isNot(contains('a friend')));
+      expect(recipientLabels, isNot(contains('my friend')));
+      expect(recipientLabels, isNot(contains('our friend')));
+      expect(recipientLabels, isNot(contains('that enemy')));
+      expect(recipientLabels, isNot(contains('a cat')));
 
       state = lock.applyMove(ConfigurationState.initial(), const SetAction(be));
       final complementLabels = broadCompass
@@ -298,16 +303,64 @@ void main() {
       expect(
         complementLabels,
         containsAll([
-          'a friend',
-          'my friend',
-          'our friend',
-          'that enemy',
+          'friend',
+          'enemy',
+          'person',
           'someone',
           'anyone',
           'nobody',
           'everyone',
         ]),
       );
+      expect(complementLabels, isNot(contains('a friend')));
+      expect(complementLabels, isNot(contains('my friend')));
+      expect(complementLabels, isNot(contains('our friend')));
+      expect(complementLabels, isNot(contains('that enemy')));
+    });
+
+    test('subject noun modifiers live on subject modifier rails', () {
+      final broadCompass = ConfigurationCompass();
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        SetAgent(friend.toNounPhrase(Number.singular)),
+      );
+      expect(render(state), 'Friend learns.');
+
+      final determinerSuggestions = broadCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.agentDeterminer,
+        limit: 0,
+      );
+      final determinerLabels = determinerSuggestions
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(
+        determinerLabels,
+        containsAll(['no determiner', 'a', 'my', 'our', 'that']),
+      );
+
+      final aSuggestion = determinerSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'a',
+      );
+      state = aSuggestion.preview;
+      expect(render(state), 'A friend learns.');
+
+      final adjectiveSuggestions = broadCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.agentAdjective,
+        limit: 0,
+      );
+      expect(
+        adjectiveSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['no adjective', 'big', 'red']),
+      );
+
+      final redSuggestion = adjectiveSuggestions.singleWhere(
+        (suggestion) => suggestion.label == 'red',
+      );
+      state = redSuggestion.preview;
+      expect(render(state), 'A red friend learns.');
     });
 
     test(
@@ -800,12 +853,12 @@ void main() {
       expect(
         singularLabels,
         containsAll([
-          'a doctor',
-          'a friend',
-          'a person',
-          'a student',
-          'a teacher',
-          'an engineer',
+          'doctor',
+          'friend',
+          'person',
+          'student',
+          'teacher',
+          'engineer',
           'someone',
           'anyone',
           'nobody',

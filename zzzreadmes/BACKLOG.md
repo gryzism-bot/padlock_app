@@ -46,20 +46,24 @@ Best low-effort / high-value moves for the developer cockpit:
    - no Flutter or Chrome
    - walk Compass-visible moves and Lock responses
    - output markdown/jsonl evidence for missing laws and stale paths
-6. Current: finish PredicatePath route migration.
-   - keep moving predicate-bound phrase tails into verb-owned routes
-   - done recently: `at`, `in`, and `on` location routes
-   - next likely route families:
-     - source place: `come from school`, `go from work`
-     - `on` topic/object: `work on grammar`, `think of Mary`
-     - instrument: `open with a key`
-     - purpose/for-purpose: `use for work`, `walk to exercise`
+6. Current: presentation-ready Guided Mode.
+   - keep the developer console available as the open workbench
+   - add a first playable surface instead of a tutorial reel
+   - best candidate: Match Mode / Guess The Sentence
+   - this reuses Grammar, Lock, Compass, PredicatePaths, translation, and move
+     trace without requiring the final combination-padlock UI yet
 7. Next: staged vocabulary saturation.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
      - preview rendering is cached and bounded near visible choices
      - closed rails no longer compute full suggestion bodies
+   - saturation should follow noun atomization:
+     - show base nouns first: `friend`, `enemy`, `cat`, `dog`
+     - use determiner/adjective rails for `a friend`, `my friend`,
+       `that enemy`, `young dog`
+     - keep true pronoun-like words as complete noun phrases:
+       `someone`, `anyone`, `nobody`, `everyone`
    - saturate in layers, checking move-trace timing after each:
      - people, animals, pronoun-like nouns
      - everyday objects and food/tool/openable/text shelves
@@ -70,7 +74,24 @@ Best low-effort / high-value moves for the developer cockpit:
      - ordinary verb switches stay around 400-600 ms
      - occasional heavy first-open rails are acceptable if search and scrolling
        stay responsive
-8. Later: path-scoped Compass for the product UI.
+8. Continue: finish PredicatePath route authoring.
+   - route kinds now exist for the important right-side families:
+     - direct object
+     - recipient / addressee
+     - companion
+     - instrument
+     - destination
+     - source
+     - topic: `about`, `of`, `on`
+     - purpose: `for`
+     - location: `at`, `in`, `on`, `from`
+     - right action: `to + verb`
+   - remaining work is mostly verb-by-verb authorship and vocabulary shelves,
+     not new route-kind architecture
+   - explicit pending review rows are currently:
+     - `hate` + companion
+     - `help` + about-topic
+9. Later: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -83,36 +104,82 @@ Postpone for now:
 - deeper browser/runtime profiling, unless the current 400-600 ms cockpit feel
   stops holding during staged vocabulary saturation
 
+## Presentation Mode: Guess The Sentence
+
+Goal:
+
+Make the first public play session memorable without explaining the whole
+machine in a tutorial reel.
+
+Core loop:
+
+1. Pick a valid target `SentenceState` from a curated deck.
+2. Render the target sentence.
+3. Start the player from a simple sentence such as `You learn.`
+4. Let the player use the same Guided Mode controls to transform the current
+   sentence.
+5. Show remaining moves by comparing normalized state fields.
+6. Mark the sentence solved when current state matches the target state.
+
+First implementation:
+
+- use a curated target list, not random generation
+- compute remaining moves with a field-distance helper:
+  - subject
+  - action
+  - object and object modifiers
+  - recipient/addressee/companion/instrument/destination/topic/source/purpose
+  - right action
+  - tense/aspect/modal/polarity/form/voice/passive focus
+- show matched fields subtly in the current developer console
+- add tests for:
+  - exact match gives zero remaining moves
+  - changing only tense is one remaining move
+  - changing `You learn.` toward `Mary brought a book to John.` reports the
+    expected missing fields
+  - a solved target survives Grammar render and Recognition round trip
+
+Why this is presentation-ready:
+
+- it lets the app speak through play
+- it turns `SentenceState` into a visible puzzle
+- it demonstrates the one-predicate machine without requiring a lecture
+- it can later become the first polished product mode while the developer
+  console remains the workbench
+
 ## Executable Review Audit
 
 The essential verb review sheet is now executable through
 `test/configuration/predicate_paths_test.dart`.
 
-Current audit count:
+Current audit shape:
 
-- 347 reviewed essential verb routes
-- 353 reviewed essential verb routes
-- 313 implemented as achievable PredicatePaths
-- 40 pending right-hand examples from `zzzreadmes/VERB_REVIEW.md`
-- 20 essential verbs still have at least one pending reviewed route
+- the review sheet is executable through route assertions
+- only two reviewed routes are currently marked pending:
+  - `hate` + companion
+  - `help` + about-topic
+- recently implemented route families include:
+  - atomized location routes: `at`, `in`, `on`
+  - source-place routes: `from`
+  - topic routes: `about`, `of`, `on`
+  - instrument `with`, separate from companion `with`
+  - purpose `for`
+  - object-dependent destination:
+    - `You take a book to Mary.`
+    - `Mary brought a book to John.`
 
 Interpretation:
 
 - Most pending rows are missing data or missing authored `PredicatePath` entries,
   not missing Grammar Engine logic.
-- Some pending rows expose missing route kinds in the current system:
-  - `instrument`: `open with a key`, `break with a tool`
-  - `purpose`: `use for something`
-  - `onTopic`: `work on something`
-  - `sourcePlace`: `be from somewhere`, `come from somewhere`
-- `at` and `in` are now atomized as verb-owned location routes, compiled back
-  into the existing `PlacePhrase` surface for Grammar Engine.
+- The important route kinds now exist; new work should usually start by adding
+  data to a verb-owned path rather than adding a new engine law.
+- `at`, `in`, `on`, and `from` are now atomized as verb-owned location routes,
+  compiled back into the existing `PlacePhrase` surface for Grammar Engine.
 - Recent shelf items covered by that migration:
   - `You find in the room.`
   - `You work in IT.`
   - `You sleep in bed.`
-- `on` is the remaining obvious location/topic connector from the old phrase
-  bag.
 
 Constraint sorting for PredicatePaths:
 
@@ -145,18 +212,70 @@ Constraint sorting for PredicatePaths:
 
 Next audit actions:
 
-- split the 57 pending rows into:
-  - data-only additions
-  - new route kinds
-  - old phrase-tail migrations
-  - intentionally postponed semantics
-- implement the missing route-kind family before adding large amounts of new
-  vocabulary:
-  - instrument
-  - purpose/for-purpose
-  - on-topic
-  - atomized `on` location/topic routes
-  - source-place routes
+- keep the executable review sheet current as new verbs/routes are added
+- turn the two pending rows into either implemented routes or explicitly
+  postponed semantic decisions
+- start saturation with verb-owned shelves:
+  - more useful objects for `bring`, `take`, `give`, `buy`, `sell`
+  - richer study/learn/read/write topic and text shelves
+  - people/animal/person-like noun shelves for companion, source, addressee,
+    and destination
+- keep shrinking broad phrase pressure as predicate-bound routes are migrated
+
+## Noun Atomization Before Saturation
+
+Observation:
+
+The noun model already has the correct lower crease:
+
+- `Noun` stores singular/plural forms and translations.
+- `Noun.toNounPhrase(...)` builds a `NounPhrase`.
+- `NounPhrase` can carry determiner and adjective data.
+
+The problem is higher up: some UI-facing shelves expose pre-baked noun phrases
+such as `a friend`, `my friend`, `our friend`, and `that enemy` directly beside
+atomic nouns such as `cat`, `dog`, `John`, and `Mary`.
+
+Guiding law:
+
+If a word is a noun, expose the noun as the noun choice. If a word changes the
+noun, expose it through a modifier rail.
+
+Keep as complete noun phrases:
+
+- pronouns: `I`, `you`, `he`, `she`, `it`, `we`, `they`
+- object pronouns: `me`, `him`, `her`, `us`, `them`
+- reflexives: `myself`, `herself`, `themselves`
+- indefinite pronoun-like nouns: `someone`, `anyone`, `nobody`, `everyone`
+
+Move out of direct noun shelves:
+
+- `a friend` -> noun `friend` plus determiner `a`
+- `my friend` -> noun `friend` plus determiner `my`
+- `our friend` -> noun `friend` plus determiner `our`
+- `that enemy` -> noun `enemy` plus determiner `that`
+
+Why this comes before saturation:
+
+- it prevents duplicate chips as vocabulary grows
+- it makes singular/plural switching cleaner
+- it keeps noun, determiner, and adjective lessons visible
+- it aligns noun data with the recent phrase refactor:
+  atomized choices in Guided Mode, rendered surfaces in Grammar Engine
+
+Likely implementation:
+
+- keep `Noun` and `NounPhrase` model shapes
+- create noun shelf helpers that return bare noun phrases only
+- create separate curated modifier presets only for demo/Match Mode targets,
+  not for ordinary noun choice rails
+- adjust subject/object/recipient/addressee/companion/source/destination rails
+  to prefer bare nouns, then use their existing determiner/adjective rails
+- add regression tests proving:
+  - subject noun shelves show `friend`, not `a friend`
+  - determiner rail can produce `a friend`, `my friend`, and `that enemy`
+  - pronoun-like words remain one-click choices
+  - plural switch preserves noun identity without duplicating determiner chips
 
 ## Night Configuration Run Takeaways
 
@@ -198,7 +317,7 @@ Candidate-law sorting from the run:
      - `use` only takes tools
      - `open`/`close` only take openable objects
      - `play` only takes fixed activity objects
-3. Product-route candidates surfaced by the probes:
+3. Product-route candidates surfaced by the probes, now mostly implemented:
    - source-place route family:
      - `go from work`
      - `come from school`
@@ -224,10 +343,12 @@ Candidate-law sorting from the run:
 
 Backlog additions from this run:
 
-- implement source-place PredicatePaths before adding more broad place data
-- implement `onTopic` / `ofTopic` as topic-object routes, separate from
+- done: source-place PredicatePaths exist before adding more broad place data
+- done: `onTopic` / `ofTopic` topic-object routes exist, separate from
   `onLocation`
-- implement instrument `with`, separate from companion `with`
+- done: instrument `with` exists, separate from companion `with`
+- next: deepen the authored data behind those route families rather than adding
+  broad phrase bags back into Guided Mode
 - review verbs that look too narrow after probing:
   - `photograph`
   - `box`
