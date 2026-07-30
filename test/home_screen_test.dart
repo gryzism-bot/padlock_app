@@ -1158,9 +1158,26 @@ void main() {
     await tester.tap(find.text('cat'));
     await tester.pumpAndSettle();
     expect(renderedSentence(tester), 'Cat learns.');
-    expect(find.text('Subject determiner:'), findsOneWidget);
-    expect(find.text('Subject adjective:'), findsOneWidget);
+    expect(find.text('Subject determiner:'), findsNothing);
+    expect(find.text('Subject adjective:'), findsNothing);
 
+    await tester.tap(find.text('a').last);
+    await tester.pumpAndSettle();
+    expect(renderedSentence(tester), 'A cat learns.');
+
+    final redChoice = find.text('red');
+    await tester.scrollUntilVisible(
+      redChoice,
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(redChoice.last);
+    await tester.pumpAndSettle();
+    expect(renderedSentence(tester), 'A red cat learns.');
+
+    await tester.tapAt(const Offset(1, 1));
+    await tester.pumpAndSettle();
     await tapAfterScroll(
       tester,
       find.byTooltip('Choose 3rd person plural noun'),

@@ -525,18 +525,48 @@ Color _verbWakeSignalColor(
 }
 
 String _suggestionLabelKey(ConfigurationSuggestion suggestion) {
-  final safeLabel = suggestion.label
-      .toLowerCase()
-      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-      .replaceAll(RegExp(r'^-|-$'), '');
+  final safeLabel = _safeSuggestionKeyPart(suggestion.label);
 
   return 'suggestion-label-${suggestion.slot.name}-$safeLabel';
 }
 
 String _suggestionHoverKey(ConfigurationSuggestion suggestion) {
-  return _suggestionLabelKey(
-    suggestion,
-  ).replaceFirst('suggestion-label-', 'suggestion-hover-');
+  return 'suggestion-hover-${suggestion.slot.name}-${_safeSuggestionKeyPart(suggestion.label)}';
+}
+
+String _safeSuggestionKeyPart(String label) {
+  final buffer = StringBuffer();
+  var wroteSeparator = true;
+
+  for (final codeUnit in label.codeUnits) {
+    final isDigit = codeUnit >= 48 && codeUnit <= 57;
+    final isUpper = codeUnit >= 65 && codeUnit <= 90;
+    final isLower = codeUnit >= 97 && codeUnit <= 122;
+
+    if (isDigit || isLower) {
+      buffer.writeCharCode(codeUnit);
+      wroteSeparator = false;
+      continue;
+    }
+
+    if (isUpper) {
+      buffer.writeCharCode(codeUnit + 32);
+      wroteSeparator = false;
+      continue;
+    }
+
+    if (!wroteSeparator && buffer.isNotEmpty) {
+      buffer.write('-');
+      wroteSeparator = true;
+    }
+  }
+
+  final safeLabel = buffer.toString();
+  if (safeLabel.endsWith('-')) {
+    return safeLabel.substring(0, safeLabel.length - 1);
+  }
+
+  return safeLabel;
 }
 
 TextSpan _changedSuggestionSpan({

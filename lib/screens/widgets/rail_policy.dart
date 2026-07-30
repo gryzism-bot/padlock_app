@@ -138,6 +138,8 @@ String? _noRailSurfaceMarker(ConfigurationState configuration) => null;
 
 bool _isBodyRailSlot(ConfigurationCompassSlot slot) {
   return slot != ConfigurationCompassSlot.voice &&
+      slot != ConfigurationCompassSlot.agentDeterminer &&
+      slot != ConfigurationCompassSlot.agentAdjective &&
       slot != ConfigurationCompassSlot.modal &&
       slot != ConfigurationCompassSlot.passiveFocus &&
       slot != ConfigurationCompassSlot.passiveAgent;

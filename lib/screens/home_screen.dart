@@ -7,6 +7,9 @@ import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
+import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart'
+    as adjective_data;
+import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
@@ -116,7 +119,12 @@ final _padlockIntellijDarkTheme = ThemeData(
 );
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final SuggestionDisplayMode initialSuggestionDisplayMode;
+
+  const HomeScreen({
+    super.key,
+    this.initialSuggestionDisplayMode = SuggestionDisplayMode.change,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -448,7 +456,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final displayMode = suggestionDisplayMode ?? SuggestionDisplayMode.change;
+    final displayMode =
+        suggestionDisplayMode ?? widget.initialSuggestionDisplayMode;
     final previewMode = headerPreviewMode ?? HeaderPreviewMode.clicked;
     final cacheMode = previewCacheMode ?? PreviewCacheMode.unbounded;
     previewCache.setMaxEntries(_cacheEntryLimitForMode(cacheMode));
@@ -537,45 +546,47 @@ class _HomeScreenState extends State<HomeScreen> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: SingleChildScrollView(
-                    key: const Key('main-scroll'),
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final section in lowerSections) ...[
-                          _CompassSlotSection(
-                            title: section.title,
-                            unlockHint: section.unlockHint,
-                            surfaceMarker: section.surfaceMarker,
-                            isExpanded: section.isExpanded,
-                            onToggle: section.canToggle
-                                ? () => _toggleRail(section.slot)
-                                : null,
-                            currentSentence: sentenceText,
-                            displayMode: displayMode,
-                            showVerbTranslations: showVerbTranslations,
-                            translateVerb: translator.translateVerb,
-                            suggestions: section.suggestions,
-                            nounNumber: _nounNumberForSlot(section.slot),
-                            onNounNumberChanged:
-                                _nounNumberForSlot(section.slot) == null
-                                ? null
-                                : (number) => _changeNounNumber(
-                                    compass,
-                                    section.slot,
-                                    number,
-                                  ),
-                            renderPreview: previewCache.render,
-                            onMove: _move,
-                            onPreviewChanged:
-                                previewMode == HeaderPreviewMode.hover
-                                ? _setHoveredConfiguration
-                                : null,
-                          ),
-                          const SizedBox(height: 8),
+                  child: RepaintBoundary(
+                    child: SingleChildScrollView(
+                      key: const Key('main-scroll'),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final section in lowerSections) ...[
+                            _CompassSlotSection(
+                              title: section.title,
+                              unlockHint: section.unlockHint,
+                              surfaceMarker: section.surfaceMarker,
+                              isExpanded: section.isExpanded,
+                              onToggle: section.canToggle
+                                  ? () => _toggleRail(section.slot)
+                                  : null,
+                              currentSentence: sentenceText,
+                              displayMode: displayMode,
+                              showVerbTranslations: showVerbTranslations,
+                              translateVerb: translator.translateVerb,
+                              suggestions: section.suggestions,
+                              nounNumber: _nounNumberForSlot(section.slot),
+                              onNounNumberChanged:
+                                  _nounNumberForSlot(section.slot) == null
+                                  ? null
+                                  : (number) => _changeNounNumber(
+                                      compass,
+                                      section.slot,
+                                      number,
+                                    ),
+                              renderPreview: previewCache.render,
+                              onMove: _move,
+                              onPreviewChanged:
+                                  previewMode == HeaderPreviewMode.hover
+                                  ? _setHoveredConfiguration
+                                  : null,
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -585,127 +596,88 @@ class _HomeScreenState extends State<HomeScreen> {
                   right: 0,
                   child: SizedBox(
                     height: effectiveFixedHeadHeight,
-                    child: Material(
-                      color: _pinnedWorkbenchColor(
-                        Theme.of(context).colorScheme,
-                      ),
-                      elevation: 2,
-                      child: ClipRect(
-                        child: SingleChildScrollView(
-                          physics: fixedHeadNeedsScroll
-                              ? const ClampingScrollPhysics()
-                              : const NeverScrollableScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ValueListenableBuilder<ConfigurationState?>(
-                                valueListenable: hoveredConfiguration,
-                                builder: (context, hovered, child) {
-                                  final headerConfiguration =
-                                      previewMode == HeaderPreviewMode.hover &&
-                                          hovered != null
-                                      ? hovered
-                                      : configuration;
-                                  final headerSentence = previewCache.render(
-                                    headerConfiguration.sentenceState,
-                                  );
-                                  final displayedHeaderSentence =
-                                      showTranslation
-                                      ? translator.translateSentence(
-                                          renderedSentence: headerSentence,
-                                          state:
-                                              headerConfiguration.sentenceState,
-                                        )
-                                      : headerSentence;
+                    child: RepaintBoundary(
+                      child: Material(
+                        color: _pinnedWorkbenchColor(
+                          Theme.of(context).colorScheme,
+                        ),
+                        elevation: 2,
+                        child: ClipRect(
+                          child: SingleChildScrollView(
+                            physics: fixedHeadNeedsScroll
+                                ? const ClampingScrollPhysics()
+                                : const NeverScrollableScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ValueListenableBuilder<ConfigurationState?>(
+                                  valueListenable: hoveredConfiguration,
+                                  builder: (context, hovered, child) {
+                                    final headerConfiguration =
+                                        previewMode ==
+                                                HeaderPreviewMode.hover &&
+                                            hovered != null
+                                        ? hovered
+                                        : configuration;
+                                    final headerSentence = previewCache.render(
+                                      headerConfiguration.sentenceState,
+                                    );
+                                    final displayedHeaderSentence =
+                                        showTranslation
+                                        ? translator.translateSentence(
+                                            renderedSentence: headerSentence,
+                                            state: headerConfiguration
+                                                .sentenceState,
+                                          )
+                                        : headerSentence;
 
-                                  return _StickySentenceHeader(
-                                    child: _SentencePanel(
-                                      sentence: headerSentence,
-                                      translation: showTranslation
-                                          ? displayedHeaderSentence
-                                          : null,
-                                      summary: headerConfiguration
-                                          .sentenceState
-                                          .summary,
-                                    ),
-                                  );
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  12,
-                                  8,
-                                  12,
-                                  0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    _ControlDeck(
-                                      currentSentence: sentenceText,
-                                      modalSuggestions: compass.suggestionsFor(
-                                        configuration,
-                                        ConfigurationCompassSlot.modal,
-                                        limit: 9,
+                                    return _StickySentenceHeader(
+                                      child: _SentencePanel(
+                                        sentence: headerSentence,
+                                        translation: showTranslation
+                                            ? displayedHeaderSentence
+                                            : null,
+                                        summary: headerConfiguration
+                                            .sentenceState
+                                            .summary,
                                       ),
-                                      passiveFocusSuggestions: compass
-                                          .suggestionsFor(
-                                            configuration,
-                                            ConfigurationCompassSlot
-                                                .passiveFocus,
-                                            limit: 3,
-                                          ),
-                                      passiveAgentSuggestions: compass
-                                          .suggestionsFor(
-                                            configuration,
-                                            ConfigurationCompassSlot
-                                                .passiveAgent,
-                                            limit: 2,
-                                          ),
-                                      configuration: configuration,
-                                      onMove: _move,
-                                      onPreviewChanged:
-                                          previewMode == HeaderPreviewMode.hover
-                                          ? _setHoveredConfiguration
-                                          : null,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    _CoreParticipantSurfaceMap(
-                                      configuration: configuration,
-                                      expandedRails: expandedRails,
-                                      isExpanded: isCoreSurfaceExpanded,
-                                      onToggleSection: () {
-                                        setState(() {
-                                          isCoreSurfaceExpanded =
-                                              !isCoreSurfaceExpanded;
-                                        });
-                                      },
-                                      onToggleRail: _toggleRail,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    if (verbSection != null)
-                                      _CompassSlotSection(
-                                        title: verbSection.title,
-                                        unlockHint: verbSection.unlockHint,
-                                        surfaceMarker:
-                                            verbSection.surfaceMarker,
-                                        isExpanded: isVerbRailExpanded,
-                                        onToggle: () {
-                                          setState(() {
-                                            isVerbRailExpanded =
-                                                !isVerbRailExpanded;
-                                          });
-                                        },
+                                    );
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    12,
+                                    8,
+                                    12,
+                                    0,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      _ControlDeck(
                                         currentSentence: sentenceText,
-                                        displayMode: displayMode,
-                                        showVerbTranslations:
-                                            showVerbTranslations,
-                                        translateVerb: translator.translateVerb,
-                                        suggestions: verbSection.suggestions,
-                                        nounNumber: null,
-                                        onNounNumberChanged: null,
-                                        renderPreview: previewCache.render,
+                                        modalSuggestions: compass
+                                            .suggestionsFor(
+                                              configuration,
+                                              ConfigurationCompassSlot.modal,
+                                              limit: 9,
+                                            ),
+                                        passiveFocusSuggestions: compass
+                                            .suggestionsFor(
+                                              configuration,
+                                              ConfigurationCompassSlot
+                                                  .passiveFocus,
+                                              limit: 3,
+                                            ),
+                                        passiveAgentSuggestions: compass
+                                            .suggestionsFor(
+                                              configuration,
+                                              ConfigurationCompassSlot
+                                                  .passiveAgent,
+                                              limit: 2,
+                                            ),
+                                        configuration: configuration,
                                         onMove: _move,
                                         onPreviewChanged:
                                             previewMode ==
@@ -713,10 +685,55 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ? _setHoveredConfiguration
                                             : null,
                                       ),
-                                  ],
+                                      const SizedBox(height: 8),
+                                      _CoreParticipantSurfaceMap(
+                                        configuration: configuration,
+                                        expandedRails: expandedRails,
+                                        isExpanded: isCoreSurfaceExpanded,
+                                        onToggleSection: () {
+                                          setState(() {
+                                            isCoreSurfaceExpanded =
+                                                !isCoreSurfaceExpanded;
+                                          });
+                                        },
+                                        onToggleRail: _toggleRail,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      if (verbSection != null)
+                                        _CompassSlotSection(
+                                          title: verbSection.title,
+                                          unlockHint: verbSection.unlockHint,
+                                          surfaceMarker:
+                                              verbSection.surfaceMarker,
+                                          isExpanded: isVerbRailExpanded,
+                                          onToggle: () {
+                                            setState(() {
+                                              isVerbRailExpanded =
+                                                  !isVerbRailExpanded;
+                                            });
+                                          },
+                                          currentSentence: sentenceText,
+                                          displayMode: displayMode,
+                                          showVerbTranslations:
+                                              showVerbTranslations,
+                                          translateVerb:
+                                              translator.translateVerb,
+                                          suggestions: verbSection.suggestions,
+                                          nounNumber: null,
+                                          onNounNumberChanged: null,
+                                          renderPreview: previewCache.render,
+                                          onMove: _move,
+                                          onPreviewChanged:
+                                              previewMode ==
+                                                  HeaderPreviewMode.hover
+                                              ? _setHoveredConfiguration
+                                              : null,
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -1862,9 +1879,9 @@ class _PronounSection extends StatelessWidget {
                         agent: agent,
                         isSelected: _isSelectedSubjectNoun(
                           agent,
-                          _singularSubjectNounChoices,
+                          _singularSubjectNounGroups,
                         ),
-                        choices: _singularSubjectNounChoices,
+                        groups: _singularSubjectNounGroups,
                         onMove: onMove,
                       ),
                     ],
@@ -1895,9 +1912,9 @@ class _PronounSection extends StatelessWidget {
                         agent: agent,
                         isSelected: _isSelectedSubjectNoun(
                           agent,
-                          _pluralSubjectNounChoices,
+                          _pluralSubjectNounGroups,
                         ),
-                        choices: _pluralSubjectNounChoices,
+                        groups: _pluralSubjectNounGroups,
                         onMove: onMove,
                       ),
                     ],
@@ -1919,54 +1936,116 @@ class _SubjectNounChoice {
   const _SubjectNounChoice({required this.label, required this.phrase});
 }
 
-final _singularSubjectNounChoices = [
-  _SubjectNounChoice(label: 'cat', phrase: cat.toNounPhrase(Number.singular)),
-  _SubjectNounChoice(label: 'dog', phrase: dog.toNounPhrase(Number.singular)),
-  _SubjectNounChoice(label: 'John', phrase: john.toNounPhrase(Number.singular)),
-  _SubjectNounChoice(label: 'Mary', phrase: mary.toNounPhrase(Number.singular)),
-  _SubjectNounChoice(
-    label: 'friend',
-    phrase: friend.toNounPhrase(Number.singular),
+class _SubjectNounGroup {
+  final String label;
+  final List<_SubjectNounChoice> choices;
+
+  const _SubjectNounGroup({required this.label, required this.choices});
+}
+
+final _singularSubjectNounGroups = [
+  _SubjectNounGroup(
+    label: 'animals',
+    choices: [
+      _SubjectNounChoice(
+        label: 'cat',
+        phrase: cat.toNounPhrase(Number.singular),
+      ),
+      _SubjectNounChoice(
+        label: 'dog',
+        phrase: dog.toNounPhrase(Number.singular),
+      ),
+    ],
   ),
-  _SubjectNounChoice(
-    label: 'enemy',
-    phrase: enemy.toNounPhrase(Number.singular),
+  _SubjectNounGroup(
+    label: 'people',
+    choices: [
+      _SubjectNounChoice(
+        label: 'John',
+        phrase: john.toNounPhrase(Number.singular),
+      ),
+      _SubjectNounChoice(
+        label: 'Mary',
+        phrase: mary.toNounPhrase(Number.singular),
+      ),
+      _SubjectNounChoice(
+        label: 'friend',
+        phrase: friend.toNounPhrase(Number.singular),
+      ),
+      _SubjectNounChoice(
+        label: 'enemy',
+        phrase: enemy.toNounPhrase(Number.singular),
+      ),
+    ],
   ),
-  _SubjectNounChoice(label: 'someone', phrase: someone),
-  _SubjectNounChoice(label: 'anyone', phrase: anyone),
-  _SubjectNounChoice(label: 'nobody', phrase: nobody),
-  _SubjectNounChoice(label: 'everyone', phrase: everyone),
+  _SubjectNounGroup(
+    label: 'someone words',
+    choices: [
+      _SubjectNounChoice(label: 'someone', phrase: someone),
+      _SubjectNounChoice(label: 'anyone', phrase: anyone),
+      _SubjectNounChoice(label: 'nobody', phrase: nobody),
+      _SubjectNounChoice(label: 'everyone', phrase: everyone),
+    ],
+  ),
 ];
 
-final _pluralSubjectNounChoices = [
-  _SubjectNounChoice(label: 'cats', phrase: cat.toNounPhrase(Number.plural)),
-  _SubjectNounChoice(label: 'dogs', phrase: dog.toNounPhrase(Number.plural)),
-  _SubjectNounChoice(
-    label: 'friends',
-    phrase: friend.toNounPhrase(Number.plural),
+final _pluralSubjectNounGroups = [
+  _SubjectNounGroup(
+    label: 'animals',
+    choices: [
+      _SubjectNounChoice(
+        label: 'cats',
+        phrase: cat.toNounPhrase(Number.plural),
+      ),
+      _SubjectNounChoice(
+        label: 'dogs',
+        phrase: dog.toNounPhrase(Number.plural),
+      ),
+    ],
   ),
-  _SubjectNounChoice(
-    label: 'enemies',
-    phrase: enemy.toNounPhrase(Number.plural),
-  ),
-  _SubjectNounChoice(
+  _SubjectNounGroup(
     label: 'people',
-    phrase: person.toNounPhrase(Number.plural),
+    choices: [
+      _SubjectNounChoice(
+        label: 'friends',
+        phrase: friend.toNounPhrase(Number.plural),
+      ),
+      _SubjectNounChoice(
+        label: 'enemies',
+        phrase: enemy.toNounPhrase(Number.plural),
+      ),
+      _SubjectNounChoice(
+        label: 'people',
+        phrase: person.toNounPhrase(Number.plural),
+      ),
+    ],
   ),
 ];
+
+class _SubjectOverlayChoice {
+  final String label;
+  final ConfigurationMove move;
+  final bool isSelected;
+
+  const _SubjectOverlayChoice({
+    required this.label,
+    required this.move,
+    this.isSelected = false,
+  });
+}
 
 class _SubjectNounMenuButton extends StatelessWidget {
   final String tooltip;
   final NounPhrase? agent;
   final bool isSelected;
-  final List<_SubjectNounChoice> choices;
+  final List<_SubjectNounGroup> groups;
   final ValueChanged<ConfigurationMove> onMove;
 
   const _SubjectNounMenuButton({
     required this.tooltip,
     required this.agent,
     required this.isSelected,
-    required this.choices,
+    required this.groups,
     required this.onMove,
   });
 
@@ -1974,27 +2053,18 @@ class _SubjectNounMenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return PopupMenuButton<NounPhrase>(
+    return PopupMenuButton<ConfigurationMove>(
       tooltip: tooltip,
       position: PopupMenuPosition.under,
-      onSelected: (phrase) => onMove(SetAgent(phrase)),
+      constraints: const BoxConstraints(maxHeight: 420, minWidth: 560),
+      onSelected: onMove,
       itemBuilder: (context) => [
-        for (final choice in choices)
-          PopupMenuItem<NounPhrase>(
-            value: choice.phrase,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 18,
-                  child: _sameNounPhrase(agent, choice.phrase)
-                      ? Icon(Icons.check, size: 16, color: colors.primary)
-                      : null,
-                ),
-                Text(choice.label),
-              ],
-            ),
-          ),
+        _SubjectPopupColumnsEntry(
+          agent: agent,
+          isSelected: isSelected,
+          groups: groups,
+          onMove: onMove,
+        ),
       ],
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -2017,15 +2087,490 @@ class _SubjectNounMenuButton extends StatelessWidget {
   }
 }
 
-bool _isSelectedSubjectNoun(
-  NounPhrase? agent,
-  List<_SubjectNounChoice> choices,
+class _SubjectPopupColumnsEntry extends PopupMenuEntry<ConfigurationMove> {
+  final NounPhrase? agent;
+  final bool isSelected;
+  final List<_SubjectNounGroup> groups;
+  final ValueChanged<ConfigurationMove> onMove;
+
+  const _SubjectPopupColumnsEntry({
+    required this.agent,
+    required this.isSelected,
+    required this.groups,
+    required this.onMove,
+  });
+
+  @override
+  double get height => 380;
+
+  @override
+  bool represents(ConfigurationMove? value) => false;
+
+  @override
+  State<_SubjectPopupColumnsEntry> createState() =>
+      _SubjectPopupColumnsEntryState();
+}
+
+class _SubjectPopupColumnsEntryState extends State<_SubjectPopupColumnsEntry> {
+  bool isDeterminerExpanded = true;
+  bool isAdjectiveExpanded = true;
+  late NounPhrase? localAgent = widget.agent;
+
+  bool get isLocalSelected =>
+      localAgent != null &&
+      widget.groups
+          .expand((group) => group.choices)
+          .any((choice) => _sameNounPhrase(localAgent, choice.phrase));
+
+  List<_SubjectOverlayChoice> get determinerChoices {
+    return _subjectDeterminerSuggestionsFor(localAgent);
+  }
+
+  List<_SubjectOverlayChoice> get adjectiveChoices {
+    return _subjectAdjectiveSuggestionsFor(localAgent);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 540,
+      height: 380,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _SubjectPopupNounColumn(
+                agent: localAgent,
+                groups: widget.groups,
+                onNounSelected: (phrase) {
+                  final move = SetAgent(phrase);
+                  widget.onMove(move);
+                  setState(() {
+                    localAgent = phrase;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SubjectPopupSuggestionColumn(
+                label: 'determiner',
+                enabled: isLocalSelected,
+                isExpanded: isDeterminerExpanded,
+                choices: determinerChoices,
+                onChoiceSelected: (choice) {
+                  widget.onMove(choice.move);
+                  setState(() {
+                    localAgent = _applyLocalSubjectModifier(
+                      localAgent,
+                      choice.move,
+                    );
+                  });
+                },
+                onToggle: () {
+                  setState(() {
+                    isDeterminerExpanded = !isDeterminerExpanded;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _SubjectPopupSuggestionColumn(
+                label: 'adjective',
+                enabled: isLocalSelected,
+                isExpanded: isAdjectiveExpanded,
+                choices: adjectiveChoices,
+                onChoiceSelected: (choice) {
+                  widget.onMove(choice.move);
+                  setState(() {
+                    localAgent = _applyLocalSubjectModifier(
+                      localAgent,
+                      choice.move,
+                    );
+                  });
+                },
+                onToggle: () {
+                  setState(() {
+                    isAdjectiveExpanded = !isAdjectiveExpanded;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SubjectPopupNounColumn extends StatelessWidget {
+  final NounPhrase? agent;
+  final List<_SubjectNounGroup> groups;
+  final ValueChanged<NounPhrase> onNounSelected;
+
+  const _SubjectPopupNounColumn({
+    required this.agent,
+    required this.groups,
+    required this.onNounSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubjectPopupColumnShell(
+      label: 'noun',
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          for (final group in groups) ...[
+            _SubjectPopupGroupLabel(group.label),
+            for (final choice in group.choices)
+              _SubjectPopupMoveCell(
+                label: choice.label,
+                isSelected: _sameNounPhrase(agent, choice.phrase),
+                onTap: () => onNounSelected(choice.phrase),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SubjectPopupSuggestionColumn extends StatelessWidget {
+  final String label;
+  final bool enabled;
+  final bool isExpanded;
+  final List<_SubjectOverlayChoice> choices;
+  final ValueChanged<_SubjectOverlayChoice> onChoiceSelected;
+  final VoidCallback onToggle;
+
+  const _SubjectPopupSuggestionColumn({
+    required this.label,
+    required this.enabled,
+    required this.isExpanded,
+    required this.choices,
+    required this.onChoiceSelected,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return _SubjectPopupColumnShell(
+      label: label,
+      isExpanded: isExpanded,
+      canExpand: enabled && choices.isNotEmpty,
+      onToggle: enabled && choices.isNotEmpty ? onToggle : null,
+      child: !enabled
+          ? Text(
+              'choose noun',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            )
+          : !isExpanded
+          ? const SizedBox.shrink()
+          : ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                for (final choice in choices)
+                  _SubjectPopupMoveCell(
+                    label: choice.label,
+                    isSelected: choice.isSelected,
+                    onTap: () => onChoiceSelected(choice),
+                  ),
+              ],
+            ),
+    );
+  }
+}
+
+class _SubjectPopupColumnShell extends StatelessWidget {
+  final String label;
+  final Widget child;
+  final bool? isExpanded;
+  final bool canExpand;
+  final VoidCallback? onToggle;
+
+  const _SubjectPopupColumnShell({
+    required this.label,
+    required this.child,
+    this.isExpanded,
+    this.canExpand = false,
+    this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final header = _SubjectPopupHeader(
+      label,
+      isExpanded: isExpanded,
+      canExpand: canExpand,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        onToggle == null
+            ? header
+            : InkWell(
+                borderRadius: BorderRadius.circular(6),
+                onTap: onToggle,
+                child: header,
+              ),
+        const SizedBox(height: 6),
+        Expanded(child: child),
+      ],
+    );
+  }
+}
+
+class _SubjectPopupMoveCell extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _SubjectPopupMoveCell({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                child: isSelected
+                    ? Icon(Icons.check, size: 14, color: colors.primary)
+                    : null,
+              ),
+              Expanded(
+                child: Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SubjectPopupGroupLabel extends StatelessWidget {
+  final String label;
+
+  const _SubjectPopupGroupLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 4, 4),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: colors.onSurfaceVariant,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+List<_SubjectOverlayChoice> _subjectDeterminerSuggestionsFor(
+  NounPhrase? phrase,
 ) {
+  if (phrase == null || !phrase.canTakeModifiers) {
+    return const [];
+  }
+
+  return [
+    _SubjectOverlayChoice(
+      move: const SetNounPhraseDeterminer(NounPhraseTarget.agent, null),
+      label: 'no determiner',
+      isSelected: phrase.determiner == null,
+    ),
+    for (final determiner in allDeterminers)
+      if (_subjectDeterminerFits(phrase, determiner.text))
+        _SubjectOverlayChoice(
+          move: SetNounPhraseDeterminer(NounPhraseTarget.agent, determiner),
+          label: determiner.text,
+          isSelected: phrase.determiner == determiner,
+        ),
+  ];
+}
+
+List<_SubjectOverlayChoice> _subjectAdjectiveSuggestionsFor(
+  NounPhrase? phrase,
+) {
+  if (phrase == null || !phrase.canTakeModifiers) {
+    return const [];
+  }
+
+  final current = phrase.adjectiveList;
+
+  return [
+    _SubjectOverlayChoice(
+      move: const SetNounPhraseAdjectives(NounPhraseTarget.agent, []),
+      label: 'no adjective',
+      isSelected: current.isEmpty,
+    ),
+    for (final adjective in current)
+      _SubjectOverlayChoice(
+        move: SetNounPhraseAdjectives(NounPhraseTarget.agent, current),
+        label: adjective.text,
+        isSelected: true,
+      ),
+    for (final adjective in adjective_data.adjectives)
+      if (!current.contains(adjective) &&
+          _subjectDeterminerFits(
+            phrase.copyWith(adjectives: [...current, adjective]),
+            phrase.determiner?.text,
+          ))
+        _SubjectOverlayChoice(
+          move: SetNounPhraseAdjectives(NounPhraseTarget.agent, [
+            ...current,
+            adjective,
+          ]),
+          label: adjective.text,
+        ),
+  ];
+}
+
+NounPhrase? _applyLocalSubjectModifier(
+  NounPhrase? phrase,
+  ConfigurationMove move,
+) {
+  if (phrase == null) {
+    return null;
+  }
+
+  return switch (move) {
+    SetNounPhraseDeterminer(:final target, :final determiner)
+        when target == NounPhraseTarget.agent =>
+      phrase.copyWith(determiner: determiner),
+    SetNounPhraseAdjectives(:final target, :final adjectives)
+        when target == NounPhraseTarget.agent =>
+      phrase.copyWith(
+        adjective: adjectives.isEmpty ? null : adjectives.first,
+        adjectives: adjectives,
+      ),
+    _ => phrase,
+  };
+}
+
+bool _subjectDeterminerFits(NounPhrase phrase, String? determinerText) {
+  if (determinerText == null) {
+    return true;
+  }
+
+  if (_subjectSingularDeterminers.contains(determinerText) && phrase.isPlural) {
+    return false;
+  }
+
+  if (_subjectPluralDeterminers.contains(determinerText) && !phrase.isPlural) {
+    return false;
+  }
+
+  final firstSpokenWord = phrase.adjectiveList.isEmpty
+      ? phrase.text
+      : phrase.adjectiveList.first.text;
+
+  if (determinerText == 'a' && _subjectStartsWithVowelLetter(firstSpokenWord)) {
+    return false;
+  }
+
+  if (determinerText == 'an' &&
+      !_subjectStartsWithVowelLetter(firstSpokenWord)) {
+    return false;
+  }
+
+  return true;
+}
+
+const _subjectSingularDeterminers = {
+  'a',
+  'an',
+  'this',
+  'that',
+  'each',
+  'every',
+};
+const _subjectPluralDeterminers = {'these', 'those', 'all', 'many'};
+
+bool _subjectStartsWithVowelLetter(String text) {
+  final normalized = text.trim().toLowerCase();
+  if (normalized.isEmpty) {
+    return false;
+  }
+
+  return 'aeiou'.contains(normalized[0]);
+}
+
+class _SubjectPopupHeader extends StatelessWidget {
+  final String label;
+  final bool? isExpanded;
+  final bool canExpand;
+
+  const _SubjectPopupHeader(
+    this.label, {
+    this.isExpanded,
+    this.canExpand = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: colors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        if (canExpand && isExpanded != null)
+          Icon(
+            isExpanded! ? Icons.expand_less : Icons.expand_more,
+            size: 16,
+            color: colors.primary,
+          ),
+      ],
+    );
+  }
+}
+
+bool _isSelectedSubjectNoun(NounPhrase? agent, List<_SubjectNounGroup> groups) {
   if (agent == null) {
     return false;
   }
 
-  return choices.any((choice) => _sameNounPhrase(agent, choice.phrase));
+  return groups
+      .expand((group) => group.choices)
+      .any((choice) => _sameNounPhrase(agent, choice.phrase));
 }
 
 class _TenseAspectSection extends StatelessWidget {
