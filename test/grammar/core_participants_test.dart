@@ -1040,6 +1040,23 @@ void main() {
       expect(sentence, 'You took a book to Mary.');
     });
 
+    test('bring can render object before person destination', () {
+      final sentence = render(
+        SentenceState(
+          agent: mary.toNounPhrase(Number.singular),
+          action: bring,
+          object: book
+              .toNounPhrase(Number.singular)
+              .copyWith(determiner: aDeterminer),
+          destination: john.toNounPhrase(Number.singular),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Mary brought a book to John.');
+    });
+
     test('regular destination verbs survive perfect verb chains', () {
       final sentence = render(
         SentenceState(

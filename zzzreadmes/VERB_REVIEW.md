@@ -156,6 +156,17 @@ take - to somewhere
 take - quickly
 take - today
 
+bring - something
+bring - a book
+bring - money
+bring - a phone
+bring - a photo
+bring - with someone
+bring - from somewhere
+bring - to somewhere
+bring - quickly
+bring - today
+
 give - something
 give - a book
 give - money

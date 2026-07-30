@@ -1009,6 +1009,20 @@ final guidedPredicateUnlocks = [
       _times(_todayTimes),
     ],
   ),
+  _directWithPaths(
+    bring,
+    _uniqueByText([..._everydayObjects, ..._photoObjects]),
+    paths: [
+      _sources(),
+      PredicatePath.toDestination(_people, requiresObject: true),
+      PredicatePath.withCompanion(_people),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _fromLocations(_everydayPlaces),
+      _manners(_movementManners),
+      _times(_todayTimes),
+    ],
+  ),
   PredicateUnlocks(
     verb: give,
     paths: [
@@ -1977,6 +1991,11 @@ final essentialPredicatePathMigration = [
     verb: take,
     readiness: PredicatePathReadiness.pendingHandAuthored,
     note: 'author takeable object tracks',
+  ),
+  _migration(
+    verb: bring,
+    readiness: PredicatePathReadiness.pendingHandAuthored,
+    note: 'author bringable object and destination tracks',
   ),
   _migration(
     verb: give,

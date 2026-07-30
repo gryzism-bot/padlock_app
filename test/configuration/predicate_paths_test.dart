@@ -623,26 +623,28 @@ void main() {
     });
 
     test('object-dependent paths document and compile their prerequisite', () {
-      final takeUnlocks = predicateUnlocksFor(take)!;
-      final destinationPath = takeUnlocks.paths.singleWhere(
-        (path) => path.kind == PredicatePathKind.toDestination,
-      );
+      for (final verb in [take, bring]) {
+        final unlocks = predicateUnlocksFor(verb)!;
+        final destinationPath = unlocks.paths.singleWhere(
+          (path) => path.kind == PredicatePathKind.toDestination,
+        );
 
-      expect(destinationPath.requiresObject, isTrue);
-      expect(
-        predicatePathRequiresObject(take, PredicatePathKind.toDestination),
-        isTrue,
-      );
+        expect(destinationPath.requiresObject, isTrue);
+        expect(
+          predicatePathRequiresObject(verb, PredicatePathKind.toDestination),
+          isTrue,
+        );
 
-      final state = stateAfterPath(takeUnlocks, destinationPath);
+        final state = stateAfterPath(unlocks, destinationPath);
 
-      expect(wasBlocked(state), isFalse);
-      expect(state.sentenceState.object?.text, 'breakfast');
-      expect(state.sentenceState.destination?.text, 'John');
-      expect(
-        grammar.generate(state.sentenceState).text,
-        'You take breakfast to John.',
-      );
+        expect(wasBlocked(state), isFalse);
+        expect(state.sentenceState.object, isNotNull);
+        expect(state.sentenceState.destination?.text, 'John');
+        expect(
+          grammar.generate(state.sentenceState).text,
+          allOf(startsWith('You ${verb.infinitive} '), endsWith(' to John.')),
+        );
+      }
     });
 
     test('seed paths document the intended first product tracks', () {
@@ -1280,6 +1282,17 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
+
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'book'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'photo'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.destination),
+  _ReviewedRoute(bring, _ReviewedRouteKind.source),
+  _ReviewedRoute(bring, _ReviewedRouteKind.companion),
+  _ReviewedRoute(bring, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.time, text: 'today'),
 
   _ReviewedRoute(give, _ReviewedRouteKind.directObject),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),

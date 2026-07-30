@@ -1059,46 +1059,52 @@ void main() {
       expect(render(suggestions.last.preview), 'You go to Mary.');
     });
 
-    test('take destination suggestions wake after an object exists', () {
-      final authoredCompass = ConfigurationCompass(
-        predicatePathMode: PredicatePathMode.authoredTracks,
-      );
-      var state = lock.applyMove(
-        ConfigurationState.initial(),
-        const SetAction(take),
-      );
+    test(
+      'object-moving destination suggestions wake after an object exists',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        for (final verb in [take, bring]) {
+          var state = lock.applyMove(
+            ConfigurationState.initial(),
+            SetAction(verb),
+          );
 
-      expect(
-        authoredCompass.suggestionsFor(
-          state,
-          ConfigurationCompassSlot.destination,
-          limit: 0,
-        ),
-        isEmpty,
-      );
+          expect(
+            authoredCompass.suggestionsFor(
+              state,
+              ConfigurationCompassSlot.destination,
+              limit: 0,
+            ),
+            isEmpty,
+            reason: verb.infinitive,
+          );
 
-      state = lock.applyMove(
-        state,
-        SetObject(book.toNounPhrase(Number.singular)),
-      );
+          state = lock.applyMove(
+            state,
+            SetObject(book.toNounPhrase(Number.singular)),
+          );
 
-      final suggestions = authoredCompass.suggestionsFor(
-        state,
-        ConfigurationCompassSlot.destination,
-        limit: 0,
-      );
-      final labels = suggestions.map((suggestion) => suggestion.label);
+          final suggestions = authoredCompass.suggestionsFor(
+            state,
+            ConfigurationCompassSlot.destination,
+            limit: 0,
+          );
+          final labels = suggestions.map((suggestion) => suggestion.label);
 
-      expect(labels, containsAll(['John', 'Mary', 'friend']));
-      expect(
-        render(
-          suggestions
-              .firstWhere((suggestion) => suggestion.label == 'Mary')
-              .preview,
-        ),
-        'You take book to Mary.',
-      );
-    });
+          expect(labels, containsAll(['John', 'Mary', 'friend']));
+          expect(
+            render(
+              suggestions
+                  .firstWhere((suggestion) => suggestion.label == 'Mary')
+                  .preview,
+            ),
+            'You ${verb.infinitive} book to Mary.',
+          );
+        }
+      },
+    );
 
     test('topic suggestions require topic-capable frame', () {
       final authoredCompass = ConfigurationCompass(

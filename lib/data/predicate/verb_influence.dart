@@ -42,6 +42,7 @@ const _popularDoorwayBonusByVerb = {
   'close': 14,
   'make': 13,
   'take': 12,
+  'bring': 12,
   'buy': 11,
   'see': 10,
   'speak': 9,

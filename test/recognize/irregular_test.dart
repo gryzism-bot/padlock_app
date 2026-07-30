@@ -430,6 +430,7 @@ void main() {
           fly,
           see,
           take,
+          bring,
           give,
           buy,
           speak,

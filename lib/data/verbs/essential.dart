@@ -162,6 +162,19 @@ const take = Verb(
   translations: {Language.pl: 'brać'},
 );
 
+const bring = Verb(
+  infinitive: 'bring',
+  presentThirdPerson: 'brings',
+  pastSimple: 'brought',
+  pastParticiple: 'brought',
+  ingForm: 'bringing',
+  takesObject: true,
+  takesCompanion: true,
+  usesDestinationPlace: true,
+  takesSource: true,
+  translations: {Language.pl: 'przynosić'},
+);
+
 const give = Verb(
   infinitive: 'give',
   presentThirdPerson: 'gives',
@@ -449,6 +462,7 @@ final List<Verb> essentialVerbs = [
   get,
   make,
   take,
+  bring,
   give,
   know,
   think,
