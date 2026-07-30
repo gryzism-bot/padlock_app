@@ -142,7 +142,8 @@ class ConfigurationCompass {
        objects = objects ?? _defaultObjects,
        recipients = recipients ?? _defaultRecipients,
        complements = complements ?? _defaultComplements,
-       adjectiveComplements = adjectiveComplements ?? emotionsAdjectives,
+       adjectiveComplements =
+           adjectiveComplements ?? _defaultAdjectiveComplements,
        nounAdjectives = nounAdjectives ?? _defaultNounAdjectives,
        determiners = determiners ?? allDeterminers,
        modals = modals ?? _coreModals,
@@ -812,10 +813,15 @@ class ConfigurationCompass {
       return null;
     }
 
-    final choices = predicateNounChoicesFor(owner ?? sentence.action, kind);
+    final action = owner ?? sentence.action;
+    final choices = predicateNounChoicesFor(action, kind);
 
     if (choices.isEmpty) {
       return null;
+    }
+
+    if (predicatePathRequiresObject(action, kind) && sentence.object == null) {
+      return const [];
     }
 
     return choices;
@@ -1707,3 +1713,5 @@ final _defaultNounAdjectives = [
   ...qualityAdjectives,
   ...emotionsAdjectives,
 ];
+
+final _defaultAdjectiveComplements = [...emotionsAdjectives, ready, late];

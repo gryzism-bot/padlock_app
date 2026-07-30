@@ -539,6 +539,15 @@ class ConfigurationEngine {
       tailOwner,
       destinationSurface,
     );
+    final nextDestination =
+        destination != null &&
+            object == null &&
+            predicatePathRequiresObject(
+              tailOwner,
+              PredicatePathKind.toDestination,
+            )
+        ? null
+        : destination;
     final topic = _surfaceAfterActionChange(
       state.topic,
       tailOwner,
@@ -601,7 +610,7 @@ class ConfigurationEngine {
       addressee: addressee,
       companion: companion,
       instrument: instrument,
-      destination: destination,
+      destination: nextDestination,
       topic: topic,
       topicPreposition: topic == null
           ? TopicPreposition.about
@@ -634,6 +643,14 @@ class ConfigurationEngine {
         objectAdjectiveComplement: object == null
             ? null
             : state.objectAdjectiveComplement,
+        destination:
+            object == null &&
+                predicatePathRequiresObject(
+                  state.rightAction ?? state.action,
+                  PredicatePathKind.toDestination,
+                )
+            ? null
+            : state.destination,
       ),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetAddressee(:final addressee) => _copy(state, addressee: addressee),

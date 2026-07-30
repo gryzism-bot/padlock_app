@@ -71,7 +71,7 @@ ConfigurationState compileFirstPredicatePathChoice(
   var state = from ?? ConfigurationState.initial();
   state = lock.applyMove(state, SetAction(unlocks.verb));
 
-  if (path.kind == PredicatePathKind.toRecipient) {
+  if (path.kind == PredicatePathKind.toRecipient || path.requiresObject) {
     final directObjectPath = _firstPathOfKind(
       unlocks.paths,
       PredicatePathKind.directObject,

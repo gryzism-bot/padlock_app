@@ -358,6 +358,13 @@ void _validateActiveVoiceFrame(_ValidationContext context) {
       ConfigurationLawCategory.predicateFrameType,
     );
   }
+
+  if (!destinationFrameNeedsObject(state)) {
+    context.block(
+      '${context.owner.infinitive} needs an object before a destination.',
+      ConfigurationLawCategory.predicateFrameType,
+    );
+  }
 }
 
 void _validatePassiveVoiceFrame(_ValidationContext context) {

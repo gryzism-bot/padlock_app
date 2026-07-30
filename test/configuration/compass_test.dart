@@ -1059,6 +1059,47 @@ void main() {
       expect(render(suggestions.last.preview), 'You go to Mary.');
     });
 
+    test('take destination suggestions wake after an object exists', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(take),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.destination,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.destination,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['John', 'Mary', 'friend']));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You take book to Mary.',
+      );
+    });
+
     test('topic suggestions require topic-capable frame', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,

@@ -525,6 +525,18 @@ void main() {
       expect(state.recipient, isNull);
     });
 
+    test('take recognizes object before person destination', () {
+      final state = engine.recognize('You took a book to Mary.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, take);
+      expectObject(state, text: 'book', determiner: aDeterminer);
+      expectDestination(state, text: 'mary');
+      expect(state.tense, Tense.past);
+      expect(state.aspect, Aspect.simple);
+      expect(state.recipient, isNull);
+    });
+
     test('regular destination verbs recognize perfect destination chains', () {
       final state = engine.recognize('Mary has travelled to school.');
 

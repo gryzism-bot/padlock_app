@@ -47,6 +47,9 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'speak': [english, polish, spanish],
   'read': [
     for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),
+    english,
+    polish,
+    spanish,
   ],
   'write': [
     for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),
@@ -56,6 +59,12 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   ],
   'watch': [
     for (final noun in object_categories.mediaObjectNouns) ..._nounForms(noun),
+    show,
+    ..._nounForms(
+      object_categories.gameObjectNouns.firstWhere(
+        (noun) => noun.singular == 'game',
+      ),
+    ),
   ],
   'drive': [
     for (final noun in object_categories.drivableObjectNouns)

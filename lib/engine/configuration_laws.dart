@@ -1,4 +1,5 @@
 import 'package:padlock_app/data/modals.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/participant_surface.dart';
@@ -210,6 +211,16 @@ bool activeObjectNeedsObjectCapablePredicate(SentenceState state) {
 
 bool recipientFrameNeedsObject(SentenceState state) {
   return state.recipient == null || state.object != null;
+}
+
+bool destinationFrameNeedsObject(SentenceState state) {
+  if (state.destination == null) {
+    return true;
+  }
+
+  final owner = state.rightAction ?? state.action;
+  return !predicatePathRequiresObject(owner, PredicatePathKind.toDestination) ||
+      state.object != null;
 }
 
 bool modalAllowedInSentenceForm(SentenceState state) {

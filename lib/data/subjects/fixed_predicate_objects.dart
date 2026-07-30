@@ -52,6 +52,20 @@ const workNoun = NounPhrase(
   translations: {Language.pl: 'praca'},
 );
 
+const homework = NounPhrase(
+  text: 'homework',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'praca domowa'},
+);
+
+const job = NounPhrase(
+  text: 'job',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'praca'},
+);
+
 const exerciseNoun = NounPhrase(
   text: 'exercise',
   person: Person.third,
@@ -80,11 +94,130 @@ const funNoun = NounPhrase(
   translations: {Language.pl: 'zabawa'},
 );
 
+const helpNoun = NounPhrase(
+  text: 'help',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'pomoc'},
+);
+
 const dinnerNoun = NounPhrase(
   text: 'dinner',
   person: Person.third,
   number: Number.singular,
   translations: {Language.pl: 'kolacja'},
+);
+
+const breakfast = NounPhrase(
+  text: 'breakfast',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'sniadanie'},
+);
+
+const money = NounPhrase(
+  text: 'money',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'pieniadze'},
+);
+
+const time = NounPhrase(
+  text: 'time',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'czas'},
+);
+
+const problem = NounPhrase(
+  text: 'problem',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'problem'},
+);
+
+const question = NounPhrase(
+  text: 'question',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'pytanie'},
+);
+
+const lesson = NounPhrase(
+  text: 'lesson',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'lekcja'},
+);
+
+const plan = NounPhrase(
+  text: 'plan',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'plan'},
+);
+
+const mistake = NounPhrase(
+  text: 'mistake',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'blad'},
+);
+
+const answer = NounPhrase(
+  text: 'answer',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'odpowiedz'},
+);
+
+const word = NounPhrase(
+  text: 'word',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'slowo'},
+);
+
+const yes = NounPhrase(
+  text: 'yes',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'tak'},
+);
+
+const no = NounPhrase(
+  text: 'no',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'nie'},
+);
+
+const hello = NounPhrase(
+  text: 'hello',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'czesc'},
+);
+
+const noise = NounPhrase(
+  text: 'noise',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'halas'},
+);
+
+const waiting = NounPhrase(
+  text: 'waiting',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'czekanie'},
+);
+
+const show = NounPhrase(
+  text: 'show',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'program'},
 );
 
 const english = NounPhrase(

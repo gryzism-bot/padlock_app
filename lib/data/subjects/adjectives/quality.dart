@@ -26,6 +26,10 @@ const full = Adjective(text: 'full', translations: {Language.pl: 'pełny'});
 
 const free = Adjective(text: 'free', translations: {Language.pl: 'darmowy'});
 
+const ready = Adjective(text: 'ready', translations: {Language.pl: 'gotowy'});
+
+const late = Adjective(text: 'late', translations: {Language.pl: 'spozniony'});
+
 const qualityAdjectives = [
   good,
   bad,
@@ -38,4 +42,6 @@ const qualityAdjectives = [
   weak,
   full,
   free,
+  ready,
+  late,
 ];

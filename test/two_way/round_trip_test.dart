@@ -212,6 +212,7 @@ void main() {
         'You learn for school.',
         'They run for health.',
         'She cooked bread for dinner.',
+        'You took a book to Mary.',
         'They read for school.',
         'John agreed with Mary.',
         'John spoke quietly to Mary.',

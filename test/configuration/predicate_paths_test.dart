@@ -622,6 +622,29 @@ void main() {
       }
     });
 
+    test('object-dependent paths document and compile their prerequisite', () {
+      final takeUnlocks = predicateUnlocksFor(take)!;
+      final destinationPath = takeUnlocks.paths.singleWhere(
+        (path) => path.kind == PredicatePathKind.toDestination,
+      );
+
+      expect(destinationPath.requiresObject, isTrue);
+      expect(
+        predicatePathRequiresObject(take, PredicatePathKind.toDestination),
+        isTrue,
+      );
+
+      final state = stateAfterPath(takeUnlocks, destinationPath);
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object?.text, 'breakfast');
+      expect(state.sentenceState.destination?.text, 'John');
+      expect(
+        grammar.generate(state.sentenceState).text,
+        'You take breakfast to John.',
+      );
+    });
+
     test('seed paths document the intended first product tracks', () {
       final examples = <Verb, List<String>>{
         learn: [
@@ -1107,13 +1130,11 @@ const _essentialVerbReviewRoutes = [
     be,
     _ReviewedRouteKind.lexicalBeAdjectiveComplement,
     text: 'ready',
-    status: _pending,
   ),
   _ReviewedRoute(
     be,
     _ReviewedRouteKind.lexicalBeAdjectiveComplement,
     text: 'late',
-    status: _pending,
   ),
 
   _ReviewedRoute(have, _ReviewedRouteKind.directObject),
@@ -1122,66 +1143,21 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(have, _ReviewedRouteKind.companion),
   _ReviewedRoute(have, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(have, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(
-    have,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    have,
-    _ReviewedRouteKind.directObject,
-    text: 'time',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    have,
-    _ReviewedRouteKind.directObject,
-    text: 'problem',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    have,
-    _ReviewedRouteKind.directObject,
-    text: 'question',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    have,
-    _ReviewedRouteKind.directObject,
-    text: 'breakfast',
-    status: _pending,
-  ),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'time'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'problem'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'question'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'breakfast'),
 
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'again'),
-  _ReviewedRoute(
-    doVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'work',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    doVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'homework',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    doVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'job',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    doVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'exercise',
-    status: _pending,
-  ),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'work'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'homework'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'job'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'exercise'),
 
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'book'),
@@ -1191,18 +1167,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
-  _ReviewedRoute(
-    findVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    findVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'someone',
-    status: _pending,
-  ),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'someone'),
 
   _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'song'),
   _ReviewedRoute(sing, _ReviewedRouteKind.companion),
@@ -1221,12 +1187,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(
-    breakVerb,
-    _ReviewedRouteKind.directObject,
-    text: 'cup',
-    status: _pending,
-  ),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'cup'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument),
 
   _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'book'),
@@ -1241,12 +1202,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'school'),
   _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'work'),
-  _ReviewedRoute(
-    read,
-    _ReviewedRouteKind.directObject,
-    text: 'English',
-    status: _pending,
-  ),
+  _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'English'),
 
   _ReviewedRoute(begin, _ReviewedRouteKind.directObject),
   _ReviewedRoute(begin, _ReviewedRouteKind.rightAction, text: 'work'),
@@ -1255,18 +1211,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(begin, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(begin, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(begin, _ReviewedRouteKind.time, text: 'now'),
-  _ReviewedRoute(
-    begin,
-    _ReviewedRouteKind.directObject,
-    text: 'lesson',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    begin,
-    _ReviewedRouteKind.directObject,
-    text: 'work',
-    status: _pending,
-  ),
+  _ReviewedRoute(begin, _ReviewedRouteKind.directObject, text: 'lesson'),
+  _ReviewedRoute(begin, _ReviewedRouteKind.directObject, text: 'work'),
 
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'slowly'),
@@ -1300,18 +1246,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(get, _ReviewedRouteKind.source),
   _ReviewedRoute(get, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(get, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(
-    get,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    get,
-    _ReviewedRouteKind.directObject,
-    text: 'job',
-    status: _pending,
-  ),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'job'),
   _ReviewedRoute(get, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(make, _ReviewedRouteKind.directObject),
@@ -1331,18 +1267,8 @@ const _essentialVerbReviewRoutes = [
   ),
   _ReviewedRoute(make, _ReviewedRouteKind.companion),
   _ReviewedRoute(make, _ReviewedRouteKind.manner, text: 'carefully'),
-  _ReviewedRoute(
-    make,
-    _ReviewedRouteKind.directObject,
-    text: 'plan',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    make,
-    _ReviewedRouteKind.directObject,
-    text: 'mistake',
-    status: _pending,
-  ),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'plan'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'mistake'),
 
   _ReviewedRoute(take, _ReviewedRouteKind.directObject),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'book'),
@@ -1352,13 +1278,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.source),
   _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(
-    take,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
-  _ReviewedRoute(take, _ReviewedRouteKind.destination, status: _pending),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(take, _ReviewedRouteKind.destination),
 
   _ReviewedRoute(give, _ReviewedRouteKind.directObject),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
@@ -1377,12 +1298,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(know, _ReviewedRouteKind.manner, text: 'well'),
   _ReviewedRoute(know, _ReviewedRouteKind.manner, text: 'already'),
   _ReviewedRoute(know, _ReviewedRouteKind.time, text: 'now'),
-  _ReviewedRoute(
-    know,
-    _ReviewedRouteKind.directObject,
-    text: 'answer',
-    status: _pending,
-  ),
+  _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'answer'),
 
   _ReviewedRoute(think, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(think, _ReviewedRouteKind.ofTopic),
@@ -1397,30 +1313,10 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'loudly'),
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'quietly'),
   _ReviewedRoute(say, _ReviewedRouteKind.aboutTopic),
-  _ReviewedRoute(
-    say,
-    _ReviewedRouteKind.directObject,
-    text: 'word',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    say,
-    _ReviewedRouteKind.directObject,
-    text: 'yes',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    say,
-    _ReviewedRouteKind.directObject,
-    text: 'no',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    say,
-    _ReviewedRouteKind.directObject,
-    text: 'hello',
-    status: _pending,
-  ),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'word'),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'yes'),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'no'),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'hello'),
 
   _ReviewedRoute(see, _ReviewedRouteKind.directObject),
   _ReviewedRoute(see, _ReviewedRouteKind.directObject, text: 'cat'),
@@ -1429,12 +1325,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(see, _ReviewedRouteKind.companion),
   _ReviewedRoute(see, _ReviewedRouteKind.manner, text: 'clearly'),
   _ReviewedRoute(see, _ReviewedRouteKind.time, text: 'today'),
-  _ReviewedRoute(
-    see,
-    _ReviewedRouteKind.directObject,
-    text: 'problem',
-    status: _pending,
-  ),
+  _ReviewedRoute(see, _ReviewedRouteKind.directObject, text: 'problem'),
 
   _ReviewedRoute(want, _ReviewedRouteKind.directObject),
   _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1453,18 +1344,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'learn'),
   _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'speak'),
   _ReviewedRoute(need, _ReviewedRouteKind.time, text: 'now'),
-  _ReviewedRoute(
-    need,
-    _ReviewedRouteKind.directObject,
-    text: 'help',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    need,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'help'),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'money'),
 
   _ReviewedRoute(meet, _ReviewedRouteKind.directObject),
   _ReviewedRoute(meet, _ReviewedRouteKind.directObject, text: 'friend'),
@@ -1554,18 +1435,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(watch, _ReviewedRouteKind.manner, text: 'closely'),
   _ReviewedRoute(watch, _ReviewedRouteKind.manner, text: 'quietly'),
   _ReviewedRoute(watch, _ReviewedRouteKind.place, text: 'home'),
-  _ReviewedRoute(
-    watch,
-    _ReviewedRouteKind.directObject,
-    text: 'show',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    watch,
-    _ReviewedRouteKind.directObject,
-    text: 'game',
-    status: _pending,
-  ),
+  _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'show'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'game'),
   _ReviewedRoute(watch, _ReviewedRouteKind.rightAction, text: 'analyze'),
 
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject),
@@ -1576,12 +1447,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'park'),
   _ReviewedRoute(lose, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(lose, _ReviewedRouteKind.manner, text: 'by accident'),
-  _ReviewedRoute(
-    lose,
-    _ReviewedRouteKind.directObject,
-    text: 'money',
-    status: _pending,
-  ),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'money'),
 
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'football'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'basketball'),
@@ -1592,12 +1458,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'well'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'music'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'game'),
-  _ReviewedRoute(
-    play,
-    _ReviewedRouteKind.manner,
-    text: 'outside',
-    status: _pending,
-  ),
+  _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'outside'),
 
   _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'English'),
   _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'grammar'),
@@ -1618,18 +1479,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(hate, _ReviewedRouteKind.rightAction, text: 'work'),
   _ReviewedRoute(hate, _ReviewedRouteKind.manner, text: 'quietly'),
-  _ReviewedRoute(
-    hate,
-    _ReviewedRouteKind.directObject,
-    text: 'noise',
-    status: _pending,
-  ),
-  _ReviewedRoute(
-    hate,
-    _ReviewedRouteKind.directObject,
-    text: 'waiting',
-    status: _pending,
-  ),
+  _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'noise'),
+  _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'waiting'),
   _ReviewedRoute(hate, _ReviewedRouteKind.rightAction, text: 'lose'),
   _ReviewedRoute(hate, _ReviewedRouteKind.companion, status: _pending),
 
@@ -1850,6 +1701,8 @@ const _beAdjectiveComplements = {
   'calm',
   'sad',
   'angry',
+  'ready',
+  'late',
 };
 
 const _objectAdjectiveComplements = {'happy', 'calm', 'sad', 'angry', 'tired'};

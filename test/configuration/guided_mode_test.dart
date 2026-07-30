@@ -608,6 +608,67 @@ void main() {
       expect(render(state), 'You go to John.');
     });
 
+    test('take accepts destination after an object exists', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(take));
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(
+        state,
+        SetDestination(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object?.text, 'book');
+      expect(state.sentenceState.destination?.text, 'Mary');
+      expect(render(state), 'You take book to Mary.');
+    });
+
+    test('take blocks destination before an object exists', () {
+      final previous = engine.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(take),
+      );
+      final state = engine.applyMove(
+        previous,
+        SetDestination(mary.toNounPhrase(Number.singular)),
+      );
+
+      expect(state.sentenceState, same(previous.sentenceState));
+      expect(wasBlocked(state), isTrue);
+      expect(
+        state.messages.single.text,
+        'take needs an object before a destination.',
+      );
+      expect(
+        state.messages.single.lawCategory,
+        ConfigurationLawCategory.predicateFrameType,
+      );
+    });
+
+    test('clearing take object clears its destination too', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(take));
+      state = engine.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(
+        state,
+        SetDestination(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetObject(null));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object, isNull);
+      expect(state.sentenceState.destination, isNull);
+      expect(render(state), 'You take.');
+    });
+
     test('blocks destination on verbs without destination frame', () {
       final previous = engine.applyMove(
         ConfigurationState.initial(),

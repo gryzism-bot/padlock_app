@@ -101,6 +101,7 @@ String? predicateTopicConnectorFor(PredicatePathKind kind) {
 
 class PredicatePath {
   final PredicatePathKind kind;
+  final bool requiresObject;
   final List<NounPhrase> nouns;
   final List<Verb> verbs;
   final List<PlacePhrase> places;
@@ -110,6 +111,7 @@ class PredicatePath {
 
   const PredicatePath._({
     required this.kind,
+    this.requiresObject = false,
     this.nouns = const [],
     this.verbs = const [],
     this.places = const [],
@@ -136,8 +138,14 @@ class PredicatePath {
   const PredicatePath.withInstrument(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.withInstrument, nouns: nouns);
 
-  const PredicatePath.toDestination(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.toDestination, nouns: nouns);
+  const PredicatePath.toDestination(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.toDestination,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
   const PredicatePath.aboutTopic(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.aboutTopic, nouns: nouns);
@@ -356,12 +364,16 @@ final _openableObjects = _uniqueByText([
 final _mediaObjects = _uniqueByText([
   ...object_categories.singularMediaObjects,
   ...object_categories.pluralMediaObjects,
+  fixed_object.show,
+  object_data.game.toNounPhrase(Number.singular),
+  object_data.game.toNounPhrase(Number.plural),
 ]);
 final _photoObjects = _uniqueByText([
   for (final object in _mediaObjects)
     if (object.text == 'photo' || object.text == 'photos') object,
 ]);
 final _moneyObjects = _uniqueByText([
+  fixed_object.money,
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
 ]);
@@ -414,13 +426,36 @@ final _breakableObjects = _uniqueByText([
   ...object_categories.singularOpenableObjects,
   ...object_categories.singularDeviceObjects,
   ...object_categories.singularFurnitureObjects,
+  object_data.cup.toNounPhrase(Number.singular),
+  object_data.cup.toNounPhrase(Number.plural),
 ]);
 final _findableObjects = _uniqueByText([
   ...object_categories.singularTextObjects,
   ...object_categories.singularToolObjects,
   ...object_categories.singularMoneyObjects,
+  fixed_object.money,
+  ..._peopleAndAnimals,
+]);
+final _lifeObjects = _uniqueByText([
+  fixed_object.breakfast,
+  fixed_object.money,
+  fixed_object.time,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.job,
+  fixed_object.helpNoun,
+  fixed_object.plan,
+  fixed_object.mistake,
+  fixed_object.answer,
+  fixed_object.word,
+  fixed_object.yes,
+  fixed_object.no,
+  fixed_object.hello,
+  fixed_object.noise,
+  fixed_object.waiting,
 ]);
 final _everydayObjects = _uniqueByText([
+  ..._lifeObjects,
   ...object_categories.singularTextObjects,
   ...object_categories.pluralTextObjects,
   ...object_categories.singularToolObjects,
@@ -471,6 +506,8 @@ final _basicTopics = _uniqueByText([
 final _basicBeneficiaries = _uniqueByText([..._people]);
 final _basicPurposes = _uniqueByText([
   fixed_object.workNoun,
+  fixed_object.homework,
+  fixed_object.job,
   fixed_object.exerciseNoun,
   fixed_object.schoolNoun,
   fixed_object.healthNoun,
@@ -513,6 +550,27 @@ final _playActivities = [
   fixed_object.tennis,
   fixed_object.golf,
 ];
+final _doObjects = _uniqueByText([
+  fixed_object.workNoun,
+  fixed_object.homework,
+  fixed_object.job,
+  fixed_object.exerciseNoun,
+  ..._learnSubjects,
+  ..._textObjects,
+  ..._gameObjects,
+]);
+final _beginObjects = _uniqueByText([
+  fixed_object.lesson,
+  fixed_object.workNoun,
+  ..._learnSubjects,
+]);
+final _sayObjects = _uniqueByText([
+  fixed_object.word,
+  fixed_object.yes,
+  fixed_object.no,
+  fixed_object.hello,
+  ..._textObjects,
+]);
 final _rightActionWants = [go, work, learn, swim, speak, watch, sleep];
 final _rightActionNeeds = [go, work, learn, speak, sleep];
 final _rightActionLikes = [go, work, learn, swim, speak, watch, sleep];
@@ -809,7 +867,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     doVerb,
-    _uniqueByText([..._learnSubjects, ..._textObjects, ..._gameObjects]),
+    _doObjects,
     paths: [
       PredicatePath.withCompanion(_people),
       _manners([
@@ -857,7 +915,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     read,
-    _textObjects,
+    _uniqueByText([..._textObjects, ..._spokenLanguages]),
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_people),
@@ -875,6 +933,7 @@ final guidedPredicateUnlocks = [
     verb: begin,
     paths: [
       PredicatePath.directObject(_learnSubjects),
+      PredicatePath.directObject(_beginObjects),
       PredicatePath.toRightAction(_rightActionBegins),
       PredicatePath.withCompanion(_people),
       _atLocations(_homeSchoolWorkPlaces),
@@ -941,6 +1000,7 @@ final guidedPredicateUnlocks = [
     _uniqueByText([..._everydayObjects, ..._photoObjects]),
     paths: [
       _sources(),
+      PredicatePath.toDestination(_people, requiresObject: true),
       PredicatePath.withCompanion(_people),
       _atLocations(_everydayPlaces),
       _inLocations(_everydayPlaces),
@@ -961,7 +1021,11 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     know,
-    _uniqueByText([..._peopleAndAnimals, ..._learnSubjects]),
+    _uniqueByText([
+      fixed_object.answer,
+      ..._peopleAndAnimals,
+      ..._learnSubjects,
+    ]),
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
       _manners([manner_data.wellMannerPhrase, manner_data.alreadyMannerPhrase]),
@@ -984,7 +1048,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: say,
     paths: [
-      PredicatePath.directObject(_textObjects),
+      PredicatePath.directObject(_sayObjects),
       PredicatePath.toAddressee(_people),
       PredicatePath.aboutTopic(_basicTopics),
       _manners(_speechManners),
@@ -1160,7 +1224,7 @@ final guidedPredicateUnlocks = [
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _onLocations(_surfacePlaces),
-      _manners(_performanceManners),
+      _manners([..._performanceManners, manner_data.outsideMannerPhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -2052,6 +2116,12 @@ PredicateUnlocks? predicateUnlocksFor(Verb verb) {
 
 List<PredicatePath> predicatePathsFor(Verb verb) {
   return predicateUnlocksFor(verb)?.paths ?? const [];
+}
+
+bool predicatePathRequiresObject(Verb verb, PredicatePathKind kind) {
+  return predicatePathsFor(
+    verb,
+  ).any((path) => path.kind == kind && path.requiresObject);
 }
 
 List<NounPhrase> predicateNounChoicesFor(Verb verb, PredicatePathKind kind) {
