@@ -1,45 +1,33 @@
-import 'package:padlock_app/data/predicate/verb_influence.dart';
-import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/predicate/predicate_route_audit.dart';
 
 void main() {
-  final rows =
-      [
-        for (final verb in verbs)
-          (
-            verb: verb.infinitive,
-            influences: predicateInfluencesFor(verb),
-            outputs: predicateDoorwayOutputCount(verb),
-          ),
-      ]..sort((left, right) {
-        final outputComparison = left.outputs.compareTo(right.outputs);
-        if (outputComparison != 0) {
-          return outputComparison;
-        }
+  final rows = predicateRouteAuditRows();
+  final buckets = predicateRouteAuditBuckets(rows);
 
-        return left.verb.compareTo(right.verb);
-      });
-
-  final silent = [
-    for (final row in rows)
-      if (row.influences.isEmpty) row.verb,
-  ];
-
-  if (silent.isEmpty) {
-    print('All verbs have at least one predicate influence.');
-  } else {
-    print('Verbs with no predicate influence (${silent.length}):');
-    for (final verb in silent) {
-      print('- $verb');
+  for (final bucket in [
+    'no authored paths',
+    'one route',
+    'thin',
+    'recipient-gated right action',
+    'connected',
+  ]) {
+    final bucketRows = buckets[bucket] ?? const [];
+    print('$bucket (${bucketRows.length})');
+    for (final row in bucketRows) {
+      print(
+        '- ${row.infinitive}: '
+        '${row.visibleOutputCount} output(s), '
+        '${row.routeCount} route(s) '
+        '[${row.pathSummaries.join('; ')}]',
+      );
     }
+    print('');
   }
 
-  final shallow = rows.where((row) => row.outputs <= 2).toList();
-  print('');
-  print('Thin verbs with one or two visible outputs (${shallow.length}):');
-  for (final row in shallow) {
-    final labels = row.influences
-        .map((influence) => influence.label)
-        .join(', ');
-    print('- ${row.verb}: ${row.outputs} output(s) [$labels]');
+  final essentialRows = essentialPredicateRouteAuditRows();
+  final thinEssentialRows = essentialRows.where((row) => row.isThin).toList();
+  print('thin essential verbs (${thinEssentialRows.length})');
+  for (final row in thinEssentialRows) {
+    print('- ${row.infinitive}: ${row.kindLabels.join(', ')}');
   }
 }

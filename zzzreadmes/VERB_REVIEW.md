@@ -245,6 +245,10 @@ need - help
 need - money
 need - food
 need - a tool
+need - from someone
+need - for someone
+need - for work
+need - for school
 need - to go
 need - to learn
 need - to speak
@@ -354,6 +358,20 @@ watch - to learn
 watch - closely
 watch - quietly
 watch - at home
+
+analyze - data
+analyze - a problem
+analyze - a question
+analyze - a document
+analyze - about grammar
+analyze - with a computer
+analyze - for work
+analyze - for school
+analyze - at school
+analyze - in the office
+analyze - carefully
+analyze - clearly
+analyze - today
 
 lose - something
 lose - money

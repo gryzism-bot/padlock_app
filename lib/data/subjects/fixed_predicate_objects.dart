@@ -143,6 +143,13 @@ const question = NounPhrase(
   translations: {Language.pl: 'pytanie'},
 );
 
+const dataNoun = NounPhrase(
+  text: 'data',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'dane'},
+);
+
 const lesson = NounPhrase(
   text: 'lesson',
   person: Person.third,

@@ -5,6 +5,7 @@ import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -219,13 +220,48 @@ bool recipientFrameNeedsObject(SentenceState state) {
 }
 
 bool destinationFrameNeedsObject(SentenceState state) {
-  if (state.destination == null) {
+  return prepositionalSurfaceObjectPrerequisiteMet(state, destinationSurface);
+}
+
+bool prepositionalSurfaceObjectPrerequisiteMet(
+  SentenceState state,
+  PrepositionalParticipantSurface surface, {
+  bool includeRightAction = true,
+}) {
+  if (surface.read(state) == null) {
     return true;
   }
 
-  final owner = state.rightAction ?? state.action;
-  return !predicatePathRequiresObject(owner, PredicatePathKind.toDestination) ||
-      state.object != null;
+  final owner = includeRightAction
+      ? state.rightAction ?? state.action
+      : state.action;
+  final kind = predicatePathKindForSurface(
+    surface,
+    topicPreposition: state.topicPreposition,
+  );
+  return !predicatePathRequiresObject(owner, kind) || state.object != null;
+}
+
+PredicatePathKind predicatePathKindForSurface(
+  PrepositionalParticipantSurface surface, {
+  TopicPreposition topicPreposition = TopicPreposition.about,
+}) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
+    PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
+    PrepositionalParticipantKind.instrument => PredicatePathKind.withInstrument,
+    PrepositionalParticipantKind.destination => PredicatePathKind.toDestination,
+    PrepositionalParticipantKind.topic => switch (topicPreposition) {
+      TopicPreposition.about => PredicatePathKind.aboutTopic,
+      TopicPreposition.of => PredicatePathKind.ofTopic,
+      TopicPreposition.on => PredicatePathKind.onTopic,
+      TopicPreposition.withPrep => PredicatePathKind.withTopic,
+    },
+    PrepositionalParticipantKind.beneficiary =>
+      PredicatePathKind.forBeneficiary,
+    PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
+    PrepositionalParticipantKind.purpose => PredicatePathKind.forPurpose,
+  };
 }
 
 bool modalAllowedInSentenceForm(SentenceState state) {

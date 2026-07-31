@@ -146,6 +146,8 @@ const analyze = Verb(
   ingForm: 'analyzing',
   takesObject: true,
   takesTopic: true,
+  takesInstrument: true,
+  takesPurpose: true,
   translations: {Language.pl: 'analizowaÄ‡'},
 );
 

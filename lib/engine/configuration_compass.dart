@@ -17,6 +17,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
+import 'package:padlock_app/engine/configuration_laws.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
@@ -684,7 +685,7 @@ class ConfigurationCompass {
     final choices =
         _nounChoicesForPath(
           sentence,
-          _predicatePathKindForSurface(surface),
+          predicatePathKindForSurface(surface),
           owner: _boundTailOwner(sentence),
         ) ??
         (surface.kind == PrepositionalParticipantKind.instrument
@@ -1030,22 +1031,6 @@ NounPhraseTarget _nounTargetForSurface(
     PrepositionalParticipantKind.beneficiary => NounPhraseTarget.beneficiary,
     PrepositionalParticipantKind.source => NounPhraseTarget.source,
     PrepositionalParticipantKind.purpose => NounPhraseTarget.purpose,
-  };
-}
-
-PredicatePathKind _predicatePathKindForSurface(
-  PrepositionalParticipantSurface surface,
-) {
-  return switch (surface.kind) {
-    PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
-    PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
-    PrepositionalParticipantKind.instrument => PredicatePathKind.withInstrument,
-    PrepositionalParticipantKind.destination => PredicatePathKind.toDestination,
-    PrepositionalParticipantKind.topic => PredicatePathKind.aboutTopic,
-    PrepositionalParticipantKind.beneficiary =>
-      PredicatePathKind.forBeneficiary,
-    PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
-    PrepositionalParticipantKind.purpose => PredicatePathKind.forPurpose,
   };
 }
 

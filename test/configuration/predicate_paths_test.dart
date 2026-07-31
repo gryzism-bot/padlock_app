@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/predicate/predicate_route_audit.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
@@ -33,6 +34,7 @@ import 'package:padlock_app/engine/predicate_path_compiler.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 
 void main() {
   final lock = ConfigurationEngine();
@@ -442,6 +444,43 @@ void main() {
       expect(seeded, containsAll(['learn', 'go']));
     });
 
+    test('predicate route audit covers every essential verb', () {
+      final rows = essentialPredicateRouteAuditRows();
+
+      expect(
+        rows.map((row) => row.infinitive).toSet(),
+        essentialVerbs.map((verb) => verb.infinitive).toSet(),
+      );
+      expect(
+        rows,
+        everyElement(
+          predicate<PredicateRouteAuditRow>(
+            (row) => row.migration != null,
+            'has a migration decision',
+          ),
+        ),
+      );
+    });
+
+    test('predicate route audit exposes thin and gated verb buckets', () {
+      final rows = predicateRouteAuditRows();
+      final buckets = predicateRouteAuditBuckets(rows);
+      final teachRow = rows.singleWhere((row) => row.infinitive == 'teach');
+      final learnRow = rows.singleWhere((row) => row.infinitive == 'learn');
+
+      expect(teachRow.hasRecipientGatedRightAction, isTrue);
+      expect(
+        teachRow.pathSummaries,
+        contains('to + verb: 6 (needs recipient)'),
+      );
+      expect(learnRow.kindLabels, containsAll(['object', 'to + verb']));
+      expect(buckets['recipient-gated right action'], contains(teachRow));
+      expect(
+        rows.indexWhere((row) => row.isThin),
+        lessThan(rows.indexOf(learnRow)),
+      );
+    });
+
     test(
       'authored direct objects are not inferred from broad object grammar',
       () {
@@ -662,6 +701,45 @@ void main() {
       }
     });
 
+    test('object-dependent prepositional paths compile their prerequisite', () {
+      final unlocks = predicateUnlocksFor(need)!;
+      final examples = [
+        (
+          kind: PredicatePathKind.fromSource,
+          field: (SentenceState state) => state.source,
+          ending: ' from John.',
+        ),
+        (
+          kind: PredicatePathKind.forBeneficiary,
+          field: (SentenceState state) => state.beneficiary,
+          ending: ' for John.',
+        ),
+        (
+          kind: PredicatePathKind.forPurpose,
+          field: (SentenceState state) => state.purpose,
+          ending: ' for work.',
+        ),
+      ];
+
+      for (final (:kind, :field, :ending) in examples) {
+        final path = unlocks.paths.singleWhere((path) => path.kind == kind);
+
+        expect(path.requiresObject, isTrue, reason: kind.name);
+        expect(predicatePathRequiresObject(need, kind), isTrue);
+
+        final state = stateAfterPath(unlocks, path);
+
+        expect(wasBlocked(state), isFalse, reason: kind.name);
+        expect(state.sentenceState.object, isNotNull, reason: kind.name);
+        expect(field(state.sentenceState), isNotNull, reason: kind.name);
+        expect(
+          grammar.generate(state.sentenceState).text,
+          allOf(startsWith('You need '), endsWith(ending)),
+          reason: kind.name,
+        );
+      }
+    });
+
     test(
       'recipient-dependent paths document and compile their prerequisite',
       () {
@@ -782,6 +860,27 @@ void main() {
           PredicatePathKind.inLocation,
         ).map((place) => place.noun),
         contains('shop'),
+      );
+      expect(
+        predicateNounChoicesFor(
+          education_data.analyze,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['data', 'problem', 'question', 'document']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          education_data.analyze,
+          PredicatePathKind.withInstrument,
+        ).map((object) => object.text),
+        containsAll(['computer', 'pen']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          education_data.analyze,
+          PredicatePathKind.forPurpose,
+        ).map((object) => object.text),
+        containsAll(['work', 'school']),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -1427,6 +1526,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(need, _ReviewedRouteKind.time, text: 'now'),
   _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'help'),
   _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(need, _ReviewedRouteKind.source),
+  _ReviewedRoute(need, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(need, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(need, _ReviewedRouteKind.purpose, text: 'work'),
+  _ReviewedRoute(need, _ReviewedRouteKind.purpose, text: 'school'),
 
   _ReviewedRoute(meet, _ReviewedRouteKind.directObject),
   _ReviewedRoute(meet, _ReviewedRouteKind.directObject, text: 'friend'),
@@ -1740,6 +1844,56 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(help, _ReviewedRouteKind.withTopic),
   _ReviewedRoute(help, _ReviewedRouteKind.withTopic, text: 'homework'),
   _ReviewedRoute(help, _ReviewedRouteKind.withTopic, text: 'problem'),
+
+  _ReviewedRoute(education_data.analyze, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.directObject,
+    text: 'data',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.directObject,
+    text: 'problem',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.directObject,
+    text: 'document',
+  ),
+  _ReviewedRoute(education_data.analyze, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(education_data.analyze, _ReviewedRouteKind.instrument),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.instrument,
+    text: 'computer',
+  ),
+  _ReviewedRoute(education_data.analyze, _ReviewedRouteKind.purpose),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.purpose,
+    text: 'work',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.manner,
+    text: 'carefully',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.manner,
+    text: 'clearly',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.time,
+    text: 'today',
+  ),
 
   _ReviewedRoute(education_data.study, _ReviewedRouteKind.purpose),
   _ReviewedRoute(

@@ -541,15 +541,6 @@ class ConfigurationEngine {
       tailOwner,
       destinationSurface,
     );
-    final nextDestination =
-        destination != null &&
-            object == null &&
-            predicatePathRequiresObject(
-              tailOwner,
-              PredicatePathKind.toDestination,
-            )
-        ? null
-        : destination;
     final topic = _surfaceAfterActionChange(
       state.topic,
       tailOwner,
@@ -570,6 +561,55 @@ class ConfigurationEngine {
       state.purpose,
       tailOwner,
       purposeSurface,
+    );
+    final nextAddressee = _surfaceAfterObjectPrerequisite(
+      addressee,
+      tailOwner,
+      addresseeSurface,
+      object,
+    );
+    final nextCompanion = _surfaceAfterObjectPrerequisite(
+      companion,
+      tailOwner,
+      companionSurface,
+      object,
+    );
+    final nextInstrument = _surfaceAfterObjectPrerequisite(
+      instrument,
+      tailOwner,
+      instrumentSurface,
+      object,
+    );
+    final nextDestination = _surfaceAfterObjectPrerequisite(
+      destination,
+      tailOwner,
+      destinationSurface,
+      object,
+    );
+    final nextTopic = _surfaceAfterObjectPrerequisite(
+      topic,
+      tailOwner,
+      topicSurface,
+      object,
+      topicPreposition: state.topicPreposition,
+    );
+    final nextBeneficiary = _surfaceAfterObjectPrerequisite(
+      beneficiary,
+      tailOwner,
+      beneficiarySurface,
+      object,
+    );
+    final nextSource = _surfaceAfterObjectPrerequisite(
+      source,
+      tailOwner,
+      sourceSurface,
+      object,
+    );
+    final nextPurpose = _surfaceAfterObjectPrerequisite(
+      purpose,
+      tailOwner,
+      purposeSurface,
+      object,
     );
     final placePhrase = _placePhraseAfterActionChange(
       state.placePhrase,
@@ -609,17 +649,17 @@ class ConfigurationEngine {
         action,
       ),
       recipient: recipient,
-      addressee: addressee,
-      companion: companion,
-      instrument: instrument,
+      addressee: nextAddressee,
+      companion: nextCompanion,
+      instrument: nextInstrument,
       destination: nextDestination,
-      topic: topic,
-      topicPreposition: topic == null
+      topic: nextTopic,
+      topicPreposition: nextTopic == null
           ? TopicPreposition.about
           : state.topicPreposition,
-      beneficiary: beneficiary,
-      source: source,
-      purpose: purpose,
+      beneficiary: nextBeneficiary,
+      source: nextSource,
+      purpose: nextPurpose,
       rightAction: rightAction,
       complement: null,
       adjectiveComplement: null,
@@ -634,26 +674,102 @@ class ConfigurationEngine {
     );
   }
 
+  SentenceState _objectChangeWithShavedTail(
+    SentenceState state,
+    NounPhrase? object,
+  ) {
+    final owner = state.rightAction ?? state.action;
+    final nextTopic = _surfaceAfterObjectPrerequisite(
+      state.topic,
+      owner,
+      topicSurface,
+      object,
+      topicPreposition: state.topicPreposition,
+    );
+
+    return _copy(
+      state,
+      object: object,
+      objectComplement: object == null ? null : state.objectComplement,
+      objectAdjectiveComplement: object == null
+          ? null
+          : state.objectAdjectiveComplement,
+      addressee: _surfaceAfterObjectPrerequisite(
+        state.addressee,
+        owner,
+        addresseeSurface,
+        object,
+      ),
+      companion: _surfaceAfterObjectPrerequisite(
+        state.companion,
+        owner,
+        companionSurface,
+        object,
+      ),
+      instrument: _surfaceAfterObjectPrerequisite(
+        state.instrument,
+        owner,
+        instrumentSurface,
+        object,
+      ),
+      destination: _surfaceAfterObjectPrerequisite(
+        state.destination,
+        owner,
+        destinationSurface,
+        object,
+      ),
+      topic: nextTopic,
+      topicPreposition: nextTopic == null
+          ? TopicPreposition.about
+          : state.topicPreposition,
+      beneficiary: _surfaceAfterObjectPrerequisite(
+        state.beneficiary,
+        owner,
+        beneficiarySurface,
+        object,
+      ),
+      source: _surfaceAfterObjectPrerequisite(
+        state.source,
+        owner,
+        sourceSurface,
+        object,
+      ),
+      purpose: _surfaceAfterObjectPrerequisite(
+        state.purpose,
+        owner,
+        purposeSurface,
+        object,
+      ),
+    );
+  }
+
+  NounPhrase? _surfaceAfterObjectPrerequisite(
+    NounPhrase? noun,
+    Verb owner,
+    PrepositionalParticipantSurface surface,
+    NounPhrase? object, {
+    TopicPreposition topicPreposition = TopicPreposition.about,
+  }) {
+    if (noun == null) {
+      return null;
+    }
+
+    final kind = predicatePathKindForSurface(
+      surface,
+      topicPreposition: topicPreposition,
+    );
+    if (object == null && predicatePathRequiresObject(owner, kind)) {
+      return null;
+    }
+
+    return noun;
+  }
+
   SentenceState _applyMove(SentenceState state, ConfigurationMove move) {
     return switch (move) {
       SetAgent(:final agent) => _copy(state, agent: agent),
       SetAction(:final action) => _actionChangeWithShavedTail(state, action),
-      SetObject(:final object) => _copy(
-        state,
-        object: object,
-        objectComplement: object == null ? null : state.objectComplement,
-        objectAdjectiveComplement: object == null
-            ? null
-            : state.objectAdjectiveComplement,
-        destination:
-            object == null &&
-                predicatePathRequiresObject(
-                  state.rightAction ?? state.action,
-                  PredicatePathKind.toDestination,
-                )
-            ? null
-            : state.destination,
-      ),
+      SetObject(:final object) => _objectChangeWithShavedTail(state, object),
       SetRecipient(:final recipient) => _copy(state, recipient: recipient),
       SetAddressee(:final addressee) => _copy(state, addressee: addressee),
       SetCompanion(:final companion) => _copy(state, companion: companion),
@@ -987,37 +1103,13 @@ class ConfigurationEngine {
 
     if (!_predicatePathAcceptsNoun(
       action,
-      _predicatePathKindForSurface(surface, topicPreposition: topicPreposition),
+      predicatePathKindForSurface(surface, topicPreposition: topicPreposition),
       noun,
     )) {
       return null;
     }
 
     return noun;
-  }
-
-  PredicatePathKind _predicatePathKindForSurface(
-    PrepositionalParticipantSurface surface, {
-    TopicPreposition topicPreposition = TopicPreposition.about,
-  }) {
-    return switch (surface.kind) {
-      PrepositionalParticipantKind.addressee => PredicatePathKind.toAddressee,
-      PrepositionalParticipantKind.companion => PredicatePathKind.withCompanion,
-      PrepositionalParticipantKind.instrument =>
-        PredicatePathKind.withInstrument,
-      PrepositionalParticipantKind.destination =>
-        PredicatePathKind.toDestination,
-      PrepositionalParticipantKind.topic => switch (topicPreposition) {
-        TopicPreposition.about => PredicatePathKind.aboutTopic,
-        TopicPreposition.of => PredicatePathKind.ofTopic,
-        TopicPreposition.on => PredicatePathKind.onTopic,
-        TopicPreposition.withPrep => PredicatePathKind.withTopic,
-      },
-      PrepositionalParticipantKind.beneficiary =>
-        PredicatePathKind.forBeneficiary,
-      PrepositionalParticipantKind.source => PredicatePathKind.fromSource,
-      PrepositionalParticipantKind.purpose => PredicatePathKind.forPurpose,
-    };
   }
 
   bool _predicatePathAcceptsNoun(

@@ -140,14 +140,32 @@ class PredicatePath {
   const PredicatePath.toRecipient(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.toRecipient, nouns: nouns);
 
-  const PredicatePath.toAddressee(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.toAddressee, nouns: nouns);
+  const PredicatePath.toAddressee(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.toAddressee,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.withCompanion(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.withCompanion, nouns: nouns);
+  const PredicatePath.withCompanion(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.withCompanion,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.withInstrument(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.withInstrument, nouns: nouns);
+  const PredicatePath.withInstrument(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.withInstrument,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
   const PredicatePath.toDestination(
     List<NounPhrase> nouns, {
@@ -158,26 +176,68 @@ class PredicatePath {
          requiresObject: requiresObject,
        );
 
-  const PredicatePath.aboutTopic(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.aboutTopic, nouns: nouns);
+  const PredicatePath.aboutTopic(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.aboutTopic,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.ofTopic(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.ofTopic, nouns: nouns);
+  const PredicatePath.ofTopic(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.ofTopic,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.onTopic(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.onTopic, nouns: nouns);
+  const PredicatePath.onTopic(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.onTopic,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.withTopic(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.withTopic, nouns: nouns);
+  const PredicatePath.withTopic(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.withTopic,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
+  const PredicatePath.forBeneficiary(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.forBeneficiary,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.fromSource(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.fromSource, nouns: nouns);
+  const PredicatePath.fromSource(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.fromSource,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.forPurpose(List<NounPhrase> nouns)
-    : this._(kind: PredicatePathKind.forPurpose, nouns: nouns);
+  const PredicatePath.forPurpose(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.forPurpose,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
 
   const PredicatePath.atLocation(List<PlacePhrase> places)
     : this._(kind: PredicatePathKind.atLocation, places: places);
@@ -517,6 +577,17 @@ final _basicTopics = _uniqueByText([
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
 ]);
+final _analysisObjects = _uniqueByText([
+  fixed_object.dataNoun,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.answer,
+  fixed_object.plan,
+  fixed_object.grammar,
+  fixed_object.history,
+  fixed_object.science,
+  ..._textObjects,
+]);
 final _helpTopics = _uniqueByText([
   fixed_object.homework,
   fixed_object.problem,
@@ -782,12 +853,27 @@ PredicatePath _beneficiaries() {
   return PredicatePath.forBeneficiary(_basicBeneficiaries);
 }
 
+PredicatePath _objectBeneficiaries() {
+  return PredicatePath.forBeneficiary(
+    _basicBeneficiaries,
+    requiresObject: true,
+  );
+}
+
 PredicatePath _sources() {
   return PredicatePath.fromSource(_peopleAndAnimals);
 }
 
+PredicatePath _objectSources() {
+  return PredicatePath.fromSource(_peopleAndAnimals, requiresObject: true);
+}
+
 PredicatePath _purposes(List<NounPhrase> nouns) {
   return PredicatePath.forPurpose(_uniqueByText(nouns));
+}
+
+PredicatePath _objectPurposes(List<NounPhrase> nouns) {
+  return PredicatePath.forPurpose(_uniqueByText(nouns), requiresObject: true);
 }
 
 PredicatePath _places(List<PlacePhrase> places) {
@@ -1179,6 +1265,9 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._everydayObjects, ..._people]),
       ),
       PredicatePath.toRightAction(_rightActionNeeds),
+      _objectSources(),
+      _objectBeneficiaries(),
+      _objectPurposes(_basicPurposes),
       _times([time_data.nowTimePhrase]),
     ],
   ),
@@ -1630,6 +1719,23 @@ final guidedPredicateUnlocks = [
     education_data.research,
     _learnSubjects,
     paths: [PredicatePath.aboutTopic(_basicTopics)],
+  ),
+  _directWithPaths(
+    education_data.analyze,
+    _analysisObjects,
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.withInstrument(_toolObjects),
+      _purposes([fixed_object.workNoun, fixed_object.schoolNoun]),
+      _atLocations(_homeSchoolWorkPlaces),
+      _inLocations([..._homeSchoolWorkPlaces, place_data.roomPlacePhrase]),
+      _manners([
+        manner_data.carefullyMannerPhrase,
+        manner_data.clearlyMannerPhrase,
+        manner_data.quicklyMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
   ),
   _destinationWithCompanion(
     walk,

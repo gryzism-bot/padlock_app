@@ -251,6 +251,9 @@ const need = Verb(
   pastParticiple: 'needed',
   ingForm: 'needing',
   takesObject: true,
+  takesBeneficiary: true,
+  takesSource: true,
+  takesPurpose: true,
   translations: {Language.pl: 'potrzebować'},
 );
 

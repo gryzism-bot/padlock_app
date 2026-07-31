@@ -371,11 +371,14 @@ void _validateActiveVoiceFrame(_ValidationContext context) {
     );
   }
 
-  if (!destinationFrameNeedsObject(state)) {
-    context.block(
-      '${context.owner.infinitive} needs an object before a destination.',
-      ConfigurationLawCategory.predicateFrameType,
-    );
+  for (final surface in prepositionalParticipantSurfaces) {
+    if (!prepositionalSurfaceObjectPrerequisiteMet(state, surface)) {
+      context.block(
+        '${context.owner.infinitive} needs an object before '
+        '${surface.blockedNounLabel}.',
+        ConfigurationLawCategory.predicateFrameType,
+      );
+    }
   }
 }
 

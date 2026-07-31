@@ -46,13 +46,25 @@ Best low-effort / high-value moves for the developer cockpit:
    - no Flutter or Chrome
    - walk Compass-visible moves and Lock responses
    - output markdown/jsonl evidence for missing laws and stale paths
-6. Current: presentation-ready Guided Mode.
-   - keep the developer console available as the open workbench
-   - add a first playable surface instead of a tutorial reel
-   - best candidate: Match Mode / Guess The Sentence
-   - this reuses Grammar, Lock, Compass, PredicatePaths, translation, and move
-     trace without requiring the final combination-padlock UI yet
-7. Next: staged vocabulary saturation.
+6. Done: make the developer console presentation-safe enough for data growth.
+   - dark mode is the default
+   - the top title moved into the footer to save vertical space
+   - sentence preview, control deck, core participant surface, and verb rail can
+     stay fixed while vocabulary rails scroll
+   - large rails are virtualized with natural chip sizing
+   - diagnostics remain available without repainting the whole cockpit
+   - current manual timing target is roughly sub-1000 ms for dense states and
+     around 400-700 ms for ordinary verb switching
+7. Current: finish essential PredicatePath authoring.
+   - the route-kind architecture is broad enough now; the best value is
+     handwriting the remaining verb-owned shelves
+   - use the executable review sheet to find thin verbs instead of guessing
+   - prioritize verbs that are common, visible, and memorable:
+     `be`, `have`, `do`, `find`, `sing`, `break`, `come`, `get`, `make`,
+     `think`, `say`, `see`, `play`, `work`, `sleep`
+   - this is the biggest current slice of "fly territory": it makes the app
+     feel intentional instead of random without touching Grammar Engine
+8. Next: staged vocabulary saturation.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -74,7 +86,7 @@ Best low-effort / high-value moves for the developer cockpit:
      - ordinary verb switches stay around 400-600 ms
      - occasional heavy first-open rails are acceptable if search and scrolling
        stay responsive
-8. Continue: finish PredicatePath route authoring.
+9. Continue: route-audit tooling.
    - route kinds now exist for the important right-side families:
      - direct object
      - recipient / addressee
@@ -89,7 +101,7 @@ Best low-effort / high-value moves for the developer cockpit:
    - remaining work is mostly verb-by-verb authorship and vocabulary shelves,
      not new route-kind architecture
    - explicit pending review rows are currently closed
-9. Later: path-scoped Compass for the product UI.
+10. Later: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -101,6 +113,8 @@ Postpone for now:
 - browser/UI nightly automation
 - deeper browser/runtime profiling, unless the current 400-600 ms cockpit feel
   stops holding during staged vocabulary saturation
+- Match Mode / Guess The Sentence, until the authored Guided Mode web feels
+  dense enough to be worth guessing through
 
 ## Presentation Mode: Guess The Sentence
 
@@ -153,10 +167,15 @@ The essential verb review sheet is now executable through
 Current audit shape:
 
 - the review sheet is executable through route assertions
-- no reviewed routes are currently marked pending
+- reviewed rows are increasingly executable, but the important signal is now
+  "thin verb" coverage rather than missing route kinds
 - recently closed review rows:
   - `hate` + companion
   - `help` + with-topic (`help with homework/problem/question`)
+  - `teach` right-action routes are recipient-gated:
+    `You teach Mary to speak.`, not bare `You teach to speak.`
+  - `take` / `bring` can move an object to a person:
+    `You take a book to Mary.`, `Mary brought a book to John.`
 - recently implemented route families include:
   - atomized location routes: `at`, `in`, `on`
   - source-place routes: `from`
@@ -214,14 +233,48 @@ Constraint sorting for PredicatePaths:
 Next audit actions:
 
 - keep the executable review sheet current as new verbs/routes are added
-- keep pending rows rare: either implement the route or document a deliberate
-  semantic postponement
-- start saturation with verb-owned shelves:
+- done: add an audit helper/tool that lists verbs by route count:
+  - no-carets / no authored paths
+  - one-route verbs
+  - highly connected verbs
+  - recipient-gated right-action verbs
+  - command: `dart run tool/audit_predicate_influences.dart`
+- latest route-audit signal:
+  - done: `analyze` now has authored object/topic/instrument/purpose/context
+    routes
+  - done: `need` now has object-gated source/beneficiary/purpose routes
+  - still expected: recipient-gated right action: `teach`
+  - no one-route verbs remain
+- keep pending rows rare: either implement the route, add the shelf, or
+  document a deliberate semantic postponement
+- start saturation with verb-owned shelves before broad noun flooding:
   - more useful objects for `bring`, `take`, `give`, `buy`, `sell`
   - richer study/learn/read/write topic and text shelves
   - people/animal/person-like noun shelves for companion, source, addressee,
     and destination
 - keep shrinking broad phrase pressure as predicate-bound routes are migrated
+
+Recently completed:
+
+- deepened `need`:
+  - it is an essential verb
+  - it is common and learner-facing
+  - it already has the correct right-action crease
+  - it now has richer object/source/beneficiary/purpose shelves:
+    `need help`, `need money`, `need a book`, `need help from Mary`,
+    `need a tool for work`
+- seeded `analyze`:
+  - it is the only currently unauthored verb in the full audit
+  - it now wakes objects/topics, instruments, and purpose/context:
+    `analyze data`, `analyze a problem`, `analyze with a computer`,
+    `analyze for work`, `analyze at school`
+
+Best immediate follow-up:
+
+- rerun the route audit and choose the next thin/empty predicate edge from
+  executable data rather than guessing
+- continue essential PredicatePath saturation toward verbs with few distinct
+  right-side surfaces
 
 ## Noun Atomization Before Saturation
 
@@ -883,6 +936,13 @@ Vocabulary saturation readiness:
 - The cockpit is ready for a careful vocabulary expansion pass.
 - The app should no longer require artificial `show more` pages before adding
   larger word shelves.
+- Saturation should be verb-owned first, broad-data second:
+  - a new noun is valuable when at least one visible verb has a reason to offer
+    it
+  - a new adjective/adverb is valuable when it teaches a visible sentence
+    difference
+  - a new place/time word is valuable when it belongs to a clear route or broad
+    clause modifier
 - New vocabulary should be added in measured batches:
   - add one data layer
   - run focused unit/widget tests

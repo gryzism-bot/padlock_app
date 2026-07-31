@@ -2047,10 +2047,16 @@ void main() {
       ];
 
       for (final entry in cases) {
-        final state = lock.applyMove(
+        var state = lock.applyMove(
           ConfigurationState.initial(),
           SetAction(entry.action),
         );
+        if (entry.action == teach) {
+          state = lock.applyMove(
+            state,
+            SetRecipient(mary.toNounPhrase(Number.singular)),
+          );
+        }
         final labels = compass
             .suggestionsFor(
               state,
