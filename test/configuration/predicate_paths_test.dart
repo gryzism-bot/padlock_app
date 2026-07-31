@@ -741,6 +741,48 @@ void main() {
     });
 
     test(
+      'have object-dependent prepositional paths compile their prerequisite',
+      () {
+        final unlocks = predicateUnlocksFor(have)!;
+        final examples = [
+          (
+            kind: PredicatePathKind.fromSource,
+            field: (SentenceState state) => state.source,
+            ending: ' from John.',
+          ),
+          (
+            kind: PredicatePathKind.forBeneficiary,
+            field: (SentenceState state) => state.beneficiary,
+            ending: ' for John.',
+          ),
+          (
+            kind: PredicatePathKind.forPurpose,
+            field: (SentenceState state) => state.purpose,
+            ending: ' for work.',
+          ),
+        ];
+
+        for (final (:kind, :field, :ending) in examples) {
+          final path = unlocks.paths.singleWhere((path) => path.kind == kind);
+
+          expect(path.requiresObject, isTrue, reason: kind.name);
+          expect(predicatePathRequiresObject(have, kind), isTrue);
+
+          final state = stateAfterPath(unlocks, path);
+
+          expect(wasBlocked(state), isFalse, reason: kind.name);
+          expect(state.sentenceState.object, isNotNull, reason: kind.name);
+          expect(field(state.sentenceState), isNotNull, reason: kind.name);
+          expect(
+            grammar.generate(state.sentenceState).text,
+            allOf(startsWith('You have '), endsWith(ending)),
+            reason: kind.name,
+          );
+        }
+      },
+    );
+
+    test(
       'recipient-dependent paths document and compile their prerequisite',
       () {
         final unlocks = predicateUnlocksFor(education_data.teach)!;
@@ -1302,18 +1344,36 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'problem'),
   _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'question'),
   _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'breakfast'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'anything'),
+  _ReviewedRoute(have, _ReviewedRouteKind.directObject, text: 'it'),
+  _ReviewedRoute(have, _ReviewedRouteKind.source),
+  _ReviewedRoute(have, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(have, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(have, _ReviewedRouteKind.purpose, text: 'fun'),
+  _ReviewedRoute(have, _ReviewedRouteKind.rightAction, text: 'go'),
+  _ReviewedRoute(have, _ReviewedRouteKind.rightAction, text: 'work'),
 
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.manner, text: 'again'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'anything'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'nothing'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'everything'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'it'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'this'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'that'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'work'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'homework'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'job'),
   _ReviewedRoute(doVerb, _ReviewedRouteKind.directObject, text: 'exercise'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(doVerb, _ReviewedRouteKind.place, text: 'home'),
 
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'something'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'home'),
@@ -1400,6 +1460,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(come, _ReviewedRouteKind.sourcePlace),
 
   _ReviewedRoute(get, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'gift'),
@@ -1411,6 +1473,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(get, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(make, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'cake'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'coffee'),
@@ -1431,6 +1495,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'mistake'),
 
   _ReviewedRoute(take, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'phone'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'photo'),
@@ -1442,6 +1508,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
 
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'phone'),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'photo'),
@@ -1453,6 +1521,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(bring, _ReviewedRouteKind.time, text: 'today'),
 
   _ReviewedRoute(give, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
@@ -1480,6 +1550,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'now'),
 
   _ReviewedRoute(say, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(say, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(say, _ReviewedRouteKind.addressee),
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'loudly'),
   _ReviewedRoute(say, _ReviewedRouteKind.manner, text: 'quietly'),
@@ -1499,6 +1571,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(see, _ReviewedRouteKind.directObject, text: 'problem'),
 
   _ReviewedRoute(want, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(want, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(want, _ReviewedRouteKind.rightAction, text: 'go'),
@@ -1514,6 +1588,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(want, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(need, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'something'),
+  _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(need, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(need, _ReviewedRouteKind.rightAction, text: 'go'),
@@ -1543,6 +1619,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(meet, _ReviewedRouteKind.time, text: 'tomorrow'),
 
   _ReviewedRoute(like, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'something'),
   _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'music'),
   _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'game'),
   _ReviewedRoute(like, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1560,6 +1637,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(like, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(love, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'something'),
   _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'music'),
   _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'game'),
   _ReviewedRoute(love, _ReviewedRouteKind.directObject, text: 'food'),
@@ -1740,6 +1818,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(hate, _ReviewedRouteKind.companion),
 
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'something'),
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'story'),
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'English'),
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'grammar'),
@@ -1754,6 +1833,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(remember, _ReviewedRouteKind.time, text: 'today'),
 
   _ReviewedRoute(education_data.forget, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(
+    education_data.forget,
+    _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
   _ReviewedRoute(
     education_data.forget,
     _ReviewedRouteKind.directObject,
@@ -1849,6 +1933,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(
     education_data.analyze,
     _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
+  _ReviewedRoute(
+    education_data.analyze,
+    _ReviewedRouteKind.directObject,
     text: 'data',
   ),
   _ReviewedRoute(
@@ -1926,6 +2015,26 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'exercise'),
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'train'),
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'forget'),
+  _ReviewedRoute(
+    cooking_data.cut,
+    _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
+  _ReviewedRoute(
+    cooking_data.chop,
+    _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
+  _ReviewedRoute(
+    cooking_data.slice,
+    _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
+  _ReviewedRoute(
+    cooking_data.mix,
+    _ReviewedRouteKind.directObject,
+    text: 'something',
+  ),
   _ReviewedRoute(cooking_data.cook, _ReviewedRouteKind.purpose),
   _ReviewedRoute(cooking_data.cook, _ReviewedRouteKind.purpose, text: 'dinner'),
   _ReviewedRoute(sport_data.train, _ReviewedRouteKind.purpose),
@@ -2000,7 +2109,7 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
 
 bool _nounPathHas(Verb verb, PredicatePathKind kind, String? text) {
   final choices = predicateNounChoicesFor(verb, kind);
-  if (text == null || text == 'something') {
+  if (text == null) {
     return choices.isNotEmpty;
   }
 

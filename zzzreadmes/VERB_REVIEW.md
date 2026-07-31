@@ -22,6 +22,8 @@ be - happy
 be - hungry
 
 have - something
+have - anything
+have - it
 have - a book
 have - money
 have - time
@@ -29,16 +31,30 @@ have - a problem
 have - a question
 have - breakfast
 have - with someone
+have - something from someone
+have - something for someone
+have - money for school
+have - something for fun
+have - to go
+have - to work
 have - at home
 have - today
 
 do - something
+do - anything
+do - nothing
+do - everything
 do - work
 do - homework
 do - a job
 do - exercise
 do - it
+do - this
+do - that
 do - with someone
+do - for someone
+do - for school
+do - at home
 do - quickly
 do - carefully
 do - again
@@ -583,10 +599,14 @@ drink
 roast
 steam
 cut
+cut - something
 chop
+chop - something
 slice
+slice - something
 peel
 mix
+mix - something
 stir
 pour
 add

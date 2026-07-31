@@ -354,7 +354,17 @@ final _textObjects = _uniqueByText([
   ...object_categories.singularTextObjects,
   ...object_categories.pluralTextObjects,
 ]);
+final _genericObjects = _uniqueByText([
+  fixed_object.something,
+  fixed_object.anything,
+  fixed_object.nothing,
+  fixed_object.everything,
+  fixed_object.itObject,
+  fixed_object.thisObject,
+  fixed_object.thatObject,
+]);
 final _foodObjects = _uniqueByText([
+  ..._genericObjects,
   ...object_categories.singularFoodObjects,
   ...object_categories.pluralFoodObjects,
 ]);
@@ -504,6 +514,7 @@ final _breakableObjects = _uniqueByText([
   object_data.cup.toNounPhrase(Number.plural),
 ]);
 final _findableObjects = _uniqueByText([
+  ..._genericObjects,
   ...object_categories.singularTextObjects,
   ...object_categories.singularToolObjects,
   ...object_categories.singularMoneyObjects,
@@ -511,6 +522,7 @@ final _findableObjects = _uniqueByText([
   ..._peopleAndAnimals,
 ]);
 final _lifeObjects = _uniqueByText([
+  ..._genericObjects,
   fixed_object.breakfast,
   fixed_object.money,
   fixed_object.time,
@@ -544,6 +556,7 @@ final _everydayObjects = _uniqueByText([
   ...object_categories.pluralMoneyObjects,
 ]);
 final _transferObjects = _uniqueByText([
+  ..._genericObjects,
   ..._textObjects,
   ..._moneyObjects,
   ..._foodObjects,
@@ -578,6 +591,7 @@ final _basicTopics = _uniqueByText([
   ...object_categories.pluralDeviceObjects,
 ]);
 final _analysisObjects = _uniqueByText([
+  ..._genericObjects,
   fixed_object.dataNoun,
   fixed_object.problem,
   fixed_object.question,
@@ -646,6 +660,7 @@ final _playActivities = [
   fixed_object.golf,
 ];
 final _doObjects = _uniqueByText([
+  ..._genericObjects,
   fixed_object.workNoun,
   fixed_object.homework,
   fixed_object.job,
@@ -660,6 +675,7 @@ final _beginObjects = _uniqueByText([
   ..._learnSubjects,
 ]);
 final _sayObjects = _uniqueByText([
+  ..._genericObjects,
   fixed_object.word,
   fixed_object.yes,
   fixed_object.no,
@@ -681,6 +697,7 @@ final _rightActionWants = [
   help,
 ];
 final _rightActionNeeds = [go, work, learn, speak, sleep, read, write, help];
+final _rightActionHasTo = [go, work, learn, speak, sleep, read, write, help];
 final _rightActionLikes = [
   go,
   work,
@@ -1027,6 +1044,10 @@ final guidedPredicateUnlocks = [
     _everydayObjects,
     paths: [
       PredicatePath.withCompanion(_people),
+      PredicatePath.toRightAction(_rightActionHasTo),
+      _objectBeneficiaries(),
+      _objectSources(),
+      _objectPurposes(_basicPurposes),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _times(_todayTimes),
@@ -1038,6 +1059,17 @@ final guidedPredicateUnlocks = [
     _doObjects,
     paths: [
       PredicatePath.withCompanion(_people),
+      _beneficiaries(),
+      _purposes([
+        fixed_object.workNoun,
+        fixed_object.homework,
+        fixed_object.schoolNoun,
+        fixed_object.exerciseNoun,
+        fixed_object.healthNoun,
+        fixed_object.funNoun,
+      ]),
+      _atLocations(_homeSchoolWorkPlaces),
+      _inLocations(_homeSchoolWorkPlaces),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.carefullyMannerPhrase,
@@ -1443,6 +1475,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(
         _uniqueByText([
+          ..._genericObjects,
           ..._peopleAndAnimals,
           ..._learnSubjects,
           ..._textObjects,
@@ -1679,12 +1712,12 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     education_data.understand,
-    _uniqueByText([..._learnSubjects, ..._people]),
+    _uniqueByText([..._genericObjects, ..._learnSubjects, ..._people]),
     paths: [PredicatePath.aboutTopic(_basicTopics)],
   ),
   _directWithPaths(
     education_data.forget,
-    _uniqueByText([..._learnSubjects, ..._people]),
+    _uniqueByText([..._genericObjects, ..._learnSubjects, ..._people]),
     paths: [
       PredicatePath.toRightAction(_rightActionForgets),
       ..._studySurfaceContexts(),

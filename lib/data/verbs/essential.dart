@@ -26,6 +26,9 @@ const have = Verb(
   ingForm: 'having',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
+  takesSource: true,
+  takesPurpose: true,
   translations: {Language.pl: 'mieć'},
 );
 
@@ -37,6 +40,8 @@ const doVerb = Verb(
   ingForm: 'doing',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
+  takesPurpose: true,
   translations: {Language.pl: 'robić'},
 );
 

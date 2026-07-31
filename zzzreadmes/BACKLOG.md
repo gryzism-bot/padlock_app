@@ -1,5 +1,7 @@
 # Padlock Backlog
 
+Undo/Redo test marker: this line is safe to remove.
+
 This file keeps the work discovered while testing the live machine. It is
 ordered from the deepest crease upward:
 
@@ -58,6 +60,13 @@ Best low-effort / high-value moves for the developer cockpit:
 7. Current: finish essential PredicatePath authoring.
    - the route-kind architecture is broad enough now; the best value is
      handwriting the remaining verb-owned shelves
+   - done: generic direct-object shelf now feeds multiple object-taking verbs:
+     `something`, `anything`, `nothing`, `everything`, `it`, `this`, `that`
+     are shared by broad object routes instead of living only under `do`
+   - done: `have` now has deeper authored routes:
+     `have anything`, `have it`, `have something from someone`,
+     `have something for someone`, `have money for school/fun`, and
+     semi-modal `have to + verb`
    - use the executable review sheet to find thin verbs instead of guessing
    - prioritize verbs that are common, visible, and memorable:
      `be`, `have`, `do`, `find`, `sing`, `break`, `come`, `get`, `make`,
@@ -176,6 +185,9 @@ Current audit shape:
     `You teach Mary to speak.`, not bare `You teach to speak.`
   - `take` / `bring` can move an object to a person:
     `You take a book to Mary.`, `Mary brought a book to John.`
+  - `do` is now product-visible instead of structural-only:
+    `do something`, `do it`, `do homework`, `do this for Mary`,
+    `do homework for school`, `do carefully/again`, `do at home`
 - recently implemented route families include:
   - atomized location routes: `at`, `in`, `on`
   - source-place routes: `from`
@@ -243,8 +255,11 @@ Next audit actions:
   - done: `analyze` now has authored object/topic/instrument/purpose/context
     routes
   - done: `need` now has object-gated source/beneficiary/purpose routes
+  - done: `do` now has authored object/companion/beneficiary/purpose/location/
+    manner/time routes
   - still expected: recipient-gated right action: `teach`
   - no one-route verbs remain
+  - no thin essential verbs remain
 - keep pending rows rare: either implement the route, add the shelf, or
   document a deliberate semantic postponement
 - start saturation with verb-owned shelves before broad noun flooding:

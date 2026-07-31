@@ -86,6 +86,24 @@ void main() {
       ]);
     });
 
+    test('lexical do stays inside the two-way contract', () {
+      expectSentenceRoundTrips([
+        'John did.',
+        'You do something.',
+        'You do anything.',
+        'You do nothing.',
+        'You do everything.',
+        'You do it.',
+        'You do this.',
+        'You do that.',
+        'You did homework carefully.',
+        'You do this for Mary.',
+        'You do homework for school.',
+        'Do you do homework?',
+        'You do not do homework.',
+      ]);
+    });
+
     test('passive voice stays inside the two-way contract', () {
       expectSentenceRoundTrips([
         'The bridge was built by John.',
@@ -132,6 +150,24 @@ void main() {
         'You forget to read.',
         'You hate to sing.',
         'You watch to learn.',
+        'You want something.',
+        'You need something.',
+        'You cut something.',
+        'You forgot something.',
+        'You remembered something.',
+        'You said something.',
+        'You found something.',
+        'You took it.',
+        'You gave it to Mary.',
+        'You have anything.',
+        'You have it.',
+        'You have a book from Mary.',
+        'You have this for Mary.',
+        'You have money for school.',
+        'You have something for fun.',
+        'You have to go.',
+        'You do not have to go.',
+        'Do you have to go?',
       ]);
     });
 
@@ -274,7 +310,7 @@ void main() {
       expectSentenceRoundTrips([
         'John is happy.',
         'John has a book.',
-        'John did.',
+        'John did homework.',
         'John found a key.',
         'John sang.',
         'John broke.',

@@ -246,6 +246,69 @@ void main() {
       }
     });
 
+    test('lexical do renders special product doorway objects', () {
+      final cases = [
+        (
+          state: SentenceState(
+            agent: you,
+            action: doVerb,
+            object: something,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'You do something.',
+        ),
+        (
+          state: SentenceState(
+            agent: mary.toNounPhrase(Number.singular),
+            action: doVerb,
+            object: exerciseNoun,
+            placePhrase: homePlacePhrase,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'Mary does exercise at home.',
+        ),
+        (
+          state: SentenceState(
+            agent: they,
+            action: doVerb,
+            object: workNoun,
+            companion: mary.toNounPhrase(Number.singular),
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'They do work with Mary.',
+        ),
+        (
+          state: SentenceState(
+            agent: they,
+            action: doVerb,
+            object: homework,
+            purpose: schoolNoun,
+            tense: Tense.past,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'They did homework for school.',
+        ),
+        (
+          state: SentenceState(
+            agent: you,
+            action: doVerb,
+            object: thisObject,
+            beneficiary: mary.toNounPhrase(Number.singular),
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+          sentence: 'You do this for Mary.',
+        ),
+      ];
+
+      for (final entry in cases) {
+        expect(render(entry.state), entry.sentence);
+      }
+    });
+
     test('active object adjective complement follows the object', () {
       final sentence = render(
         SentenceState(

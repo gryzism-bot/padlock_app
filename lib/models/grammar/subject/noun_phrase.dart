@@ -97,4 +97,10 @@ const _pronounTexts = {
   'anyone',
   'nobody',
   'everyone',
+  'something',
+  'anything',
+  'nothing',
+  'everything',
+  'this',
+  'that',
 };

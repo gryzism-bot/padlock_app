@@ -3080,6 +3080,13 @@ const _knownNouns = [
 const _knownStandaloneNounPhrases = [someone, anyone, nobody, everyone];
 
 const _knownFixedObjects = [
+  fixed_object.something,
+  fixed_object.anything,
+  fixed_object.nothing,
+  fixed_object.everything,
+  fixed_object.itObject,
+  fixed_object.thisObject,
+  fixed_object.thatObject,
   fixed_object.football,
   fixed_object.basketball,
   fixed_object.volleyball,
@@ -3087,6 +3094,7 @@ const _knownFixedObjects = [
   fixed_object.golf,
   fixed_object.workNoun,
   fixed_object.homework,
+  fixed_object.job,
   fixed_object.exerciseNoun,
   fixed_object.schoolNoun,
   fixed_object.healthNoun,

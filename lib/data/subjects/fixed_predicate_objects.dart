@@ -199,6 +199,55 @@ const no = NounPhrase(
   translations: {Language.pl: 'nie'},
 );
 
+const itObject = NounPhrase(
+  text: 'it',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'to'},
+);
+
+const thisObject = NounPhrase(
+  text: 'this',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'to'},
+);
+
+const thatObject = NounPhrase(
+  text: 'that',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'tamto'},
+);
+
+const something = NounPhrase(
+  text: 'something',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'cos'},
+);
+
+const anything = NounPhrase(
+  text: 'anything',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'cokolwiek'},
+);
+
+const nothing = NounPhrase(
+  text: 'nothing',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'nic'},
+);
+
+const everything = NounPhrase(
+  text: 'everything',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'wszystko'},
+);
+
 const hello = NounPhrase(
   text: 'hello',
   person: Person.third,
