@@ -327,6 +327,22 @@ void main() {
       expect(render(state), 'You teach Mary to swim.');
     });
 
+    test('teaching right action requires a recipient', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(teach));
+      state = engine.applyMove(state, const SetRightAction(speak));
+
+      expect(wasBlocked(state), isTrue);
+      expect(state.sentenceState.action, teach);
+      expect(state.sentenceState.rightAction, isNull);
+      expect(render(state), 'You teach.');
+      expect(
+        state.messages.map((message) => message.text),
+        contains('teach needs a recipient before a right action complement.'),
+      );
+    });
+
     test('recipient-controlled right action can keep inferior object tail', () {
       var state = ConfigurationState.initial();
 

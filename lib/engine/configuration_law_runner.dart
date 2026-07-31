@@ -154,6 +154,18 @@ void _validateRightActionLaw(_ValidationContext context) {
       '${state.action.infinitive} does not take "${rightAction.infinitive}" as a right action.',
       ConfigurationLawCategory.predicateFrameType,
     );
+    return;
+  }
+
+  if (predicatePathRequiresRecipient(
+        state.action,
+        PredicatePathKind.toRightAction,
+      ) &&
+      state.recipient == null) {
+    context.block(
+      '${state.action.infinitive} needs a recipient before a right action complement.',
+      ConfigurationLawCategory.predicateFrameType,
+    );
   }
 }
 

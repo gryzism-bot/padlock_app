@@ -88,6 +88,19 @@ ConfigurationState compileFirstPredicatePathChoice(
     }
   }
 
+  if (path.requiresRecipient) {
+    final recipientPath = _firstPathOfKind(
+      unlocks.paths,
+      PredicatePathKind.toRecipient,
+    );
+    if (recipientPath != null) {
+      state = lock.applyMove(
+        state,
+        firstMoveForPredicatePath(recipientPath, owner: unlocks.verb),
+      );
+    }
+  }
+
   return lock.applyMove(
     state,
     firstMoveForPredicatePath(path, owner: unlocks.verb),

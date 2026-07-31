@@ -662,6 +662,35 @@ void main() {
       }
     });
 
+    test(
+      'recipient-dependent paths document and compile their prerequisite',
+      () {
+        final unlocks = predicateUnlocksFor(education_data.teach)!;
+        final rightActionPath = unlocks.paths.singleWhere(
+          (path) => path.kind == PredicatePathKind.toRightAction,
+        );
+
+        expect(rightActionPath.requiresRecipient, isTrue);
+        expect(
+          predicatePathRequiresRecipient(
+            education_data.teach,
+            PredicatePathKind.toRightAction,
+          ),
+          isTrue,
+        );
+
+        final state = stateAfterPath(unlocks, rightActionPath);
+
+        expect(wasBlocked(state), isFalse);
+        expect(state.sentenceState.recipient, isNotNull);
+        expect(state.sentenceState.rightAction, isNotNull);
+        expect(
+          grammar.generate(state.sentenceState).text,
+          'You teach ${state.sentenceState.recipient!.text} to speak.',
+        );
+      },
+    );
+
     test('seed paths document the intended first product tracks', () {
       final examples = <Verb, List<String>>{
         learn: [

@@ -105,6 +105,7 @@ String? predicateTopicConnectorFor(PredicatePathKind kind) {
 class PredicatePath {
   final PredicatePathKind kind;
   final bool requiresObject;
+  final bool requiresRecipient;
   final List<NounPhrase> nouns;
   final List<Verb> verbs;
   final List<PlacePhrase> places;
@@ -115,6 +116,7 @@ class PredicatePath {
   const PredicatePath._({
     required this.kind,
     this.requiresObject = false,
+    this.requiresRecipient = false,
     this.nouns = const [],
     this.verbs = const [],
     this.places = const [],
@@ -126,8 +128,14 @@ class PredicatePath {
   const PredicatePath.directObject(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.directObject, nouns: nouns);
 
-  const PredicatePath.toRightAction(List<Verb> verbs)
-    : this._(kind: PredicatePathKind.toRightAction, verbs: verbs);
+  const PredicatePath.toRightAction(
+    List<Verb> verbs, {
+    bool requiresRecipient = false,
+  }) : this._(
+         kind: PredicatePathKind.toRightAction,
+         verbs: verbs,
+         requiresRecipient: requiresRecipient,
+       );
 
   const PredicatePath.toRecipient(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.toRecipient, nouns: nouns);
@@ -1556,7 +1564,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_learnSubjects),
       PredicatePath.toRecipient(_people),
-      PredicatePath.toRightAction(_rightActionTeaches),
+      PredicatePath.toRightAction(_rightActionTeaches, requiresRecipient: true),
       PredicatePath.withCompanion(_people),
     ],
   ),
@@ -2234,6 +2242,12 @@ bool predicatePathRequiresObject(Verb verb, PredicatePathKind kind) {
   return predicatePathsFor(
     verb,
   ).any((path) => path.kind == kind && path.requiresObject);
+}
+
+bool predicatePathRequiresRecipient(Verb verb, PredicatePathKind kind) {
+  return predicatePathsFor(
+    verb,
+  ).any((path) => path.kind == kind && path.requiresRecipient);
 }
 
 List<NounPhrase> predicateNounChoicesFor(Verb verb, PredicatePathKind kind) {

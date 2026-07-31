@@ -1192,9 +1192,36 @@ void main() {
 
     expect(renderedSentence(tester), 'You learn to speak English with anyone.');
 
-    await selectVerb(tester, 'teach');
+    await selectVerb(tester, 'study');
 
-    expect(renderedSentence(tester), 'You teach English with anyone.');
+    expect(renderedSentence(tester), 'You study English with anyone.');
+  });
+
+  testWidgets('Guided UI keeps compatible right-action chain on verb switch', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-speak')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-english')),
+    );
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-companion-anyone')),
+    );
+
+    expect(renderedSentence(tester), 'You learn to speak English with anyone.');
+
+    await selectVerb(tester, 'want');
+
+    expect(renderedSentence(tester), 'You want to speak English with anyone.');
   });
 
   testWidgets('Subject rows open noun subjects without stretching the deck', (

@@ -513,6 +513,7 @@ class ConfigurationEngine {
     final rightAction = _rightActionAfterActionChange(
       state.rightAction,
       action,
+      recipient: state.recipient,
     );
     final tailOwner = rightAction ?? action;
     final object = _objectAfterActionChange(state.object, tailOwner);
@@ -1217,12 +1218,28 @@ class ConfigurationEngine {
         : null;
   }
 
-  Verb? _rightActionAfterActionChange(Verb? rightAction, Verb action) {
+  Verb? _rightActionAfterActionChange(
+    Verb? rightAction,
+    Verb action, {
+    NounPhrase? recipient,
+  }) {
     if (rightAction == null) {
       return null;
     }
 
-    return rightActionFitsAction(rightAction, action) ? rightAction : null;
+    if (!rightActionFitsAction(rightAction, action)) {
+      return null;
+    }
+
+    if (predicatePathRequiresRecipient(
+          action,
+          PredicatePathKind.toRightAction,
+        ) &&
+        recipient == null) {
+      return null;
+    }
+
+    return rightAction;
   }
 
   PassiveFocus? _passiveFocusAfterActionChange(
