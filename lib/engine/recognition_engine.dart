@@ -1132,14 +1132,37 @@ class RecognitionEngine {
     }
 
     final toIndex = builder.verbChainEnd + 1;
+    if (_recognizeRightActionAt(builder, toIndex)) {
+      return;
+    }
+
+    if (action.takesRecipient != true) {
+      return;
+    }
+
+    final participantStart = builder.verbChainEnd + 1;
+    final recipientEnd = _nounPhraseEnd(builder, participantStart);
+    if (recipientEnd < participantStart) {
+      return;
+    }
+
+    _recognizeRightActionAt(builder, recipientEnd + 1);
+  }
+
+  bool _recognizeRightActionAt(_RecognitionBuilder builder, int toIndex) {
+    final action = builder.action;
+    if (action == null) {
+      return false;
+    }
+
     if (toIndex >= builder.tokens.length ||
         builder.tokens[toIndex].toLowerCase() != 'to') {
-      return;
+      return false;
     }
 
     final actionIndex = toIndex + 1;
     if (actionIndex >= builder.tokens.length) {
-      return;
+      return false;
     }
 
     final match = _lookupVerbAt(builder.tokens, actionIndex);
@@ -1151,12 +1174,13 @@ class RecognitionEngine {
           rightAction.infinitive,
         ) ||
         !rightActionFitsAction(rightAction, action)) {
-      return;
+      return false;
     }
 
     builder.rightAction = rightAction;
     builder.rightActionStart = toIndex;
     builder.rightActionEnd = match!.end;
+    return true;
   }
 
   void _recognizeParticipantBoundaries(_RecognitionBuilder builder) {
@@ -1185,7 +1209,8 @@ class RecognitionEngine {
       builder.agentEnd = builder.verbChainStart - 1;
     }
 
-    if (_recognizeRightActionObjectTail(builder)) {
+    if (_recognizeControlledRightActionRecipient(builder) ||
+        _recognizeRightActionObjectTail(builder)) {
       return;
     }
 
@@ -1230,6 +1255,38 @@ class RecognitionEngine {
 
     builder.objectStart = objectStart;
     builder.objectEnd = builder.tokens.length - 1;
+    return true;
+  }
+
+  bool _recognizeControlledRightActionRecipient(_RecognitionBuilder builder) {
+    final action = builder.action;
+    if (action?.takesRecipient != true ||
+        builder.rightAction == null ||
+        builder.rightActionStart < 0) {
+      return false;
+    }
+
+    final participantStart = builder.verbChainEnd + 1;
+    final recipientEnd = builder.rightActionStart - 1;
+    if (recipientEnd < participantStart ||
+        _nounPhraseEnd(builder, participantStart) != recipientEnd) {
+      return false;
+    }
+
+    builder.recipientStart = participantStart;
+    builder.recipientEnd = recipientEnd;
+    builder.recipientPlacement = RecipientPlacement.beforeObject;
+    builder.recipientPreposition = RecipientPreposition.to;
+
+    final rightAction = builder.rightAction;
+    final objectStart = builder.rightActionEnd + 1;
+    if (rightAction?.takesObject == true &&
+        objectStart < builder.tokens.length &&
+        !_startsNonParticipantPhrase(builder, objectStart)) {
+      builder.objectStart = objectStart;
+      builder.objectEnd = builder.tokens.length - 1;
+    }
+
     return true;
   }
 

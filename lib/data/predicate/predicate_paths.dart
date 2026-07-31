@@ -632,6 +632,7 @@ final _rightActionHates = [
   help,
 ];
 final _rightActionHelps = [work, learn, speak, read, write];
+final _rightActionTeaches = [speak, swim, read, write, work, learn];
 final _rightActionMovementPurposes = [
   sport_data.exercise,
   sport_data.train,
@@ -1537,6 +1538,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_learnSubjects),
       PredicatePath.toRecipient(_people),
+      PredicatePath.toRightAction(_rightActionTeaches),
       PredicatePath.withCompanion(_people),
     ],
   ),

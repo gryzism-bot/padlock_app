@@ -2041,6 +2041,7 @@ void main() {
         (action: remember, labels: ['read', 'write', 'speak']),
         (action: hate, labels: ['read', 'write', 'play', 'sing', 'help']),
         (action: help, labels: ['read', 'write', 'speak']),
+        (action: teach, labels: ['speak', 'swim', 'read', 'write']),
         (action: watch, labels: ['research', 'analyze', 'learn']),
         (action: run, labels: ['exercise', 'train', 'forget']),
       ];

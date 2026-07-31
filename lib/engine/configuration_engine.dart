@@ -516,7 +516,8 @@ class ConfigurationEngine {
     );
     final tailOwner = rightAction ?? action;
     final object = _objectAfterActionChange(state.object, tailOwner);
-    final recipient = action.takesRecipient && object != null
+    final recipient =
+        action.takesRecipient && (object != null || hasRightActionFrame(action))
         ? state.recipient
         : null;
     final addressee = _surfaceAfterActionChange(

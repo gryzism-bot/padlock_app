@@ -632,6 +632,31 @@ void main() {
       },
     );
 
+    test(
+      'recipient-controlled right action recognizes recipient before to',
+      () {
+        final state = engine.recognize('You teach Mary to swim.');
+
+        expectAgent(state, text: 'you');
+        expect(state.action, education_data.teach);
+        expectRecipient(state, text: 'mary');
+        expect(state.rightAction, swim);
+        expect(state.object, isNull);
+        expect(state.recipientPlacement, RecipientPlacement.beforeObject);
+      },
+    );
+
+    test('recipient-controlled right action keeps inferior object tail', () {
+      final state = engine.recognize('You teach Mary to read English.');
+
+      expectAgent(state, text: 'you');
+      expect(state.action, education_data.teach);
+      expectRecipient(state, text: 'mary');
+      expect(state.rightAction, read);
+      expectObject(state, text: 'English');
+      expect(state.recipientPlacement, RecipientPlacement.beforeObject);
+    });
+
     test('person destination pronouns recognize object case', () {
       final state = engine.recognize('Mary went to him.');
 

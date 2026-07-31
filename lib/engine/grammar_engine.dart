@@ -602,8 +602,17 @@ class GrammarEngine {
     final activeToRecipient =
         builder.state.voice == Voice.active &&
         builder.state.recipientPlacement == RecipientPlacement.toPhrase;
+    final activeControlledRightActionRecipient =
+        builder.state.voice == Voice.active &&
+        builder.state.rightAction != null &&
+        builder.displayRecipient != null &&
+        !activeToRecipient;
 
     // ---------- RIGHT ACTION ----------
+
+    if (activeControlledRightActionRecipient) {
+      parts.add(_renderObjectCase(builder.displayRecipient!));
+    }
 
     if (builder.state.rightAction != null) {
       parts.add('to ${builder.state.rightAction!.infinitive}');
@@ -611,7 +620,9 @@ class GrammarEngine {
 
     // ---------- RECIPIENT ----------
 
-    if (builder.displayRecipient != null && !activeToRecipient) {
+    if (builder.displayRecipient != null &&
+        !activeToRecipient &&
+        !activeControlledRightActionRecipient) {
       if (builder.state.voice == Voice.passive) {
         parts.add(
           '${builder.state.recipientPreposition.text} ${_renderObjectCase(builder.displayRecipient!)}',

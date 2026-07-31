@@ -491,6 +491,16 @@ introduce
 
 study
 teach
+teach - someone
+teach - English
+teach - grammar
+teach - to speak
+teach - to swim
+teach - to read
+teach - to write
+teach - to work
+teach - to learn
+teach - with someone
 spell
 count
 calculate

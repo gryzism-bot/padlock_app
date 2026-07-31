@@ -1178,6 +1178,43 @@ void main() {
       expect(sentence, 'You learn to speak science with anyone.');
     });
 
+    test(
+      'recipient-controlled right action renders before inferior action',
+      () {
+        final sentence = render(
+          SentenceState(
+            agent: you,
+            action: education_data.teach,
+            recipient: mary.toNounPhrase(Number.singular),
+            rightAction: swim,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, 'You teach Mary to swim.');
+      },
+    );
+
+    test(
+      'recipient-controlled right action can keep object on inferior verb',
+      () {
+        final sentence = render(
+          SentenceState(
+            agent: you,
+            action: education_data.teach,
+            recipient: mary.toNounPhrase(Number.singular),
+            rightAction: read,
+            object: english,
+            tense: Tense.present,
+            aspect: Aspect.simple,
+          ),
+        );
+
+        expect(sentence, 'You teach Mary to read English.');
+      },
+    );
+
     test('right action complement covers enriched everyday infinitives', () {
       final cases = [
         (action: want, rightAction: help, sentence: 'You want to help.'),

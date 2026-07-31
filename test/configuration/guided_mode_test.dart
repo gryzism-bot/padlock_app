@@ -15,6 +15,7 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -239,19 +240,18 @@ void main() {
       var state = ConfigurationState.initial();
 
       state = engine.applyMove(state, const SetAction(learn));
-      state = engine.applyMove(state, const SetRightAction(speak));
-      state = engine.applyMove(state, const SetObject(fixed_object.english));
+      state = engine.applyMove(state, const SetRightAction(play));
       state = engine.applyMove(state, const SetCompanion(anyone));
 
       state = engine.applyMove(state, const SetAction(teach));
 
       expect(wasBlocked(state), isFalse);
       expect(state.sentenceState.action, teach);
-      expect(state.sentenceState.object, fixed_object.english);
+      expect(state.sentenceState.object, isNull);
       expect(state.sentenceState.companion, anyone);
       expect(state.sentenceState.recipient, isNull);
       expect(state.sentenceState.rightAction, isNull);
-      expect(render(state), 'You teach English with anyone.');
+      expect(render(state), 'You teach with anyone.');
     });
 
     test('assisted verb switch previews the same shaved sentence', () {
@@ -307,6 +307,42 @@ void main() {
 
       expect(render(state), 'You learn to speak English with anyone.');
       expect(wasBlocked(state), isFalse);
+    });
+
+    test('recipient can control right action on teaching verbs', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(teach));
+      state = engine.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetRightAction(swim));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.action, teach);
+      expect(state.sentenceState.recipient?.text, 'Mary');
+      expect(state.sentenceState.rightAction, swim);
+      expect(state.sentenceState.object, isNull);
+      expect(render(state), 'You teach Mary to swim.');
+    });
+
+    test('recipient-controlled right action can keep inferior object tail', () {
+      var state = ConfigurationState.initial();
+
+      state = engine.applyMove(state, const SetAction(teach));
+      state = engine.applyMove(
+        state,
+        SetRecipient(mary.toNounPhrase(Number.singular)),
+      );
+      state = engine.applyMove(state, const SetRightAction(read));
+      state = engine.applyMove(state, const SetObject(fixed_object.english));
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.recipient?.text, 'Mary');
+      expect(state.sentenceState.rightAction, read);
+      expect(state.sentenceState.object, fixed_object.english);
+      expect(render(state), 'You teach Mary to read English.');
     });
 
     test('blocks noun phrase determiners that do not match number', () {

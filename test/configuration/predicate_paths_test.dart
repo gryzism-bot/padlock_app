@@ -1532,6 +1532,50 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(learn, _ReviewedRouteKind.purpose, text: 'work'),
   _ReviewedRoute(learn, _ReviewedRouteKind.purpose, text: 'grammar'),
 
+  _ReviewedRoute(education_data.teach, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.directObject,
+    text: 'English',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.directObject,
+    text: 'grammar',
+  ),
+  _ReviewedRoute(education_data.teach, _ReviewedRouteKind.recipient),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'speak',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'swim',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'read',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'write',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'work',
+  ),
+  _ReviewedRoute(
+    education_data.teach,
+    _ReviewedRouteKind.rightAction,
+    text: 'learn',
+  ),
+  _ReviewedRoute(education_data.teach, _ReviewedRouteKind.companion),
+
   _ReviewedRoute(hate, _ReviewedRouteKind.directObject),
   _ReviewedRoute(hate, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(hate, _ReviewedRouteKind.rightAction, text: 'work'),

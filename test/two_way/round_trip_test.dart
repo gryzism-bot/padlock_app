@@ -240,6 +240,8 @@ void main() {
         'She needs to work.',
         'They liked to swim.',
         'You should learn to speak.',
+        'You teach Mary to swim.',
+        'You teach Mary to read English.',
         'He does not want to go.',
         'Does he want to go?',
         'They work quietly.',
