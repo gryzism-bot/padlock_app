@@ -2017,6 +2017,53 @@ void main() {
           .map((suggestion) => suggestion.label);
 
       expect(labels, containsAll(['go', 'work', 'learn', 'swim', 'speak']));
+      expect(labels, containsAll(['read', 'write', 'play', 'sing', 'help']));
+    });
+
+    test('authored right action suggestions wake for forget', () {
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(forget),
+      );
+
+      final labels = compass
+          .suggestionsFor(state, ConfigurationCompassSlot.rightAction, limit: 0)
+          .map((suggestion) => suggestion.label);
+
+      expect(labels, containsAll(['go', 'call', 'work', 'learn']));
+      expect(labels, containsAll(['read', 'write', 'speak']));
+    });
+
+    test('authored right action suggestions cover enriched route owners', () {
+      final cases = [
+        (action: begin, labels: ['go', 'read', 'write', 'play']),
+        (action: learn, labels: ['read', 'write', 'sing', 'play']),
+        (action: remember, labels: ['read', 'write', 'speak']),
+        (action: hate, labels: ['read', 'write', 'play', 'sing', 'help']),
+        (action: help, labels: ['read', 'write', 'speak']),
+        (action: watch, labels: ['research', 'analyze', 'learn']),
+        (action: run, labels: ['exercise', 'train', 'forget']),
+      ];
+
+      for (final entry in cases) {
+        final state = lock.applyMove(
+          ConfigurationState.initial(),
+          SetAction(entry.action),
+        );
+        final labels = compass
+            .suggestionsFor(
+              state,
+              ConfigurationCompassSlot.rightAction,
+              limit: 0,
+            )
+            .map((suggestion) => suggestion.label);
+
+        expect(
+          labels,
+          containsAll(entry.labels),
+          reason: entry.action.infinitive,
+        );
+      }
     });
 
     test('right action suggestions include clear and selected states', () {

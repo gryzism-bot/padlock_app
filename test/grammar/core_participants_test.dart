@@ -14,6 +14,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
+import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
@@ -1175,6 +1176,42 @@ void main() {
       );
 
       expect(sentence, 'You learn to speak science with anyone.');
+    });
+
+    test('right action complement covers enriched everyday infinitives', () {
+      final cases = [
+        (action: want, rightAction: help, sentence: 'You want to help.'),
+        (action: need, rightAction: sleep, sentence: 'You need to sleep.'),
+        (action: begin, rightAction: read, sentence: 'You begin to read.'),
+        (action: learn, rightAction: write, sentence: 'You learn to write.'),
+        (
+          action: remember,
+          rightAction: speak,
+          sentence: 'You remember to speak.',
+        ),
+        (
+          action: education_data.forget,
+          rightAction: read,
+          sentence: 'You forget to read.',
+        ),
+        (action: hate, rightAction: sing, sentence: 'You hate to sing.'),
+        (action: watch, rightAction: learn, sentence: 'You watch to learn.'),
+      ];
+
+      for (final entry in cases) {
+        expect(
+          render(
+            SentenceState(
+              agent: you,
+              action: entry.action,
+              rightAction: entry.rightAction,
+              tense: Tense.present,
+              aspect: Aspect.simple,
+            ),
+          ),
+          entry.sentence,
+        );
+      }
     });
 
     test('person destination pronouns render in object case', () {

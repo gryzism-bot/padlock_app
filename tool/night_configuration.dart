@@ -1025,6 +1025,7 @@ String _moveLabel(ConfigurationMove move) {
     SetBeneficiary(:final beneficiary) =>
       'beneficiary -> ${_nounPhraseLabel(beneficiary)}',
     SetSource(:final source) => 'source -> ${_nounPhraseLabel(source)}',
+    SetPurpose(:final purpose) => 'purpose -> ${_nounPhraseLabel(purpose)}',
     SetRightAction(:final rightAction) =>
       'right action -> ${rightAction?.infinitive ?? 'none'}',
     SetComplement(:final complement) =>

@@ -571,15 +571,72 @@ final _sayObjects = _uniqueByText([
   fixed_object.hello,
   ..._textObjects,
 ]);
-final _rightActionWants = [go, work, learn, swim, speak, watch, sleep];
-final _rightActionNeeds = [go, work, learn, speak, sleep];
-final _rightActionLikes = [go, work, learn, swim, speak, watch, sleep];
-final _rightActionLoves = [go, work, learn, swim, speak, watch];
-final _rightActionBegins = [work, learn, speak, swim];
-final _rightActionLearns = [speak, swim, work];
-final _rightActionRemembers = [go, call, work, learn];
-final _rightActionHates = [go, work, learn, swim, speak, watch, sleep, lose];
-final _rightActionHelps = [work, learn, speak];
+final _rightActionWants = [
+  go,
+  work,
+  learn,
+  swim,
+  speak,
+  watch,
+  sleep,
+  read,
+  write,
+  play,
+  sing,
+  help,
+];
+final _rightActionNeeds = [go, work, learn, speak, sleep, read, write, help];
+final _rightActionLikes = [
+  go,
+  work,
+  learn,
+  swim,
+  speak,
+  watch,
+  sleep,
+  read,
+  write,
+  play,
+  sing,
+];
+final _rightActionLoves = [
+  go,
+  work,
+  learn,
+  swim,
+  speak,
+  watch,
+  sleep,
+  read,
+  write,
+  play,
+  sing,
+];
+final _rightActionBegins = [go, work, learn, speak, swim, read, write, play];
+final _rightActionLearns = [speak, swim, work, read, write, sing, play];
+final _rightActionRemembers = [go, call, work, learn, read, write, speak];
+final _rightActionForgets = [go, call, work, learn, read, write, speak];
+final _rightActionHates = [
+  go,
+  work,
+  learn,
+  swim,
+  speak,
+  watch,
+  sleep,
+  lose,
+  read,
+  write,
+  play,
+  sing,
+  help,
+];
+final _rightActionHelps = [work, learn, speak, read, write];
+final _rightActionMovementPurposes = [
+  sport_data.exercise,
+  sport_data.train,
+  education_data.forget,
+];
 final _homeSchoolWorkPlaces = [
   place_data.homePlacePhrase,
   place_data.schoolPlacePhrase,
@@ -1206,6 +1263,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.toRightAction([
         education_data.research,
         education_data.analyze,
+        learn,
       ]),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
@@ -1510,7 +1568,10 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     education_data.forget,
     _uniqueByText([..._learnSubjects, ..._people]),
-    paths: _studySurfaceContexts(),
+    paths: [
+      PredicatePath.toRightAction(_rightActionForgets),
+      ..._studySurfaceContexts(),
+    ],
   ),
   _directWithPaths(
     education_data.practice,
@@ -1544,16 +1605,28 @@ final guidedPredicateUnlocks = [
   ),
   _destinationWithCompanion(
     walk,
-    paths: [_purposes(_movementPurposes), ..._movementContexts()],
+    paths: [
+      PredicatePath.toRightAction(_rightActionMovementPurposes),
+      _purposes(_movementPurposes),
+      ..._movementContexts(),
+    ],
   ),
   _destinationWithCompanion(
     run,
-    paths: [_purposes(_movementPurposes), ..._movementContexts()],
+    paths: [
+      PredicatePath.toRightAction(_rightActionMovementPurposes),
+      _purposes(_movementPurposes),
+      ..._movementContexts(),
+    ],
   ),
   PredicateUnlocks(verb: jump, paths: _movementContexts()),
   _destinationWithCompanion(
     swim,
-    paths: [_purposes(_movementPurposes), ..._movementContexts()],
+    paths: [
+      PredicatePath.toRightAction(_rightActionMovementPurposes),
+      _purposes(_movementPurposes),
+      ..._movementContexts(),
+    ],
   ),
   _destinationWithCompanion(fly, paths: _travelContexts()),
   PredicateUnlocks(

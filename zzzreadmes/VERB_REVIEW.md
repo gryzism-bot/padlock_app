@@ -88,8 +88,14 @@ read - at night
 begin - something
 begin - a lesson
 begin - work
+begin - to go
 begin - to work
 begin - to learn
+begin - to speak
+begin - to swim
+begin - to read
+begin - to write
+begin - to play
 begin - with something
 begin - at school
 begin - today
@@ -225,6 +231,11 @@ want - to go
 want - to learn
 want - to speak
 want - to sleep
+want - to read
+want - to write
+want - to play
+want - to sing
+want - to help
 want - with someone
 want - now
 
@@ -237,6 +248,10 @@ need - a tool
 need - to go
 need - to learn
 need - to speak
+need - to sleep
+need - to read
+need - to write
+need - to help
 need - now
 
 meet - someone
@@ -257,6 +272,14 @@ like - food
 like - to learn
 like - to swim
 like - to watch
+like - to go
+like - to work
+like - to speak
+like - to sleep
+like - to read
+like - to write
+like - to play
+like - to sing
 like - with someone
 
 love - someone
@@ -267,6 +290,14 @@ love - food
 love - to learn
 love - to swim
 love - to watch
+love - to go
+love - to work
+love - to speak
+love - to sleep
+love - to read
+love - to write
+love - to play
+love - to sing
 love - with someone
 
 work - with someone
@@ -319,6 +350,7 @@ watch - a game
 watch - someone
 watch - with her
 watch - to analyze
+watch - to learn
 watch - closely
 watch - quietly
 watch - at home
@@ -352,6 +384,10 @@ learn - science
 learn - to speak
 learn - to swim
 learn - to work
+learn - to read
+learn - to write
+learn - to sing
+learn - to play
 learn - with someone
 learn - at school
 learn - quickly
@@ -363,6 +399,11 @@ hate - food
 hate - waiting
 hate - to lose
 hate - to work
+hate - to read
+hate - to write
+hate - to play
+hate - to sing
+hate - to help
 hate - with someone
 hate - quietly
 
@@ -373,6 +414,11 @@ remember - English
 remember - grammar
 remember - to go
 remember - to call
+remember - to work
+remember - to learn
+remember - to read
+remember - to write
+remember - to speak
 remember - clearly
 remember - today
 
@@ -413,6 +459,9 @@ help - a child
 help - with something
 help - to learn
 help - to work
+help - to speak
+help - to read
+help - to write
 help - at school
 help - today
 
@@ -448,6 +497,16 @@ calculate
 solve
 understand
 forget
+forget - something
+forget - English
+forget - grammar
+forget - to go
+forget - to call
+forget - to work
+forget - to learn
+forget - to read
+forget - to write
+forget - to speak
 practice
 repeat
 improve
@@ -457,9 +516,18 @@ research
 ## Movement
 
 walk
+walk - to exercise
+walk - to train
+walk - to forget
 run
+run - to exercise
+run - to train
+run - to forget
 jump
 swim
+swim - to exercise
+swim - to train
+swim - to forget
 fly
 drive
 ride

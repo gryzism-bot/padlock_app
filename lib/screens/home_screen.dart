@@ -157,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<ConfigurationCompassSlot> expandedRails = const {};
   bool isCoreSurfaceExpanded = true;
   bool isVerbRailExpanded = true;
+  String verbFilterQuery = '';
   int previewCacheEntryCount = 0;
 
   @override
@@ -474,9 +475,17 @@ class _HomeScreenState extends State<HomeScreen> {
       for (final section in sections)
         if (section.slot != ConfigurationCompassSlot.action) section,
     ];
+    final filteredVerbCount = verbSection == null
+        ? 0
+        : _filteredSuggestionCount(
+            verbSection.suggestions,
+            query: verbFilterQuery,
+          );
     final fixedHeadHeight = _fixedWorkbenchHeadHeight(
       isCoreSurfaceExpanded: isCoreSurfaceExpanded,
       isVerbRailExpanded: isVerbRailExpanded,
+      verbSuggestionCount: filteredVerbCount,
+      isVerbRailFiltered: verbFilterQuery.trim().isNotEmpty,
     );
     _syncPreviewCacheSizeAfterFrame();
 
@@ -728,6 +737,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   HeaderPreviewMode.hover
                                               ? _setHoveredConfiguration
                                               : null,
+                                          onFilterQueryChanged: (query) {
+                                            setState(() {
+                                              verbFilterQuery = query;
+                                            });
+                                          },
                                         ),
                                     ],
                                   ),
@@ -794,11 +808,19 @@ Color _pinnedWorkbenchColor(ColorScheme colors) {
 double _fixedWorkbenchHeadHeight({
   required bool isCoreSurfaceExpanded,
   required bool isVerbRailExpanded,
+  required int verbSuggestionCount,
+  required bool isVerbRailFiltered,
 }) {
   const controlDeckHeight = 104.0;
   const expandedCoreSurfaceHeight = 70.0;
   const collapsedCoreSurfaceHeight = 46.0;
-  const expandedVerbRailHeight = _verbRailMaxHeight + 64.0;
+  final expandedVerbRailHeight =
+      _railMaxHeightFor(
+        title: 'Verb',
+        suggestionCount: verbSuggestionCount,
+        isFiltered: isVerbRailFiltered,
+      ) +
+      64.0;
   const collapsedVerbRailHeight = 46.0;
 
   return _stickyHeaderHeight +
@@ -3082,6 +3104,7 @@ class _CompassSlotSection extends StatefulWidget {
   final String Function(SentenceState state) renderPreview;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
+  final ValueChanged<String>? onFilterQueryChanged;
 
   const _CompassSlotSection({
     required this.title,
@@ -3099,6 +3122,7 @@ class _CompassSlotSection extends StatefulWidget {
     required this.renderPreview,
     required this.onMove,
     required this.onPreviewChanged,
+    this.onFilterQueryChanged,
   });
 
   @override
@@ -3169,6 +3193,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
       expandedMaxHeight: _railMaxHeightFor(
         title: widget.title,
         suggestionCount: filteredSuggestions.length,
+        isFiltered: _filterQuery.trim().isNotEmpty,
       ),
       controls: [
         if (showSearch)
@@ -3181,6 +3206,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
               setState(() {
                 _filterQuery = value;
               });
+              widget.onFilterQueryChanged?.call(value);
             },
             onClear: _filterQuery.isEmpty
                 ? null
@@ -3189,6 +3215,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
                     setState(() {
                       _filterQuery = '';
                     });
+                    widget.onFilterQueryChanged?.call('');
                   },
           ),
         if (widget.isExpanded &&
@@ -3223,6 +3250,7 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
               renderPreview: widget.renderPreview,
               onMove: widget.onMove,
               onPreviewChanged: widget.onPreviewChanged,
+              isFiltered: _filterQuery.trim().isNotEmpty,
             ),
       children: const [],
     );
@@ -3239,6 +3267,7 @@ class _VirtualizedSuggestionRail extends StatefulWidget {
   final String Function(SentenceState state) renderPreview;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
+  final bool isFiltered;
 
   const _VirtualizedSuggestionRail({
     required this.railTitle,
@@ -3250,6 +3279,7 @@ class _VirtualizedSuggestionRail extends StatefulWidget {
     required this.renderPreview,
     required this.onMove,
     required this.onPreviewChanged,
+    required this.isFiltered,
   });
 
   @override
@@ -3295,6 +3325,7 @@ class _VirtualizedSuggestionRailState
           _railMaxHeightFor(
             title: widget.railTitle,
             suggestionCount: widget.suggestions.length,
+            isFiltered: widget.isFiltered,
           ),
           naturalHeight,
         );
@@ -3493,8 +3524,17 @@ String _suggestionsSignatureFor(List<ConfigurationSuggestion> suggestions) {
 double _railMaxHeightFor({
   required String title,
   required int suggestionCount,
+  bool isFiltered = false,
 }) {
   if (title == 'Verb') {
+    if (isFiltered) {
+      if (suggestionCount <= 8) {
+        return _smallRailMaxHeight;
+      }
+      if (suggestionCount <= 18) {
+        return _mediumRailMaxHeight;
+      }
+    }
     return _verbRailMaxHeight;
   }
 
@@ -3507,4 +3547,19 @@ double _railMaxHeightFor({
   }
 
   return _largeRailMaxHeight;
+}
+
+int _filteredSuggestionCount(
+  List<ConfigurationSuggestion> suggestions, {
+  required String query,
+}) {
+  final trimmedQuery = query.trim().toLowerCase();
+  if (trimmedQuery.isEmpty) {
+    return suggestions.length;
+  }
+
+  final terms = trimmedQuery.split(RegExp(r'\s+'));
+  return suggestions
+      .where((suggestion) => _suggestionMatchesTerms(suggestion, terms))
+      .length;
 }

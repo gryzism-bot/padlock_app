@@ -753,6 +753,31 @@ void main() {
     },
   );
 
+  testWidgets('Filtered verb rail shrinks pinned vocabulary space', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2048, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+
+    final bodyCompanionRail = find.byKey(
+      const ValueKey('section-frame-Companion'),
+    );
+    final initialTop = tester.getTopLeft(bodyCompanionRail).dy;
+
+    await filterRail(tester, 'Verb', 'forget');
+
+    expect(
+      find.byKey(const Key('suggestion-label-action-forget')),
+      findsOneWidget,
+    );
+    expect(tester.getTopLeft(bodyCompanionRail).dy, lessThan(initialTop));
+  });
+
   testWidgets(
     'Guided Mode hides broad phrase rails until authored routes wake them',
     (tester) async {
@@ -1049,6 +1074,44 @@ void main() {
       expect(find.text('Right action:'), findsOneWidget);
     },
   );
+
+  testWidgets('Guided UI opens right action rail from forget', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await selectVerb(tester, 'forget');
+
+    expect(renderedSentence(tester), 'You forget.');
+    expect(find.text('Right action:'), findsOneWidget);
+
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-call')),
+    );
+
+    expect(renderedSentence(tester), 'You forget to call.');
+  });
+
+  testWidgets('Guided UI opens right action rail from movement purpose verbs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await selectVerb(tester, 'run');
+
+    expect(renderedSentence(tester), 'You run.');
+    expect(find.text('Right action:'), findsOneWidget);
+
+    await expandRail(tester, 'Right action');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightAction-exercise')),
+    );
+
+    expect(renderedSentence(tester), 'You run to exercise.');
+  });
 
   testWidgets('Right action opens its owned object and companion rails', (
     tester,

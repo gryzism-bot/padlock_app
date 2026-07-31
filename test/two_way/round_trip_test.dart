@@ -124,6 +124,14 @@ void main() {
         'John sold her a gift.',
         'Mary wrote him a letter.',
         'The teacher taught them a book.',
+        'You want to help.',
+        'You need to sleep.',
+        'You begin to read.',
+        'You learn to write.',
+        'You remember to speak.',
+        'You forget to read.',
+        'You hate to sing.',
+        'You watch to learn.',
       ]);
     });
 

@@ -604,9 +604,11 @@ void main() {
 
     await selectVerb(tester, 'go');
 
-    expect(find.text('Place phrase:'), findsOneWidget);
+    expect(find.text('Place phrase:'), findsNothing);
     expect(find.text('Source place:'), findsOneWidget);
     expectRailSurfaceMarker(tester, 'Source place', 'from');
+
+    await expandRail(tester, 'Source place');
     expect(find.byTooltip('You go from work.'), findsOneWidget);
 
     await tapAfterScroll(tester, find.byTooltip('You go from work.'));
@@ -759,6 +761,7 @@ void main() {
     expect(find.text('Place phrase:'), findsNothing);
     expectRailSurfaceMarker(tester, 'Location', 'at/in');
 
+    await expandRail(tester, 'Location');
     await tapAfterScroll(tester, find.byTooltip('You work at school.'));
 
     expect(renderedSentence(tester), 'You work at school.');
@@ -769,6 +772,7 @@ void main() {
     expect(renderedSentence(tester), 'You buy.');
     expect(find.text('In location:'), findsOneWidget);
     expectRailSurfaceMarker(tester, 'In location', 'in');
+    await expandRail(tester, 'In location');
     await tapAfterScroll(tester, find.byTooltip('You buy in the shop.'));
 
     expect(renderedSentence(tester), 'You buy in the shop.');
@@ -801,6 +805,8 @@ void main() {
     expect(find.text('Manner phrase:'), findsOneWidget);
     expect(find.text('Time phrase:'), findsOneWidget);
     await expandRail(tester, 'Topic');
+    await expandRail(tester, 'Manner phrase');
+    await expandRail(tester, 'Time phrase');
     expect(find.byTooltip('You think about grammar.'), findsOneWidget);
     expect(find.byTooltip('You think of John.'), findsOneWidget);
     expect(find.byTooltip('You think carefully.'), findsOneWidget);
@@ -875,9 +881,7 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
       case 'complement':
         titles.addAll(['Noun complement', 'Adjective complement']);
       case 'place':
-        if (locationConnectors.isEmpty) {
-          titles.add('Place phrase');
-        }
+        break;
       case 'time':
         titles.add('Time phrase');
       case 'frequency':

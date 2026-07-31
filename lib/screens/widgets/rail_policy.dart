@@ -738,8 +738,12 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: _placeRailTitle,
     unlockHint: (_) => 'No open move from here.',
     surfaceMarker: _placeRailSurfaceMarker,
-    isControlled: false,
-    canRenderCollapsedWhen: (_) => false,
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        predicateLocationConnectorsFor(_railBoundTailOwner(state)).isNotEmpty ||
+        (state.placePhrase != null &&
+            (state.placeMeaning == null ||
+                state.placeMeaning == PlaceMeaning.location)),
     canRenderWhenEmpty: (state) => state.placePhrase != null,
   ),
   ConfigurationCompassSlot.sourcePlace: _RailPolicy(
@@ -748,8 +752,13 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     unlockHint: (_) =>
         'Choose a movement/source verb that can open from-place.',
     surfaceMarker: _sourcePlaceRailSurfaceMarker,
-    isControlled: false,
-    canRenderCollapsedWhen: (_) => false,
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        predicateSourceLocationConnectorsFor(
+          _railBoundTailOwner(state),
+        ).isNotEmpty ||
+        (state.placePhrase != null &&
+            state.placeMeaning == PlaceMeaning.source),
     canRenderWhenEmpty: (state) =>
         state.placePhrase != null && state.placeMeaning == PlaceMeaning.source,
   ),
@@ -757,8 +766,8 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     slot: ConfigurationCompassSlot.timePhrase,
     title: (_) => 'Time phrase',
     unlockHint: (_) => 'No open move from here.',
-    isControlled: false,
-    canRenderCollapsedWhen: (_) => false,
+    isControlled: true,
+    canRenderCollapsedWhen: (_) => true,
     canRenderWhenEmpty: (_) => true,
   ),
   ConfigurationCompassSlot.frequencyPhrase: _RailPolicy(
@@ -766,8 +775,13 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Frequency phrase',
     unlockHint: (_) => 'No open move from here.',
     surfaceMarker: (_) => 'how often',
-    isControlled: false,
-    canRenderCollapsedWhen: (_) => false,
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        predicateFrequencyChoicesFor(
+          _railBoundTailOwner(state),
+          PredicatePathKind.frequencyPhrase,
+        ).isNotEmpty ||
+        state.frequencyPhrase != null,
     canRenderWhenEmpty: (_) => true,
   ),
   ConfigurationCompassSlot.mannerPhrase: _RailPolicy(
@@ -775,8 +789,13 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     title: (_) => 'Manner phrase',
     unlockHint: (_) => 'No open move from here.',
     surfaceMarker: (_) => 'how',
-    isControlled: false,
-    canRenderCollapsedWhen: (_) => false,
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        predicateMannerChoicesFor(
+          _railBoundTailOwner(state),
+          PredicatePathKind.mannerPhrase,
+        ).isNotEmpty ||
+        state.mannerPhrase != null,
     canRenderWhenEmpty: (state) => state.mannerPhrase != null,
   ),
 };

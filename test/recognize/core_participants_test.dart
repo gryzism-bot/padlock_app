@@ -9,6 +9,7 @@ import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
+import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
@@ -597,6 +598,39 @@ void main() {
       expect(questionState.rightAction, go);
       expect(questionState.sentenceForm, SentenceForm.question);
     });
+
+    test(
+      'right action complement recognizes enriched everyday infinitives',
+      () {
+        final cases = [
+          (sentence: 'You want to help.', action: want, rightAction: help),
+          (sentence: 'You need to sleep.', action: need, rightAction: sleep),
+          (sentence: 'You begin to read.', action: begin, rightAction: read),
+          (sentence: 'You learn to write.', action: learn, rightAction: write),
+          (
+            sentence: 'You remember to speak.',
+            action: remember,
+            rightAction: speak,
+          ),
+          (
+            sentence: 'You forget to read.',
+            action: education_data.forget,
+            rightAction: read,
+          ),
+          (sentence: 'You hate to sing.', action: hate, rightAction: sing),
+          (sentence: 'You watch to learn.', action: watch, rightAction: learn),
+        ];
+
+        for (final entry in cases) {
+          final state = engine.recognize(entry.sentence);
+
+          expectAgent(state, text: 'you');
+          expect(state.action, entry.action, reason: entry.sentence);
+          expect(state.rightAction, entry.rightAction, reason: entry.sentence);
+          expect(state.object, isNull, reason: entry.sentence);
+        }
+      },
+    );
 
     test('person destination pronouns recognize object case', () {
       final state = engine.recognize('Mary went to him.');
