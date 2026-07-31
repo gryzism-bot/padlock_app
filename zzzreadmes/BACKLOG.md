@@ -82,15 +82,13 @@ Best low-effort / high-value moves for the developer cockpit:
      - instrument
      - destination
      - source
-     - topic: `about`, `of`, `on`
+     - topic: `about`, `of`, `on`, `with`
      - purpose: `for`
      - location: `at`, `in`, `on`, `from`
      - right action: `to + verb`
    - remaining work is mostly verb-by-verb authorship and vocabulary shelves,
      not new route-kind architecture
-   - explicit pending review rows are currently:
-     - `hate` + companion
-     - `help` + about-topic
+   - explicit pending review rows are currently closed
 9. Later: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
@@ -155,13 +153,15 @@ The essential verb review sheet is now executable through
 Current audit shape:
 
 - the review sheet is executable through route assertions
-- only two reviewed routes are currently marked pending:
+- no reviewed routes are currently marked pending
+- recently closed review rows:
   - `hate` + companion
-  - `help` + about-topic
+  - `help` + with-topic (`help with homework/problem/question`)
 - recently implemented route families include:
   - atomized location routes: `at`, `in`, `on`
   - source-place routes: `from`
   - topic routes: `about`, `of`, `on`
+  - with-topic routes for content-like help surfaces
   - instrument `with`, separate from companion `with`
   - purpose `for`
   - object-dependent destination:
@@ -170,7 +170,8 @@ Current audit shape:
 
 Interpretation:
 
-- Most pending rows are missing data or missing authored `PredicatePath` entries,
+- Most future missing rows will be missing data or missing authored
+  `PredicatePath` entries,
   not missing Grammar Engine logic.
 - The important route kinds now exist; new work should usually start by adding
   data to a verb-owned path rather than adding a new engine law.
@@ -213,8 +214,8 @@ Constraint sorting for PredicatePaths:
 Next audit actions:
 
 - keep the executable review sheet current as new verbs/routes are added
-- turn the two pending rows into either implemented routes or explicitly
-  postponed semantic decisions
+- keep pending rows rare: either implement the route or document a deliberate
+  semantic postponement
 - start saturation with verb-owned shelves:
   - more useful objects for `bring`, `take`, `give`, `buy`, `sell`
   - richer study/learn/read/write topic and text shelves

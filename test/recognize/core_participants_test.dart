@@ -423,6 +423,18 @@ void main() {
       expect(state.recipient, isNull);
     });
 
+    test('topic can recognize a with phrase', () {
+      final state = engine.recognize('John helped with homework.');
+
+      expectAgent(state, text: 'john');
+      expectTopic(state, text: 'homework');
+      expect(state.action, help);
+      expect(state.topicPreposition, TopicPreposition.withPrep);
+      expect(state.object, isNull);
+      expect(state.companion, isNull);
+      expect(state.instrument, isNull);
+    });
+
     test('manner can stay before object plus bound addressee phrase', () {
       final state = engine.recognize(
         'John explained grammar carefully to Mary.',

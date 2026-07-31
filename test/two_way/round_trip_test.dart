@@ -310,6 +310,7 @@ void main() {
         'John opened the door.',
         'John closed the door.',
         'John helped Mary.',
+        'John helped with homework.',
         'John read a newspaper.',
       ]);
     });

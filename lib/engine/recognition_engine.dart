@@ -2461,32 +2461,34 @@ class RecognitionEngine {
       return;
     }
 
-    final topicPreposition = _firstTopicPreposition(tokens);
-    if (topicPreposition == null) {
+    for (final topicPreposition in _topicPrepositionsByFirstUse(tokens)) {
+      final wordsBefore = _phraseWordIndex(tokens, topicPreposition.text);
+
+      if (wordsBefore < 0) {
+        continue;
+      }
+
+      final prepositionIndex = builder.verbChainEnd + 1 + wordsBefore;
+      final topicStart = prepositionIndex + 1;
+
+      if (!_looksLikeCompanionPhrase(builder, topicStart)) {
+        continue;
+      }
+
+      final topicEnd = _nounPhraseEnd(builder, topicStart);
+      if (_overlapsRecognizedWithParticipant(builder, topicStart, topicEnd)) {
+        continue;
+      }
+
+      builder.topicPreposition = topicPreposition;
+      builder.topicStart = topicStart;
+      builder.topicEnd = topicEnd;
       return;
     }
-
-    final wordsBefore = _phraseWordIndex(tokens, topicPreposition.text);
-
-    if (wordsBefore < 0) {
-      return;
-    }
-
-    final prepositionIndex = builder.verbChainEnd + 1 + wordsBefore;
-    final topicStart = prepositionIndex + 1;
-
-    if (!_looksLikeCompanionPhrase(builder, topicStart)) {
-      return;
-    }
-
-    builder.topicPreposition = topicPreposition;
-    builder.topicStart = topicStart;
-    builder.topicEnd = _nounPhraseEnd(builder, topicStart);
   }
 
-  TopicPreposition? _firstTopicPreposition(List<String> tokens) {
-    TopicPreposition? firstPreposition;
-    var firstIndex = -1;
+  List<TopicPreposition> _topicPrepositionsByFirstUse(List<String> tokens) {
+    final entries = <({TopicPreposition preposition, int index})>[];
 
     for (final preposition in TopicPreposition.values) {
       final index = _phraseWordIndex(tokens, preposition.text);
@@ -2494,13 +2496,37 @@ class RecognitionEngine {
         continue;
       }
 
-      if (firstIndex < 0 || index < firstIndex) {
-        firstPreposition = preposition;
-        firstIndex = index;
-      }
+      entries.add((preposition: preposition, index: index));
     }
 
-    return firstPreposition;
+    entries.sort((left, right) => left.index.compareTo(right.index));
+    return [for (final entry in entries) entry.preposition];
+  }
+
+  bool _overlapsRecognizedWithParticipant(
+    _RecognitionBuilder builder,
+    int start,
+    int end,
+  ) {
+    return _overlapsSpan(
+          start,
+          end,
+          builder.companionStart,
+          builder.companionEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.instrumentStart,
+          builder.instrumentEnd,
+        );
+  }
+
+  bool _overlapsSpan(int start, int end, int otherStart, int otherEnd) {
+    return otherStart >= 0 &&
+        otherEnd >= otherStart &&
+        start <= otherEnd &&
+        end >= otherStart;
   }
 
   void _recognizeBeneficiaryPhrase(
@@ -3060,10 +3086,15 @@ const _knownFixedObjects = [
   fixed_object.tennis,
   fixed_object.golf,
   fixed_object.workNoun,
+  fixed_object.homework,
   fixed_object.exerciseNoun,
   fixed_object.schoolNoun,
   fixed_object.healthNoun,
   fixed_object.funNoun,
+  fixed_object.helpNoun,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.lesson,
   fixed_object.dinnerNoun,
   fixed_object.english,
   fixed_object.polish,

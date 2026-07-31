@@ -1010,6 +1010,7 @@ class ConfigurationEngine {
         TopicPreposition.about => PredicatePathKind.aboutTopic,
         TopicPreposition.of => PredicatePathKind.ofTopic,
         TopicPreposition.on => PredicatePathKind.onTopic,
+        TopicPreposition.withPrep => PredicatePathKind.withTopic,
       },
       PrepositionalParticipantKind.beneficiary =>
         PredicatePathKind.forBeneficiary,

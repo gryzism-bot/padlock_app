@@ -47,6 +47,7 @@ enum PredicatePathKind {
   aboutTopic,
   ofTopic,
   onTopic,
+  withTopic,
   forBeneficiary,
   fromSource,
   forPurpose,
@@ -72,6 +73,7 @@ const predicateTopicPathKinds = [
   PredicatePathKind.aboutTopic,
   PredicatePathKind.ofTopic,
   PredicatePathKind.onTopic,
+  PredicatePathKind.withTopic,
 ];
 
 const predicateAuthoredPlacePathKinds = [
@@ -95,6 +97,7 @@ String? predicateTopicConnectorFor(PredicatePathKind kind) {
     PredicatePathKind.aboutTopic => 'about',
     PredicatePathKind.ofTopic => 'of',
     PredicatePathKind.onTopic => 'on',
+    PredicatePathKind.withTopic => 'with',
     _ => null,
   };
 }
@@ -155,6 +158,9 @@ class PredicatePath {
 
   const PredicatePath.onTopic(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.onTopic, nouns: nouns);
+
+  const PredicatePath.withTopic(List<NounPhrase> nouns)
+    : this._(kind: PredicatePathKind.withTopic, nouns: nouns);
 
   const PredicatePath.forBeneficiary(List<NounPhrase> nouns)
     : this._(kind: PredicatePathKind.forBeneficiary, nouns: nouns);
@@ -502,6 +508,16 @@ final _basicTopics = _uniqueByText([
   ...object_categories.pluralMediaObjects,
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
+]);
+final _helpTopics = _uniqueByText([
+  fixed_object.homework,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.lesson,
+  fixed_object.workNoun,
+  fixed_object.grammar,
+  fixed_object.english,
+  fixed_object.science,
 ]);
 final _basicBeneficiaries = _uniqueByText([..._people]);
 final _basicPurposes = _uniqueByText([
@@ -1321,6 +1337,7 @@ final guidedPredicateUnlocks = [
         _uniqueByText([..._peopleAndAnimals, ..._everydayObjects]),
       ),
       PredicatePath.toRightAction(_rightActionHates),
+      PredicatePath.withCompanion(_people),
       _manners([manner_data.quietlyMannerPhrase]),
     ],
   ),
@@ -1381,6 +1398,7 @@ final guidedPredicateUnlocks = [
     verb: help,
     paths: [
       PredicatePath.directObject(_peopleAndAnimals),
+      PredicatePath.withTopic(_helpTopics),
       PredicatePath.toRightAction(_rightActionHelps),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),

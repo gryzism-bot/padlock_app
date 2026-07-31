@@ -392,6 +392,7 @@ const hate = Verb(
   pastParticiple: 'hated',
   ingForm: 'hating',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'nienawidzić'},
 );
 
@@ -446,6 +447,7 @@ const help = Verb(
   pastParticiple: 'helped',
   ingForm: 'helping',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'pomagać'},
 );
 

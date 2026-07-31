@@ -1,7 +1,8 @@
 enum TopicPreposition {
   about('about'),
   of('of'),
-  on('on');
+  on('on'),
+  withPrep('with');
 
   final String text;
 

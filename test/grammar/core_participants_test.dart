@@ -559,6 +559,21 @@ void main() {
       expect(sentence, 'John works on grammar.');
     });
 
+    test('topic surface can render as a with phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: help,
+          topic: homework,
+          topicPreposition: TopicPreposition.withPrep,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John helps with homework.');
+    });
+
     test('topic surface keeps noun phrase modifiers', () {
       final sentence = render(
         SentenceState(
