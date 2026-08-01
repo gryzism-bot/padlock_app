@@ -1162,6 +1162,49 @@ void main() {
       },
     );
 
+    test('take place routes wake after an object exists', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(take),
+      );
+
+      var placeLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+      var sourcePlaceLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(placeLabels, isNot(contains('to school')));
+      expect(sourcePlaceLabels, isNot(contains('from school')));
+
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+      placeLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+      sourcePlaceLabels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
+          .map((suggestion) => suggestion.label)
+          .toList();
+
+      expect(placeLabels, contains('to school'));
+      expect(sourcePlaceLabels, contains('from school'));
+      final toSchool = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
+          .firstWhere((suggestion) => suggestion.label == 'to school');
+
+      expect(render(toSchool.preview), 'You take book to school.');
+    });
+
     test('topic suggestions require topic-capable frame', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,

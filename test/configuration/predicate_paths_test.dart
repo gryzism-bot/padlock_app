@@ -711,6 +711,30 @@ void main() {
       }
     });
 
+    test('take destination-place path compiles after an object', () {
+      final unlocks = predicateUnlocksFor(take)!;
+      final destinationPlacePath = unlocks.paths.singleWhere(
+        (path) => path.kind == PredicatePathKind.placePhrase,
+      );
+
+      expect(destinationPlacePath.requiresObject, isTrue);
+      expect(
+        predicatePathRequiresObject(take, PredicatePathKind.placePhrase),
+        isTrue,
+      );
+
+      final state = stateAfterPath(unlocks, destinationPlacePath);
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object?.text, 'something');
+      expect(state.sentenceState.placePhrase?.noun, 'home');
+      expect(state.sentenceState.placeMeaning, PlaceMeaning.destination);
+      expect(
+        grammar.generate(state.sentenceState).text,
+        'You take something home.',
+      );
+    });
+
     test('object-dependent prepositional paths compile their prerequisite', () {
       final unlocks = predicateUnlocksFor(need)!;
       final examples = [
@@ -1008,6 +1032,41 @@ void main() {
           PredicatePathKind.placePhrase,
         ).map((place) => place.noun),
         containsAll(['home', 'school', 'work', 'shop']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          take,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['something', 'book', 'money', 'phone', 'photo']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          take,
+          PredicatePathKind.forBeneficiary,
+        ).map((object) => object.text),
+        containsAll(['John', 'Mary', 'friend']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          take,
+          PredicatePathKind.forPurpose,
+        ).map((object) => object.text),
+        containsAll(['school', 'fun']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          take,
+          PredicatePathKind.placePhrase,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          take,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
       );
       expect(
         predicateMannerChoicesFor(
@@ -1561,10 +1620,15 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'photo'),
   _ReviewedRoute(take, _ReviewedRouteKind.companion),
   _ReviewedRoute(take, _ReviewedRouteKind.source),
+  _ReviewedRoute(take, _ReviewedRouteKind.sourcePlace, text: 'school'),
+  _ReviewedRoute(take, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'fun'),
   _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
+  _ReviewedRoute(take, _ReviewedRouteKind.place, text: 'school'),
 
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'something'),

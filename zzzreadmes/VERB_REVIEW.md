@@ -190,6 +190,9 @@ take - money
 take - a phone
 take - a photo
 take - with someone
+take - something for someone
+take - money for school
+take - a photo for fun
 take - from somewhere
 take - to somewhere
 take - quickly

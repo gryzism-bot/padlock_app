@@ -885,6 +885,10 @@ class ConfigurationCompass {
         continue;
       }
 
+      if (path.requiresObject && sentence.object == null) {
+        continue;
+      }
+
       for (final place in path.places) {
         final meaning = _meaningForAuthoredPlacePath(owner, path.kind);
         final key = [

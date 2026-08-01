@@ -239,20 +239,50 @@ class PredicatePath {
          requiresObject: requiresObject,
        );
 
-  const PredicatePath.atLocation(List<PlacePhrase> places)
-    : this._(kind: PredicatePathKind.atLocation, places: places);
+  const PredicatePath.atLocation(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.atLocation,
+         places: places,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.inLocation(List<PlacePhrase> places)
-    : this._(kind: PredicatePathKind.inLocation, places: places);
+  const PredicatePath.inLocation(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.inLocation,
+         places: places,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.onLocation(List<PlacePhrase> places)
-    : this._(kind: PredicatePathKind.onLocation, places: places);
+  const PredicatePath.onLocation(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.onLocation,
+         places: places,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.fromLocation(List<PlacePhrase> places)
-    : this._(kind: PredicatePathKind.fromLocation, places: places);
+  const PredicatePath.fromLocation(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.fromLocation,
+         places: places,
+         requiresObject: requiresObject,
+       );
 
-  const PredicatePath.placePhrase(List<PlacePhrase> places)
-    : this._(kind: PredicatePathKind.placePhrase, places: places);
+  const PredicatePath.placePhrase(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.placePhrase,
+         places: places,
+         requiresObject: requiresObject,
+       );
 
   const PredicatePath.timePhrase(List<TimePhrase> times)
     : this._(kind: PredicatePathKind.timePhrase, times: times);
@@ -579,6 +609,22 @@ final _makeObjects = _uniqueByText([
   object_data.message.toNounPhrase(Number.plural),
   fixed_object.plan,
   fixed_object.mistake,
+]);
+final _takeObjects = _uniqueByText([
+  ..._genericObjects,
+  fixed_object.money,
+  object_data.book.toNounPhrase(Number.singular),
+  object_data.book.toNounPhrase(Number.plural),
+  object_data.phone.toNounPhrase(Number.singular),
+  object_data.phone.toNounPhrase(Number.plural),
+  object_data.photo.toNounPhrase(Number.singular),
+  object_data.photo.toNounPhrase(Number.plural),
+  object_data.key.toNounPhrase(Number.singular),
+  object_data.key.toNounPhrase(Number.plural),
+  object_data.bag.toNounPhrase(Number.singular),
+  object_data.bag.toNounPhrase(Number.plural),
+  object_data.gift.toNounPhrase(Number.singular),
+  object_data.gift.toNounPhrase(Number.plural),
 ]);
 final _transferObjects = _uniqueByText([
   ..._genericObjects,
@@ -925,25 +971,50 @@ PredicatePath _objectPurposes(List<NounPhrase> nouns) {
   return PredicatePath.forPurpose(_uniqueByText(nouns), requiresObject: true);
 }
 
-PredicatePath _places(List<PlacePhrase> places) {
-  return PredicatePath.placePhrase(_uniquePlacesByText(places));
+PredicatePath _places(List<PlacePhrase> places, {bool requiresObject = false}) {
+  return PredicatePath.placePhrase(
+    _uniquePlacesByText(places),
+    requiresObject: requiresObject,
+  );
 }
 
-PredicatePath _atLocations(List<PlacePhrase> places) {
-  return PredicatePath.atLocation(_locationsWithPreposition(places, 'at'));
+PredicatePath _atLocations(
+  List<PlacePhrase> places, {
+  bool requiresObject = false,
+}) {
+  return PredicatePath.atLocation(
+    _locationsWithPreposition(places, 'at'),
+    requiresObject: requiresObject,
+  );
 }
 
-PredicatePath _inLocations(List<PlacePhrase> places) {
-  return PredicatePath.inLocation(_locationsWithPreposition(places, 'in'));
+PredicatePath _inLocations(
+  List<PlacePhrase> places, {
+  bool requiresObject = false,
+}) {
+  return PredicatePath.inLocation(
+    _locationsWithPreposition(places, 'in'),
+    requiresObject: requiresObject,
+  );
 }
 
-PredicatePath _onLocations(List<PlacePhrase> places) {
-  return PredicatePath.onLocation(_locationsWithPreposition(places, 'on'));
+PredicatePath _onLocations(
+  List<PlacePhrase> places, {
+  bool requiresObject = false,
+}) {
+  return PredicatePath.onLocation(
+    _locationsWithPreposition(places, 'on'),
+    requiresObject: requiresObject,
+  );
 }
 
-PredicatePath _fromLocations(List<PlacePhrase> places) {
+PredicatePath _fromLocations(
+  List<PlacePhrase> places, {
+  bool requiresObject = false,
+}) {
   return PredicatePath.fromLocation(
     _placesWithMeaningPreposition(places, PlaceMeaning.source, 'from'),
+    requiresObject: requiresObject,
   );
 }
 
@@ -1232,14 +1303,17 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     take,
-    _uniqueByText([..._everydayObjects, ..._photoObjects]),
+    _takeObjects,
     paths: [
-      _sources(),
+      _objectSources(),
       PredicatePath.toDestination(_people, requiresObject: true),
       PredicatePath.withCompanion(_people),
-      _atLocations(_everydayPlaces),
-      _inLocations(_everydayPlaces),
-      _fromLocations(_everydayPlaces),
+      _objectBeneficiaries(),
+      _objectPurposes(_basicPurposes),
+      _places(_homeSchoolWorkPlaces, requiresObject: true),
+      _atLocations(_everydayPlaces, requiresObject: true),
+      _inLocations(_everydayPlaces, requiresObject: true),
+      _fromLocations(_everydayPlaces, requiresObject: true),
       _manners(_movementManners),
       _times(_todayTimes),
     ],
@@ -2264,8 +2338,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: take,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author takeable object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'authored takeable object, source, destination, beneficiary, and purpose tracks',
   ),
   _migration(
     verb: bring,

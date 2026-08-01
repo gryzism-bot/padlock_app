@@ -165,8 +165,10 @@ const take = Verb(
   ingForm: 'taking',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
   usesDestinationPlace: true,
   takesSource: true,
+  takesPurpose: true,
   translations: {Language.pl: 'brać'},
 );
 
