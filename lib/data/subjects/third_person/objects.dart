@@ -528,6 +528,55 @@ const message = Noun(
   pluralTranslations: {Language.pl: 'wiadomosci'},
 );
 
+const article = Noun(
+  singular: 'article',
+  plural: 'articles',
+  singularTranslations: {Language.pl: 'artykul'},
+  pluralTranslations: {Language.pl: 'artykuly'},
+);
+
+const note = Noun(
+  singular: 'note',
+  plural: 'notes',
+  singularTranslations: {Language.pl: 'notatka'},
+  pluralTranslations: {Language.pl: 'notatki'},
+);
+
+const report = Noun(
+  singular: 'report',
+  plural: 'reports',
+  singularTranslations: {Language.pl: 'raport'},
+  pluralTranslations: {Language.pl: 'raporty'},
+);
+
+const poem = Noun(
+  singular: 'poem',
+  plural: 'poems',
+  singularTranslations: {Language.pl: 'wiersz'},
+  pluralTranslations: {Language.pl: 'wiersze'},
+);
+
+const diary = Noun(
+  singular: 'diary',
+  plural: 'diaries',
+  singularTranslations: {Language.pl: 'dziennik'},
+  pluralTranslations: {Language.pl: 'dzienniki'},
+);
+
+const list = Noun(
+  singular: 'list',
+  plural: 'lists',
+  singularTranslations: {Language.pl: 'lista'},
+  pluralTranslations: {Language.pl: 'listy'},
+);
+
+const card = Noun(
+  singular: 'card',
+  plural: 'cards',
+  singularTranslations: {Language.pl: 'karta'},
+  pluralTranslations: {Language.pl: 'karty'},
+);
+
 const shirt = Noun(
   singular: 'shirt',
   plural: 'shirts',
@@ -596,6 +645,97 @@ const juice = Noun(
   plural: 'juices',
   singularTranslations: {Language.pl: 'sok'},
   pluralTranslations: {Language.pl: 'soki'},
+);
+
+const water = Noun(
+  singular: 'water',
+  plural: 'waters',
+  singularTranslations: {Language.pl: 'woda'},
+  pluralTranslations: {Language.pl: 'wody'},
+);
+
+const milk = Noun(
+  singular: 'milk',
+  plural: 'milks',
+  singularTranslations: {Language.pl: 'mleko'},
+  pluralTranslations: {Language.pl: 'mleka'},
+);
+
+const pizza = Noun(
+  singular: 'pizza',
+  plural: 'pizzas',
+  singularTranslations: {Language.pl: 'pizza'},
+  pluralTranslations: {Language.pl: 'pizze'},
+);
+
+const salad = Noun(
+  singular: 'salad',
+  plural: 'salads',
+  singularTranslations: {Language.pl: 'salatka'},
+  pluralTranslations: {Language.pl: 'salatki'},
+);
+
+const banana = Noun(
+  singular: 'banana',
+  plural: 'bananas',
+  singularTranslations: {Language.pl: 'banan'},
+  pluralTranslations: {Language.pl: 'banany'},
+);
+
+const orange = Noun(
+  singular: 'orange',
+  plural: 'oranges',
+  singularTranslations: {Language.pl: 'pomarancza'},
+  pluralTranslations: {Language.pl: 'pomarancze'},
+);
+
+const drawer = Noun(
+  singular: 'drawer',
+  plural: 'drawers',
+  singularTranslations: {Language.pl: 'szuflada'},
+  pluralTranslations: {Language.pl: 'szuflady'},
+);
+
+const cabinet = Noun(
+  singular: 'cabinet',
+  plural: 'cabinets',
+  singularTranslations: {Language.pl: 'szafka'},
+  pluralTranslations: {Language.pl: 'szafki'},
+);
+
+const folder = Noun(
+  singular: 'folder',
+  plural: 'folders',
+  singularTranslations: {Language.pl: 'folder'},
+  pluralTranslations: {Language.pl: 'foldery'},
+);
+
+const brush = Noun(
+  singular: 'brush',
+  plural: 'brushes',
+  singularTranslations: {Language.pl: 'pedzel'},
+  pluralTranslations: {Language.pl: 'pedzle'},
+);
+
+const hammer = Noun(
+  singular: 'hammer',
+  plural: 'hammers',
+  singularTranslations: {Language.pl: 'mlotek'},
+  pluralTranslations: {Language.pl: 'mlotki'},
+);
+
+const scissors = Noun(
+  singular: 'scissors',
+  plural: 'scissors',
+  singularTranslations: {Language.pl: 'nozyczki'},
+  pluralTranslations: {Language.pl: 'nozyczki'},
+);
+
+const tablet = Noun(
+  singular: 'tablet',
+  plural: 'tablets',
+  singularTranslations: {Language.pl: 'tablet'},
+  pluralTranslations: {Language.pl: 'tablety'},
 );
 
 const objectNouns = [
@@ -671,6 +811,13 @@ const objectNouns = [
   document,
   email,
   message,
+  article,
+  note,
+  report,
+  poem,
+  diary,
+  list,
+  card,
   shirt,
   coat,
   shoe,
@@ -681,6 +828,19 @@ const objectNouns = [
   coffee,
   tea,
   juice,
+  water,
+  milk,
+  pizza,
+  salad,
+  banana,
+  orange,
+  drawer,
+  cabinet,
+  folder,
+  brush,
+  hammer,
+  scissors,
+  tablet,
 ];
 
 const textObjectNouns = [
@@ -692,6 +852,13 @@ const textObjectNouns = [
   document,
   email,
   message,
+  article,
+  note,
+  report,
+  poem,
+  diary,
+  list,
+  card,
 ];
 
 final List<NounPhrase> singularObjects = [

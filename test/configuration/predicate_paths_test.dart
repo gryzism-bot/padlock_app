@@ -232,11 +232,22 @@ void main() {
     test('predicate paths consume reusable noun pools from data files', () {
       expect(
         people_data.singularPeople.map((noun) => noun.text),
-        containsAll(['John', 'Mary', 'friend', 'someone', 'boss', 'mother']),
+        containsAll([
+          'John',
+          'Mary',
+          'Alice',
+          'David',
+          'friend',
+          'someone',
+          'boss',
+          'mother',
+          'lawyer',
+          'guest',
+        ]),
       );
       expect(
         animal_data.singularAnimals.map((noun) => noun.text),
-        containsAll(['cat', 'dog', 'puppy', 'dolphin']),
+        containsAll(['cat', 'dog', 'puppy', 'dolphin', 'hamster', 'swan']),
       );
       expect(
         object_data.singularTextObjects.map((noun) => noun.text),
@@ -248,6 +259,13 @@ void main() {
           'magazine',
           'email',
           'message',
+          'article',
+          'note',
+          'report',
+          'poem',
+          'diary',
+          'list',
+          'card',
         ]),
       );
 
@@ -259,22 +277,46 @@ void main() {
 
       expect(
         talkAddressees,
-        containsAll(['John', 'Mary', 'boss', 'cat', 'dog', 'dolphin']),
+        containsAll([
+          'John',
+          'Mary',
+          'Alice',
+          'boss',
+          'cat',
+          'dog',
+          'hamster',
+          'dolphin',
+        ]),
       );
     });
 
     test('predicate path shelves expose semantic noun categories', () {
       expect(
         people_categories.singularWorkPeople.map((noun) => noun.text),
-        containsAll(['boss', 'colleague', 'programmer', 'police officer']),
+        containsAll([
+          'boss',
+          'colleague',
+          'programmer',
+          'police officer',
+          'lawyer',
+          'mechanic',
+          'guard',
+        ]),
       );
       expect(
         people_categories.singularFamilyPeople.map((noun) => noun.text),
-        containsAll(['mother', 'father', 'sister', 'brother']),
+        containsAll([
+          'mother',
+          'father',
+          'grandmother',
+          'grandfather',
+          'sister',
+          'brother',
+        ]),
       );
       expect(
         animal_categories.singularPetAnimals.map((noun) => noun.text),
-        containsAll(['cat', 'dog', 'puppy', 'kitten', 'parrot']),
+        containsAll(['cat', 'dog', 'puppy', 'kitten', 'parrot', 'hamster']),
       );
       expect(
         animal_categories.singularWaterAnimals.map((noun) => noun.text),
@@ -282,7 +324,18 @@ void main() {
       );
       expect(
         object_categories.singularFoodObjects.map((noun) => noun.text),
-        containsAll(['apple', 'bread', 'rice', 'egg', 'coffee', 'juice']),
+        containsAll([
+          'apple',
+          'bread',
+          'rice',
+          'egg',
+          'coffee',
+          'juice',
+          'water',
+          'milk',
+          'pizza',
+          'salad',
+        ]),
       );
       expect(
         object_categories.singularToolObjects.map((noun) => noun.text),
@@ -293,11 +346,13 @@ void main() {
           'keyboard',
           'camera',
           'knife',
+          'hammer',
+          'tablet',
         ]),
       );
       expect(
         object_categories.singularOpenableObjects.map((noun) => noun.text),
-        containsAll(['door', 'window', 'box', 'wallet']),
+        containsAll(['door', 'window', 'box', 'wallet', 'drawer', 'folder']),
       );
       expect(
         object_categories.singularMediaObjects.map((noun) => noun.text),
@@ -325,10 +380,15 @@ void main() {
       final examples = [
         (action: write, object: object_data.email),
         (action: write, object: object_data.message),
+        (action: write, object: object_data.report),
+        (action: read, object: object_data.article),
         (action: read, object: object_data.document),
         (action: use, object: object_data.camera),
+        (action: use, object: object_data.tablet),
         (action: open, object: object_data.box),
+        (action: open, object: object_data.drawer),
         (action: close, object: object_data.wallet),
+        (action: close, object: object_data.folder),
         (action: watch, object: object_data.movie),
         (action: watch, object: object_data.photo),
       ];
@@ -399,7 +459,10 @@ void main() {
           (suggestion) => suggestion.label == 'John',
         );
 
-        expect(labels, containsAll(['John', 'Mary', 'boss', 'cat', 'dolphin']));
+        expect(
+          labels,
+          containsAll(['John', 'Mary', 'Alice', 'boss', 'cat', 'hamster']),
+        );
         expect(
           grammar.generate(johnSuggestion.preview.sentenceState).text,
           'You talk to John.',

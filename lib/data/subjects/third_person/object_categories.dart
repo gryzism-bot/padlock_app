@@ -11,15 +11,21 @@ const foodObjectNouns = [
   objects.cheese,
   objects.meat,
   objects.soup,
+  objects.pizza,
+  objects.salad,
   objects.potato,
   objects.carrot,
   objects.onion,
+  objects.banana,
+  objects.orange,
   objects.rice,
   objects.egg,
   objects.cake,
   objects.coffee,
   objects.tea,
   objects.juice,
+  objects.water,
+  objects.milk,
 ];
 
 const textObjectNouns = [
@@ -31,6 +37,13 @@ const textObjectNouns = [
   objects.document,
   objects.email,
   objects.message,
+  objects.article,
+  objects.note,
+  objects.report,
+  objects.poem,
+  objects.diary,
+  objects.list,
+  objects.card,
 ];
 
 const toolObjectNouns = [
@@ -46,6 +59,10 @@ const toolObjectNouns = [
   objects.knife,
   objects.spoon,
   objects.fork,
+  objects.brush,
+  objects.hammer,
+  objects.scissors,
+  objects.tablet,
 ];
 
 const deviceObjectNouns = [
@@ -60,6 +77,7 @@ const deviceObjectNouns = [
   objects.television,
   objects.camera,
   objects.screen,
+  objects.tablet,
 ];
 
 const openableObjectNouns = [
@@ -71,6 +89,9 @@ const openableObjectNouns = [
   objects.schoolbag,
   objects.bag,
   objects.wallet,
+  objects.drawer,
+  objects.cabinet,
+  objects.folder,
 ];
 
 const vehicleObjectNouns = [

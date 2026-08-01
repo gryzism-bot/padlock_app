@@ -283,6 +283,48 @@ const parrot = Noun(
   pluralTranslations: {Language.pl: 'papugi'},
 );
 
+const hamster = Noun(
+  singular: 'hamster',
+  plural: 'hamsters',
+  singularTranslations: {Language.pl: 'chomik'},
+  pluralTranslations: {Language.pl: 'chomiki'},
+);
+
+const lizard = Noun(
+  singular: 'lizard',
+  plural: 'lizards',
+  singularTranslations: {Language.pl: 'jaszczurka'},
+  pluralTranslations: {Language.pl: 'jaszczurki'},
+);
+
+const squirrel = Noun(
+  singular: 'squirrel',
+  plural: 'squirrels',
+  singularTranslations: {Language.pl: 'wiewiorka'},
+  pluralTranslations: {Language.pl: 'wiewiorki'},
+);
+
+const goose = Noun(
+  singular: 'goose',
+  plural: 'geese',
+  singularTranslations: {Language.pl: 'ges'},
+  pluralTranslations: {Language.pl: 'gesi'},
+);
+
+const swan = Noun(
+  singular: 'swan',
+  plural: 'swans',
+  singularTranslations: {Language.pl: 'labedz'},
+  pluralTranslations: {Language.pl: 'labedzie'},
+);
+
+const crab = Noun(
+  singular: 'crab',
+  plural: 'crabs',
+  singularTranslations: {Language.pl: 'krab'},
+  pluralTranslations: {Language.pl: 'kraby'},
+);
+
 const animalNouns = [
   cat,
   dog,
@@ -324,6 +366,12 @@ const animalNouns = [
   owl,
   eagle,
   parrot,
+  hamster,
+  lizard,
+  squirrel,
+  goose,
+  swan,
+  crab,
 ];
 
 final List<NounPhrase> singularAnimals = [

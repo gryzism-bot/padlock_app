@@ -9,6 +9,7 @@ const petAnimalNouns = [
   animals.puppy,
   animals.kitten,
   animals.rabbit,
+  animals.hamster,
   animals.fish,
   animals.parrot,
 ];
@@ -21,6 +22,7 @@ const farmAnimalNouns = [
   animals.goat,
   animals.chicken,
   animals.duck,
+  animals.goose,
   animals.donkey,
 ];
 
@@ -38,6 +40,7 @@ const wildAnimalNouns = [
   animals.deer,
   animals.giraffe,
   animals.zebra,
+  animals.squirrel,
 ];
 
 const smallAnimalNouns = [
@@ -47,12 +50,16 @@ const smallAnimalNouns = [
   animals.frog,
   animals.spider,
   animals.ant,
+  animals.lizard,
+  animals.crab,
 ];
 
 const birdAnimalNouns = [
   animals.bird,
   animals.chicken,
   animals.duck,
+  animals.goose,
+  animals.swan,
   animals.owl,
   animals.eagle,
   animals.parrot,

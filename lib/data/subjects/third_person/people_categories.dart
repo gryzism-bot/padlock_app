@@ -3,12 +3,21 @@ import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 
-const namedPersonNouns = [people.john, people.mary, people.tom, people.anna];
+const namedPersonNouns = [
+  people.john,
+  people.mary,
+  people.tom,
+  people.anna,
+  people.alice,
+  people.david,
+];
 
 const familyPersonNouns = [
   people.parent,
   people.mother,
   people.father,
+  people.grandmother,
+  people.grandfather,
   people.sister,
   people.brother,
   people.child,
@@ -30,6 +39,9 @@ const workPersonNouns = [
   people.programmer,
   people.driver,
   people.policeOfficer,
+  people.lawyer,
+  people.mechanic,
+  people.guard,
 ];
 
 const creativePersonNouns = [
@@ -45,9 +57,16 @@ const socialPersonNouns = [
   people.enemy,
   people.neighbour,
   people.person,
+  people.guest,
 ];
 
-const publicPersonNouns = [people.doctor, people.nurse, people.farmer];
+const publicPersonNouns = [
+  people.doctor,
+  people.nurse,
+  people.farmer,
+  people.waiter,
+  people.dentist,
+];
 
 List<NounPhrase> _singular(List<Noun> nouns) {
   return [for (final noun in nouns) noun.toNounPhrase(Number.singular)];

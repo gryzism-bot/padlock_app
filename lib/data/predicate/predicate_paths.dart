@@ -408,6 +408,12 @@ final _drinkObjects = [
   object_categories.singularFoodObjects.firstWhere(
     (object) => object.text == 'juice',
   ),
+  object_categories.singularFoodObjects.firstWhere(
+    (object) => object.text == 'water',
+  ),
+  object_categories.singularFoodObjects.firstWhere(
+    (object) => object.text == 'milk',
+  ),
   object_categories.pluralFoodObjects.firstWhere(
     (object) => object.text == 'coffees',
   ),
@@ -416,6 +422,12 @@ final _drinkObjects = [
   ),
   object_categories.pluralFoodObjects.firstWhere(
     (object) => object.text == 'juices',
+  ),
+  object_categories.pluralFoodObjects.firstWhere(
+    (object) => object.text == 'waters',
+  ),
+  object_categories.pluralFoodObjects.firstWhere(
+    (object) => object.text == 'milks',
   ),
 ];
 final _toolObjects = _uniqueByText([

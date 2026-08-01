@@ -32,6 +32,20 @@ const anna = Noun(
   pluralTranslations: {Language.pl: 'Anny'},
 );
 
+const alice = Noun(
+  singular: 'Alice',
+  plural: 'Alices',
+  singularTranslations: {Language.pl: 'Alicja'},
+  pluralTranslations: {Language.pl: 'Alicje'},
+);
+
+const david = Noun(
+  singular: 'David',
+  plural: 'Davids',
+  singularTranslations: {Language.pl: 'Dawid'},
+  pluralTranslations: {Language.pl: 'Dawidowie'},
+);
+
 const choir = Noun(
   singular: 'choir',
   plural: 'choirs',
@@ -186,6 +200,20 @@ const father = Noun(
   pluralTranslations: {Language.pl: 'ojcowie'},
 );
 
+const grandmother = Noun(
+  singular: 'grandmother',
+  plural: 'grandmothers',
+  singularTranslations: {Language.pl: 'babcia'},
+  pluralTranslations: {Language.pl: 'babcie'},
+);
+
+const grandfather = Noun(
+  singular: 'grandfather',
+  plural: 'grandfathers',
+  singularTranslations: {Language.pl: 'dziadek'},
+  pluralTranslations: {Language.pl: 'dziadkowie'},
+);
+
 const sister = Noun(
   singular: 'sister',
   plural: 'sisters',
@@ -277,6 +305,48 @@ const policeOfficer = Noun(
   pluralTranslations: {Language.pl: 'policjanci'},
 );
 
+const lawyer = Noun(
+  singular: 'lawyer',
+  plural: 'lawyers',
+  singularTranslations: {Language.pl: 'prawnik'},
+  pluralTranslations: {Language.pl: 'prawnicy'},
+);
+
+const waiter = Noun(
+  singular: 'waiter',
+  plural: 'waiters',
+  singularTranslations: {Language.pl: 'kelner'},
+  pluralTranslations: {Language.pl: 'kelnerzy'},
+);
+
+const mechanic = Noun(
+  singular: 'mechanic',
+  plural: 'mechanics',
+  singularTranslations: {Language.pl: 'mechanik'},
+  pluralTranslations: {Language.pl: 'mechanicy'},
+);
+
+const dentist = Noun(
+  singular: 'dentist',
+  plural: 'dentists',
+  singularTranslations: {Language.pl: 'dentysta'},
+  pluralTranslations: {Language.pl: 'dentysci'},
+);
+
+const guard = Noun(
+  singular: 'guard',
+  plural: 'guards',
+  singularTranslations: {Language.pl: 'ochroniarz'},
+  pluralTranslations: {Language.pl: 'ochroniarze'},
+);
+
+const guest = Noun(
+  singular: 'guest',
+  plural: 'guests',
+  singularTranslations: {Language.pl: 'gosc'},
+  pluralTranslations: {Language.pl: 'goscie'},
+);
+
 const someone = NounPhrase(
   text: 'someone',
   person: Person.third,
@@ -310,6 +380,8 @@ const peopleNouns = [
   mary,
   tom,
   anna,
+  alice,
+  david,
   choir,
   person,
   teacher,
@@ -332,6 +404,8 @@ const peopleNouns = [
   parent,
   mother,
   father,
+  grandmother,
+  grandfather,
   sister,
   brother,
   boss,
@@ -345,6 +419,12 @@ const peopleNouns = [
   baker,
   farmer,
   policeOfficer,
+  lawyer,
+  waiter,
+  mechanic,
+  dentist,
+  guard,
+  guest,
 ];
 
 const indefinitePeople = [someone, anyone, nobody, everyone];

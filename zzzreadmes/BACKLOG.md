@@ -63,7 +63,7 @@ Best low-effort / high-value moves for the developer cockpit:
      Location, and Source place
    - verb chips may still advertise future exits, but the core participant
      doors now distinguish future exits from currently open rails
-8. Done enough for now: finish essential PredicatePath authoring.
+8. Done: close the thin PredicatePath authoring pass.
    - the route-kind architecture is broad enough now; the best value is
      handwriting the remaining verb-owned shelves
    - done: generic direct-object shelf now feeds multiple object-taking verbs:
@@ -89,13 +89,19 @@ Best low-effort / high-value moves for the developer cockpit:
      `do something`, `do homework`, `do something with Mary`,
      `do something for Mary`, `do something for school`,
      `do something at home`
-   - use the executable review sheet to find thin verbs instead of guessing
-   - prioritize verbs that are common, visible, and memorable:
-     `be`, `have`, `do`, `find`, `sing`, `break`, `come`, `get`, `make`,
-     `think`, `say`, `see`, `play`, `work`, `sleep`
-   - this is the biggest current slice of "fly territory": it makes the app
-     feel intentional instead of random without touching Grammar Engine
-9. Current best value: staged vocabulary saturation.
+   - done: the remaining thin non-essential verbs were thickened:
+     `laugh`, `smile`, `shout`, `whisper`, and `understand`
+   - route audit signal is now clean:
+     - no authored paths: 0
+     - one-route verbs: 0
+     - thin verbs: 0
+     - thin essential verbs: 0
+   - still expected: `teach` stays in the recipient-gated right-action bucket
+     because `teach Mary to swim` requires a learner before the right action
+     wakes naturally
+   - this closed the biggest current slice of "fly territory": the app feels
+     intentional instead of random without touching Grammar Engine
+9. Current best value: first staged vocabulary saturation batch.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -107,6 +113,24 @@ Best low-effort / high-value moves for the developer cockpit:
        `that enemy`, `young dog`
      - keep true pronoun-like words as complete noun phrases:
        `someone`, `anyone`, `nobody`, `everyone`
+   - next concrete slice:
+     - enrich shared people/person-like shelves for companion, addressee,
+       source, beneficiary, destination, and passive by-agent
+     - enrich animals and everyday concrete nouns used by broad object routes
+     - enrich text/media objects for `read`, `write`, `tell`, `say`,
+       `answer`, and `ask`
+     - enrich tool/openable/food shelves only where existing verb routes
+       already point to them
+   - first slice completed:
+     - people: added names, family roles, work/public roles, and social roles
+     - animals: added pet/farm/wild/small/bird/water shelf examples
+     - objects: added text/media-adjacent texts, everyday food/drinks,
+       openables, devices, and tools
+     - audit effect:
+       - people rails grew from 86 to 106 choices
+       - people+animal routes grew from 163 to 195 choices
+       - text object routes grew from 16 to 30 choices
+       - broad topic routes grew from 214 to 262 choices
    - saturate in layers, checking move-trace timing after each:
      - people, animals, pronoun-like nouns
      - everyday objects and food/tool/openable/text shelves
