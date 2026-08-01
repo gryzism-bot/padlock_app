@@ -811,6 +811,30 @@ void main() {
             ending: ' at home.',
           ),
           (
+            verb: doVerb,
+            kind: PredicatePathKind.withCompanion,
+            field: (SentenceState state) => state.companion,
+            ending: ' with John.',
+          ),
+          (
+            verb: doVerb,
+            kind: PredicatePathKind.forBeneficiary,
+            field: (SentenceState state) => state.beneficiary,
+            ending: ' for John.',
+          ),
+          (
+            verb: doVerb,
+            kind: PredicatePathKind.forPurpose,
+            field: (SentenceState state) => state.purpose,
+            ending: ' for work.',
+          ),
+          (
+            verb: doVerb,
+            kind: PredicatePathKind.atLocation,
+            field: (SentenceState state) => state.placePhrase,
+            ending: ' at home.',
+          ),
+          (
             verb: get,
             kind: PredicatePathKind.fromSource,
             field: (SentenceState state) => state.source,

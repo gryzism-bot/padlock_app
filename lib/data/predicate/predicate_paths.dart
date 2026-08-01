@@ -1166,9 +1166,9 @@ final guidedPredicateUnlocks = [
     doVerb,
     _doObjects,
     paths: [
-      PredicatePath.withCompanion(_people),
-      _beneficiaries(),
-      _purposes([
+      PredicatePath.withCompanion(_people, requiresObject: true),
+      _objectBeneficiaries(),
+      _objectPurposes([
         fixed_object.workNoun,
         fixed_object.homework,
         fixed_object.schoolNoun,
@@ -1176,8 +1176,8 @@ final guidedPredicateUnlocks = [
         fixed_object.healthNoun,
         fixed_object.funNoun,
       ]),
-      _atLocations(_homeSchoolWorkPlaces),
-      _inLocations(_homeSchoolWorkPlaces),
+      _atLocations(_homeSchoolWorkPlaces, requiresObject: true),
+      _inLocations(_homeSchoolWorkPlaces, requiresObject: true),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.carefullyMannerPhrase,
