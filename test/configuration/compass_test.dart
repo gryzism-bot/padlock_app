@@ -1162,47 +1162,80 @@ void main() {
       },
     );
 
-    test('take place routes wake after an object exists', () {
+    test('object-moving place routes wake after an object exists', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
-      var state = lock.applyMove(
-        ConfigurationState.initial(),
-        const SetAction(take),
-      );
+      for (final verb in [take, bring]) {
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          SetAction(verb),
+        );
 
-      var placeLabels = authoredCompass
-          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
-          .map((suggestion) => suggestion.label)
-          .toList();
-      var sourcePlaceLabels = authoredCompass
-          .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
-          .map((suggestion) => suggestion.label)
-          .toList();
+        var placeLabels = authoredCompass
+            .suggestionsFor(
+              state,
+              ConfigurationCompassSlot.placePhrase,
+              limit: 0,
+            )
+            .map((suggestion) => suggestion.label)
+            .toList();
+        var sourcePlaceLabels = authoredCompass
+            .suggestionsFor(
+              state,
+              ConfigurationCompassSlot.sourcePlace,
+              limit: 0,
+            )
+            .map((suggestion) => suggestion.label)
+            .toList();
 
-      expect(placeLabels, isNot(contains('to school')));
-      expect(sourcePlaceLabels, isNot(contains('from school')));
+        expect(
+          placeLabels,
+          isNot(contains('to school')),
+          reason: verb.infinitive,
+        );
+        expect(
+          sourcePlaceLabels,
+          isNot(contains('from school')),
+          reason: verb.infinitive,
+        );
 
-      state = lock.applyMove(
-        state,
-        SetObject(book.toNounPhrase(Number.singular)),
-      );
-      placeLabels = authoredCompass
-          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
-          .map((suggestion) => suggestion.label)
-          .toList();
-      sourcePlaceLabels = authoredCompass
-          .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
-          .map((suggestion) => suggestion.label)
-          .toList();
+        state = lock.applyMove(
+          state,
+          SetObject(book.toNounPhrase(Number.singular)),
+        );
+        final placeSuggestions = authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.placePhrase,
+          limit: 0,
+        );
+        placeLabels = placeSuggestions
+            .map((suggestion) => suggestion.label)
+            .toList();
+        sourcePlaceLabels = authoredCompass
+            .suggestionsFor(
+              state,
+              ConfigurationCompassSlot.sourcePlace,
+              limit: 0,
+            )
+            .map((suggestion) => suggestion.label)
+            .toList();
 
-      expect(placeLabels, contains('to school'));
-      expect(sourcePlaceLabels, contains('from school'));
-      final toSchool = authoredCompass
-          .suggestionsFor(state, ConfigurationCompassSlot.placePhrase, limit: 0)
-          .firstWhere((suggestion) => suggestion.label == 'to school');
+        expect(placeLabels, contains('to school'), reason: verb.infinitive);
+        expect(
+          sourcePlaceLabels,
+          contains('from school'),
+          reason: verb.infinitive,
+        );
+        final toSchool = placeSuggestions.firstWhere(
+          (suggestion) => suggestion.label == 'to school',
+        );
 
-      expect(render(toSchool.preview), 'You take book to school.');
+        expect(
+          render(toSchool.preview),
+          'You ${verb.infinitive} book to school.',
+        );
+      }
     });
 
     test('topic suggestions require topic-capable frame', () {

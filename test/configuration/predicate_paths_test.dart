@@ -711,28 +711,30 @@ void main() {
       }
     });
 
-    test('take destination-place path compiles after an object', () {
-      final unlocks = predicateUnlocksFor(take)!;
-      final destinationPlacePath = unlocks.paths.singleWhere(
-        (path) => path.kind == PredicatePathKind.placePhrase,
-      );
+    test('object-moving destination-place paths compile after an object', () {
+      for (final verb in [take, bring]) {
+        final unlocks = predicateUnlocksFor(verb)!;
+        final destinationPlacePath = unlocks.paths.singleWhere(
+          (path) => path.kind == PredicatePathKind.placePhrase,
+        );
 
-      expect(destinationPlacePath.requiresObject, isTrue);
-      expect(
-        predicatePathRequiresObject(take, PredicatePathKind.placePhrase),
-        isTrue,
-      );
+        expect(destinationPlacePath.requiresObject, isTrue);
+        expect(
+          predicatePathRequiresObject(verb, PredicatePathKind.placePhrase),
+          isTrue,
+        );
 
-      final state = stateAfterPath(unlocks, destinationPlacePath);
+        final state = stateAfterPath(unlocks, destinationPlacePath);
 
-      expect(wasBlocked(state), isFalse);
-      expect(state.sentenceState.object?.text, 'something');
-      expect(state.sentenceState.placePhrase?.noun, 'home');
-      expect(state.sentenceState.placeMeaning, PlaceMeaning.destination);
-      expect(
-        grammar.generate(state.sentenceState).text,
-        'You take something home.',
-      );
+        expect(wasBlocked(state), isFalse, reason: verb.infinitive);
+        expect(state.sentenceState.object?.text, 'something');
+        expect(state.sentenceState.placePhrase?.noun, 'home');
+        expect(state.sentenceState.placeMeaning, PlaceMeaning.destination);
+        expect(
+          grammar.generate(state.sentenceState).text,
+          'You ${verb.infinitive} something home.',
+        );
+      }
     });
 
     test('object-dependent prepositional paths compile their prerequisite', () {
@@ -1032,6 +1034,27 @@ void main() {
           PredicatePathKind.placePhrase,
         ).map((place) => place.noun),
         containsAll(['home', 'school', 'work', 'shop']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          bring,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['something', 'book', 'money', 'phone', 'photo', 'food']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          bring,
+          PredicatePathKind.placePhrase,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          bring,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll(['home', 'school', 'work']),
       );
       expect(
         predicateNounChoicesFor(
@@ -1639,6 +1662,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(bring, _ReviewedRouteKind.destination),
   _ReviewedRoute(bring, _ReviewedRouteKind.source),
+  _ReviewedRoute(bring, _ReviewedRouteKind.sourcePlace, text: 'school'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(bring, _ReviewedRouteKind.companion),
   _ReviewedRoute(bring, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(bring, _ReviewedRouteKind.time, text: 'today'),

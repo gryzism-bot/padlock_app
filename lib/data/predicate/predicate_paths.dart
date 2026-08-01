@@ -626,6 +626,11 @@ final _takeObjects = _uniqueByText([
   object_data.gift.toNounPhrase(Number.singular),
   object_data.gift.toNounPhrase(Number.plural),
 ]);
+final _bringObjects = _uniqueByText([
+  ..._takeObjects,
+  ...object_categories.singularFoodObjects,
+  ...object_categories.pluralFoodObjects,
+]);
 final _transferObjects = _uniqueByText([
   ..._genericObjects,
   ..._textObjects,
@@ -1320,14 +1325,15 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     bring,
-    _uniqueByText([..._everydayObjects, ..._photoObjects]),
+    _bringObjects,
     paths: [
-      _sources(),
+      _objectSources(),
       PredicatePath.toDestination(_people, requiresObject: true),
       PredicatePath.withCompanion(_people),
-      _atLocations(_everydayPlaces),
-      _inLocations(_everydayPlaces),
-      _fromLocations(_everydayPlaces),
+      _places(_homeSchoolWorkPlaces, requiresObject: true),
+      _atLocations(_everydayPlaces, requiresObject: true),
+      _inLocations(_everydayPlaces, requiresObject: true),
+      _fromLocations(_everydayPlaces, requiresObject: true),
       _manners(_movementManners),
       _times(_todayTimes),
     ],
@@ -2344,8 +2350,8 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: bring,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author bringable object and destination tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note: 'authored bringable object, source, destination, and location tracks',
   ),
   _migration(
     verb: give,
