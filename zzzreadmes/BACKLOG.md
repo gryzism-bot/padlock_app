@@ -307,12 +307,12 @@ Next audit actions:
   - still expected: recipient-gated right action: `teach`
   - no one-route verbs remain
   - no thin essential verbs remain
-  - thin non-essential verbs remain, but they are now polish work rather than a
-    blocker:
-    `depart`, `graduate`, `compete`, `dance`, `describe`, `introduce`,
-    `laugh`, `lie`, `navigate`, `practice`, `research`, `sit`, `smile`,
-    `stand`, `understand`, and a few movement/action verbs with only broad
-    context routes
+  - thin non-essential verbs dropped from 26 to 15 after thickening
+    communication, study, movement, travel, and sport routes
+  - remaining thin non-essential verbs are polish work rather than a blocker:
+    `depart`, `dance`, `laugh`, `lie`, `sit`, `smile`, `stand`,
+    `understand`, `cycle`, `shout`, `surf`, `whisper`, `crawl`, `fall`,
+    and `climb`
 - keep pending rows rare: either implement the route, add the shelf, or
   document a deliberate semantic postponement
 - start saturation with verb-owned shelves before broad noun flooding:

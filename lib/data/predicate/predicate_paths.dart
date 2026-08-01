@@ -500,6 +500,10 @@ final _musicObjects = _uniqueByText([
   ...object_categories.singularMusicObjects,
   ...object_categories.pluralMusicObjects,
 ]);
+final _listeningDevices = _uniqueByText([
+  object_data.speaker.toNounPhrase(Number.plural),
+  object_data.headphone.toNounPhrase(Number.plural),
+]);
 final _gameObjects = _uniqueByText([
   ...object_categories.singularGameObjects,
   ...object_categories.pluralGameObjects,
@@ -726,6 +730,7 @@ final _trainingPurposes = _uniqueByText([
   fixed_object.football,
   fixed_object.basketball,
   fixed_object.tennis,
+  fixed_object.karate,
   fixed_object.swimming,
   fixed_object.skating,
 ]);
@@ -742,6 +747,12 @@ final _playActivities = [
   fixed_object.tennis,
   fixed_object.golf,
 ];
+final _practiceObjects = _uniqueByText([
+  ..._learnSubjects,
+  ..._playActivities,
+  fixed_object.karate,
+  ..._musicObjects,
+]);
 final _doObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.workNoun,
@@ -1696,7 +1707,14 @@ final guidedPredicateUnlocks = [
   _directWithPaths(call, _peopleAndAnimals, paths: _speechContexts()),
   PredicateUnlocks(
     verb: listen,
-    paths: [PredicatePath.toAddressee(_peopleAndAnimals), ..._speechContexts()],
+    paths: [
+      PredicatePath.toAddressee(
+        _uniqueByText([..._peopleAndAnimals, ..._musicObjects]),
+      ),
+      PredicatePath.onTopic(_listeningDevices),
+      PredicatePath.withCompanion(_people),
+      ..._speechContexts(),
+    ],
   ),
   PredicateUnlocks(
     verb: hear,
@@ -1731,7 +1749,13 @@ final guidedPredicateUnlocks = [
     describe,
     _basicTopics,
     paths: [
-      _manners([manner_data.clearlyMannerPhrase]),
+      PredicatePath.toAddressee(_people),
+      PredicatePath.withCompanion(_people),
+      _manners([
+        manner_data.clearlyMannerPhrase,
+        manner_data.carefullyMannerPhrase,
+      ]),
+      _times(_todayTimes),
     ],
   ),
   _directWithPaths(
@@ -1789,6 +1813,9 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.directObject(_peopleAndAnimals),
       PredicatePath.toAddressee(_peopleAndAnimals),
+      PredicatePath.withCompanion(_people),
+      _manners([manner_data.politelyMannerPhrase]),
+      _times(_todayTimes),
     ],
   ),
   _directWithPaths(
@@ -1840,8 +1867,14 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     education_data.practice,
-    _uniqueByText([..._learnSubjects, ..._playActivities]),
-    paths: [_purposes(_trainingPurposes)],
+    _practiceObjects,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_trainingPurposes),
+      _atLocations(_homeSchoolWorkPlaces),
+      _manners(_movementManners),
+      _times(_todayTimes),
+    ],
   ),
   _directWithPaths(
     education_data.repeat,
@@ -1856,17 +1889,34 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: education_data.graduate,
     paths: [
+      PredicatePath.withCompanion(_people),
       _fromLocations([
         place_data.schoolPlacePhrase,
         place_data.universityPlacePhrase,
       ]),
+      _atLocations([
+        place_data.schoolPlacePhrase,
+        place_data.universityPlacePhrase,
+      ]),
+      _manners([manner_data.happilyMannerPhrase]),
       _times([time_data.todayTimePhrase, time_data.laterTimePhrase]),
     ],
   ),
   _directWithPaths(
     education_data.research,
     _learnSubjects,
-    paths: [PredicatePath.aboutTopic(_basicTopics)],
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.withInstrument(_toolObjects),
+      _purposes([fixed_object.workNoun, fixed_object.schoolNoun]),
+      _atLocations(_homeSchoolWorkPlaces),
+      _inLocations([..._homeSchoolWorkPlaces, place_data.roomPlacePhrase]),
+      _manners([
+        manner_data.carefullyMannerPhrase,
+        manner_data.clearlyMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
   ),
   _directWithPaths(
     education_data.analyze,
@@ -1901,7 +1951,10 @@ final guidedPredicateUnlocks = [
       ..._movementContexts(),
     ],
   ),
-  PredicateUnlocks(verb: jump, paths: _movementContexts()),
+  PredicateUnlocks(
+    verb: jump,
+    paths: [_purposes(_movementPurposes), ..._movementContexts()],
+  ),
   _destinationWithCompanion(
     swim,
     paths: [
@@ -1923,7 +1976,10 @@ final guidedPredicateUnlocks = [
       _manners(_performanceManners),
     ],
   ),
-  PredicateUnlocks(verb: dive, paths: _movementContexts()),
+  PredicateUnlocks(
+    verb: dive,
+    paths: [_purposes(_movementPurposes), ..._movementContexts()],
+  ),
   PredicateUnlocks(
     verb: fall,
     paths: [
@@ -2021,8 +2077,13 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: travel_data.navigate,
     paths: [
+      PredicatePath.toDestination(_people),
       PredicatePath.withInstrument(_navigationInstruments),
       _fromLocations(_everydayPlaces),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
+      _manners(_movementManners),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
@@ -2150,11 +2211,18 @@ final guidedPredicateUnlocks = [
     verb: sport_data.exercise,
     paths: [_purposes(_movementPurposes), ..._sportContexts()],
   ),
-  PredicateUnlocks(verb: sport_data.score, paths: _sportContexts()),
+  PredicateUnlocks(
+    verb: sport_data.score,
+    paths: [_purposes(_trainingPurposes), ..._sportContexts()],
+  ),
   _directWithPaths(sport_data.win, _gameObjects, paths: _sportContexts()),
   PredicateUnlocks(
     verb: sport_data.compete,
-    paths: [PredicatePath.withCompanion(_people), _purposes(_trainingPurposes)],
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_trainingPurposes),
+      ..._sportContexts(),
+    ],
   ),
   PredicateUnlocks(
     verb: sport_data.box,

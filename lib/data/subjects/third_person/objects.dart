@@ -59,6 +59,20 @@ const phone = Noun(
   pluralTranslations: {Language.pl: 'telefony'},
 );
 
+const speaker = Noun(
+  singular: 'speaker',
+  plural: 'speakers',
+  singularTranslations: {Language.pl: 'glosnik'},
+  pluralTranslations: {Language.pl: 'glosniki'},
+);
+
+const headphone = Noun(
+  singular: 'headphone',
+  plural: 'headphones',
+  singularTranslations: {Language.pl: 'sluchawka'},
+  pluralTranslations: {Language.pl: 'sluchawki'},
+);
+
 const computer = Noun(
   singular: 'computer',
   plural: 'computers',
@@ -386,6 +400,13 @@ const piano = Noun(
   plural: 'pianos',
   singularTranslations: {Language.pl: 'pianino'},
   pluralTranslations: {Language.pl: 'pianina'},
+);
+
+const violin = Noun(
+  singular: 'violin',
+  plural: 'violins',
+  singularTranslations: {Language.pl: 'skrzypce'},
+  pluralTranslations: {Language.pl: 'skrzypce'},
 );
 
 const drum = Noun(

@@ -27,6 +27,7 @@ import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
+import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -150,6 +151,11 @@ void main() {
             action: work,
             kind: PredicatePathKind.onTopic,
             text: 'You work on English.',
+          ),
+          (
+            action: listen,
+            kind: PredicatePathKind.onTopic,
+            text: 'You listen on speakers.',
           ),
           (
             action: help,
@@ -1408,6 +1414,16 @@ void main() {
                 ),
                 text: 'You open door for Mary.',
               ),
+              (
+                action: introduce,
+                preMoves: [
+                  SetObject(people_data.john.toNounPhrase(Number.singular)),
+                ],
+                move: SetAddressee(
+                  people_data.mary.toNounPhrase(Number.singular),
+                ),
+                text: 'You introduce John to Mary.',
+              ),
             ];
 
         for (final example in cases) {
@@ -1890,6 +1906,22 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(sell, _ReviewedRouteKind.place, text: 'shop'),
   _ReviewedRoute(sell, _ReviewedRouteKind.time, text: 'today'),
 
+  _ReviewedRoute(listen, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(listen, _ReviewedRouteKind.addressee, text: 'music'),
+  _ReviewedRoute(listen, _ReviewedRouteKind.onTopic, text: 'speakers'),
+  _ReviewedRoute(listen, _ReviewedRouteKind.onTopic, text: 'headphones'),
+  _ReviewedRoute(listen, _ReviewedRouteKind.companion),
+  _ReviewedRoute(describe, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(describe, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(describe, _ReviewedRouteKind.companion),
+  _ReviewedRoute(describe, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(describe, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(introduce, _ReviewedRouteKind.directObject, text: 'John'),
+  _ReviewedRoute(introduce, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(introduce, _ReviewedRouteKind.companion),
+  _ReviewedRoute(introduce, _ReviewedRouteKind.manner, text: 'politely'),
+  _ReviewedRoute(introduce, _ReviewedRouteKind.time, text: 'today'),
+
   _ReviewedRoute(use, _ReviewedRouteKind.directObject),
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'phone'),
@@ -2195,8 +2227,76 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(education_data.practice, _ReviewedRouteKind.purpose),
   _ReviewedRoute(
     education_data.practice,
+    _ReviewedRouteKind.directObject,
+    text: 'piano',
+  ),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.directObject,
+    text: 'karate',
+  ),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.directObject,
+    text: 'violin',
+  ),
+  _ReviewedRoute(
+    education_data.practice,
     _ReviewedRouteKind.purpose,
     text: 'football',
+  ),
+  _ReviewedRoute(education_data.practice, _ReviewedRouteKind.companion),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.manner,
+    text: 'quickly',
+  ),
+  _ReviewedRoute(
+    education_data.practice,
+    _ReviewedRouteKind.time,
+    text: 'today',
+  ),
+  _ReviewedRoute(education_data.graduate, _ReviewedRouteKind.companion),
+  _ReviewedRoute(
+    education_data.graduate,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.graduate,
+    _ReviewedRouteKind.sourcePlace,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.graduate,
+    _ReviewedRouteKind.manner,
+    text: 'happily',
+  ),
+  _ReviewedRoute(education_data.research, _ReviewedRouteKind.instrument),
+  _ReviewedRoute(
+    education_data.research,
+    _ReviewedRouteKind.purpose,
+    text: 'work',
+  ),
+  _ReviewedRoute(
+    education_data.research,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.research,
+    _ReviewedRouteKind.manner,
+    text: 'carefully',
+  ),
+  _ReviewedRoute(
+    education_data.research,
+    _ReviewedRouteKind.time,
+    text: 'today',
   ),
   _ReviewedRoute(walk, _ReviewedRouteKind.purpose),
   _ReviewedRoute(walk, _ReviewedRouteKind.purpose, text: 'exercise'),
@@ -2208,10 +2308,36 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(run, _ReviewedRouteKind.rightAction, text: 'exercise'),
   _ReviewedRoute(run, _ReviewedRouteKind.rightAction, text: 'train'),
   _ReviewedRoute(run, _ReviewedRouteKind.rightAction, text: 'forget'),
+  _ReviewedRoute(jump, _ReviewedRouteKind.purpose, text: 'exercise'),
   _ReviewedRoute(swim, _ReviewedRouteKind.purpose, text: 'fun'),
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'exercise'),
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'train'),
   _ReviewedRoute(swim, _ReviewedRouteKind.rightAction, text: 'forget'),
+  _ReviewedRoute(dive, _ReviewedRouteKind.purpose, text: 'fun'),
+  _ReviewedRoute(travel_data.navigate, _ReviewedRouteKind.destination),
+  _ReviewedRoute(
+    travel_data.navigate,
+    _ReviewedRouteKind.instrument,
+    text: 'map',
+  ),
+  _ReviewedRoute(
+    travel_data.navigate,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    travel_data.navigate,
+    _ReviewedRouteKind.manner,
+    text: 'carefully',
+  ),
+  _ReviewedRoute(
+    sport_data.score,
+    _ReviewedRouteKind.purpose,
+    text: 'football',
+  ),
+  _ReviewedRoute(sport_data.compete, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(sport_data.compete, _ReviewedRouteKind.manner, text: 'well'),
+  _ReviewedRoute(sport_data.compete, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(
     cooking_data.cut,
     _ReviewedRouteKind.directObject,

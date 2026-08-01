@@ -31,6 +31,7 @@ const jump = Verb(
   pastSimple: 'jumped',
   pastParticiple: 'jumped',
   ingForm: 'jumping',
+  takesPurpose: true,
   translations: {Language.pl: 'skakać'},
 );
 
@@ -141,6 +142,7 @@ const dive = Verb(
   pastSimple: 'dived',
   pastParticiple: 'dived',
   ingForm: 'diving',
+  takesPurpose: true,
   translations: {Language.pl: 'nurkować'},
 );
 

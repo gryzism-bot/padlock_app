@@ -38,6 +38,13 @@ const golf = NounPhrase(
   translations: {Language.pl: 'golf'},
 );
 
+const karate = NounPhrase(
+  text: 'karate',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'karate'},
+);
+
 const music = NounPhrase(
   text: 'music',
   person: Person.third,

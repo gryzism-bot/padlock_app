@@ -94,6 +94,7 @@ const practice = Verb(
   pastParticiple: 'practiced',
   ingForm: 'practicing',
   takesObject: true,
+  takesCompanion: true,
   takesPurpose: true,
   translations: {Language.pl: 'ćwiczyć'},
 );
@@ -124,6 +125,7 @@ const graduate = Verb(
   pastSimple: 'graduated',
   pastParticiple: 'graduated',
   ingForm: 'graduating',
+  takesCompanion: true,
   translations: {Language.pl: 'ukończyć szkołę'},
 );
 
@@ -135,6 +137,8 @@ const research = Verb(
   ingForm: 'researching',
   takesObject: true,
   takesTopic: true,
+  takesInstrument: true,
+  takesPurpose: true,
   translations: {Language.pl: 'prowadzić badania'},
 );
 

@@ -150,6 +150,7 @@ const navigate = Verb(
   pastSimple: 'navigated',
   pastParticiple: 'navigated',
   ingForm: 'navigating',
+  usesDestinationPlace: true,
   takesInstrument: true,
   translations: {Language.pl: 'nawigować'},
 );

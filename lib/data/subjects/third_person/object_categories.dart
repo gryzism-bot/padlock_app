@@ -50,6 +50,8 @@ const toolObjectNouns = [
 
 const deviceObjectNouns = [
   objects.phone,
+  objects.speaker,
+  objects.headphone,
   objects.computer,
   objects.laptop,
   objects.keyboard,
@@ -120,6 +122,7 @@ const moneyObjectNouns = [
 const musicObjectNouns = [
   objects.guitar,
   objects.piano,
+  objects.violin,
   objects.drum,
   objects.song,
 ];

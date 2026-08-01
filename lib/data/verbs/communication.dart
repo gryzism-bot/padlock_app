@@ -77,6 +77,8 @@ const listen = Verb(
   pastParticiple: 'listened',
   ingForm: 'listening',
   takesAddressee: true,
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'słuchać'},
 );
 
@@ -125,6 +127,8 @@ const describe = Verb(
   pastParticiple: 'described',
   ingForm: 'describing',
   takesObject: true,
+  takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'opisywać'},
 );
 
@@ -209,6 +213,7 @@ const introduce = Verb(
   ingForm: 'introducing',
   takesObject: true,
   takesAddressee: true,
+  takesCompanion: true,
   translations: {Language.pl: 'przedstawiać'},
 );
 
