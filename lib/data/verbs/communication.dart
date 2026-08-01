@@ -172,6 +172,7 @@ const laugh = Verb(
   pastParticiple: 'laughed',
   ingForm: 'laughing',
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'śmiać się'},
 );
 
@@ -192,6 +193,8 @@ const shout = Verb(
   pastParticiple: 'shouted',
   ingForm: 'shouting',
   takesAddressee: true,
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'krzyczeć'},
 );
 
@@ -202,6 +205,8 @@ const whisper = Verb(
   pastParticiple: 'whispered',
   ingForm: 'whispering',
   takesAddressee: true,
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'szeptać'},
 );
 

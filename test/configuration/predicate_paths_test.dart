@@ -1921,6 +1921,22 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(introduce, _ReviewedRouteKind.companion),
   _ReviewedRoute(introduce, _ReviewedRouteKind.manner, text: 'politely'),
   _ReviewedRoute(introduce, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(laugh, _ReviewedRouteKind.aboutTopic, text: 'story'),
+  _ReviewedRoute(laugh, _ReviewedRouteKind.companion),
+  _ReviewedRoute(laugh, _ReviewedRouteKind.place, text: 'school'),
+  _ReviewedRoute(laugh, _ReviewedRouteKind.manner, text: 'happily'),
+  _ReviewedRoute(smile, _ReviewedRouteKind.companion),
+  _ReviewedRoute(smile, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(smile, _ReviewedRouteKind.manner, text: 'politely'),
+  _ReviewedRoute(smile, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(shout, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(shout, _ReviewedRouteKind.aboutTopic, text: 'story'),
+  _ReviewedRoute(shout, _ReviewedRouteKind.companion),
+  _ReviewedRoute(shout, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(whisper, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(whisper, _ReviewedRouteKind.aboutTopic, text: 'story'),
+  _ReviewedRoute(whisper, _ReviewedRouteKind.companion),
+  _ReviewedRoute(whisper, _ReviewedRouteKind.manner, text: 'quietly'),
 
   _ReviewedRoute(use, _ReviewedRouteKind.directObject),
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'key'),
@@ -2060,6 +2076,33 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'speak'),
   _ReviewedRoute(remember, _ReviewedRouteKind.manner, text: 'clearly'),
   _ReviewedRoute(remember, _ReviewedRouteKind.time, text: 'today'),
+
+  _ReviewedRoute(education_data.understand, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(
+    education_data.understand,
+    _ReviewedRouteKind.directObject,
+    text: 'English',
+  ),
+  _ReviewedRoute(
+    education_data.understand,
+    _ReviewedRouteKind.aboutTopic,
+    text: 'grammar',
+  ),
+  _ReviewedRoute(
+    education_data.understand,
+    _ReviewedRouteKind.place,
+    text: 'school',
+  ),
+  _ReviewedRoute(
+    education_data.understand,
+    _ReviewedRouteKind.manner,
+    text: 'clearly',
+  ),
+  _ReviewedRoute(
+    education_data.understand,
+    _ReviewedRouteKind.time,
+    text: 'today',
+  ),
 
   _ReviewedRoute(education_data.forget, _ReviewedRouteKind.directObject),
   _ReviewedRoute(

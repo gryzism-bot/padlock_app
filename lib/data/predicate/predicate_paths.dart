@@ -1783,30 +1783,47 @@ final guidedPredicateUnlocks = [
     verb: laugh,
     paths: [
       PredicatePath.withCompanion(_people),
+      PredicatePath.aboutTopic(_basicTopics),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
       _manners([
         manner_data.loudlyMannerPhrase,
         manner_data.quietlyMannerPhrase,
         manner_data.happilyMannerPhrase,
       ]),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: smile,
     paths: [
       PredicatePath.withCompanion(_people),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
       _manners([
         manner_data.happilyMannerPhrase,
         manner_data.politelyMannerPhrase,
       ]),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: shout,
-    paths: [PredicatePath.toAddressee(_peopleAndAnimals), ..._speechContexts()],
+    paths: [
+      PredicatePath.toAddressee(_peopleAndAnimals),
+      PredicatePath.withCompanion(_people),
+      PredicatePath.aboutTopic(_basicTopics),
+      ..._speechContexts(),
+    ],
   ),
   PredicateUnlocks(
     verb: whisper,
-    paths: [PredicatePath.toAddressee(_peopleAndAnimals), ..._speechContexts()],
+    paths: [
+      PredicatePath.toAddressee(_peopleAndAnimals),
+      PredicatePath.withCompanion(_people),
+      PredicatePath.aboutTopic(_basicTopics),
+      ..._speechContexts(),
+    ],
   ),
   PredicateUnlocks(
     verb: introduce,
@@ -1855,7 +1872,13 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     education_data.understand,
     _uniqueByText([..._genericObjects, ..._learnSubjects, ..._people]),
-    paths: [PredicatePath.aboutTopic(_basicTopics)],
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      _atLocations(_homeSchoolWorkPlaces),
+      _inLocations([..._homeSchoolWorkPlaces, place_data.itDomainPlacePhrase]),
+      _manners([manner_data.clearlyMannerPhrase, manner_data.wellMannerPhrase]),
+      _times(_todayTimes),
+    ],
   ),
   _directWithPaths(
     education_data.forget,
