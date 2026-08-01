@@ -128,6 +128,8 @@ const surf = Verb(
   pastSimple: 'surfed',
   pastParticiple: 'surfed',
   ingForm: 'surfing',
+  takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'surfować'},
 );
 
@@ -137,6 +139,8 @@ const cycle = Verb(
   pastSimple: 'cycled',
   pastParticiple: 'cycled',
   ingForm: 'cycling',
+  takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'jeździć na rowerze'},
 );
 

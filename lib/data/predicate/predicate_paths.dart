@@ -1966,14 +1966,30 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(fly, paths: _travelContexts()),
   PredicateUnlocks(
     verb: climb,
-    paths: [_onLocations(_surfacePlaces), ..._movementContexts()],
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_movementPurposes),
+      _onLocations(_surfacePlaces),
+      _fromLocations(_surfacePlaces),
+      ..._movementContexts(),
+    ],
   ),
-  PredicateUnlocks(verb: crawl, paths: _movementContexts()),
+  PredicateUnlocks(
+    verb: crawl,
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_movementPurposes),
+      ..._movementContexts(),
+    ],
+  ),
   PredicateUnlocks(
     verb: dance,
     paths: [
       PredicatePath.withCompanion(_people),
+      _purposes(_movementPurposes),
+      _atLocations(_everydayPlaces),
       _manners(_performanceManners),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
@@ -1983,6 +1999,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: fall,
     paths: [
+      _fromLocations(_surfacePlaces),
       _atLocations(_everydayPlaces),
       _inLocations(_everydayPlaces),
       _manners([manner_data.byAccidentMannerPhrase]),
@@ -2012,21 +2029,35 @@ final guidedPredicateUnlocks = [
     verb: sit,
     paths: [
       PredicatePath.withCompanion(_people),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
       _onLocations([place_data.bedPlacePhrase, place_data.tablePlacePhrase]),
+      _manners([manner_data.quietlyMannerPhrase]),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: stand,
     paths: [
       PredicatePath.withCompanion(_people),
+      _atLocations(_everydayPlaces),
+      _inLocations(_everydayPlaces),
       _onLocations([place_data.bridgePlacePhrase, place_data.tablePlacePhrase]),
+      _manners([manner_data.quietlyMannerPhrase]),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: lie,
     paths: [
       PredicatePath.withCompanion(_people),
+      _inLocations([
+        place_data.bedroomPlacePhrase,
+        place_data.inBedPlacePhrase,
+      ]),
       _onLocations([place_data.bedPlacePhrase]),
+      _manners([manner_data.quietlyMannerPhrase]),
+      _times(_todayTimes),
     ],
   ),
   _destinationWithCompanion(travel_data.travel, paths: _travelContexts()),
@@ -2039,7 +2070,12 @@ final guidedPredicateUnlocks = [
   ),
   PredicateUnlocks(
     verb: travel_data.depart,
-    paths: [_fromLocations(_everydayPlaces), _times(_basicTimes)],
+    paths: [
+      PredicatePath.withCompanion(_people),
+      _fromLocations(_everydayPlaces),
+      _manners(_movementManners),
+      _times(_basicTimes),
+    ],
   ),
   _destinationWithCompanion(travel_data.returnVerb, paths: _travelContexts()),
   _directWithPaths(
@@ -2235,6 +2271,8 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: sport_data.surf,
     paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_movementPurposes),
       _atLocations(_everydayPlaces),
       _manners(_movementManners),
       _times(_todayTimes),
@@ -2243,7 +2281,10 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: sport_data.cycle,
     paths: [
+      PredicatePath.withCompanion(_people),
+      _purposes(_movementPurposes),
       _atLocations(_everydayPlaces),
+      _fromLocations(_homeSchoolWorkPlaces),
       _manners(_movementManners),
       _times(_todayTimes),
     ],

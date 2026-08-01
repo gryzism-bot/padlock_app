@@ -50,6 +50,7 @@ const depart = Verb(
   pastSimple: 'departed',
   pastParticiple: 'departed',
   ingForm: 'departing',
+  takesCompanion: true,
   translations: {Language.pl: 'odjeżdżać'},
 );
 

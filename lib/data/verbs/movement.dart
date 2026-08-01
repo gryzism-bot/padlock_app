@@ -84,6 +84,8 @@ const climb = Verb(
   pastSimple: 'climbed',
   pastParticiple: 'climbed',
   ingForm: 'climbing',
+  takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'wspinać się'},
 );
 
@@ -93,6 +95,8 @@ const crawl = Verb(
   pastSimple: 'crawled',
   pastParticiple: 'crawled',
   ingForm: 'crawling',
+  takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'czołgać się'},
 );
 
@@ -103,6 +107,7 @@ const dance = Verb(
   pastParticiple: 'danced',
   ingForm: 'dancing',
   takesCompanion: true,
+  takesPurpose: true,
   translations: {Language.pl: 'tańczyć'},
 );
 
