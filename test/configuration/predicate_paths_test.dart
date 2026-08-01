@@ -127,9 +127,19 @@ void main() {
             text: 'You work for John.',
           ),
           (
+            action: make,
+            kind: PredicatePathKind.forBeneficiary,
+            text: 'You make something for John.',
+          ),
+          (
             action: use,
             kind: PredicatePathKind.forPurpose,
             text: 'You use for work.',
+          ),
+          (
+            action: make,
+            kind: PredicatePathKind.forPurpose,
+            text: 'You make something for work.',
           ),
           (
             action: learn,
@@ -741,32 +751,65 @@ void main() {
     });
 
     test(
-      'have object-dependent prepositional paths compile their prerequisite',
+      'object verbs compile object-dependent prepositional prerequisites',
       () {
-        final unlocks = predicateUnlocksFor(have)!;
         final examples = [
           (
+            verb: have,
             kind: PredicatePathKind.fromSource,
             field: (SentenceState state) => state.source,
             ending: ' from John.',
           ),
           (
+            verb: have,
             kind: PredicatePathKind.forBeneficiary,
             field: (SentenceState state) => state.beneficiary,
             ending: ' for John.',
           ),
           (
+            verb: have,
+            kind: PredicatePathKind.forPurpose,
+            field: (SentenceState state) => state.purpose,
+            ending: ' for work.',
+          ),
+          (
+            verb: get,
+            kind: PredicatePathKind.fromSource,
+            field: (SentenceState state) => state.source,
+            ending: ' from John.',
+          ),
+          (
+            verb: get,
+            kind: PredicatePathKind.forBeneficiary,
+            field: (SentenceState state) => state.beneficiary,
+            ending: ' for John.',
+          ),
+          (
+            verb: get,
+            kind: PredicatePathKind.forPurpose,
+            field: (SentenceState state) => state.purpose,
+            ending: ' for work.',
+          ),
+          (
+            verb: make,
+            kind: PredicatePathKind.forBeneficiary,
+            field: (SentenceState state) => state.beneficiary,
+            ending: ' for John.',
+          ),
+          (
+            verb: make,
             kind: PredicatePathKind.forPurpose,
             field: (SentenceState state) => state.purpose,
             ending: ' for work.',
           ),
         ];
 
-        for (final (:kind, :field, :ending) in examples) {
+        for (final (:verb, :kind, :field, :ending) in examples) {
+          final unlocks = predicateUnlocksFor(verb)!;
           final path = unlocks.paths.singleWhere((path) => path.kind == kind);
 
           expect(path.requiresObject, isTrue, reason: kind.name);
-          expect(predicatePathRequiresObject(have, kind), isTrue);
+          expect(predicatePathRequiresObject(verb, kind), isTrue);
 
           final state = stateAfterPath(unlocks, path);
 
@@ -775,7 +818,7 @@ void main() {
           expect(field(state.sentenceState), isNotNull, reason: kind.name);
           expect(
             grammar.generate(state.sentenceState).text,
-            allOf(startsWith('You have '), endsWith(ending)),
+            allOf(startsWith('You ${verb.infinitive} '), endsWith(ending)),
             reason: kind.name,
           );
         }
@@ -1471,6 +1514,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'job'),
   _ReviewedRoute(get, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(get, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(get, _ReviewedRouteKind.purpose, text: 'fun'),
 
   _ReviewedRoute(make, _ReviewedRouteKind.directObject),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'something'),
@@ -1478,6 +1523,15 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'cake'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'coffee'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'toy'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'song'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'movie'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'photo'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'painting'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'document'),
+  _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'message'),
   _ReviewedRoute(make, _ReviewedRouteKind.recipient),
   _ReviewedRoute(
     make,
@@ -1493,6 +1547,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(make, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'plan'),
   _ReviewedRoute(make, _ReviewedRouteKind.directObject, text: 'mistake'),
+  _ReviewedRoute(make, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'work'),
+  _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'school'),
+  _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'dinner'),
+  _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'fun'),
 
   _ReviewedRoute(take, _ReviewedRouteKind.directObject),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'something'),

@@ -146,6 +146,38 @@ void main() {
       expect(state.recipientPreposition, RecipientPreposition.forBenefit);
     });
 
+    test('purpose for-phrase does not duplicate as a recipient', () {
+      final state = engine.recognize('They made a plan for work.');
+
+      expectAgent(state, text: 'they');
+      expectObject(state, text: 'plan', determiner: aDeterminer);
+      expectPurpose(state, text: 'work');
+      expect(state.recipient, isNull);
+      expect(state.action, make);
+    });
+
+    test('make for-person keeps beneficiary shape separate from purpose', () {
+      final beneficiaryState = engine.recognize('She made something for Mary.');
+
+      expectAgent(beneficiaryState, text: 'she');
+      expectObject(beneficiaryState, text: 'something');
+      expectRecipient(beneficiaryState, text: 'mary');
+      expect(beneficiaryState.purpose, isNull);
+      expect(beneficiaryState.action, make);
+      expect(
+        beneficiaryState.recipientPreposition,
+        RecipientPreposition.forBenefit,
+      );
+
+      final purposeState = engine.recognize('She made food for dinner.');
+
+      expectAgent(purposeState, text: 'she');
+      expectObject(purposeState, text: 'food');
+      expectPurpose(purposeState, text: 'dinner');
+      expect(purposeState.recipient, isNull);
+      expect(purposeState.action, make);
+    });
+
     test('active objects recognize reflexive participants', () {
       final cases = [
         (sentence: 'I saw myself.', agent: 'i', object: 'myself'),

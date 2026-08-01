@@ -138,6 +138,7 @@ const get = Verb(
   takesObject: true,
   takesBeneficiary: true,
   takesSource: true,
+  takesPurpose: true,
   translations: {Language.pl: 'dostać'},
 );
 
@@ -150,6 +151,8 @@ const make = Verb(
   takesObject: true,
   takesRecipient: true,
   takesCompanion: true,
+  takesBeneficiary: true,
+  takesPurpose: true,
   takesObjectComplement: true,
   translations: {Language.pl: 'robić'},
 );

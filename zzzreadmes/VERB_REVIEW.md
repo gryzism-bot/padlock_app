@@ -145,13 +145,17 @@ come - today
 come - now
 
 get - something
+get - anything
+get - it
 get - a book
 get - money
 get - food
 get - a gift
 get - a job
-get - from someone
-get - for someone
+get - something from someone
+get - something for someone
+get - money for school
+get - something for fun
 get - at school
 get - today
 
@@ -159,11 +163,24 @@ make - something
 make - food
 make - a cake
 make - coffee
+make - a gift
+make - a game
+make - a toy
+make - a song
+make - a movie
+make - a photo
+make - a painting
+make - a document
+make - a message
 make - a plan
 make - a mistake
 make - someone happy
 make - someone calm
 make - something for someone
+make - a gift for someone
+make - a plan for work
+make - food for dinner
+make - something for fun
 make - with someone
 make - carefully
 

@@ -555,6 +555,31 @@ final _everydayObjects = _uniqueByText([
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
 ]);
+final _makeObjects = _uniqueByText([
+  ..._genericObjects,
+  ...object_categories.singularFoodObjects,
+  ...object_categories.pluralFoodObjects,
+  object_data.gift.toNounPhrase(Number.singular),
+  object_data.gift.toNounPhrase(Number.plural),
+  object_data.game.toNounPhrase(Number.singular),
+  object_data.game.toNounPhrase(Number.plural),
+  object_data.toy.toNounPhrase(Number.singular),
+  object_data.toy.toNounPhrase(Number.plural),
+  object_data.song.toNounPhrase(Number.singular),
+  object_data.song.toNounPhrase(Number.plural),
+  object_data.movie.toNounPhrase(Number.singular),
+  object_data.movie.toNounPhrase(Number.plural),
+  object_data.photo.toNounPhrase(Number.singular),
+  object_data.photo.toNounPhrase(Number.plural),
+  object_data.painting.toNounPhrase(Number.singular),
+  object_data.painting.toNounPhrase(Number.plural),
+  object_data.document.toNounPhrase(Number.singular),
+  object_data.document.toNounPhrase(Number.plural),
+  object_data.message.toNounPhrase(Number.singular),
+  object_data.message.toNounPhrase(Number.plural),
+  fixed_object.plan,
+  fixed_object.mistake,
+]);
 final _transferObjects = _uniqueByText([
   ..._genericObjects,
   ..._textObjects,
@@ -624,6 +649,13 @@ final _basicPurposes = _uniqueByText([
   fixed_object.grammar,
   fixed_object.skill,
   fixed_object.skills,
+]);
+final _makePurposes = _uniqueByText([
+  fixed_object.workNoun,
+  fixed_object.schoolNoun,
+  fixed_object.dinnerNoun,
+  fixed_object.breakfast,
+  fixed_object.funNoun,
 ]);
 final _learningPurposes = _uniqueByText([
   fixed_object.schoolNoun,
@@ -1178,8 +1210,9 @@ final guidedPredicateUnlocks = [
     get,
     _everydayObjects,
     paths: [
-      _sources(),
-      _beneficiaries(),
+      _objectSources(),
+      _objectBeneficiaries(),
+      _objectPurposes(_basicPurposes),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _fromLocations(_homeSchoolWorkPlaces),
@@ -1189,9 +1222,11 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: make,
     paths: [
-      PredicatePath.directObject(_everydayObjects),
+      PredicatePath.directObject(_makeObjects),
       PredicatePath.toRecipient(_people),
       PredicatePath.withCompanion(_people),
+      _objectBeneficiaries(),
+      _objectPurposes(_makePurposes),
       _manners(_carefulManners),
     ],
   ),

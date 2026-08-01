@@ -664,10 +664,10 @@ void main() {
     await expandRail(tester, 'Object');
     await tapAfterScroll(
       tester,
-      find.byKey(const Key('suggestion-label-object-book')),
+      find.byKey(const Key('suggestion-label-object-cake')),
     );
 
-    expect(renderedSentence(tester), 'You make book.');
+    expect(renderedSentence(tester), 'You make cake.');
     expect(find.text('Object complement:'), findsOneWidget);
     expect(find.text('Object adjective complement:'), findsOneWidget);
 
@@ -677,7 +677,7 @@ void main() {
       find.byKey(const Key('suggestion-label-objectAdjectiveComplement-calm')),
     );
 
-    expect(renderedSentence(tester), 'You make book calm.');
+    expect(renderedSentence(tester), 'You make cake calm.');
 
     await tapAfterScroll(
       tester,
@@ -687,7 +687,7 @@ void main() {
         ),
       ),
     );
-    expect(renderedSentence(tester), 'You make book.');
+    expect(renderedSentence(tester), 'You make cake.');
 
     await selectVerb(tester, 'call');
     await expandRail(tester, 'Object');

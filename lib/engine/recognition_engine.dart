@@ -1422,12 +1422,26 @@ class RecognitionEngine {
 
     if (prepositionIndex > participantStart &&
         prepositionIndex < builder.tokens.length - 1) {
+      final owner = builder.action;
+      if (prepositionMatch!.preposition == RecipientPreposition.forBenefit &&
+          owner?.takesPurpose == true &&
+          _looksLikePredicatePathNoun(
+            builder,
+            prepositionIndex + 1,
+            owner!,
+            PredicatePathKind.forPurpose,
+          )) {
+        builder.objectStart = participantStart;
+        builder.objectEnd = prepositionIndex - 1;
+        return;
+      }
+
       builder.objectStart = participantStart;
       builder.objectEnd = prepositionIndex - 1;
       builder.recipientStart = prepositionIndex + 1;
       builder.recipientEnd = builder.tokens.length - 1;
       builder.recipientPlacement = RecipientPlacement.toPhrase;
-      builder.recipientPreposition = prepositionMatch!.preposition;
+      builder.recipientPreposition = prepositionMatch.preposition;
       return;
     }
 

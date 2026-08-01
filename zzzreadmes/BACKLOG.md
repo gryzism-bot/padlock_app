@@ -1,7 +1,5 @@
 # Padlock Backlog
 
-Undo/Redo test marker: this line is safe to remove.
-
 This file keeps the work discovered while testing the live machine. It is
 ordered from the deepest crease upward:
 
@@ -67,6 +65,14 @@ Best low-effort / high-value moves for the developer cockpit:
      `have anything`, `have it`, `have something from someone`,
      `have something for someone`, `have money for school/fun`, and
      semi-modal `have to + verb`
+   - done: `get` now has object-gated source, beneficiary, and purpose routes:
+     `get something from someone`, `get something for someone`,
+     `get money for school`, and `get something for fun`
+   - done: `make` now has a make-specific object shelf and object-gated
+     `for` routes:
+     `make something for John`, `make a cake for Mary`,
+     `make a gift for her`, `make a plan for work`,
+     `make food for dinner`, and `make something for fun`
    - use the executable review sheet to find thin verbs instead of guessing
    - prioritize verbs that are common, visible, and memorable:
      `be`, `have`, `do`, `find`, `sing`, `break`, `come`, `get`, `make`,
@@ -167,6 +173,29 @@ Why this is presentation-ready:
 - it demonstrates the one-predicate machine without requiring a lecture
 - it can later become the first polished product mode while the developer
   console remains the workbench
+
+## Presentation Side Quest: Idiom Hunting
+
+Idea:
+
+Review authored verb routes for idiom-capable combinations. When the user builds
+one naturally, show a small celebratory note such as `idiom found`.
+
+Examples to hunt later:
+
+- `get over it`
+- `make up`
+- `take off`
+- `look for`
+- `run into`
+- `give up`
+
+Implementation notes:
+
+- keep this as a detection layer over valid `SentenceState` / PredicatePath
+  output, not as a replacement for grammar
+- start with a curated idiom list, then expand from playtesting
+- notification should be subtle and educational, separate from Lock alerts
 
 ## Executable Review Audit
 

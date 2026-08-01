@@ -418,3 +418,49 @@ Long term, this prepares the final sentence-centered UI. The learner clicks the
 sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product
 view should feel like word routing rather than phrase dumping.
+
+## UI-Only Wires
+
+A UI-only wire is allowed when it changes how an already-known language truth is
+displayed, reached, debugged, or made fast. It is not allowed to be the first
+place where a language rule becomes true.
+
+Allowed UI-only wires:
+
+- rail open/closed state
+- overlays, sticky decks, dark mode, footer placement, and responsive layout
+- search boxes, rail virtualization, lazy chip rendering, and preview cache
+- chip keys, tooltips, hover preview, clicked preview, Word/Change display modes
+- translation visibility, diagnostics panels, move trace, and copyable text
+- visual signals: icons, carets, badges, rail grouping, and selected-chip styling
+
+Not allowed as UI-only wires:
+
+- deciding that a verb can take an object, recipient, addressee, companion,
+  source, beneficiary, instrument, purpose, topic, destination, or right action
+- deciding which noun shelf a verb can reach
+- deciding whether a `SentenceState` is legal
+- deciding how a `SentenceState` renders into English
+- deciding how an English sentence is recognized back into `SentenceState`
+
+Comb-down rule:
+
+- If a wire answers "can this sentence exist?", move it to Configuration / Lock.
+- If it answers "which word can come next after this verb?", move it to
+  Predicate Paths.
+- If it answers "what does this move open or close?", move it to Predicate
+  Influence or Rail Policy.
+- If it answers "how is this state spoken or recognized?", move it to Grammar
+  Engine or Recognition Engine.
+- If it answers "how do I show, search, cache, explain, or debug this choice?",
+  it may stay in UI.
+
+Current examples:
+
+- UI-only: verb rail virtualization, noun overlay, sticky control deck,
+  diagnostics bar, move trace, preview cache, theme, chip display modes.
+- Not UI-only: `make -> object + beneficiary`, `learn -> right action`,
+  `go -> destination`, `work -> on topic`, and `do -> generic objects`.
+
+This keeps the developer console honest. It can be a rich instrument without
+quietly becoming the source of grammar or predicate truth.

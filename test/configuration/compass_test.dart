@@ -810,7 +810,10 @@ void main() {
         ..sort((left, right) => right.compareTo(left));
 
       expect(outputCounts, orderedEquals(sortedOutputCounts));
-      expect(outputCountFor('work'), greaterThan(outputCountFor('get')));
+      expect(
+        outputCountFor('work'),
+        greaterThanOrEqualTo(outputCountFor('get')),
+      );
       expect(outputCountFor('go'), greaterThanOrEqualTo(outputCountFor('get')));
       expect(
         outputCountFor('get'),
@@ -1293,6 +1296,79 @@ void main() {
               .preview,
         ),
         'You work for Mary.',
+      );
+    });
+
+    test('make separates for-beneficiary from for-purpose routes', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(make),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.beneficiary,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.purpose,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetObject(fixed_object.something));
+
+      final beneficiarySuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.beneficiary,
+        limit: 0,
+      );
+      final purposeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.purpose,
+        limit: 0,
+      );
+
+      expect(
+        beneficiarySuggestions.map((suggestion) => suggestion.label),
+        containsAll(['John', 'Mary', 'friend']),
+      );
+      expect(
+        beneficiarySuggestions.map((suggestion) => suggestion.label),
+        isNot(contains('work')),
+      );
+      expect(
+        purposeSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['work', 'school', 'dinner', 'fun']),
+      );
+      expect(
+        purposeSuggestions.map((suggestion) => suggestion.label),
+        isNot(contains('John')),
+      );
+      expect(
+        render(
+          beneficiarySuggestions
+              .firstWhere((suggestion) => suggestion.label == 'John')
+              .preview,
+        ),
+        'You make something for John.',
+      );
+      expect(
+        render(
+          purposeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'work')
+              .preview,
+        ),
+        'You make something for work.',
       );
     });
 
