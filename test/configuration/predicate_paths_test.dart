@@ -829,6 +829,18 @@ void main() {
             ending: ' for work.',
           ),
           (
+            verb: get,
+            kind: PredicatePathKind.atLocation,
+            field: (SentenceState state) => state.placePhrase,
+            ending: ' at home.',
+          ),
+          (
+            verb: get,
+            kind: PredicatePathKind.fromLocation,
+            field: (SentenceState state) => state.placePhrase,
+            ending: ' from home.',
+          ),
+          (
             verb: make,
             kind: PredicatePathKind.forBeneficiary,
             field: (SentenceState state) => state.beneficiary,
@@ -1603,6 +1615,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'gift'),
   _ReviewedRoute(get, _ReviewedRouteKind.source),
+  _ReviewedRoute(get, _ReviewedRouteKind.sourcePlace, text: 'school'),
   _ReviewedRoute(get, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(get, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(get, _ReviewedRouteKind.directObject, text: 'money'),
