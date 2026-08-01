@@ -749,6 +749,42 @@ void main() {
     expect(find.text('Recipient:'), findsOneWidget);
   });
 
+  testWidgets('Object-gated predicate doors wake only after object exists', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await selectVerb(tester, 'do');
+
+    expect(renderedSentence(tester), 'You do.');
+    expect(find.text('object: none (awake)'), findsOneWidget);
+    expect(find.text('companion: none (asleep)'), findsOneWidget);
+    expect(find.text('beneficiary: none (asleep)'), findsOneWidget);
+    expect(find.text('purpose: none (asleep)'), findsOneWidget);
+    expect(find.text('Purpose:'), findsNothing);
+    expect(find.text('Location:'), findsNothing);
+
+    await tapAfterScroll(tester, find.text('object: none (awake)'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-something')),
+    );
+
+    expect(renderedSentence(tester), 'You do something.');
+    expect(find.text('companion: none (awake)'), findsOneWidget);
+    expect(find.text('beneficiary: none (awake)'), findsOneWidget);
+    expect(find.text('purpose: none (awake)'), findsOneWidget);
+    expect(find.text('Location:'), findsOneWidget);
+
+    await tapAfterScroll(tester, find.text('purpose: none (awake)'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-purpose-fun')),
+    );
+
+    expect(renderedSentence(tester), 'You do something for fun.');
+  });
+
   testWidgets('Guided UI names authored location rails explicitly', (
     tester,
   ) async {
@@ -834,10 +870,14 @@ class _FixedRailRoute {
 
 Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
   final titles = <String>{};
-  final locationConnectors = predicateLocationConnectorsFor(verb);
-  final sourceLocationConnectors = predicateSourceLocationConnectorsFor(verb);
+  final locationConnectors = _immediateLocationConnectorsFor(verb);
+  final sourceLocationConnectors = _immediateSourceLocationConnectorsFor(verb);
 
   for (final influence in predicateInfluencesFor(verb)) {
+    if (!_isImmediatelyReachableInfluence(verb, influence.key)) {
+      continue;
+    }
+
     switch (influence.key) {
       case 'activity':
         titles.add('Activity');
@@ -908,4 +948,59 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
   }
 
   return titles;
+}
+
+bool _isImmediatelyReachableInfluence(Verb verb, String key) {
+  final kinds = _pathKindsForInfluenceKey(key);
+  if (kinds == null) {
+    return true;
+  }
+
+  final paths = predicatePathsFor(
+    verb,
+  ).where((path) => kinds.contains(path.kind));
+  var hasAuthoredPath = false;
+  for (final path in paths) {
+    hasAuthoredPath = true;
+    if (!path.requiresObject && !path.requiresRecipient) {
+      return true;
+    }
+  }
+
+  return !hasAuthoredPath;
+}
+
+List<PredicatePathKind>? _pathKindsForInfluenceKey(String key) {
+  return switch (key) {
+    'addressee' => const [PredicatePathKind.toAddressee],
+    'companion' => const [PredicatePathKind.withCompanion],
+    'instrument' => const [PredicatePathKind.withInstrument],
+    'destination' => const [PredicatePathKind.toDestination],
+    'topic' => predicateTopicPathKinds,
+    'beneficiary' => const [PredicatePathKind.forBeneficiary],
+    'source' => const [PredicatePathKind.fromSource],
+    'right-action' => const [PredicatePathKind.toRightAction],
+    _ => null,
+  };
+}
+
+List<String> _immediateLocationConnectorsFor(Verb verb) {
+  return [
+    for (final kind in predicateLocationPathKinds)
+      if (_hasImmediatePath(verb, kind)) predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+List<String> _immediateSourceLocationConnectorsFor(Verb verb) {
+  return [
+    for (final kind in predicateSourceLocationPathKinds)
+      if (_hasImmediatePath(verb, kind)) predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+bool _hasImmediatePath(Verb verb, PredicatePathKind kind) {
+  return predicatePathsFor(verb).any(
+    (path) =>
+        path.kind == kind && !path.requiresObject && !path.requiresRecipient,
+  );
 }

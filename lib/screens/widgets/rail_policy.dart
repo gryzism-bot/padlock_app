@@ -163,15 +163,11 @@ String _fixedObjectAdjectiveTitle(ConfigurationState configuration) {
 }
 
 List<String> _ownerLocationConnectors(ConfigurationState configuration) {
-  return predicateLocationConnectorsFor(
-    _railBoundTailOwner(configuration.sentenceState),
-  );
+  return _locationConnectorsForState(configuration.sentenceState);
 }
 
 List<String> _ownerSourceLocationConnectors(ConfigurationState configuration) {
-  return predicateSourceLocationConnectorsFor(
-    _railBoundTailOwner(configuration.sentenceState),
-  );
+  return _sourceLocationConnectorsForState(configuration.sentenceState);
 }
 
 String _placeRailTitle(ConfigurationState configuration) {
@@ -284,6 +280,97 @@ _ParticipantDoorStatus _participantStatus({
 
 Verb _railBoundTailOwner(SentenceState state) {
   return state.rightAction ?? state.action;
+}
+
+bool _predicatePathPrerequisitesMet(PredicatePath path, SentenceState state) {
+  if (path.requiresObject && state.object == null) {
+    return false;
+  }
+  if (path.requiresRecipient && state.recipient == null) {
+    return false;
+  }
+
+  return true;
+}
+
+bool _predicatePathCanWake(SentenceState state, PredicatePathKind kind) {
+  return predicatePathsFor(_railBoundTailOwner(state)).any(
+    (path) => path.kind == kind && _predicatePathPrerequisitesMet(path, state),
+  );
+}
+
+List<String> _locationConnectorsForState(SentenceState state) {
+  return [
+    for (final kind in predicateLocationPathKinds)
+      if (_predicatePathCanWake(state, kind)) predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+List<String> _sourceLocationConnectorsForState(SentenceState state) {
+  return [
+    for (final kind in predicateSourceLocationPathKinds)
+      if (_predicatePathCanWake(state, kind)) predicatePlaceConnectorFor(kind)!,
+  ];
+}
+
+List<String> _topicConnectorsForState(SentenceState state) {
+  return [
+    for (final kind in predicateTopicPathKinds)
+      if (_predicatePathCanWake(state, kind)) predicateTopicConnectorFor(kind)!,
+  ];
+}
+
+Iterable<PredicatePathKind> _pathKindsForSurface(
+  PrepositionalParticipantSurface surface,
+) {
+  return switch (surface.kind) {
+    PrepositionalParticipantKind.addressee => const [
+      PredicatePathKind.toAddressee,
+    ],
+    PrepositionalParticipantKind.companion => const [
+      PredicatePathKind.withCompanion,
+    ],
+    PrepositionalParticipantKind.instrument => const [
+      PredicatePathKind.withInstrument,
+    ],
+    PrepositionalParticipantKind.destination => const [
+      PredicatePathKind.toDestination,
+    ],
+    PrepositionalParticipantKind.topic => predicateTopicPathKinds,
+    PrepositionalParticipantKind.beneficiary => const [
+      PredicatePathKind.forBeneficiary,
+    ],
+    PrepositionalParticipantKind.source => const [PredicatePathKind.fromSource],
+    PrepositionalParticipantKind.purpose => const [
+      PredicatePathKind.forPurpose,
+    ],
+  };
+}
+
+bool _surfaceCanWakeFromState(
+  SentenceState state,
+  PrepositionalParticipantSurface surface,
+) {
+  if (surface.lexicalBeAllows && state.action.infinitive == 'be') {
+    return true;
+  }
+  if (surface.read(state) != null) {
+    return true;
+  }
+
+  final kinds = _pathKindsForSurface(surface);
+  var hasAuthoredPath = false;
+  for (final path in predicatePathsFor(_railBoundTailOwner(state))) {
+    if (!kinds.contains(path.kind)) {
+      continue;
+    }
+    hasAuthoredPath = true;
+    if (_predicatePathPrerequisitesMet(path, state)) {
+      return true;
+    }
+  }
+
+  return !hasAuthoredPath && surface.isSupportedByState(state);
 }
 
 Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
@@ -413,9 +500,7 @@ List<_RailPolicy> _prepositionalSurfaceRailPolicy({
           : (_) => surface.preposition,
       isControlled: true,
       canRenderCollapsedWhen: (state) =>
-          (surface.lexicalBeAllows && state.action.infinitive == 'be') ||
-          surface.isSupportedByState(state) ||
-          surface.read(state) != null,
+          _surfaceCanWakeFromState(state, surface),
       canRenderWhenEmpty: (state) => surface.read(state) != null,
       participantLabel: (_) => label,
       participantValue: (state) => _nounTraceText(surface.read(state)),
@@ -463,9 +548,7 @@ String? _topicRailSurfaceMarker(ConfigurationState configuration) {
 }
 
 List<String> _ownerTopicConnectors(ConfigurationState configuration) {
-  return predicateTopicConnectorsFor(
-    _railBoundTailOwner(configuration.sentenceState),
-  );
+  return _topicConnectorsForState(configuration.sentenceState);
 }
 
 final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
@@ -740,7 +823,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: _placeRailSurfaceMarker,
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
-        predicateLocationConnectorsFor(_railBoundTailOwner(state)).isNotEmpty ||
+        _locationConnectorsForState(state).isNotEmpty ||
         (state.placePhrase != null &&
             (state.placeMeaning == null ||
                 state.placeMeaning == PlaceMeaning.location)),
@@ -754,9 +837,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     surfaceMarker: _sourcePlaceRailSurfaceMarker,
     isControlled: true,
     canRenderCollapsedWhen: (state) =>
-        predicateSourceLocationConnectorsFor(
-          _railBoundTailOwner(state),
-        ).isNotEmpty ||
+        _sourceLocationConnectorsForState(state).isNotEmpty ||
         (state.placePhrase != null &&
             state.placeMeaning == PlaceMeaning.source),
     canRenderWhenEmpty: (state) =>
