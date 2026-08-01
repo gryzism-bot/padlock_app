@@ -1238,6 +1238,80 @@ void main() {
       }
     });
 
+    test('have object-gated rails wake after an object exists', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(have),
+      );
+
+      Iterable<ConfigurationSuggestion> suggestions(
+        ConfigurationCompassSlot slot,
+      ) {
+        return authoredCompass.suggestionsFor(state, slot, limit: 0);
+      }
+
+      expect(suggestions(ConfigurationCompassSlot.companion), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.source), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.beneficiary), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.purpose), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.placePhrase), isEmpty);
+
+      state = lock.applyMove(
+        state,
+        SetObject(book.toNounPhrase(Number.singular)),
+      );
+
+      final companionSuggestions = suggestions(
+        ConfigurationCompassSlot.companion,
+      );
+      final sourceSuggestions = suggestions(ConfigurationCompassSlot.source);
+      final beneficiarySuggestions = suggestions(
+        ConfigurationCompassSlot.beneficiary,
+      );
+      final purposeSuggestions = suggestions(ConfigurationCompassSlot.purpose);
+      final placeSuggestions = suggestions(ConfigurationCompassSlot.placePhrase);
+
+      expect(
+        companionSuggestions.map((suggestion) => suggestion.label),
+        contains('John'),
+      );
+      expect(
+        render(
+          companionSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'John')
+              .preview,
+        ),
+        'You have book with John.',
+      );
+      expect(
+        sourceSuggestions.map((suggestion) => suggestion.label),
+        contains('John'),
+      );
+      expect(
+        beneficiarySuggestions.map((suggestion) => suggestion.label),
+        contains('John'),
+      );
+      expect(
+        purposeSuggestions.map((suggestion) => suggestion.label),
+        contains('work'),
+      );
+      expect(
+        placeSuggestions.map((suggestion) => suggestion.label),
+        contains('at home'),
+      );
+      expect(
+        render(
+          placeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'at home')
+              .preview,
+        ),
+        'You have book at home.',
+      );
+    });
+
     test('topic suggestions require topic-capable frame', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,

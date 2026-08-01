@@ -782,6 +782,12 @@ void main() {
         final examples = [
           (
             verb: have,
+            kind: PredicatePathKind.withCompanion,
+            field: (SentenceState state) => state.companion,
+            ending: ' with John.',
+          ),
+          (
+            verb: have,
             kind: PredicatePathKind.fromSource,
             field: (SentenceState state) => state.source,
             ending: ' from John.',
@@ -797,6 +803,12 @@ void main() {
             kind: PredicatePathKind.forPurpose,
             field: (SentenceState state) => state.purpose,
             ending: ' for work.',
+          ),
+          (
+            verb: have,
+            kind: PredicatePathKind.atLocation,
+            field: (SentenceState state) => state.placePhrase,
+            ending: ' at home.',
           ),
           (
             verb: get,
