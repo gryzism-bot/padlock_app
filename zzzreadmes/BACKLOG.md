@@ -55,7 +55,15 @@ Best low-effort / high-value moves for the developer cockpit:
    - diagnostics remain available without repainting the whole cockpit
    - current manual timing target is roughly sub-1000 ms for dense states and
      around 400-700 ms for ordinary verb switching
-7. Current: finish essential PredicatePath authoring.
+7. Done: make rail doors prerequisite-aware.
+   - object-gated PredicatePaths no longer wake their rail before the needed
+     object exists
+   - this fixed the `You do.` -> Purpose door mismatch and applies to
+     Companion, Instrument, Destination, Topic, Beneficiary, Source, Purpose,
+     Location, and Source place
+   - verb chips may still advertise future exits, but the core participant
+     doors now distinguish future exits from currently open rails
+8. Done enough for now: finish essential PredicatePath authoring.
    - the route-kind architecture is broad enough now; the best value is
      handwriting the remaining verb-owned shelves
    - done: generic direct-object shelf now feeds multiple object-taking verbs:
@@ -73,13 +81,21 @@ Best low-effort / high-value moves for the developer cockpit:
      `make something for John`, `make a cake for Mary`,
      `make a gift for her`, `make a plan for work`,
      `make food for dinner`, and `make something for fun`
+   - done: `take` and `bring` now share the clean "move an object to/from
+     someone or somewhere" crease:
+     `take a book to Mary`, `bring a message from John`,
+     `bring a box from work`, `take something for school`
+   - done: `do` now has product-visible object-gated routes:
+     `do something`, `do homework`, `do something with Mary`,
+     `do something for Mary`, `do something for school`,
+     `do something at home`
    - use the executable review sheet to find thin verbs instead of guessing
    - prioritize verbs that are common, visible, and memorable:
      `be`, `have`, `do`, `find`, `sing`, `break`, `come`, `get`, `make`,
      `think`, `say`, `see`, `play`, `work`, `sleep`
    - this is the biggest current slice of "fly territory": it makes the app
      feel intentional instead of random without touching Grammar Engine
-8. Next: staged vocabulary saturation.
+9. Current best value: staged vocabulary saturation.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -101,7 +117,7 @@ Best low-effort / high-value moves for the developer cockpit:
      - ordinary verb switches stay around 400-600 ms
      - occasional heavy first-open rails are acceptable if search and scrolling
        stay responsive
-9. Continue: route-audit tooling.
+10. Continue: route-audit tooling.
    - route kinds now exist for the important right-side families:
      - direct object
      - recipient / addressee
@@ -116,7 +132,7 @@ Best low-effort / high-value moves for the developer cockpit:
    - remaining work is mostly verb-by-verb authorship and vocabulary shelves,
      not new route-kind architecture
    - explicit pending review rows are currently closed
-10. Later: path-scoped Compass for the product UI.
+11. Later: path-scoped Compass for the product UI.
    - one active locus at a time
    - opening a verb feature narrows the tree until collapsed
    - this is the bigger design payoff, but it is not the cheapest next step
@@ -286,9 +302,17 @@ Next audit actions:
   - done: `need` now has object-gated source/beneficiary/purpose routes
   - done: `do` now has authored object/companion/beneficiary/purpose/location/
     manner/time routes
+  - done: object-gated rail doors now stay asleep until the required object or
+    recipient exists
   - still expected: recipient-gated right action: `teach`
   - no one-route verbs remain
   - no thin essential verbs remain
+  - thin non-essential verbs remain, but they are now polish work rather than a
+    blocker:
+    `depart`, `graduate`, `compete`, `dance`, `describe`, `introduce`,
+    `laugh`, `lie`, `navigate`, `practice`, `research`, `sit`, `smile`,
+    `stand`, `understand`, and a few movement/action verbs with only broad
+    context routes
 - keep pending rows rare: either implement the route, add the shelf, or
   document a deliberate semantic postponement
 - start saturation with verb-owned shelves before broad noun flooding:
@@ -315,10 +339,14 @@ Recently completed:
 
 Best immediate follow-up:
 
-- rerun the route audit and choose the next thin/empty predicate edge from
-  executable data rather than guessing
-- continue essential PredicatePath saturation toward verbs with few distinct
-  right-side surfaces
+- start staged vocabulary saturation, because the route skeleton and essential
+  verb coverage are now strong enough
+- begin with shared noun shelves that multiply value across many routes:
+  people, animals, everyday objects, foods, tools, openables, text/media, and
+  place/source nouns
+- after each batch, rerun the route audit and sample UI timing from the move
+  trace; only return to route authoring when the audit shows a memorable thin
+  verb or a missing shelf
 
 ## Noun Atomization Before Saturation
 

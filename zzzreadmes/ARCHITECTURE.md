@@ -1,5 +1,33 @@
 # Padlock Architecture
 
+## Growth Shape
+
+The architecture is easiest to remember as a growing tree.
+
+- Grammar Engine is the seed.
+  It is small, dense, and generative. Given a valid `SentenceState`, it knows how
+  to render English.
+- Recognition Engine is the mirrored seed.
+  It takes app-English and reconstructs the `SentenceState` that could have
+  produced it.
+- Configuration Engine / Lock is the trunk.
+  It holds the structure upright by deciding which states and transitions are
+  legal.
+- Compass is the branches.
+  It does not invent grammar, but it decides where the current state can grow
+  next.
+- Predicate Paths are the veins through branches and leaves.
+  They carry handcrafted meaning from a predicate to the words it can open.
+- Data is the leaves.
+  It is numerous, visible, touchable, replaceable, and where the learner feels
+  the system most directly.
+- UI is the light around the tree.
+  It reveals the shape, hides or shows branches, and makes the growth playable.
+
+This is why the system can keep expanding without twisting itself apart. The
+lower layers stay small and structural; the upper layers get richer, more
+curated, and more product-facing.
+
 ## Predicate Paths: Good Hardcoding
 
 The grammar core is now intentionally small and trustworthy. Grammar Engine
@@ -271,6 +299,45 @@ The split after this pass:
 - Predicate Paths say what authored tracks exist.
 - Predicate Influence says how those openings should be signaled on verb chips.
 
+### Comb-Down 4: Rail Policy
+
+Question:
+
+What should the cockpit show as asleep, awake, open, or filled?
+
+Rails already had that state machine, but the logic was spread across Compass,
+UI checks, and tests. The important bug that forced the comb-down was an
+object-gated path:
+
+`You do.` showed Purpose as awake, but opening the rail produced no choices
+because `do` purpose paths require an object first.
+
+Rail Policy now asks Predicate Paths whether the matching route prerequisites
+are satisfied before showing a rail as awake. Verb chips may still advertise
+future exits, but participant doors distinguish:
+
+- this predicate can eventually open Purpose
+- Purpose is open right now
+- Purpose is filled
+
+This keeps rail visibility aligned with the same authored tracks Compass uses
+for suggestions.
+
+Examples:
+
+- `You do.` keeps Purpose asleep.
+- `You do something.` wakes Purpose.
+- `You take book.` wakes destination/source routes that require an object.
+- `You learn.` wakes non-gated routes immediately.
+
+The split after this pass:
+
+- Predicate Paths own route existence and prerequisites.
+- Compass owns concrete suggestions for an open rail.
+- Rail Policy owns whether a rail should be visible, collapsed, awake, or
+  filled.
+- UI owns layout, scrolling, search, and click handling.
+
 ### Next Comb-Down Candidates
 
 Diagnostics labels are the next clean candidate.
@@ -285,17 +352,6 @@ useful, but it is still text-sniffing. A future pass should let
 - modal tense frame violation
 - imperative frame violation
 - phrase compatibility violation
-
-Rail Policy is the next larger candidate after that.
-
-Rails already have an implicit state machine: asleep, awake, open, filled,
-hidden-but-backreachable. Some of that lives in Compass, some in UI, and some in
-tests. A future pass can gather it into a small policy layer:
-
-`SentenceState + mode + Predicate Paths + Lock -> rail visibility states`
-
-That would make disappearing rails, remembered passive agents, and open/closed
-predicate surfaces easier to test and reason about.
 
 ## Keepsake Pt 3: Right-Side Word Route Surface
 
