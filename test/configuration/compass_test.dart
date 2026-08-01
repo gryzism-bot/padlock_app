@@ -1272,7 +1272,9 @@ void main() {
         ConfigurationCompassSlot.beneficiary,
       );
       final purposeSuggestions = suggestions(ConfigurationCompassSlot.purpose);
-      final placeSuggestions = suggestions(ConfigurationCompassSlot.placePhrase);
+      final placeSuggestions = suggestions(
+        ConfigurationCompassSlot.placePhrase,
+      );
 
       expect(
         companionSuggestions.map((suggestion) => suggestion.label),
