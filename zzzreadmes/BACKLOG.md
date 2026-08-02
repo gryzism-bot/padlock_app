@@ -101,7 +101,7 @@ Best low-effort / high-value moves for the developer cockpit:
      wakes naturally
    - this closed the biggest current slice of "fly territory": the app feels
      intentional instead of random without touching Grammar Engine
-9. Done: first and second staged vocabulary saturation batches.
+9. Done: first, second, and third staged vocabulary saturation batches.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -114,13 +114,15 @@ Best low-effort / high-value moves for the developer cockpit:
      - keep true pronoun-like words as complete noun phrases:
        `someone`, `anyone`, `nobody`, `everyone`
    - next concrete slice:
-     - enrich shared people/person-like shelves for companion, addressee,
-       source, beneficiary, destination, and passive by-agent
-     - enrich animals and everyday concrete nouns used by broad object routes
-     - enrich text/media objects for `read`, `write`, `tell`, `say`,
-       `answer`, and `ask`
-     - enrich tool/openable/food shelves only where existing verb routes
-       already point to them
+     - translate authored predicate-route ingredients, especially connector
+       surfaces such as `with`, `to`, `from`, `for`, `about`, `of`, `on`,
+       `at`, and `in`
+     - translate the place/source shelves now feeding many verbs:
+       `from work`, `at home`, `in the office`, `to the market`, and similar
+       atomized route surfaces
+     - keep vocabulary saturation measured after translation is clearer:
+       people/person-like shelves, animals, everyday objects, foods, tools,
+       openables, and text/media shelves
    - first slice completed:
      - people: added names, family roles, work/public roles, and social roles
      - animals: added pet/farm/wild/small/bird/water shelf examples
@@ -144,12 +146,24 @@ Best low-effort / high-value moves for the developer cockpit:
        everyday authored places, and movement `[on]` surfaces
      - guardrails: added PredicatePaths tests for the second batch and kept
        both route audits green
+   - third slice completed:
+     - places: added market, bank, gym, classroom, garage, bus stop, and
+       playground with Polish translation fragments
+     - shelves: introduced a reusable daily-anchor place shelf so source,
+       destination, and location paths reuse the same authored places instead
+       of each verb carrying tiny local copies
+     - routes: widened `from` source-place rails for movement/travel-style
+       verbs, widened lexical `be` place/source complements, widened
+       object-gated `have` location routes, and added playground to movement
+       `[on]` surfaces
+     - guardrails: added PredicatePaths coverage proving the third place batch
+       reaches authored route shelves
    - saturate in layers, checking move-trace timing after each:
      - more pronoun-like nouns and semantically negative nouns
      - everyday objects and food/tool/openable/text shelves
      - adjectives and simple adverbs
      - verb-owned PredicatePath vocabulary
-     - Polish translation fragments
+     - Polish translation fragments for full predicate routes
    - target cockpit feel while saturating:
      - ordinary verb switches stay around 400-600 ms
      - occasional heavy first-open rails are acceptable if search and scrolling
@@ -374,14 +388,17 @@ Recently completed:
 
 Best immediate follow-up:
 
-- start staged vocabulary saturation, because the route skeleton and essential
-  verb coverage are now strong enough
-- begin with shared noun shelves that multiply value across many routes:
-  people, animals, everyday objects, foods, tools, openables, text/media, and
-  place/source nouns
-- after each batch, rerun the route audit and sample UI timing from the move
-  trace; only return to route authoring when the audit shows a memorable thin
-  verb or a missing shelf
+- translate authored predicate-route ingredients, because the route skeleton,
+  essential verb coverage, and first vocabulary shelves are now strong enough
+  for the console to teach through brackets instead of only through English
+  sentence shape
+- start with connector and route surfaces that repeat everywhere:
+  `with`, `to`, `from`, `for`, `about`, `of`, `on`, `at`, and `in`
+- then translate reusable route shelves:
+  people/source nouns, place/source nouns, everyday objects, tools, text/media,
+  foods, openables, and study subjects
+- after that, continue staged vocabulary saturation; only return to route
+  authoring when the audit shows a memorable thin verb or a missing shelf
 
 ## Noun Atomization Before Saturation
 
