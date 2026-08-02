@@ -16,6 +16,7 @@ import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart';
 
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
@@ -505,6 +506,94 @@ void main() {
           tense: Tense.present,
           aspect: Aspect.perfect,
         ): 'The cat has lain.',
+      };
+
+      for (final entry in cases.entries) {
+        expect(engine.generate(entry.key).text, entry.value);
+      }
+    });
+
+    test('Second vocabulary batch renders irregular routed forms', () {
+      final cases = {
+        SentenceState(
+          agent: director.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: write,
+          object: script.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The director wrote the script.',
+        SentenceState(
+          agent: passenger.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: take,
+          object: charger.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          destination: airport.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The passenger took the charger to the airport.',
+        SentenceState(
+          agent: tourist.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: buy,
+          object: ticket.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          source: guide.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The tourist bought the ticket from the guide.',
+        SentenceState(
+          agent: player.toNounPhrase(Number.plural, determiner: theDeterminer),
+          action: run,
+          placePhrase: roadPlacePhrase,
+          placeMeaning: PlaceMeaning.location,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ): 'The players ran on the road.',
+        SentenceState(
+          agent: actor.toNounPhrase(Number.singular, determiner: theDeterminer),
+          action: see,
+          object: scene.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'The actor has seen the scene.',
+        SentenceState(
+          agent: director.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          action: make,
+          object: plan.toNounPhrase(Number.singular, determiner: theDeterminer),
+          purpose: project.toNounPhrase(
+            Number.singular,
+            determiner: theDeterminer,
+          ),
+          tense: Tense.present,
+          aspect: Aspect.perfect,
+        ): 'The director has made the plan for the project.',
       };
 
       for (final entry in cases.entries) {

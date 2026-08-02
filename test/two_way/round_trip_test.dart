@@ -316,6 +316,12 @@ void main() {
         'The worker lifted the table.',
         'The children slept at home.',
         'The young engineer is working at work now.',
+        'The director wrote the script.',
+        'The passenger took the charger to the airport.',
+        'The tourist bought the ticket from the guide.',
+        'The players ran on the road.',
+        'The actor has seen the scene.',
+        'The director has made the plan for the project.',
       ]);
     });
 

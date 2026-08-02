@@ -12,6 +12,7 @@ import 'package:padlock_app/data/verbs/sport.dart' as sport;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -349,6 +350,62 @@ void main() {
         expect(state.tense, Tense.present);
         expect(state.aspect, Aspect.perfect);
       }
+    });
+
+    test('Second vocabulary batch recognizes irregular routed forms', () {
+      final wroteScript = engine.recognize('The director wrote the script.');
+      expectAgent(wroteScript, text: 'director', determiner: theDeterminer);
+      expect(wroteScript.action, write);
+      expectObject(wroteScript, text: 'script', determiner: theDeterminer);
+      expect(wroteScript.tense, Tense.past);
+      expect(wroteScript.aspect, Aspect.simple);
+
+      final tookCharger = engine.recognize(
+        'The passenger took the charger to the airport.',
+      );
+      expectAgent(tookCharger, text: 'passenger', determiner: theDeterminer);
+      expect(tookCharger.action, take);
+      expectObject(tookCharger, text: 'charger', determiner: theDeterminer);
+      expect(tookCharger.destination, isNull);
+      expect(tookCharger.placePhrase, airportPlacePhrase);
+      expect(tookCharger.placeMeaning, PlaceMeaning.destination);
+      expect(tookCharger.tense, Tense.past);
+      expect(tookCharger.aspect, Aspect.simple);
+
+      final boughtTicket = engine.recognize(
+        'The tourist bought the ticket from the guide.',
+      );
+      expectAgent(boughtTicket, text: 'tourist', determiner: theDeterminer);
+      expect(boughtTicket.action, buy);
+      expectObject(boughtTicket, text: 'ticket', determiner: theDeterminer);
+      expectSource(boughtTicket, text: 'guide', determiner: theDeterminer);
+      expect(boughtTicket.tense, Tense.past);
+      expect(boughtTicket.aspect, Aspect.simple);
+
+      final ranOnRoad = engine.recognize('The players ran on the road.');
+      expectAgent(ranOnRoad, text: 'players', determiner: theDeterminer);
+      expect(ranOnRoad.action, run);
+      expect(ranOnRoad.placePhrase, roadPlacePhrase);
+      expect(ranOnRoad.placeMeaning, PlaceMeaning.location);
+      expect(ranOnRoad.tense, Tense.past);
+      expect(ranOnRoad.aspect, Aspect.simple);
+
+      final seenScene = engine.recognize('The actor has seen the scene.');
+      expectAgent(seenScene, text: 'actor', determiner: theDeterminer);
+      expect(seenScene.action, see);
+      expectObject(seenScene, text: 'scene', determiner: theDeterminer);
+      expect(seenScene.tense, Tense.present);
+      expect(seenScene.aspect, Aspect.perfect);
+
+      final madePlan = engine.recognize(
+        'The director has made the plan for the project.',
+      );
+      expectAgent(madePlan, text: 'director', determiner: theDeterminer);
+      expect(madePlan.action, make);
+      expectObject(madePlan, text: 'plan', determiner: theDeterminer);
+      expectPurpose(madePlan, text: 'project', determiner: theDeterminer);
+      expect(madePlan.tense, Tense.present);
+      expect(madePlan.aspect, Aspect.perfect);
     });
 
     test('Irregular verb recognizes every tense and aspect cell', () {

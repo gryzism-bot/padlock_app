@@ -787,6 +787,8 @@ final _makePurposes = _uniqueByText([
   fixed_object.dinnerNoun,
   fixed_object.breakfast,
   fixed_object.funNoun,
+  object_data.project.toNounPhrase(Number.singular),
+  object_data.project.toNounPhrase(Number.plural),
 ]);
 final _learningPurposes = _uniqueByText([
   fixed_object.schoolNoun,
