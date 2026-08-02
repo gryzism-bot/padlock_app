@@ -451,6 +451,13 @@ const movie = Noun(
   pluralTranslations: {Language.pl: 'filmy'},
 );
 
+const film = Noun(
+  singular: 'film',
+  plural: 'films',
+  singularTranslations: {Language.pl: 'film'},
+  pluralTranslations: {Language.pl: 'filmy'},
+);
+
 const song = Noun(
   singular: 'song',
   plural: 'songs',
@@ -738,6 +745,13 @@ const tablet = Noun(
   pluralTranslations: {Language.pl: 'tablety'},
 );
 
+const tool = Noun(
+  singular: 'tool',
+  plural: 'tools',
+  singularTranslations: {Language.pl: 'narzedzie'},
+  pluralTranslations: {Language.pl: 'narzedzia'},
+);
+
 const objectNouns = [
   house,
   apartment,
@@ -800,6 +814,7 @@ const objectNouns = [
   painting,
   photo,
   movie,
+  film,
   song,
   screen,
   desk,
@@ -841,6 +856,7 @@ const objectNouns = [
   hammer,
   scissors,
   tablet,
+  tool,
 ];
 
 const textObjectNouns = [

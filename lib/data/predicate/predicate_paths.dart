@@ -4,6 +4,8 @@ import 'package:padlock_app/data/subjects/object_pronouns.dart'
     as object_pronouns;
 import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
     as animal_categories;
+import 'package:padlock_app/data/subjects/third_person/animals.dart'
+    as animal_data;
 import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
@@ -397,6 +399,12 @@ final _foodObjects = _uniqueByText([
   ..._genericObjects,
   ...object_categories.singularFoodObjects,
   ...object_categories.pluralFoodObjects,
+  animal_data.fish.toNounPhrase(Number.singular),
+  animal_data.fish.toNounPhrase(Number.plural),
+  fixed_object.breakfast,
+  fixed_object.dinnerNoun,
+  fixed_object.vegetables,
+  fixed_object.butter,
 ]);
 final _drinkObjects = [
   object_categories.singularFoodObjects.firstWhere(
@@ -447,7 +455,11 @@ final _writingInstruments = _objectsWithText(_toolObjects, [
   'laptops',
 ]);
 final _openingInstruments = _objectsWithText(_toolObjects, ['key', 'keys']);
-final _cuttingInstruments = _objectsWithText(_toolObjects, ['knife', 'knives']);
+final _cuttingInstruments = _objectsWithText(_toolObjects, [
+  'knife',
+  'knives',
+  'scissors',
+]);
 final _eatingInstruments = _objectsWithText(_toolObjects, [
   'fork',
   'forks',
@@ -480,6 +492,7 @@ List<NounPhrase> _objectsWithText(
 }
 
 final _deviceObjects = _uniqueByText([
+  fixed_object.programNoun,
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
 ]);
@@ -504,6 +517,7 @@ final _moneyObjects = _uniqueByText([
   ...object_categories.pluralMoneyObjects,
 ]);
 final _clothingObjects = _uniqueByText([
+  fixed_object.clothes,
   ...object_categories.singularClothingObjects,
   ...object_categories.pluralClothingObjects,
 ]);
@@ -527,8 +541,13 @@ final _drivableObjects = _uniqueByText([
 final _rideableObjects = _uniqueByText([
   ...object_categories.singularRideableObjects,
   ...object_categories.pluralRideableObjects,
+  animal_data.horse.toNounPhrase(Number.singular),
+  animal_data.horse.toNounPhrase(Number.plural),
 ]);
 final _travelObjects = _uniqueByText([
+  fixed_object.room,
+  object_data.table.toNounPhrase(Number.singular),
+  object_data.table.toNounPhrase(Number.plural),
   ..._moneyObjects,
   ..._openableObjects,
   ...object_categories.singularVehicleObjects,
@@ -549,6 +568,11 @@ final _saleObjects = _uniqueByText([
   object_data.apartment.toNounPhrase(Number.plural),
 ]);
 final _throwCatchObjects = _uniqueByText([
+  object_data.key.toNounPhrase(Number.singular),
+  object_data.key.toNounPhrase(Number.plural),
+  animal_data.fish.toNounPhrase(Number.singular),
+  animal_data.fish.toNounPhrase(Number.plural),
+  fixed_object.stone,
   ...object_categories.singularGameObjects,
   ...object_categories.singularFoodObjects,
 ]);
@@ -674,6 +698,8 @@ final _workTopics = _uniqueByText([
   fixed_object.skating,
 ]);
 final _basicTopics = _uniqueByText([
+  fixed_object.problem,
+  fixed_object.question,
   ..._learnSubjects,
   ..._textObjects,
   ..._peopleAndAnimals,
@@ -734,11 +760,14 @@ final _learningPurposes = _uniqueByText([
 final _movementPurposes = _uniqueByText([
   fixed_object.exerciseNoun,
   fixed_object.healthNoun,
+  fixed_object.training,
   fixed_object.funNoun,
 ]);
 final _trainingPurposes = _uniqueByText([
+  fixed_object.training,
   fixed_object.exerciseNoun,
   fixed_object.healthNoun,
+  object_data.game.toNounPhrase(Number.singular),
   fixed_object.football,
   fixed_object.basketball,
   fixed_object.tennis,
@@ -951,7 +980,7 @@ PredicateUnlocks _destinationWithCompanion(
     verb: verb,
     paths: [
       PredicatePath.toDestination(_people),
-      if (verb.takesCompanion) PredicatePath.withCompanion(_people),
+      PredicatePath.withCompanion(_people),
       _fromLocations(_homeSchoolWorkPlaces),
       ...paths,
     ],
@@ -1105,7 +1134,7 @@ List<PredicatePath> _workContexts() {
 List<PredicatePath> _sportContexts() {
   return [
     _atLocations(_everydayPlaces),
-    _manners(_performanceManners),
+    _manners([..._performanceManners, manner_data.quicklyMannerPhrase]),
     _times(_todayTimes),
   ];
 }
@@ -1266,6 +1295,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.directObject(_learnSubjects),
       PredicatePath.directObject(_beginObjects),
       PredicatePath.toRightAction(_rightActionBegins),
+      PredicatePath.withTopic(_genericObjects),
       PredicatePath.withCompanion(_people),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
@@ -1515,6 +1545,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _sources(),
+      _atLocations([place_data.atShopPlacePhrase]),
       _inLocations([place_data.shopPlacePhrase]),
       _times(_todayTimes),
     ],
@@ -1525,6 +1556,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.directObject(_saleObjects),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
+      _atLocations([place_data.atShopPlacePhrase]),
       _inLocations([place_data.shopPlacePhrase]),
       _times(_todayTimes),
     ],
@@ -1711,7 +1743,9 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: answer,
     paths: [
-      PredicatePath.directObject(_textObjects),
+      PredicatePath.directObject(
+        _uniqueByText([fixed_object.question, ..._textObjects]),
+      ),
       PredicatePath.toAddressee(_people),
       _manners(_speechManners),
     ],
@@ -1751,7 +1785,9 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: explain,
     paths: [
-      PredicatePath.directObject(_learnSubjects),
+      PredicatePath.directObject(
+        _uniqueByText([fixed_object.problem, ..._learnSubjects]),
+      ),
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toAddressee(_people),
       ..._speechContexts(),
@@ -1863,22 +1899,35 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     education_data.spell,
-    _textObjects,
+    _uniqueByText([fixed_object.word, ..._textObjects]),
     paths: _studySurfaceContexts(),
   ),
   _directWithPaths(
     education_data.count,
-    _uniqueByText([..._learnSubjects, ..._gameObjects]),
+    _uniqueByText([
+      fixed_object.numbers,
+      fixed_object.points,
+      ..._learnSubjects,
+      ..._gameObjects,
+    ]),
     paths: _studySurfaceContexts(),
   ),
   _directWithPaths(
     education_data.calculate,
-    _learnSubjects,
+    _uniqueByText([
+      fixed_object.numbers,
+      fixed_object.problem,
+      ..._learnSubjects,
+    ]),
     paths: _studySurfaceContexts(),
   ),
   _directWithPaths(
     education_data.solve,
-    _learnSubjects,
+    _uniqueByText([
+      fixed_object.problem,
+      fixed_object.question,
+      ..._learnSubjects,
+    ]),
     paths: _studySurfaceContexts(),
   ),
   _directWithPaths(
@@ -1913,7 +1962,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     education_data.repeat,
-    _learnSubjects,
+    _uniqueByText([fixed_object.word, ..._learnSubjects]),
     paths: _studySurfaceContexts(),
   ),
   _directWithPaths(
@@ -2101,7 +2150,7 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     travel_data.visit,
     _peopleAndAnimals,
-    paths: _travelContexts(),
+    paths: [PredicatePath.withCompanion(_people), ..._travelContexts()],
   ),
   PredicateUnlocks(
     verb: travel_data.depart,
@@ -2115,8 +2164,13 @@ final guidedPredicateUnlocks = [
   _destinationWithCompanion(travel_data.returnVerb, paths: _travelContexts()),
   _directWithPaths(
     travel_data.explore,
-    _uniqueByText([..._everydayObjects, ..._peopleAndAnimals]),
-    paths: _travelContexts(),
+    _uniqueByText([
+      fixed_object.placeNoun,
+      fixed_object.city,
+      ..._everydayObjects,
+      ..._peopleAndAnimals,
+    ]),
+    paths: [PredicatePath.withCompanion(_people), ..._travelContexts()],
   ),
   _directWithPaths(
     travel_data.book,
@@ -2126,12 +2180,12 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     travel_data.pack,
     _uniqueByText([..._openableObjects, ..._clothingObjects, ..._toolObjects]),
-    paths: _travelContexts(),
+    paths: [PredicatePath.withCompanion(_people), ..._travelContexts()],
   ),
   _directWithPaths(
     travel_data.unpack,
     _uniqueByText([..._openableObjects, ..._clothingObjects, ..._toolObjects]),
-    paths: _travelContexts(),
+    paths: [PredicatePath.withCompanion(_people), ..._travelContexts()],
   ),
   _directWithPaths(
     travel_data.board,
@@ -2139,11 +2193,15 @@ final guidedPredicateUnlocks = [
     paths: _travelContexts(),
   ),
   PredicateUnlocks(verb: travel_data.land, paths: _travelContexts()),
-  _directWithPaths(travel_data.rent, _travelObjects, paths: _travelContexts()),
+  _directWithPaths(
+    travel_data.rent,
+    _travelObjects,
+    paths: [_sources(), ..._travelContexts()],
+  ),
   _directWithPaths(
     travel_data.reserve,
     _travelObjects,
-    paths: _travelContexts(),
+    paths: [_sources(), ..._travelContexts()],
   ),
   PredicateUnlocks(
     verb: travel_data.navigate,
@@ -2175,6 +2233,7 @@ final guidedPredicateUnlocks = [
       _atLocations(_everydayPlaces),
       _fromLocations(_everydayPlaces),
       _manners(_movementManners),
+      _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(verb: travel_data.stay, paths: _travelContexts()),
@@ -2271,7 +2330,14 @@ final guidedPredicateUnlocks = [
   _directWithPaths(cooking_data.melt, _foodObjects, paths: _cookingContexts()),
   _directWithPaths(
     cooking_data.wash,
-    _uniqueByText([..._foodObjects, ..._openableObjects]),
+    _uniqueByText([
+      object_data.cup.toNounPhrase(Number.singular),
+      object_data.cup.toNounPhrase(Number.plural),
+      object_data.plate.toNounPhrase(Number.singular),
+      object_data.plate.toNounPhrase(Number.plural),
+      ..._foodObjects,
+      ..._openableObjects,
+    ]),
     paths: _cookingContexts(),
   ),
   PredicateUnlocks(
@@ -2284,9 +2350,17 @@ final guidedPredicateUnlocks = [
   ),
   PredicateUnlocks(
     verb: sport_data.score,
-    paths: [_purposes(_trainingPurposes), ..._sportContexts()],
+    paths: [
+      PredicatePath.directObject([fixed_object.point, fixed_object.goal]),
+      _purposes(_trainingPurposes),
+      ..._sportContexts(),
+    ],
   ),
-  _directWithPaths(sport_data.win, _gameObjects, paths: _sportContexts()),
+  _directWithPaths(
+    sport_data.win,
+    _uniqueByText([..._gameObjects, ..._playActivities]),
+    paths: _sportContexts(),
+  ),
   PredicateUnlocks(
     verb: sport_data.compete,
     paths: [
@@ -2367,6 +2441,7 @@ final guidedPredicateUnlocks = [
   _directWithPaths(
     work_data.clean,
     _uniqueByText([
+      fixed_object.room,
       ..._deviceObjects,
       ...object_categories.singularFurnitureObjects,
       ..._openableObjects,
@@ -2397,7 +2472,7 @@ final guidedPredicateUnlocks = [
   _directWithPaths(work_data.earn, _moneyObjects, paths: _workContexts()),
   _directWithPaths(
     sport_data.lift,
-    _uniqueByText([..._gameObjects, ..._toolObjects]),
+    _uniqueByText([fixed_object.weight, ..._gameObjects, ..._toolObjects]),
     paths: _sportContexts(),
   ),
   _directWithPaths(

@@ -42,6 +42,7 @@ const swim = Verb(
   pastParticiple: 'swum',
   ingForm: 'swimming',
   usesDestinationPlace: true,
+  takesCompanion: true,
   takesPurpose: true,
   translations: {Language.pl: 'pływać'},
 );
@@ -53,6 +54,7 @@ const fly = Verb(
   pastParticiple: 'flown',
   ingForm: 'flying',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'latać'},
 );
 
@@ -118,6 +120,7 @@ const sail = Verb(
   pastParticiple: 'sailed',
   ingForm: 'sailing',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'żeglować'},
 );
 
@@ -128,6 +131,7 @@ const skate = Verb(
   pastParticiple: 'skated',
   ingForm: 'skating',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'jeździć na łyżwach'},
 );
 
@@ -138,6 +142,7 @@ const ski = Verb(
   pastParticiple: 'skied',
   ingForm: 'skiing',
   usesDestinationPlace: true,
+  takesCompanion: true,
   translations: {Language.pl: 'jeździć na nartach'},
 );
 

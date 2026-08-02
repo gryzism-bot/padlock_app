@@ -366,3 +366,122 @@ const skating = NounPhrase(
   number: Number.singular,
   translations: {Language.pl: 'jazda na lyzwach'},
 );
+
+const film = NounPhrase(
+  text: 'film',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'film'},
+);
+
+const numbers = NounPhrase(
+  text: 'numbers',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'liczby'},
+);
+
+const point = NounPhrase(
+  text: 'point',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'punkt'},
+);
+
+const points = NounPhrase(
+  text: 'points',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'punkty'},
+);
+
+const goal = NounPhrase(
+  text: 'goal',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'gol'},
+);
+
+const training = NounPhrase(
+  text: 'training',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'trening'},
+);
+
+const vegetables = NounPhrase(
+  text: 'vegetables',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'warzywa'},
+);
+
+const butter = NounPhrase(
+  text: 'butter',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'maslo'},
+);
+
+const placeNoun = NounPhrase(
+  text: 'place',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'miejsce'},
+);
+
+const city = NounPhrase(
+  text: 'city',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'miasto'},
+);
+
+const room = NounPhrase(
+  text: 'room',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'pokoj'},
+);
+
+const programNoun = NounPhrase(
+  text: 'program',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'program'},
+);
+
+const toolNoun = NounPhrase(
+  text: 'tool',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'narzedzie'},
+);
+
+const tools = NounPhrase(
+  text: 'tools',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'narzedzia'},
+);
+
+const weight = NounPhrase(
+  text: 'weight',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'ciezar'},
+);
+
+const stone = NounPhrase(
+  text: 'stone',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'kamien'},
+);
+
+const clothes = NounPhrase(
+  text: 'clothes',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'ubrania'},
+);

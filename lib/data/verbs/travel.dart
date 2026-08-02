@@ -19,6 +19,7 @@ const visit = Verb(
   pastParticiple: 'visited',
   ingForm: 'visiting',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'odwiedzać'},
 );
 
@@ -72,6 +73,7 @@ const explore = Verb(
   pastParticiple: 'explored',
   ingForm: 'exploring',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'odkrywać'},
 );
 
@@ -93,6 +95,7 @@ const pack = Verb(
   pastParticiple: 'packed',
   ingForm: 'packing',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'pakować'},
 );
 
@@ -103,6 +106,7 @@ const unpack = Verb(
   pastParticiple: 'unpacked',
   ingForm: 'unpacking',
   takesObject: true,
+  takesCompanion: true,
   translations: {Language.pl: 'rozpakowywać'},
 );
 
@@ -132,6 +136,7 @@ const rent = Verb(
   pastParticiple: 'rented',
   ingForm: 'renting',
   takesObject: true,
+  takesSource: true,
   translations: {Language.pl: 'wynajmować'},
 );
 
@@ -142,6 +147,7 @@ const reserve = Verb(
   pastParticiple: 'reserved',
   ingForm: 'reserving',
   takesObject: true,
+  takesSource: true,
   translations: {Language.pl: 'rezerwować'},
 );
 

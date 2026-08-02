@@ -65,6 +65,7 @@ void main() {
         'restaurant',
         'hospital',
         'shop',
+        'shop',
         'bridge',
         'table',
         'bed',
@@ -213,7 +214,7 @@ void main() {
         var state = ConfigurationState.initial();
         state = const ConfigurationEngine().applyMove(
           state,
-          const SetAction(introduce),
+          const SetAction(want),
         );
 
         final labels = compass

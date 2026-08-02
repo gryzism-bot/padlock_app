@@ -1,3 +1,4 @@
+import 'package:padlock_app/data/subjects/third_person/animals.dart' as animals;
 import 'package:padlock_app/data/subjects/third_person/objects.dart' as objects;
 import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -63,6 +64,7 @@ const toolObjectNouns = [
   objects.hammer,
   objects.scissors,
   objects.tablet,
+  objects.tool,
 ];
 
 const deviceObjectNouns = [
@@ -103,7 +105,12 @@ const vehicleObjectNouns = [
 
 const drivableObjectNouns = [objects.car, objects.bus, objects.train];
 
-const rideableObjectNouns = [objects.bicycle, objects.bus, objects.train];
+const rideableObjectNouns = [
+  objects.bicycle,
+  objects.bus,
+  objects.train,
+  animals.horse,
+];
 
 const mediaObjectNouns = [
   objects.television,
@@ -112,6 +119,7 @@ const mediaObjectNouns = [
   objects.magazine,
   objects.story,
   objects.movie,
+  objects.film,
   objects.song,
   objects.photo,
   objects.painting,

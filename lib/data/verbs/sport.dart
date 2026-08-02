@@ -77,6 +77,7 @@ const score = Verb(
   pastSimple: 'scored',
   pastParticiple: 'scored',
   ingForm: 'scoring',
+  takesObject: true,
   takesPurpose: true,
   translations: {Language.pl: 'zdobywać punkt'},
 );

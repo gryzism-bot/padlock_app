@@ -103,6 +103,7 @@ const begin = Verb(
   ingForm: 'beginning',
   takesObject: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'zaczynać'},
 );
 

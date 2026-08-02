@@ -217,6 +217,18 @@ const shopPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'sklep'},
 );
 
+const atShopPlacePhrase = PlacePhrase(
+  noun: 'shop',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'sklep'},
+);
+
 const bridgePlacePhrase = PlacePhrase(
   noun: 'bridge',
   takesArticle: true,
@@ -280,6 +292,7 @@ List<PlacePhrase> placePhrases = [
   restaurantPlacePhrase,
   hospitalPlacePhrase,
   shopPlacePhrase,
+  atShopPlacePhrase,
   bridgePlacePhrase,
   tablePlacePhrase,
   bedPlacePhrase,

@@ -806,12 +806,12 @@ void main() {
     await selectVerb(tester, 'buy');
 
     expect(renderedSentence(tester), 'You buy.');
-    expect(find.text('In location:'), findsOneWidget);
-    expectRailSurfaceMarker(tester, 'In location', 'in');
-    await expandRail(tester, 'In location');
-    await tapAfterScroll(tester, find.byTooltip('You buy in the shop.'));
+    expect(find.text('Location:'), findsOneWidget);
+    expectRailSurfaceMarker(tester, 'Location', 'at/in');
+    await expandRail(tester, 'Location');
+    await tapAfterScroll(tester, find.byTooltip('You buy at the shop.'));
 
-    expect(renderedSentence(tester), 'You buy in the shop.');
+    expect(renderedSentence(tester), 'You buy at the shop.');
 
     await tapAfterScroll(tester, find.byTooltip('Reset'));
     await selectVerb(tester, 'sleep');
