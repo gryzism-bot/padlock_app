@@ -10,7 +10,8 @@ import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
 import 'package:padlock_app/data/subjects/object_pronouns.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/geography.dart';
-import 'package:padlock_app/data/subjects/third_person/objects.dart';
+import 'package:padlock_app/data/subjects/third_person/objects.dart'
+    hide answer, city, film, lesson, plan, problem, question, skill;
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;

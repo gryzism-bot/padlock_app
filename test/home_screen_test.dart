@@ -882,53 +882,48 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
       await tapVisible(tester, find.text('Word'));
-      await filterRail(tester, 'Verb', 'introduce');
       await selectVerb(tester, 'introduce');
+
       await expandRail(tester, 'Addressee');
-      await filterRail(tester, 'Addressee', 'teacher');
       await tapAfterScroll(
         tester,
-        find.byKey(const Key('suggestion-label-addressee-teacher')),
+        find.byKey(const Key('suggestion-label-addressee-cat')),
       );
-      expect(renderedSentence(tester), 'You introduce to teacher.');
+      expect(renderedSentence(tester), 'You introduce to cat.');
 
       await expandRail(tester, 'Addressee determiner');
       await tapAfterScroll(tester, find.text('a', findRichText: true));
-      expect(renderedSentence(tester), 'You introduce to a teacher.');
+      expect(renderedSentence(tester), 'You introduce to a cat.');
 
       await expandRail(tester, 'Object');
-      await filterRail(tester, 'Object', 'dog');
-      await tapAfterScroll(tester, find.text('dog', findRichText: true));
-      expect(renderedSentence(tester), 'You introduce dog to a teacher.');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-object-dog')),
+      );
+      expect(renderedSentence(tester), 'You introduce dog to a cat.');
 
       await tapAfterScroll(tester, find.text('passive'));
-      expect(
-        renderedSentence(tester),
-        'Dog is introduced to a teacher by you.',
-      );
+      expect(renderedSentence(tester), 'Dog is introduced to a cat by you.');
 
       await tapAfterScroll(
         tester,
         find.text('hide by-agent', findRichText: true),
       );
-      expect(renderedSentence(tester), 'Dog is introduced to a teacher.');
+      expect(renderedSentence(tester), 'Dog is introduced to a cat.');
       expect(find.text('By-agent:'), findsOneWidget);
 
       await tapAfterScroll(tester, find.text('future'));
-      expect(renderedSentence(tester), 'Dog will be introduced to a teacher.');
+      expect(renderedSentence(tester), 'Dog will be introduced to a cat.');
       expect(find.text('By-agent:'), findsOneWidget);
 
       await tapAfterScroll(
         tester,
         find.text('no determiner', findRichText: true),
       );
-      expect(renderedSentence(tester), 'Dog will be introduced to teacher.');
+      expect(renderedSentence(tester), 'Dog will be introduced to cat.');
 
       await tapAfterScroll(tester, find.text('this', findRichText: true));
-      expect(
-        renderedSentence(tester),
-        'Dog will be introduced to this teacher.',
-      );
+      expect(renderedSentence(tester), 'Dog will be introduced to this cat.');
       expect(find.text('By-agent:'), findsOneWidget);
 
       await filterRail(tester, 'Verb', 'see');

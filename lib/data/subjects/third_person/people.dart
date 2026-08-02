@@ -347,6 +347,76 @@ const guest = Noun(
   pluralTranslations: {Language.pl: 'goscie'},
 );
 
+const client = Noun(
+  singular: 'client',
+  plural: 'clients',
+  singularTranslations: {Language.pl: 'klient'},
+  pluralTranslations: {Language.pl: 'klienci'},
+);
+
+const teammate = Noun(
+  singular: 'teammate',
+  plural: 'teammates',
+  singularTranslations: {Language.pl: 'kolega z druzyny'},
+  pluralTranslations: {Language.pl: 'koledzy z druzyny'},
+);
+
+const coach = Noun(
+  singular: 'coach',
+  plural: 'coaches',
+  singularTranslations: {Language.pl: 'trener'},
+  pluralTranslations: {Language.pl: 'trenerzy'},
+);
+
+const player = Noun(
+  singular: 'player',
+  plural: 'players',
+  singularTranslations: {Language.pl: 'gracz'},
+  pluralTranslations: {Language.pl: 'gracze'},
+);
+
+const singer = Noun(
+  singular: 'singer',
+  plural: 'singers',
+  singularTranslations: {Language.pl: 'piosenkarz'},
+  pluralTranslations: {Language.pl: 'piosenkarze'},
+);
+
+const actor = Noun(
+  singular: 'actor',
+  plural: 'actors',
+  singularTranslations: {Language.pl: 'aktor'},
+  pluralTranslations: {Language.pl: 'aktorzy'},
+);
+
+const director = Noun(
+  singular: 'director',
+  plural: 'directors',
+  singularTranslations: {Language.pl: 'rezyser'},
+  pluralTranslations: {Language.pl: 'rezyserzy'},
+);
+
+const tourist = Noun(
+  singular: 'tourist',
+  plural: 'tourists',
+  singularTranslations: {Language.pl: 'turysta'},
+  pluralTranslations: {Language.pl: 'turysci'},
+);
+
+const passenger = Noun(
+  singular: 'passenger',
+  plural: 'passengers',
+  singularTranslations: {Language.pl: 'pasazer'},
+  pluralTranslations: {Language.pl: 'pasazerowie'},
+);
+
+const guide = Noun(
+  singular: 'guide',
+  plural: 'guides',
+  singularTranslations: {Language.pl: 'przewodnik'},
+  pluralTranslations: {Language.pl: 'przewodnicy'},
+);
+
 const someone = NounPhrase(
   text: 'someone',
   person: Person.third,
@@ -425,6 +495,16 @@ const peopleNouns = [
   dentist,
   guard,
   guest,
+  client,
+  teammate,
+  coach,
+  player,
+  singer,
+  actor,
+  director,
+  tourist,
+  passenger,
+  guide,
 ];
 
 const indefinitePeople = [someone, anyone, nobody, everyone];

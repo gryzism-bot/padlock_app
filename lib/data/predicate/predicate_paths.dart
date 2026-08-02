@@ -546,6 +546,8 @@ final _rideableObjects = _uniqueByText([
 ]);
 final _travelObjects = _uniqueByText([
   fixed_object.room,
+  ...object_categories.singularPlaceObjects,
+  ...object_categories.pluralPlaceObjects,
   object_data.table.toNounPhrase(Number.singular),
   object_data.table.toNounPhrase(Number.plural),
   ..._moneyObjects,
@@ -588,6 +590,8 @@ final _findableObjects = _uniqueByText([
   ...object_categories.singularTextObjects,
   ...object_categories.singularToolObjects,
   ...object_categories.singularMoneyObjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.singularPlaceObjects,
   fixed_object.money,
   ..._peopleAndAnimals,
 ]);
@@ -629,6 +633,10 @@ final _makeObjects = _uniqueByText([
   ..._genericObjects,
   ...object_categories.singularFoodObjects,
   ...object_categories.pluralFoodObjects,
+  object_data.plan.toNounPhrase(Number.singular),
+  object_data.plan.toNounPhrase(Number.plural),
+  object_data.project.toNounPhrase(Number.singular),
+  object_data.project.toNounPhrase(Number.plural),
   object_data.gift.toNounPhrase(Number.singular),
   object_data.gift.toNounPhrase(Number.plural),
   object_data.game.toNounPhrase(Number.singular),
@@ -653,6 +661,10 @@ final _makeObjects = _uniqueByText([
 final _takeObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.money,
+  object_data.cable.toNounPhrase(Number.singular),
+  object_data.cable.toNounPhrase(Number.plural),
+  object_data.charger.toNounPhrase(Number.singular),
+  object_data.charger.toNounPhrase(Number.plural),
   object_data.book.toNounPhrase(Number.singular),
   object_data.book.toNounPhrase(Number.plural),
   object_data.phone.toNounPhrase(Number.singular),
@@ -665,6 +677,12 @@ final _takeObjects = _uniqueByText([
   object_data.bag.toNounPhrase(Number.plural),
   object_data.gift.toNounPhrase(Number.singular),
   object_data.gift.toNounPhrase(Number.plural),
+  object_data.notebook.toNounPhrase(Number.singular),
+  object_data.notebook.toNounPhrase(Number.plural),
+  object_data.road.toNounPhrase(Number.singular),
+  object_data.road.toNounPhrase(Number.plural),
+  object_data.ticket.toNounPhrase(Number.singular),
+  object_data.ticket.toNounPhrase(Number.plural),
 ]);
 final _bringObjects = _uniqueByText([
   ..._takeObjects,
@@ -686,9 +704,19 @@ final _learnSubjects = [
   fixed_object.math,
   fixed_object.history,
   fixed_object.science,
+  object_data.language.toNounPhrase(Number.singular),
+  object_data.language.toNounPhrase(Number.plural),
+  object_data.skill.toNounPhrase(Number.singular),
+  object_data.skill.toNounPhrase(Number.plural),
+  object_data.lesson.toNounPhrase(Number.singular),
+  object_data.lesson.toNounPhrase(Number.plural),
 ];
 final _workTopics = _uniqueByText([
   ..._learnSubjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
+  ...object_categories.singularToolObjects,
+  ...object_categories.pluralToolObjects,
   ...object_categories.singularVehicleObjects,
   ...object_categories.pluralVehicleObjects,
   fixed_object.physique,
@@ -701,6 +729,8 @@ final _basicTopics = _uniqueByText([
   fixed_object.problem,
   fixed_object.question,
   ..._learnSubjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
   ..._textObjects,
   ..._peopleAndAnimals,
   ...object_categories.singularMediaObjects,
@@ -710,6 +740,8 @@ final _basicTopics = _uniqueByText([
 ]);
 final _analysisObjects = _uniqueByText([
   ..._genericObjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
   fixed_object.dataNoun,
   fixed_object.problem,
   fixed_object.question,
@@ -729,6 +761,8 @@ final _helpTopics = _uniqueByText([
   fixed_object.grammar,
   fixed_object.english,
   fixed_object.science,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
 ]);
 final _basicBeneficiaries = _uniqueByText([..._people]);
 final _basicPurposes = _uniqueByText([
@@ -742,6 +776,10 @@ final _basicPurposes = _uniqueByText([
   fixed_object.grammar,
   fixed_object.skill,
   fixed_object.skills,
+  object_data.lesson.toNounPhrase(Number.singular),
+  object_data.lesson.toNounPhrase(Number.plural),
+  object_data.project.toNounPhrase(Number.singular),
+  object_data.project.toNounPhrase(Number.plural),
 ]);
 final _makePurposes = _uniqueByText([
   fixed_object.workNoun,
@@ -792,6 +830,10 @@ final _practiceObjects = _uniqueByText([
   ..._learnSubjects,
   ..._playActivities,
   fixed_object.karate,
+  object_data.lesson.toNounPhrase(Number.singular),
+  object_data.lesson.toNounPhrase(Number.plural),
+  object_data.skill.toNounPhrase(Number.singular),
+  object_data.skill.toNounPhrase(Number.plural),
   ..._musicObjects,
 ]);
 final _doObjects = _uniqueByText([
@@ -895,6 +937,9 @@ final _surfacePlaces = [
   place_data.tablePlacePhrase,
   place_data.bedPlacePhrase,
   place_data.bridgePlacePhrase,
+  place_data.roadPlacePhrase,
+  place_data.streetPlacePhrase,
+  place_data.beachPlacePhrase,
 ];
 final _everydayPlaces = _uniquePlacesByText([
   place_data.homePlacePhrase,
@@ -906,6 +951,17 @@ final _everydayPlaces = _uniquePlacesByText([
   place_data.restaurantPlacePhrase,
   place_data.hospitalPlacePhrase,
   place_data.roomPlacePhrase,
+  place_data.cityPlacePhrase,
+  place_data.roadPlacePhrase,
+  place_data.streetPlacePhrase,
+  place_data.stationPlacePhrase,
+  place_data.airportPlacePhrase,
+  place_data.hotelPlacePhrase,
+  place_data.beachPlacePhrase,
+  place_data.forestPlacePhrase,
+  place_data.libraryPlacePhrase,
+  place_data.cinemaPlacePhrase,
+  place_data.cafePlacePhrase,
 ]);
 final _basicTimes = [
   time_data.todayTimePhrase,
@@ -1174,6 +1230,7 @@ List<PredicatePath> _movementContexts() {
   return [
     _atLocations(_everydayPlaces),
     _inLocations(_everydayPlaces),
+    _onLocations(_surfacePlaces),
     _manners(_movementManners),
     _times(_todayTimes),
   ];

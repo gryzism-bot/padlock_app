@@ -83,15 +83,21 @@ void main() {
         limit: 0,
       );
 
-      expect(initialSuggestions.map((suggestion) => suggestion.label), [
-        'English',
-        'Polish',
-        'Spanish',
-        'grammar',
-        'history',
-        'math',
-        'science',
-      ]);
+      expect(
+        initialSuggestions.map((suggestion) => suggestion.label),
+        containsAll([
+          'English',
+          'Polish',
+          'Spanish',
+          'grammar',
+          'history',
+          'math',
+          'science',
+          'language',
+          'skill',
+          'lesson',
+        ]),
+      );
 
       final englishSuggestion = initialSuggestions.singleWhere(
         (suggestion) => suggestion.label == 'English',

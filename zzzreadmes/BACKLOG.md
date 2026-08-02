@@ -101,7 +101,7 @@ Best low-effort / high-value moves for the developer cockpit:
      wakes naturally
    - this closed the biggest current slice of "fly territory": the app feels
      intentional instead of random without touching Grammar Engine
-9. Current best value: first staged vocabulary saturation batch.
+9. Done: first and second staged vocabulary saturation batches.
    - recent performance work makes this much less risky:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -131,8 +131,21 @@ Best low-effort / high-value moves for the developer cockpit:
        - people+animal routes grew from 163 to 195 choices
        - text object routes grew from 16 to 30 choices
        - broad topic routes grew from 214 to 262 choices
+   - second slice completed:
+     - people: added client, teammate, coach, player, singer, actor,
+       director, tourist, passenger, and guide
+     - objects: added charger, cable, notebook, ruler, video, episode,
+       series, scene, script, pasta, fruit, vegetable, sugar, salt, oil,
+       city, road, street, station, airport, hotel, beach, forest, river,
+       lake, idea, project, plan, problem, question, answer, lesson,
+       language, and skill
+     - routes: widened learn/study/teach subject shelves, text/media/tool/
+       food shelves, work topics, help/analyze/find topics, travel objects,
+       everyday authored places, and movement `[on]` surfaces
+     - guardrails: added PredicatePaths tests for the second batch and kept
+       both route audits green
    - saturate in layers, checking move-trace timing after each:
-     - people, animals, pronoun-like nouns
+     - more pronoun-like nouns and semantically negative nouns
      - everyday objects and food/tool/openable/text shelves
      - adjectives and simple adverbs
      - verb-owned PredicatePath vocabulary

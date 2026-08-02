@@ -30,6 +30,31 @@ const _modifierFriendlyFixedObjectFrames = {
   'openable',
 };
 
+final _subjectObjectChoices = [
+  english,
+  polish,
+  spanish,
+  grammar,
+  math,
+  history,
+  science,
+  ..._nounForms(
+    object_categories.abstractObjectNouns.firstWhere(
+      (noun) => noun.singular == 'language',
+    ),
+  ),
+  ..._nounForms(
+    object_categories.abstractObjectNouns.firstWhere(
+      (noun) => noun.singular == 'skill',
+    ),
+  ),
+  ..._nounForms(
+    object_categories.abstractObjectNouns.firstWhere(
+      (noun) => noun.singular == 'lesson',
+    ),
+  ),
+];
+
 final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   'play': [
     football,
@@ -41,9 +66,9 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
     for (final noun in object_categories.musicObjectNouns) ..._nounForms(noun),
     for (final noun in object_categories.gameObjectNouns) ..._nounForms(noun),
   ],
-  'learn': [english, polish, spanish, grammar, math, history, science],
-  'study': [english, polish, spanish, grammar, math, history, science],
-  'teach': [english, polish, spanish, grammar, math, history, science],
+  'learn': _subjectObjectChoices,
+  'study': _subjectObjectChoices,
+  'teach': _subjectObjectChoices,
   'speak': [english, polish, spanish],
   'read': [
     for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),

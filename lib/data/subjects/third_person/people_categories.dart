@@ -32,6 +32,7 @@ const schoolPersonNouns = [people.teacher, people.student, people.classmate];
 const workPersonNouns = [
   people.boss,
   people.colleague,
+  people.client,
   people.customer,
   people.manager,
   people.worker,
@@ -46,7 +47,10 @@ const workPersonNouns = [
 
 const creativePersonNouns = [
   people.musician,
+  people.singer,
   people.artist,
+  people.actor,
+  people.director,
   people.writer,
   people.cook,
   people.baker,
@@ -56,6 +60,9 @@ const socialPersonNouns = [
   people.friend,
   people.enemy,
   people.neighbour,
+  people.teammate,
+  people.coach,
+  people.player,
   people.person,
   people.guest,
 ];
@@ -66,6 +73,9 @@ const publicPersonNouns = [
   people.farmer,
   people.waiter,
   people.dentist,
+  people.tourist,
+  people.passenger,
+  people.guide,
 ];
 
 List<NounPhrase> _singular(List<Noun> nouns) {

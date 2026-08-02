@@ -46,31 +46,14 @@ void main() {
         PhraseSurfaceFamily.place,
       );
 
-      expect(places.map((classification) => classification.label), [
-        'home',
-        'work',
-        'school',
-        'university',
-        'Poland',
-        'Europe',
-        'office',
-        'park',
-        'garden',
-        'kitchen',
-        'bathroom',
-        'bedroom',
-        'living room',
-        'room',
-        'IT',
-        'restaurant',
-        'hospital',
-        'shop',
-        'shop',
-        'bridge',
-        'table',
-        'bed',
-        'bed',
-      ]);
+      expect(
+        places.map((classification) => classification.label),
+        placePhrases.map((phrase) => phrase.noun),
+      );
+      expect(
+        places.map((classification) => classification.label),
+        containsAll(['city', 'road', 'station', 'airport', 'forest']),
+      );
       expect(
         places,
         everyElement(

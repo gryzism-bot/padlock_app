@@ -335,6 +335,11 @@ void main() {
           'milk',
           'pizza',
           'salad',
+          'pasta',
+          'vegetable',
+          'sugar',
+          'salt',
+          'oil',
         ]),
       );
       expect(
@@ -348,6 +353,10 @@ void main() {
           'knife',
           'hammer',
           'tablet',
+          'charger',
+          'cable',
+          'notebook',
+          'ruler',
         ]),
       );
       expect(
@@ -356,7 +365,35 @@ void main() {
       );
       expect(
         object_categories.singularMediaObjects.map((noun) => noun.text),
-        containsAll(['movie', 'song', 'photo', 'painting']),
+        containsAll([
+          'movie',
+          'video',
+          'episode',
+          'series',
+          'scene',
+          'script',
+          'song',
+          'photo',
+          'painting',
+        ]),
+      );
+      expect(
+        object_categories.singularPlaceObjects.map((noun) => noun.text),
+        containsAll(['city', 'road', 'street', 'station', 'airport', 'hotel']),
+      );
+      expect(
+        object_categories.singularAbstractObjects.map((noun) => noun.text),
+        containsAll([
+          'idea',
+          'project',
+          'plan',
+          'problem',
+          'question',
+          'answer',
+          'lesson',
+          'language',
+          'skill',
+        ]),
       );
       expect(
         object_categories.singularVehicleObjects.map((noun) => noun.text),
@@ -373,6 +410,65 @@ void main() {
       expect(
         object_categories.singularRideableObjects.map((noun) => noun.text),
         containsAll(['bicycle', 'bus', 'train']),
+      );
+    });
+
+    test('second vocabulary batch reaches authored predicate routes', () {
+      expect(
+        predicateNounChoicesFor(
+          learn,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['language', 'languages', 'skill', 'skills', 'lesson']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          read,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['script', 'scripts']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          watch,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['video', 'episode', 'series', 'scene']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          use,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['charger', 'cable', 'notebook', 'ruler']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          cooking_data.cook,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['pasta', 'vegetable', 'sugar', 'salt', 'oil']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          work,
+          PredicatePathKind.onTopic,
+        ).map((object) => object.text),
+        containsAll(['project', 'projects', 'tool', 'tools']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          go,
+          PredicatePathKind.placePhrase,
+        ).map((place) => place.noun),
+        containsAll(['station', 'airport', 'hotel', 'city', 'forest']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          run,
+          PredicatePathKind.onLocation,
+        ).map((place) => place.noun),
+        containsAll(['road', 'street', 'beach']),
       );
     });
 
@@ -421,15 +517,21 @@ void main() {
       );
       final labels = suggestions.map((suggestion) => suggestion.label).toList();
 
-      expect(labels, [
-        'English',
-        'Polish',
-        'Spanish',
-        'grammar',
-        'history',
-        'math',
-        'science',
-      ]);
+      expect(
+        labels,
+        containsAll([
+          'English',
+          'Polish',
+          'Spanish',
+          'grammar',
+          'history',
+          'math',
+          'science',
+          'language',
+          'skill',
+          'lesson',
+        ]),
+      );
       expect(labels, isNot(contains('book')));
       expect(
         grammar.generate(suggestions.first.preview.sentenceState).text,
@@ -597,15 +699,25 @@ void main() {
 
         expect(learnObjects, containsAll(['English', 'grammar', 'history']));
         expect(learnObjects, isNot(contains('book')));
-        expect(fixedObjectChoicesFor(learn).map((noun) => noun.text), [
-          'English',
-          'Polish',
-          'Spanish',
-          'grammar',
-          'math',
-          'history',
-          'science',
-        ]);
+        expect(
+          fixedObjectChoicesFor(learn).map((noun) => noun.text),
+          containsAll([
+            'English',
+            'Polish',
+            'Spanish',
+            'grammar',
+            'math',
+            'history',
+            'science',
+            'language',
+            'skill',
+            'lesson',
+          ]),
+        );
+        expect(
+          fixedObjectChoicesFor(learn).map((noun) => noun.text),
+          isNot(contains('book')),
+        );
 
         final learnRightActions = predicateVerbChoicesFor(
           learn,

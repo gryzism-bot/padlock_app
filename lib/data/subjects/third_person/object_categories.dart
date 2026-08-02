@@ -17,6 +17,12 @@ const foodObjectNouns = [
   objects.potato,
   objects.carrot,
   objects.onion,
+  objects.fruit,
+  objects.vegetable,
+  objects.pasta,
+  objects.sugar,
+  objects.salt,
+  objects.oil,
   objects.banana,
   objects.orange,
   objects.rice,
@@ -45,6 +51,7 @@ const textObjectNouns = [
   objects.diary,
   objects.list,
   objects.card,
+  objects.script,
 ];
 
 const toolObjectNouns = [
@@ -65,6 +72,10 @@ const toolObjectNouns = [
   objects.scissors,
   objects.tablet,
   objects.tool,
+  objects.charger,
+  objects.cable,
+  objects.notebook,
+  objects.ruler,
 ];
 
 const deviceObjectNouns = [
@@ -80,6 +91,8 @@ const deviceObjectNouns = [
   objects.camera,
   objects.screen,
   objects.tablet,
+  objects.charger,
+  objects.cable,
 ];
 
 const openableObjectNouns = [
@@ -120,6 +133,11 @@ const mediaObjectNouns = [
   objects.story,
   objects.movie,
   objects.film,
+  objects.video,
+  objects.episode,
+  objects.series,
+  objects.scene,
+  objects.script,
   objects.song,
   objects.photo,
   objects.painting,
@@ -157,6 +175,31 @@ const musicObjectNouns = [
 ];
 
 const gameObjectNouns = [objects.ball, objects.game, objects.toy];
+
+const placeObjectNouns = [
+  objects.city,
+  objects.road,
+  objects.street,
+  objects.station,
+  objects.airport,
+  objects.hotel,
+  objects.beach,
+  objects.forest,
+  objects.river,
+  objects.lake,
+];
+
+const abstractObjectNouns = [
+  objects.idea,
+  objects.project,
+  objects.plan,
+  objects.problem,
+  objects.question,
+  objects.answer,
+  objects.lesson,
+  objects.language,
+  objects.skill,
+];
 
 List<NounPhrase> _singular(List<Noun> nouns) {
   return [for (final noun in nouns) noun.toNounPhrase(Number.singular)];
@@ -207,3 +250,9 @@ final pluralMusicObjects = _plural(musicObjectNouns);
 
 final singularGameObjects = _singular(gameObjectNouns);
 final pluralGameObjects = _plural(gameObjectNouns);
+
+final singularPlaceObjects = _singular(placeObjectNouns);
+final pluralPlaceObjects = _plural(placeObjectNouns);
+
+final singularAbstractObjects = _singular(abstractObjectNouns);
+final pluralAbstractObjects = _plural(abstractObjectNouns);

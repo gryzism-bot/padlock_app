@@ -545,11 +545,13 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.byKey(const Key('suggestion-label-topic-on-physique')),
+      find.byKey(const Key('suggestion-label-topic-on-project')),
       findsOneWidget,
     );
+
+    await filterRail(tester, 'Topic', 'tool');
     expect(
-      find.byKey(const Key('suggestion-label-topic-on-swimming')),
+      find.byKey(const Key('suggestion-label-topic-on-tool')),
       findsOneWidget,
     );
 
@@ -561,11 +563,7 @@ void main() {
       ),
     );
     expect(
-      find.byKey(const Key('suggestion-label-topic-on-cars')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const Key('suggestion-label-topic-on-skills')),
+      find.byKey(const Key('suggestion-label-topic-on-tools')),
       findsOneWidget,
     );
 

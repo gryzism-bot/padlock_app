@@ -273,6 +273,138 @@ const inBedPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'lozko'},
 );
 
+const cityPlacePhrase = PlacePhrase(
+  noun: 'city',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'miasto'},
+);
+
+const roadPlacePhrase = PlacePhrase(
+  noun: 'road',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: on,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'droga'},
+);
+
+const streetPlacePhrase = PlacePhrase(
+  noun: 'street',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: on,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'ulica'},
+);
+
+const stationPlacePhrase = PlacePhrase(
+  noun: 'station',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'stacja'},
+);
+
+const airportPlacePhrase = PlacePhrase(
+  noun: 'airport',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'lotnisko'},
+);
+
+const hotelPlacePhrase = PlacePhrase(
+  noun: 'hotel',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'hotel'},
+);
+
+const beachPlacePhrase = PlacePhrase(
+  noun: 'beach',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: on,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'plaza'},
+);
+
+const forestPlacePhrase = PlacePhrase(
+  noun: 'forest',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'las'},
+);
+
+const libraryPlacePhrase = PlacePhrase(
+  noun: 'library',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'biblioteka'},
+);
+
+const cinemaPlacePhrase = PlacePhrase(
+  noun: 'cinema',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'kino'},
+);
+
+const cafePlacePhrase = PlacePhrase(
+  noun: 'cafe',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'kawiarnia'},
+);
+
 List<PlacePhrase> placePhrases = [
   homePlacePhrase,
   workPlacePhrase,
@@ -297,4 +429,15 @@ List<PlacePhrase> placePhrases = [
   tablePlacePhrase,
   bedPlacePhrase,
   inBedPlacePhrase,
+  cityPlacePhrase,
+  roadPlacePhrase,
+  streetPlacePhrase,
+  stationPlacePhrase,
+  airportPlacePhrase,
+  hotelPlacePhrase,
+  beachPlacePhrase,
+  forestPlacePhrase,
+  libraryPlacePhrase,
+  cinemaPlacePhrase,
+  cafePlacePhrase,
 ];

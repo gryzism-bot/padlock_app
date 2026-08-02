@@ -752,6 +752,244 @@ const tool = Noun(
   pluralTranslations: {Language.pl: 'narzedzia'},
 );
 
+const charger = Noun(
+  singular: 'charger',
+  plural: 'chargers',
+  singularTranslations: {Language.pl: 'ladowarka'},
+  pluralTranslations: {Language.pl: 'ladowarki'},
+);
+
+const cable = Noun(
+  singular: 'cable',
+  plural: 'cables',
+  singularTranslations: {Language.pl: 'kabel'},
+  pluralTranslations: {Language.pl: 'kable'},
+);
+
+const notebook = Noun(
+  singular: 'notebook',
+  plural: 'notebooks',
+  singularTranslations: {Language.pl: 'notatnik'},
+  pluralTranslations: {Language.pl: 'notatniki'},
+);
+
+const ruler = Noun(
+  singular: 'ruler',
+  plural: 'rulers',
+  singularTranslations: {Language.pl: 'linijka'},
+  pluralTranslations: {Language.pl: 'linijki'},
+);
+
+const video = Noun(
+  singular: 'video',
+  plural: 'videos',
+  singularTranslations: {Language.pl: 'wideo'},
+  pluralTranslations: {Language.pl: 'wideo'},
+);
+
+const episode = Noun(
+  singular: 'episode',
+  plural: 'episodes',
+  singularTranslations: {Language.pl: 'odcinek'},
+  pluralTranslations: {Language.pl: 'odcinki'},
+);
+
+const series = Noun(
+  singular: 'series',
+  plural: 'series',
+  singularTranslations: {Language.pl: 'serial'},
+  pluralTranslations: {Language.pl: 'seriale'},
+);
+
+const scene = Noun(
+  singular: 'scene',
+  plural: 'scenes',
+  singularTranslations: {Language.pl: 'scena'},
+  pluralTranslations: {Language.pl: 'sceny'},
+);
+
+const script = Noun(
+  singular: 'script',
+  plural: 'scripts',
+  singularTranslations: {Language.pl: 'scenariusz'},
+  pluralTranslations: {Language.pl: 'scenariusze'},
+);
+
+const fruit = Noun(
+  singular: 'fruit',
+  plural: 'fruits',
+  singularTranslations: {Language.pl: 'owoc'},
+  pluralTranslations: {Language.pl: 'owoce'},
+);
+
+const vegetable = Noun(
+  singular: 'vegetable',
+  plural: 'vegetables',
+  singularTranslations: {Language.pl: 'warzywo'},
+  pluralTranslations: {Language.pl: 'warzywa'},
+);
+
+const pasta = Noun(
+  singular: 'pasta',
+  plural: 'pastas',
+  singularTranslations: {Language.pl: 'makaron'},
+  pluralTranslations: {Language.pl: 'makarony'},
+);
+
+const sugar = Noun(
+  singular: 'sugar',
+  plural: 'sugars',
+  singularTranslations: {Language.pl: 'cukier'},
+  pluralTranslations: {Language.pl: 'cukry'},
+);
+
+const salt = Noun(
+  singular: 'salt',
+  plural: 'salts',
+  singularTranslations: {Language.pl: 'sol'},
+  pluralTranslations: {Language.pl: 'sole'},
+);
+
+const oil = Noun(
+  singular: 'oil',
+  plural: 'oils',
+  singularTranslations: {Language.pl: 'olej'},
+  pluralTranslations: {Language.pl: 'oleje'},
+);
+
+const city = Noun(
+  singular: 'city',
+  plural: 'cities',
+  singularTranslations: {Language.pl: 'miasto'},
+  pluralTranslations: {Language.pl: 'miasta'},
+);
+
+const road = Noun(
+  singular: 'road',
+  plural: 'roads',
+  singularTranslations: {Language.pl: 'droga'},
+  pluralTranslations: {Language.pl: 'drogi'},
+);
+
+const street = Noun(
+  singular: 'street',
+  plural: 'streets',
+  singularTranslations: {Language.pl: 'ulica'},
+  pluralTranslations: {Language.pl: 'ulice'},
+);
+
+const station = Noun(
+  singular: 'station',
+  plural: 'stations',
+  singularTranslations: {Language.pl: 'stacja'},
+  pluralTranslations: {Language.pl: 'stacje'},
+);
+
+const airport = Noun(
+  singular: 'airport',
+  plural: 'airports',
+  singularTranslations: {Language.pl: 'lotnisko'},
+  pluralTranslations: {Language.pl: 'lotniska'},
+);
+
+const hotel = Noun(
+  singular: 'hotel',
+  plural: 'hotels',
+  singularTranslations: {Language.pl: 'hotel'},
+  pluralTranslations: {Language.pl: 'hotele'},
+);
+
+const beach = Noun(
+  singular: 'beach',
+  plural: 'beaches',
+  singularTranslations: {Language.pl: 'plaza'},
+  pluralTranslations: {Language.pl: 'plaze'},
+);
+
+const forest = Noun(
+  singular: 'forest',
+  plural: 'forests',
+  singularTranslations: {Language.pl: 'las'},
+  pluralTranslations: {Language.pl: 'lasy'},
+);
+
+const river = Noun(
+  singular: 'river',
+  plural: 'rivers',
+  singularTranslations: {Language.pl: 'rzeka'},
+  pluralTranslations: {Language.pl: 'rzeki'},
+);
+
+const lake = Noun(
+  singular: 'lake',
+  plural: 'lakes',
+  singularTranslations: {Language.pl: 'jezioro'},
+  pluralTranslations: {Language.pl: 'jeziora'},
+);
+
+const idea = Noun(
+  singular: 'idea',
+  plural: 'ideas',
+  singularTranslations: {Language.pl: 'pomysl'},
+  pluralTranslations: {Language.pl: 'pomysly'},
+);
+
+const project = Noun(
+  singular: 'project',
+  plural: 'projects',
+  singularTranslations: {Language.pl: 'projekt'},
+  pluralTranslations: {Language.pl: 'projekty'},
+);
+
+const plan = Noun(
+  singular: 'plan',
+  plural: 'plans',
+  singularTranslations: {Language.pl: 'plan'},
+  pluralTranslations: {Language.pl: 'plany'},
+);
+
+const problem = Noun(
+  singular: 'problem',
+  plural: 'problems',
+  singularTranslations: {Language.pl: 'problem'},
+  pluralTranslations: {Language.pl: 'problemy'},
+);
+
+const question = Noun(
+  singular: 'question',
+  plural: 'questions',
+  singularTranslations: {Language.pl: 'pytanie'},
+  pluralTranslations: {Language.pl: 'pytania'},
+);
+
+const answer = Noun(
+  singular: 'answer',
+  plural: 'answers',
+  singularTranslations: {Language.pl: 'odpowiedz'},
+  pluralTranslations: {Language.pl: 'odpowiedzi'},
+);
+
+const lesson = Noun(
+  singular: 'lesson',
+  plural: 'lessons',
+  singularTranslations: {Language.pl: 'lekcja'},
+  pluralTranslations: {Language.pl: 'lekcje'},
+);
+
+const language = Noun(
+  singular: 'language',
+  plural: 'languages',
+  singularTranslations: {Language.pl: 'jezyk'},
+  pluralTranslations: {Language.pl: 'jezyki'},
+);
+
+const skill = Noun(
+  singular: 'skill',
+  plural: 'skills',
+  singularTranslations: {Language.pl: 'umiejetnosc'},
+  pluralTranslations: {Language.pl: 'umiejetnosci'},
+);
+
 const objectNouns = [
   house,
   apartment,
@@ -857,6 +1095,40 @@ const objectNouns = [
   scissors,
   tablet,
   tool,
+  charger,
+  cable,
+  notebook,
+  ruler,
+  video,
+  episode,
+  series,
+  scene,
+  script,
+  fruit,
+  vegetable,
+  pasta,
+  sugar,
+  salt,
+  oil,
+  city,
+  road,
+  street,
+  station,
+  airport,
+  hotel,
+  beach,
+  forest,
+  river,
+  lake,
+  idea,
+  project,
+  plan,
+  problem,
+  question,
+  answer,
+  lesson,
+  language,
+  skill,
 ];
 
 const textObjectNouns = [
@@ -875,6 +1147,7 @@ const textObjectNouns = [
   diary,
   list,
   card,
+  script,
 ];
 
 final List<NounPhrase> singularObjects = [
