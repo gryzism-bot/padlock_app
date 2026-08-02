@@ -55,6 +55,43 @@ const _mediumRailMaxHeight = 132.0;
 const _largeRailMaxHeight = 176.0;
 const _verbRailMaxHeight = 216.0;
 
+const _objectTranslationSlots = {
+  ConfigurationCompassSlot.object,
+  ConfigurationCompassSlot.objectComplement,
+  ConfigurationCompassSlot.objectAdjectiveComplement,
+  ConfigurationCompassSlot.complement,
+  ConfigurationCompassSlot.adjectiveComplement,
+  ConfigurationCompassSlot.passiveAgentNoun,
+};
+
+const _personTranslationSlots = {
+  ConfigurationCompassSlot.recipient,
+  ConfigurationCompassSlot.addressee,
+  ConfigurationCompassSlot.companion,
+  ConfigurationCompassSlot.beneficiary,
+  ConfigurationCompassSlot.source,
+};
+
+const _predicateNounTranslationSlots = {
+  ConfigurationCompassSlot.instrument,
+  ConfigurationCompassSlot.destination,
+  ConfigurationCompassSlot.topic,
+  ConfigurationCompassSlot.purpose,
+};
+
+const _locationTranslationSlots = {
+  ConfigurationCompassSlot.placePhrase,
+  ConfigurationCompassSlot.sourcePlace,
+};
+
+const _phraseTranslationSlots = {
+  ConfigurationCompassSlot.timePhrase,
+  ConfigurationCompassSlot.frequencyPhrase,
+  ConfigurationCompassSlot.mannerPhrase,
+};
+
+const _rightActionTranslationSlots = {ConfigurationCompassSlot.rightAction};
+
 const _padlockIntellijDarkColors = ColorScheme.dark(
   primary: Color(0xFF8AADF4),
   onPrimary: Color(0xFF10151F),
@@ -145,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
   PreviewCacheMode? previewCacheMode;
   bool showTranslation = true;
   bool showVerbTranslations = false;
+  Set<ConfigurationCompassSlot> translatedRails = const {};
   bool isDarkMode = true;
   bool diagnosticsCollapsed = false;
   final ValueNotifier<ConfigurationState?> hoveredConfiguration = ValueNotifier(
@@ -296,6 +334,102 @@ class _HomeScreenState extends State<HomeScreen> {
         expandedRails = {...expandedRails, slot};
       }
     });
+  }
+
+  void _toggleRailTranslation(ConfigurationCompassSlot slot) {
+    setState(() {
+      if (translatedRails.contains(slot)) {
+        translatedRails = {...translatedRails}..remove(slot);
+      } else {
+        translatedRails = {...translatedRails, slot};
+      }
+    });
+  }
+
+  String? _translationForSuggestion(
+    ConfigurationCompassSlot slot,
+    ConfigurationSuggestion suggestion,
+  ) {
+    final move = suggestion.move;
+
+    if (slot == ConfigurationCompassSlot.action && move is SetAction) {
+      return translator.translateVerb(move.action);
+    }
+
+    if (_objectTranslationSlots.contains(slot)) {
+      if (move is SetObjectAdjectiveComplement &&
+          move.objectAdjectiveComplement != null) {
+        return translator.translateAdjective(move.objectAdjectiveComplement!);
+      }
+      if (move is SetAdjectiveComplement && move.adjectiveComplement != null) {
+        return translator.translateAdjective(move.adjectiveComplement!);
+      }
+      return _nounTranslationFromMove(move);
+    }
+
+    if (_personTranslationSlots.contains(slot)) {
+      return _nounTranslationFromMove(move);
+    }
+
+    if (_predicateNounTranslationSlots.contains(slot)) {
+      return _nounTranslationFromMove(move);
+    }
+
+    if (_rightActionTranslationSlots.contains(slot) &&
+        move is SetRightAction &&
+        move.rightAction != null) {
+      return translator.translateVerb(move.rightAction!);
+    }
+
+    if (_locationTranslationSlots.contains(slot)) {
+      if (move is SetPlacePhrase && move.placePhrase != null) {
+        return translator.translatePlacePhrase(
+          move.placePhrase!,
+          meaning: move.placeMeaning ?? PlaceMeaning.location,
+        );
+      }
+
+      return null;
+    }
+
+    if (_phraseTranslationSlots.contains(slot)) {
+      return switch (move) {
+        SetTimePhrase(:final timePhrase) when timePhrase != null =>
+          translator.translateTimePhrase(timePhrase),
+        SetFrequencyPhrase(:final frequencyPhrase)
+            when frequencyPhrase != null =>
+          translator.translateFrequencyPhrase(frequencyPhrase),
+        SetMannerPhrase(:final mannerPhrase) when mannerPhrase != null =>
+          translator.translateMannerPhrase(mannerPhrase),
+        _ => null,
+      };
+    }
+
+    return null;
+  }
+
+  String? _nounTranslationFromMove(ConfigurationMove move) {
+    final nounPhrase = switch (move) {
+      SetObject(:final object) => object,
+      SetObjectComplement(:final objectComplement) => objectComplement,
+      SetRecipient(:final recipient) => recipient,
+      SetAddressee(:final addressee) => addressee,
+      SetCompanion(:final companion) => companion,
+      SetInstrument(:final instrument) => instrument,
+      SetDestination(:final destination) => destination,
+      SetTopic(:final topic) => topic,
+      SetBeneficiary(:final beneficiary) => beneficiary,
+      SetSource(:final source) => source,
+      SetPurpose(:final purpose) => purpose,
+      SetComplement(:final complement) => complement,
+      _ => null,
+    };
+
+    if (nounPhrase == null) {
+      return null;
+    }
+
+    return translator.translateNounPhrase(nounPhrase);
   }
 
   void _setHoveredConfiguration(ConfigurationState? preview) {
@@ -523,12 +657,6 @@ class _HomeScreenState extends State<HomeScreen> {
             showTranslation = !showTranslation;
           });
         },
-        showVerbTranslations: showVerbTranslations,
-        onToggleVerbTranslations: () {
-          setState(() {
-            showVerbTranslations = !showVerbTranslations;
-          });
-        },
         isDarkMode: isDarkMode,
         onToggleDarkMode: () {
           setState(() {
@@ -564,6 +692,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           for (final section in lowerSections) ...[
                             _CompassSlotSection(
+                              slot: section.slot,
                               title: section.title,
                               unlockHint: section.unlockHint,
                               surfaceMarker: section.surfaceMarker,
@@ -573,8 +702,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : null,
                               currentSentence: sentenceText,
                               displayMode: displayMode,
-                              showVerbTranslations: showVerbTranslations,
-                              translateVerb: translator.translateVerb,
+                              showSuggestionTranslations: translatedRails
+                                  .contains(section.slot),
+                              onToggleSuggestionTranslations:
+                                  _railTranslationLabel(section.slot) == null
+                                  ? null
+                                  : () => _toggleRailTranslation(section.slot),
+                              translationLabel: _railTranslationLabel(
+                                section.slot,
+                              ),
+                              translateSuggestion: (suggestion) =>
+                                  _translationForSuggestion(
+                                    section.slot,
+                                    suggestion,
+                                  ),
                               suggestions: section.suggestions,
                               nounNumber: _nounNumberForSlot(section.slot),
                               onNounNumberChanged:
@@ -710,6 +851,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const SizedBox(height: 8),
                                       if (verbSection != null)
                                         _CompassSlotSection(
+                                          slot: verbSection.slot,
                                           title: verbSection.title,
                                           unlockHint: verbSection.unlockHint,
                                           surfaceMarker:
@@ -723,10 +865,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                           },
                                           currentSentence: sentenceText,
                                           displayMode: displayMode,
-                                          showVerbTranslations:
+                                          showSuggestionTranslations:
                                               showVerbTranslations,
-                                          translateVerb:
-                                              translator.translateVerb,
+                                          onToggleSuggestionTranslations: () {
+                                            setState(() {
+                                              showVerbTranslations =
+                                                  !showVerbTranslations;
+                                            });
+                                          },
+                                          translationLabel: 'verbs',
+                                          translateSuggestion: (suggestion) =>
+                                              _translationForSuggestion(
+                                                ConfigurationCompassSlot.action,
+                                                suggestion,
+                                              ),
                                           suggestions: verbSection.suggestions,
                                           nounNumber: null,
                                           onNounNumberChanged: null,
@@ -1037,8 +1189,6 @@ class _BottomDock extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
-  final bool showVerbTranslations;
-  final VoidCallback onToggleVerbTranslations;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
@@ -1060,8 +1210,6 @@ class _BottomDock extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
-    required this.showVerbTranslations,
-    required this.onToggleVerbTranslations,
     required this.isDarkMode,
     required this.onToggleDarkMode,
     required this.onReset,
@@ -1114,8 +1262,6 @@ class _BottomDock extends StatelessWidget {
                             onDisplayModeChanged: onDisplayModeChanged,
                             showTranslation: showTranslation,
                             onToggleTranslation: onToggleTranslation,
-                            showVerbTranslations: showVerbTranslations,
-                            onToggleVerbTranslations: onToggleVerbTranslations,
                             isDarkMode: isDarkMode,
                             onToggleDarkMode: onToggleDarkMode,
                             onReset: onReset,
@@ -1214,8 +1360,6 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
-  final bool showVerbTranslations;
-  final VoidCallback onToggleVerbTranslations;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
@@ -1233,8 +1377,6 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
-    required this.showVerbTranslations,
-    required this.onToggleVerbTranslations,
     required this.isDarkMode,
     required this.onToggleDarkMode,
     required this.onReset,
@@ -1289,8 +1431,6 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           onDisplayModeChanged: onDisplayModeChanged,
           showTranslation: showTranslation,
           onToggleTranslation: onToggleTranslation,
-          showVerbTranslations: showVerbTranslations,
-          onToggleVerbTranslations: onToggleVerbTranslations,
           isDarkMode: isDarkMode,
           onToggleDarkMode: onToggleDarkMode,
           onReset: onReset,
@@ -1389,8 +1529,6 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final ValueChanged<SuggestionDisplayMode> onDisplayModeChanged;
   final bool showTranslation;
   final VoidCallback onToggleTranslation;
-  final bool showVerbTranslations;
-  final VoidCallback onToggleVerbTranslations;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
   final VoidCallback onReset;
@@ -1403,8 +1541,6 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.onDisplayModeChanged,
     required this.showTranslation,
     required this.onToggleTranslation,
-    required this.showVerbTranslations,
-    required this.onToggleVerbTranslations,
     required this.isDarkMode,
     required this.onToggleDarkMode,
     required this.onReset,
@@ -1437,20 +1573,6 @@ class _DiagnosticsToolStrip extends StatelessWidget {
             onPressed: onToggleTranslation,
             icon: Icon(showTranslation ? Icons.translate : Icons.g_translate),
           ),
-          const SizedBox(width: 4),
-          IconButton.outlined(
-            tooltip: showVerbTranslations
-                ? 'Hide verb translations'
-                : 'Translate verbs',
-            visualDensity: VisualDensity.compact,
-            onPressed: onToggleVerbTranslations,
-            icon: Icon(
-              showVerbTranslations
-                  ? Icons.subtitles_off_outlined
-                  : Icons.subtitles_outlined,
-            ),
-          ),
-          const SizedBox(width: 4),
           IconButton.outlined(
             tooltip: isDarkMode ? 'Light mode' : 'Dark mode',
             visualDensity: VisualDensity.compact,
@@ -2772,7 +2894,7 @@ class _ModalSuggestionWrap extends StatelessWidget {
             suggestion: suggestion,
             currentSentence: currentSentence,
             displayMode: SuggestionDisplayMode.word,
-            verbTranslation: null,
+            suggestionTranslation: null,
             preview: null,
             onPressed: () => onMove(suggestion.move),
             onPreviewChanged: onPreviewChanged,
@@ -2861,7 +2983,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
-                  verbTranslation: null,
+                  suggestionTranslation: null,
                   preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
@@ -2879,7 +3001,7 @@ class _VoiceSection extends StatelessWidget {
                   suggestion: suggestion,
                   currentSentence: currentSentence,
                   displayMode: SuggestionDisplayMode.word,
-                  verbTranslation: null,
+                  suggestionTranslation: null,
                   preview: null,
                   onPressed: () => onMove(suggestion.move),
                   onPreviewChanged: onPreviewChanged,
@@ -3088,7 +3210,47 @@ class _NounNumberSwitch extends StatelessWidget {
   }
 }
 
+class _RailTranslationToggle extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final VoidCallback onPressed;
+
+  const _RailTranslationToggle({
+    required this.label,
+    required this.isActive,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tooltip = isActive ? 'Hide $label translations' : 'Translate $label';
+
+    return SizedBox(
+      height: 32,
+      child: Tooltip(
+        message: tooltip,
+        child: OutlinedButton.icon(
+          key: Key('rail-translation-toggle-$label'),
+          style: OutlinedButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            minimumSize: const Size(0, 30),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          ),
+          onPressed: onPressed,
+          icon: Icon(
+            isActive ? Icons.subtitles_off_outlined : Icons.subtitles_outlined,
+            size: 16,
+          ),
+          label: Text(label),
+        ),
+      ),
+    );
+  }
+}
+
 class _CompassSlotSection extends StatefulWidget {
+  final ConfigurationCompassSlot slot;
   final String title;
   final String unlockHint;
   final String? surfaceMarker;
@@ -3096,8 +3258,11 @@ class _CompassSlotSection extends StatefulWidget {
   final VoidCallback? onToggle;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final bool showVerbTranslations;
-  final String? Function(Verb verb) translateVerb;
+  final bool showSuggestionTranslations;
+  final VoidCallback? onToggleSuggestionTranslations;
+  final String? translationLabel;
+  final String? Function(ConfigurationSuggestion suggestion)
+  translateSuggestion;
   final List<ConfigurationSuggestion> suggestions;
   final Number? nounNumber;
   final ValueChanged<Number>? onNounNumberChanged;
@@ -3107,6 +3272,7 @@ class _CompassSlotSection extends StatefulWidget {
   final ValueChanged<String>? onFilterQueryChanged;
 
   const _CompassSlotSection({
+    required this.slot,
     required this.title,
     required this.unlockHint,
     required this.surfaceMarker,
@@ -3114,8 +3280,10 @@ class _CompassSlotSection extends StatefulWidget {
     required this.onToggle,
     required this.currentSentence,
     required this.displayMode,
-    required this.showVerbTranslations,
-    required this.translateVerb,
+    required this.showSuggestionTranslations,
+    required this.onToggleSuggestionTranslations,
+    required this.translationLabel,
+    required this.translateSuggestion,
     required this.suggestions,
     required this.nounNumber,
     required this.onNounNumberChanged,
@@ -3196,6 +3364,13 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
         isFiltered: _filterQuery.trim().isNotEmpty,
       ),
       controls: [
+        if (widget.onToggleSuggestionTranslations != null &&
+            widget.translationLabel != null)
+          _RailTranslationToggle(
+            label: widget.translationLabel!,
+            isActive: widget.showSuggestionTranslations,
+            onPressed: widget.onToggleSuggestionTranslations!,
+          ),
         if (showSearch)
           _RailSearchField(
             railTitle: widget.title,
@@ -3245,8 +3420,8 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
               suggestions: filteredSuggestions,
               currentSentence: widget.currentSentence,
               displayMode: widget.displayMode,
-              showVerbTranslations: widget.showVerbTranslations,
-              translateVerb: widget.translateVerb,
+              showSuggestionTranslations: widget.showSuggestionTranslations,
+              translateSuggestion: widget.translateSuggestion,
               renderPreview: widget.renderPreview,
               onMove: widget.onMove,
               onPreviewChanged: widget.onPreviewChanged,
@@ -3262,8 +3437,9 @@ class _VirtualizedSuggestionRail extends StatefulWidget {
   final List<ConfigurationSuggestion> suggestions;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final bool showVerbTranslations;
-  final String? Function(Verb verb) translateVerb;
+  final bool showSuggestionTranslations;
+  final String? Function(ConfigurationSuggestion suggestion)
+  translateSuggestion;
   final String Function(SentenceState state) renderPreview;
   final ValueChanged<ConfigurationMove> onMove;
   final ValueChanged<ConfigurationState?>? onPreviewChanged;
@@ -3274,8 +3450,8 @@ class _VirtualizedSuggestionRail extends StatefulWidget {
     required this.suggestions,
     required this.currentSentence,
     required this.displayMode,
-    required this.showVerbTranslations,
-    required this.translateVerb,
+    required this.showSuggestionTranslations,
+    required this.translateSuggestion,
     required this.renderPreview,
     required this.onMove,
     required this.onPreviewChanged,
@@ -3309,7 +3485,7 @@ class _VirtualizedSuggestionRailState
         final tileHeight = _railTileHeightFor(
           title: widget.railTitle,
           displayMode: widget.displayMode,
-          showVerbTranslations: widget.showVerbTranslations,
+          showSuggestionTranslations: widget.showSuggestionTranslations,
         );
         final availableWidth = constraints.maxWidth.isFinite
             ? constraints.maxWidth
@@ -3370,8 +3546,8 @@ class _VirtualizedSuggestionRailState
       suggestion: suggestion,
       currentSentence: widget.currentSentence,
       displayMode: widget.displayMode,
-      verbTranslation: widget.showVerbTranslations
-          ? _verbTranslationForSuggestion(widget.translateVerb, suggestion)
+      suggestionTranslation: widget.showSuggestionTranslations
+          ? widget.translateSuggestion(suggestion)
           : null,
       preview: preview,
       dense: true,
@@ -3395,15 +3571,16 @@ double _railTileMaxWidthFor({
 double _railTileHeightFor({
   required String title,
   required SuggestionDisplayMode displayMode,
-  required bool showVerbTranslations,
+  required bool showSuggestionTranslations,
 }) {
-  final translationExtra = title == 'Verb' && showVerbTranslations ? 16.0 : 0.0;
+  final translationExtra = showSuggestionTranslations ? 16.0 : 0.0;
   if (title == 'Verb') {
     return (displayMode == SuggestionDisplayMode.word ? 52.0 : 56.0) +
         translationExtra;
   }
 
-  return displayMode == SuggestionDisplayMode.word ? 36.0 : 42.0;
+  return (displayMode == SuggestionDisplayMode.word ? 36.0 : 42.0) +
+      translationExtra;
 }
 
 class _RailSearchField extends StatelessWidget {
@@ -3464,22 +3641,6 @@ class _RailSearchField extends StatelessWidget {
       ),
     );
   }
-}
-
-String? _verbTranslationForSuggestion(
-  String? Function(Verb verb) translateVerb,
-  ConfigurationSuggestion suggestion,
-) {
-  if (suggestion.slot != ConfigurationCompassSlot.action) {
-    return null;
-  }
-
-  final move = suggestion.move;
-  if (move is! SetAction) {
-    return null;
-  }
-
-  return translateVerb(move.action);
 }
 
 bool _suggestionMatchesTerms(
@@ -3560,4 +3721,48 @@ int _filteredSuggestionCount(
   return suggestions
       .where((suggestion) => _suggestionMatchesTerms(suggestion, terms))
       .length;
+}
+
+String? _railTranslationLabel(ConfigurationCompassSlot slot) {
+  if (slot == ConfigurationCompassSlot.action) {
+    return 'verbs';
+  }
+  if (_objectTranslationSlots.contains(slot)) {
+    return 'objects';
+  }
+  if (_personTranslationSlots.contains(slot)) {
+    return switch (slot) {
+      ConfigurationCompassSlot.recipient => 'recipients',
+      ConfigurationCompassSlot.addressee => 'addressees',
+      ConfigurationCompassSlot.companion => 'companions',
+      ConfigurationCompassSlot.beneficiary => 'beneficiaries',
+      ConfigurationCompassSlot.source => 'sources',
+      _ => 'people',
+    };
+  }
+  if (_predicateNounTranslationSlots.contains(slot)) {
+    return switch (slot) {
+      ConfigurationCompassSlot.instrument => 'instruments',
+      ConfigurationCompassSlot.destination => 'destinations',
+      ConfigurationCompassSlot.topic => 'topics',
+      ConfigurationCompassSlot.purpose => 'purposes',
+      _ => 'nouns',
+    };
+  }
+  if (_locationTranslationSlots.contains(slot)) {
+    return 'location';
+  }
+  if (_phraseTranslationSlots.contains(slot)) {
+    return switch (slot) {
+      ConfigurationCompassSlot.timePhrase => 'time',
+      ConfigurationCompassSlot.frequencyPhrase => 'frequency',
+      ConfigurationCompassSlot.mannerPhrase => 'manner',
+      _ => 'phrases',
+    };
+  }
+  if (_rightActionTranslationSlots.contains(slot)) {
+    return 'right actions';
+  }
+
+  return null;
 }

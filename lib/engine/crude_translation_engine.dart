@@ -1,5 +1,10 @@
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
+import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/time_phrase.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
+import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
@@ -14,6 +19,61 @@ class CrudeTranslationEngine {
 
   String? translateVerb(Verb verb, {Language language = Language.pl}) {
     return _infinitiveTranslation(verb, language);
+  }
+
+  String? translateNounPhrase(
+    NounPhrase nounPhrase, {
+    Language language = Language.pl,
+  }) {
+    return _translateNounPhrase(nounPhrase, language);
+  }
+
+  String? translateAdjective(
+    Adjective adjective, {
+    Language language = Language.pl,
+  }) {
+    return adjective.translations[language];
+  }
+
+  String? translatePlacePhrase(
+    PlacePhrase place, {
+    PlaceMeaning meaning = PlaceMeaning.location,
+    Language language = Language.pl,
+  }) {
+    final translatedPlace = place.translations[language] ?? place.noun;
+    final preposition = place.prepositions[meaning];
+
+    if (preposition == null) {
+      return translatedPlace;
+    }
+
+    final translatedPreposition =
+        preposition.translations[language] ??
+        _prepositionTranslation(preposition.text, language) ??
+        preposition.text;
+
+    return '$translatedPreposition $translatedPlace';
+  }
+
+  String? translateTimePhrase(
+    TimePhrase timePhrase, {
+    Language language = Language.pl,
+  }) {
+    return timePhrase.translations[language];
+  }
+
+  String? translateFrequencyPhrase(
+    FrequencyPhrase frequencyPhrase, {
+    Language language = Language.pl,
+  }) {
+    return frequencyPhrase.translations[language];
+  }
+
+  String? translateMannerPhrase(
+    MannerPhrase mannerPhrase, {
+    Language language = Language.pl,
+  }) {
+    return mannerPhrase.translations[language];
   }
 
   String translateSentence({
@@ -186,18 +246,7 @@ class CrudeTranslationEngine {
             ? PlaceMeaning.destination
             : PlaceMeaning.location);
     final preposition = place.prepositions[meaning];
-    final translatedPlace = place.translations[language] ?? place.noun;
-
-    if (preposition == null) {
-      return translatedPlace;
-    }
-
-    final translatedPreposition =
-        preposition.translations[language] ??
-        _prepositionTranslation(preposition.text, language) ??
-        preposition.text;
-
-    return '$translatedPreposition $translatedPlace';
+    return translatePlacePhrase(place, meaning: meaning, language: language);
   }
 }
 

@@ -479,15 +479,71 @@ void main() {
 
       await tapVisible(tester, find.byTooltip('Translate verbs'));
 
-      expect(find.byTooltip('Hide verb translations'), findsOneWidget);
+      expect(find.byTooltip('Hide verbs translations'), findsOneWidget);
       expect(find.text('(uczyć się)'), findsWidgets);
 
-      await tapVisible(tester, find.byTooltip('Hide verb translations'));
+      await tapVisible(tester, find.byTooltip('Hide verbs translations'));
 
       expect(find.byTooltip('Translate verbs'), findsOneWidget);
       expect(find.text('(uczyć się)'), findsNothing);
     },
   );
+
+  testWidgets('Rail translation buttons toggle local glosses', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Hide sentence translation'));
+    expect(find.byKey(const Key('translation-gloss')), findsNothing);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Subject rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-objects')),
+    );
+    expect(find.text('(angielski)'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Companion rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-companions')),
+    );
+    expect(find.text('(Maria)'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Topic rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-topics')),
+    );
+    expect(find.textContaining('(angielski)'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Source rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-sources')),
+    );
+    expect(find.text('(Maria)'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Right action rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-right actions')),
+    );
+    expect(find.textContaining('(pracowa'), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Location rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-location')),
+    );
+    expect(find.textContaining('(na '), findsWidgets);
+
+    await tapAfterScroll(tester, find.byTooltip('Open Time phrase rail'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('rail-translation-toggle-time')),
+    );
+    expect(find.text('(dzisiaj)'), findsWidgets);
+  });
 
   testWidgets('Dark mode toggles the developer console theme', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));

@@ -4,7 +4,7 @@ class _SuggestionButton extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final String? verbTranslation;
+  final String? suggestionTranslation;
   final String? preview;
   final bool dense;
   final VoidCallback onPressed;
@@ -14,7 +14,7 @@ class _SuggestionButton extends StatelessWidget {
     required this.suggestion,
     required this.currentSentence,
     required this.displayMode,
-    required this.verbTranslation,
+    required this.suggestionTranslation,
     required this.preview,
     this.dense = false,
     required this.onPressed,
@@ -34,7 +34,7 @@ class _SuggestionButton extends StatelessWidget {
           suggestion: suggestion,
           currentSentence: currentSentence,
           displayMode: displayMode,
-          verbTranslation: verbTranslation,
+          suggestionTranslation: suggestionTranslation,
           preview: preview,
           wakeSignal: wakeSignal,
         ),
@@ -52,7 +52,7 @@ class _SuggestionButton extends StatelessWidget {
         child: dense
             ? _DenseSuggestionBody(
                 isVerbChip: isVerbChip,
-                hasTranslation: verbTranslation != null,
+                hasTranslation: suggestionTranslation != null,
                 child: content,
               )
             : content,
@@ -104,7 +104,7 @@ class _SuggestionLabel extends StatelessWidget {
   final ConfigurationSuggestion suggestion;
   final String currentSentence;
   final SuggestionDisplayMode displayMode;
-  final String? verbTranslation;
+  final String? suggestionTranslation;
   final String? preview;
   final _VerbWakeSignal? wakeSignal;
 
@@ -112,7 +112,7 @@ class _SuggestionLabel extends StatelessWidget {
     required this.suggestion,
     required this.currentSentence,
     required this.displayMode,
-    required this.verbTranslation,
+    required this.suggestionTranslation,
     required this.preview,
     required this.wakeSignal,
   });
@@ -134,7 +134,7 @@ class _SuggestionLabel extends StatelessWidget {
     if (displayMode == SuggestionDisplayMode.word) {
       return _SuggestionLabelText(
         label: suggestion.label,
-        translation: verbTranslation,
+        translation: suggestionTranslation,
         labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
@@ -146,7 +146,7 @@ class _SuggestionLabel extends StatelessWidget {
     if (suggestion.isSelected || currentSentence == renderedPreview) {
       return _SuggestionLabelText(
         label: renderedPreview,
-        translation: verbTranslation,
+        translation: suggestionTranslation,
         labelKey: key,
         textAlign: TextAlign.center,
         style: baseStyle,
@@ -173,7 +173,8 @@ class _SuggestionLabel extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        if (verbTranslation != null) _VerbTranslationGloss(verbTranslation!),
+        if (suggestionTranslation != null)
+          _SuggestionTranslationGloss(suggestionTranslation!),
       ],
     );
   }
@@ -216,15 +217,15 @@ class _SuggestionLabelText extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [labelWidget, _VerbTranslationGloss(translation!)],
+      children: [labelWidget, _SuggestionTranslationGloss(translation!)],
     );
   }
 }
 
-class _VerbTranslationGloss extends StatelessWidget {
+class _SuggestionTranslationGloss extends StatelessWidget {
   final String translation;
 
-  const _VerbTranslationGloss(this.translation);
+  const _SuggestionTranslationGloss(this.translation);
 
   @override
   Widget build(BuildContext context) {
