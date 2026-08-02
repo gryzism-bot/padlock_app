@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/subjects/adjectives/appearance.dart';
+import 'package:padlock_app/data/subjects/adjectives/colors.dart';
 import 'package:padlock_app/data/subjects/adjectives/emotions.dart';
 import 'package:padlock_app/data/subjects/adjectives/quality.dart';
+import 'package:padlock_app/data/subjects/adjectives/size.dart';
 import 'package:padlock_app/data/verbs/work.dart' hide clean;
 
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -331,8 +333,26 @@ void main() {
 
       expect(
         sentence,
-        'The beautiful young woman built a new beautiful house.',
+        'The beautiful young woman built a beautiful new house.',
       );
+    });
+
+    test('Noun phrases canonicalize noisy adjective click order', () {
+      final sentence = render(
+        SentenceState(
+          agent: father.toNounPhrase(Number.singular),
+          object: bill.toNounPhrase(
+            Number.singular,
+            determiner: thisDeterminer,
+            adjectives: [white, full, big],
+          ),
+          action: get,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'Father gets this big full white bill.');
     });
 
     test('Passive does not conjugate lexical verb', () {

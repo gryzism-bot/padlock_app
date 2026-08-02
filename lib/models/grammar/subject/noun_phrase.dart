@@ -30,7 +30,7 @@ class NounPhrase {
 
   List<Adjective> get adjectiveList {
     if (adjectives.isNotEmpty) {
-      return adjectives;
+      return orderAdjectives(adjectives);
     }
 
     if (adjective != null) {
