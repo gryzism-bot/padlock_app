@@ -1395,32 +1395,35 @@ void main() {
       tester,
       find.byTooltip('Choose 3rd person singular noun'),
     );
-    expect(find.text('cat'), findsOneWidget);
-    expect(find.text('puppy'), findsOneWidget);
-    expect(find.text('rabbit'), findsOneWidget);
-    expect(find.text('fish'), findsOneWidget);
-    expect(find.text('parrot'), findsOneWidget);
+    expect(find.text('family'), findsOneWidget);
+    expect(find.text('work people'), findsOneWidget);
+    expect(find.text('wild animals'), findsOneWidget);
+    expect(find.text('social people'), findsOneWidget);
+    expect(find.text('aunt'), findsOneWidget);
+    expect(find.text('cashier'), findsOneWidget);
+    expect(find.text('rhino'), findsOneWidget);
+    expect(find.text('partner'), findsOneWidget);
 
-    await tester.tap(find.text('cat'));
+    await tester.tap(find.text('parent'));
     await tester.pumpAndSettle();
-    expect(renderedSentence(tester), 'Cat learns.');
+    expect(renderedSentence(tester), 'Parent learns.');
     expect(find.text('Subject determiner:'), findsNothing);
     expect(find.text('Subject adjective:'), findsNothing);
 
     await tester.tap(find.text('a').last);
     await tester.pumpAndSettle();
-    expect(renderedSentence(tester), 'A cat learns.');
+    expect(renderedSentence(tester), 'A parent learns.');
 
-    final redChoice = find.text('red');
+    final adjectiveChoice = find.text('red');
     await tester.scrollUntilVisible(
-      redChoice,
+      adjectiveChoice,
       200,
       scrollable: find.byType(Scrollable).last,
     );
     await tester.pumpAndSettle();
-    await tester.tap(redChoice.last);
+    await tester.tap(adjectiveChoice.last);
     await tester.pumpAndSettle();
-    expect(renderedSentence(tester), 'A red cat learns.');
+    expect(renderedSentence(tester), 'A red parent learns.');
 
     await tester.tapAt(const Offset(1, 1));
     await tester.pumpAndSettle();
@@ -1428,11 +1431,11 @@ void main() {
       tester,
       find.byTooltip('Choose 3rd person plural noun'),
     );
-    expect(find.text('cats'), findsOneWidget);
+    expect(find.text('parents'), findsOneWidget);
 
-    await tester.tap(find.text('cats'));
+    await tester.tap(find.text('parents'));
     await tester.pumpAndSettle();
-    expect(renderedSentence(tester), 'Cats learn.');
+    expect(renderedSentence(tester), 'Parents learn.');
   });
 
   testWidgets('Change preview highlights whole changed words', (tester) async {

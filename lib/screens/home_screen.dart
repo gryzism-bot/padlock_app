@@ -2090,58 +2090,58 @@ class _SubjectNounGroup {
   const _SubjectNounGroup({required this.label, required this.choices});
 }
 
-final _singularSubjectNounGroups = [
-  _SubjectNounGroup(
-    label: 'pets',
-    choices: _subjectNounChoices(animal_categories.singularPetAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'farm animals',
-    choices: _subjectNounChoices(animal_categories.singularFarmAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'wild animals',
-    choices: _subjectNounChoices(animal_categories.singularWildAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'small animals',
-    choices: _subjectNounChoices(animal_categories.singularSmallAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'birds',
-    choices: _subjectNounChoices(animal_categories.singularBirdAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'water animals',
-    choices: _subjectNounChoices(animal_categories.singularWaterAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'names',
-    choices: _subjectNounChoices(people_categories.singularNamedPeople),
-  ),
+final _singularSubjectNounGroups = _uniqueSubjectNounGroups([
   _SubjectNounGroup(
     label: 'family',
     choices: _subjectNounChoices(people_categories.singularFamilyPeople),
-  ),
-  _SubjectNounGroup(
-    label: 'school people',
-    choices: _subjectNounChoices(people_categories.singularSchoolPeople),
   ),
   _SubjectNounGroup(
     label: 'work people',
     choices: _subjectNounChoices(people_categories.singularWorkPeople),
   ),
   _SubjectNounGroup(
-    label: 'creative people',
-    choices: _subjectNounChoices(people_categories.singularCreativePeople),
+    label: 'wild animals',
+    choices: _subjectNounChoices(animal_categories.singularWildAnimals),
   ),
   _SubjectNounGroup(
     label: 'social people',
     choices: _subjectNounChoices(people_categories.singularSocialPeople),
   ),
   _SubjectNounGroup(
+    label: 'names',
+    choices: _subjectNounChoices(people_categories.singularNamedPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'pets',
+    choices: _subjectNounChoices(animal_categories.singularPetAnimals),
+  ),
+  _SubjectNounGroup(
     label: 'public people',
     choices: _subjectNounChoices(people_categories.singularPublicPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'creative people',
+    choices: _subjectNounChoices(people_categories.singularCreativePeople),
+  ),
+  _SubjectNounGroup(
+    label: 'farm animals',
+    choices: _subjectNounChoices(animal_categories.singularFarmAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'school people',
+    choices: _subjectNounChoices(people_categories.singularSchoolPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'birds',
+    choices: _subjectNounChoices(animal_categories.singularBirdAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'small animals',
+    choices: _subjectNounChoices(animal_categories.singularSmallAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'water animals',
+    choices: _subjectNounChoices(animal_categories.singularWaterAnimals),
   ),
   _SubjectNounGroup(
     label: 'someone words',
@@ -2152,62 +2152,62 @@ final _singularSubjectNounGroups = [
       _SubjectNounChoice(label: 'everyone', phrase: everyone),
     ],
   ),
-];
+]);
 
-final _pluralSubjectNounGroups = [
-  _SubjectNounGroup(
-    label: 'pets',
-    choices: _subjectNounChoices(animal_categories.pluralPetAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'farm animals',
-    choices: _subjectNounChoices(animal_categories.pluralFarmAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'wild animals',
-    choices: _subjectNounChoices(animal_categories.pluralWildAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'small animals',
-    choices: _subjectNounChoices(animal_categories.pluralSmallAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'birds',
-    choices: _subjectNounChoices(animal_categories.pluralBirdAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'water animals',
-    choices: _subjectNounChoices(animal_categories.pluralWaterAnimals),
-  ),
-  _SubjectNounGroup(
-    label: 'names',
-    choices: _subjectNounChoices(people_categories.pluralNamedPeople),
-  ),
+final _pluralSubjectNounGroups = _uniqueSubjectNounGroups([
   _SubjectNounGroup(
     label: 'family',
     choices: _subjectNounChoices(people_categories.pluralFamilyPeople),
-  ),
-  _SubjectNounGroup(
-    label: 'school people',
-    choices: _subjectNounChoices(people_categories.pluralSchoolPeople),
   ),
   _SubjectNounGroup(
     label: 'work people',
     choices: _subjectNounChoices(people_categories.pluralWorkPeople),
   ),
   _SubjectNounGroup(
-    label: 'creative people',
-    choices: _subjectNounChoices(people_categories.pluralCreativePeople),
+    label: 'wild animals',
+    choices: _subjectNounChoices(animal_categories.pluralWildAnimals),
   ),
   _SubjectNounGroup(
     label: 'social people',
     choices: _subjectNounChoices(people_categories.pluralSocialPeople),
   ),
   _SubjectNounGroup(
+    label: 'names',
+    choices: _subjectNounChoices(people_categories.pluralNamedPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'pets',
+    choices: _subjectNounChoices(animal_categories.pluralPetAnimals),
+  ),
+  _SubjectNounGroup(
     label: 'public people',
     choices: _subjectNounChoices(people_categories.pluralPublicPeople),
   ),
-];
+  _SubjectNounGroup(
+    label: 'creative people',
+    choices: _subjectNounChoices(people_categories.pluralCreativePeople),
+  ),
+  _SubjectNounGroup(
+    label: 'farm animals',
+    choices: _subjectNounChoices(animal_categories.pluralFarmAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'school people',
+    choices: _subjectNounChoices(people_categories.pluralSchoolPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'birds',
+    choices: _subjectNounChoices(animal_categories.pluralBirdAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'small animals',
+    choices: _subjectNounChoices(animal_categories.pluralSmallAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'water animals',
+    choices: _subjectNounChoices(animal_categories.pluralWaterAnimals),
+  ),
+]);
 
 List<_SubjectNounChoice> _subjectNounChoices(List<NounPhrase> phrases) {
   final seen = <String>{};
@@ -2215,6 +2215,22 @@ List<_SubjectNounChoice> _subjectNounChoices(List<NounPhrase> phrases) {
     for (final phrase in phrases)
       if (seen.add(phrase.text))
         _SubjectNounChoice(label: phrase.text, phrase: phrase),
+  ];
+}
+
+List<_SubjectNounGroup> _uniqueSubjectNounGroups(
+  List<_SubjectNounGroup> groups,
+) {
+  final seen = <String>{};
+  return [
+    for (final group in groups)
+      _SubjectNounGroup(
+        label: group.label,
+        choices: [
+          for (final choice in group.choices)
+            if (seen.add(choice.phrase.text)) choice,
+        ],
+      ),
   ];
 }
 
@@ -2252,7 +2268,7 @@ class _SubjectNounMenuButton extends StatelessWidget {
     return PopupMenuButton<ConfigurationMove>(
       tooltip: tooltip,
       position: PopupMenuPosition.under,
-      constraints: const BoxConstraints(maxHeight: 420, minWidth: 560),
+      constraints: const BoxConstraints(maxHeight: 500, minWidth: 920),
       onSelected: onMove,
       itemBuilder: (context) => [
         _SubjectPopupColumnsEntry(
@@ -2297,7 +2313,7 @@ class _SubjectPopupColumnsEntry extends PopupMenuEntry<ConfigurationMove> {
   });
 
   @override
-  double get height => 380;
+  double get height => 440;
 
   @override
   bool represents(ConfigurationMove? value) => false;
@@ -2329,14 +2345,15 @@ class _SubjectPopupColumnsEntryState extends State<_SubjectPopupColumnsEntry> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 540,
-      height: 380,
+      width: 900,
+      height: 440,
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
+              flex: 3,
               child: _SubjectPopupNounColumn(
                 agent: localAgent,
                 groups: widget.groups,
@@ -2351,6 +2368,7 @@ class _SubjectPopupColumnsEntryState extends State<_SubjectPopupColumnsEntry> {
             ),
             const SizedBox(width: 10),
             Expanded(
+              flex: 1,
               child: _SubjectPopupSuggestionColumn(
                 label: 'determiner',
                 enabled: isLocalSelected,
@@ -2374,6 +2392,7 @@ class _SubjectPopupColumnsEntryState extends State<_SubjectPopupColumnsEntry> {
             ),
             const SizedBox(width: 10),
             Expanded(
+              flex: 1,
               child: _SubjectPopupSuggestionColumn(
                 label: 'adjective',
                 enabled: isLocalSelected,
@@ -2402,7 +2421,7 @@ class _SubjectPopupColumnsEntryState extends State<_SubjectPopupColumnsEntry> {
   }
 }
 
-class _SubjectPopupNounColumn extends StatelessWidget {
+class _SubjectPopupNounColumn extends StatefulWidget {
   final NounPhrase? agent;
   final List<_SubjectNounGroup> groups;
   final ValueChanged<NounPhrase> onNounSelected;
@@ -2414,23 +2433,89 @@ class _SubjectPopupNounColumn extends StatelessWidget {
   });
 
   @override
+  State<_SubjectPopupNounColumn> createState() =>
+      _SubjectPopupNounColumnState();
+}
+
+class _SubjectPopupNounColumnState extends State<_SubjectPopupNounColumn> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _SubjectPopupColumnShell(
       label: 'noun',
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          for (final group in groups) ...[
-            _SubjectPopupGroupLabel(group.label),
-            for (final choice in group.choices)
-              _SubjectPopupMoveCell(
-                label: choice.label,
-                isSelected: _sameNounPhrase(agent, choice.phrase),
-                onTap: () => onNounSelected(choice.phrase),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 560
+              ? 4
+              : constraints.maxWidth >= 400
+              ? 3
+              : 2;
+          final columnWidth =
+              (constraints.maxWidth - (columns - 1) * 8) / columns;
+
+          return Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            trackVisibility: true,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(right: 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                children: [
+                  for (final group in widget.groups)
+                    SizedBox(
+                      width: columnWidth,
+                      child: _SubjectPopupNounGroupColumn(
+                        agent: widget.agent,
+                        group: group,
+                        onNounSelected: widget.onNounSelected,
+                      ),
+                    ),
+                ],
               ),
-          ],
-        ],
+            ),
+          );
+        },
       ),
+    );
+  }
+}
+
+class _SubjectPopupNounGroupColumn extends StatelessWidget {
+  final NounPhrase? agent;
+  final _SubjectNounGroup group;
+  final ValueChanged<NounPhrase> onNounSelected;
+
+  const _SubjectPopupNounGroupColumn({
+    required this.agent,
+    required this.group,
+    required this.onNounSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _SubjectPopupGroupLabel(group.label),
+        for (final choice in group.choices)
+          _SubjectPopupMoveCell(
+            label: choice.label,
+            isSelected: _sameNounPhrase(agent, choice.phrase),
+            onTap: () => onNounSelected(choice.phrase),
+          ),
+      ],
     );
   }
 }
@@ -2580,7 +2665,7 @@ class _SubjectPopupGroupLabel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 4, 4),
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 4),
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
