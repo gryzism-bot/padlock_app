@@ -1275,6 +1275,102 @@ void main() {
     expect(renderedSentence(tester), 'You want to speak English with anyone.');
   });
 
+  testWidgets(
+    'Guided UI shaves companion tail but keeps destination and time route',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await selectVerb(tester, 'hear');
+      await expandRail(tester, 'Time phrase');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-timePhrase-now')),
+      );
+      expect(renderedSentence(tester), 'You hear now.');
+
+      await selectVerb(tester, 'whisper');
+      expect(renderedSentence(tester), 'You whisper now.');
+
+      await expandRail(tester, 'Companion');
+      await filterRail(tester, 'Companion', 'player');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-companion-player')),
+      );
+      await expandRail(tester, 'Companion adjective');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-companionAdjective-blue')),
+      );
+      expect(renderedSentence(tester), 'You whisper with blue player now.');
+
+      await selectVerb(tester, 'go');
+      expect(renderedSentence(tester), 'You go with blue player now.');
+
+      await expandRail(tester, 'Destination');
+      await filterRail(tester, 'Destination', 'father');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-destination-father')),
+      );
+      expect(
+        renderedSentence(tester),
+        'You go to father with blue player now.',
+      );
+
+      await selectVerb(tester, 'ride');
+
+      expect(renderedSentence(tester), 'You ride to father now.');
+      expect(
+        find.textContaining('Verb switch removed incompatible companion'),
+        findsWidgets,
+      );
+    },
+  );
+
+  testWidgets(
+    'Guided UI can re-add a shaved companion and shave destination later',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.text('Word'));
+      await selectVerb(tester, 'go');
+      await expandRail(tester, 'Destination');
+      await filterRail(tester, 'Destination', 'father');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-destination-father')),
+      );
+      expect(renderedSentence(tester), 'You go to father.');
+
+      await selectVerb(tester, 'ride');
+      expect(renderedSentence(tester), 'You ride to father.');
+
+      await selectVerb(tester, 'go');
+      await expandRail(tester, 'Companion');
+      await filterRail(tester, 'Companion', 'player');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-companion-player')),
+      );
+      await expandRail(tester, 'Companion adjective');
+      await tapAfterScroll(
+        tester,
+        find.byKey(const Key('suggestion-label-companionAdjective-blue')),
+      );
+      expect(renderedSentence(tester), 'You go to father with blue player.');
+
+      await selectVerb(tester, 'whisper');
+
+      expect(renderedSentence(tester), 'You whisper with blue player.');
+      expect(
+        find.textContaining('Verb switch removed incompatible destination'),
+        findsWidgets,
+      );
+    },
+  );
+
   testWidgets('Subject rows open noun subjects without stretching the deck', (
     tester,
   ) async {
