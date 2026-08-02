@@ -405,6 +405,90 @@ const cafePlacePhrase = PlacePhrase(
   translations: {Language.pl: 'kawiarnia'},
 );
 
+const marketPlacePhrase = PlacePhrase(
+  noun: 'market',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'rynek'},
+);
+
+const bankPlacePhrase = PlacePhrase(
+  noun: 'bank',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'bank'},
+);
+
+const gymPlacePhrase = PlacePhrase(
+  noun: 'gym',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'silownia'},
+);
+
+const classroomPlacePhrase = PlacePhrase(
+  noun: 'classroom',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'klasa'},
+);
+
+const garagePlacePhrase = PlacePhrase(
+  noun: 'garage',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: inPreposition,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'garaz'},
+);
+
+const busStopPlacePhrase = PlacePhrase(
+  noun: 'bus stop',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'przystanek autobusowy'},
+);
+
+const playgroundPlacePhrase = PlacePhrase(
+  noun: 'playground',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: on,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'plac zabaw'},
+);
+
 List<PlacePhrase> placePhrases = [
   homePlacePhrase,
   workPlacePhrase,
@@ -440,4 +524,11 @@ List<PlacePhrase> placePhrases = [
   libraryPlacePhrase,
   cinemaPlacePhrase,
   cafePlacePhrase,
+  marketPlacePhrase,
+  bankPlacePhrase,
+  gymPlacePhrase,
+  classroomPlacePhrase,
+  garagePlacePhrase,
+  busStopPlacePhrase,
+  playgroundPlacePhrase,
 ];

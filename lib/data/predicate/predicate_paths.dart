@@ -935,6 +935,22 @@ final _homeSchoolWorkPlaces = [
   place_data.workPlacePhrase,
   place_data.officePlacePhrase,
 ];
+final _dailyAnchorPlaces = _uniquePlacesByText([
+  ..._homeSchoolWorkPlaces,
+  place_data.shopPlacePhrase,
+  place_data.restaurantPlacePhrase,
+  place_data.libraryPlacePhrase,
+  place_data.cafePlacePhrase,
+  place_data.marketPlacePhrase,
+  place_data.bankPlacePhrase,
+  place_data.gymPlacePhrase,
+  place_data.classroomPlacePhrase,
+  place_data.garagePlacePhrase,
+  place_data.busStopPlacePhrase,
+  place_data.stationPlacePhrase,
+  place_data.airportPlacePhrase,
+  place_data.hotelPlacePhrase,
+]);
 final _surfacePlaces = [
   place_data.tablePlacePhrase,
   place_data.bedPlacePhrase,
@@ -942,6 +958,7 @@ final _surfacePlaces = [
   place_data.roadPlacePhrase,
   place_data.streetPlacePhrase,
   place_data.beachPlacePhrase,
+  place_data.playgroundPlacePhrase,
 ];
 final _everydayPlaces = _uniquePlacesByText([
   place_data.homePlacePhrase,
@@ -964,6 +981,13 @@ final _everydayPlaces = _uniquePlacesByText([
   place_data.libraryPlacePhrase,
   place_data.cinemaPlacePhrase,
   place_data.cafePlacePhrase,
+  place_data.marketPlacePhrase,
+  place_data.bankPlacePhrase,
+  place_data.gymPlacePhrase,
+  place_data.classroomPlacePhrase,
+  place_data.garagePlacePhrase,
+  place_data.busStopPlacePhrase,
+  place_data.playgroundPlacePhrase,
 ]);
 final _basicTimes = [
   time_data.todayTimePhrase,
@@ -1039,7 +1063,7 @@ PredicateUnlocks _destinationWithCompanion(
     paths: [
       PredicatePath.toDestination(_people),
       PredicatePath.withCompanion(_people),
-      _fromLocations(_homeSchoolWorkPlaces),
+      _fromLocations(_dailyAnchorPlaces),
       ...paths,
     ],
   );
@@ -1222,7 +1246,7 @@ List<PredicatePath> _travelContexts() {
   return [
     _atLocations(_everydayPlaces),
     _inLocations(_everydayPlaces),
-    _fromLocations(_homeSchoolWorkPlaces),
+    _fromLocations(_dailyAnchorPlaces),
     _manners(_movementManners),
     _times(_todayTimes),
   ];
@@ -1242,14 +1266,13 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: be,
     paths: [
-      _atLocations(_homeSchoolWorkPlaces),
-      _inLocations(_homeSchoolWorkPlaces),
+      _atLocations(_dailyAnchorPlaces),
+      _inLocations(_dailyAnchorPlaces),
       _onLocations(_surfacePlaces),
       _fromLocations([
         place_data.polandPlacePhrase,
         place_data.europePlacePhrase,
-        place_data.homePlacePhrase,
-        place_data.schoolPlacePhrase,
+        ..._dailyAnchorPlaces,
       ]),
       _times(_todayTimes),
       _manners([
@@ -1267,8 +1290,8 @@ final guidedPredicateUnlocks = [
       _objectBeneficiaries(),
       _objectSources(),
       _objectPurposes(_basicPurposes),
-      _atLocations(_homeSchoolWorkPlaces, requiresObject: true),
-      _inLocations(_homeSchoolWorkPlaces, requiresObject: true),
+      _atLocations(_dailyAnchorPlaces, requiresObject: true),
+      _inLocations(_dailyAnchorPlaces, requiresObject: true),
       _times(_todayTimes),
       _frequencies(_basicFrequencies),
     ],

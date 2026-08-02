@@ -3362,9 +3362,7 @@ class _VirtualizedSuggestionRailState
   }
 
   Widget _buttonFor(ConfigurationSuggestion suggestion) {
-    final preview =
-        widget.displayMode == SuggestionDisplayMode.change ||
-            widget.onPreviewChanged != null
+    final preview = widget.displayMode == SuggestionDisplayMode.change
         ? widget.renderPreview(suggestion.preview.sentenceState)
         : null;
 

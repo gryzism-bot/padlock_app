@@ -472,6 +472,52 @@ void main() {
       );
     });
 
+    test('third vocabulary batch widens reusable place route shelves', () {
+      expect(
+        placePhrases.map((place) => place.noun),
+        containsAll([
+          'market',
+          'bank',
+          'gym',
+          'classroom',
+          'garage',
+          'bus stop',
+          'playground',
+        ]),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          go,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll([
+          'market',
+          'bank',
+          'gym',
+          'classroom',
+          'garage',
+          'bus stop',
+          'station',
+          'airport',
+          'hotel',
+        ]),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          travel_data.pack,
+          PredicatePathKind.fromLocation,
+        ).map((place) => place.noun),
+        containsAll(['market', 'bank', 'gym', 'bus stop', 'airport']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          run,
+          PredicatePathKind.onLocation,
+        ).map((place) => place.noun),
+        containsAll(['road', 'street', 'beach', 'playground']),
+      );
+    });
+
     test('fixed object frames consume semantic category shelves', () {
       final examples = [
         (action: write, object: object_data.email),
