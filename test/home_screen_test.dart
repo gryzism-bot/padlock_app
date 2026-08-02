@@ -1396,6 +1396,10 @@ void main() {
       find.byTooltip('Choose 3rd person singular noun'),
     );
     expect(find.text('cat'), findsOneWidget);
+    expect(find.text('puppy'), findsOneWidget);
+    expect(find.text('rabbit'), findsOneWidget);
+    expect(find.text('fish'), findsOneWidget);
+    expect(find.text('parrot'), findsOneWidget);
 
     await tester.tap(find.text('cat'));
     await tester.pumpAndSettle();

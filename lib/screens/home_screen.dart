@@ -11,8 +11,11 @@ import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart'
     as adjective_data;
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
-import 'package:padlock_app/data/subjects/third_person/animals.dart';
+import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
+    as animal_categories;
 import 'package:padlock_app/data/subjects/third_person/people.dart';
+import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
+    as people_categories;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/crude_translation_engine.dart';
@@ -2089,38 +2092,56 @@ class _SubjectNounGroup {
 
 final _singularSubjectNounGroups = [
   _SubjectNounGroup(
-    label: 'animals',
-    choices: [
-      _SubjectNounChoice(
-        label: 'cat',
-        phrase: cat.toNounPhrase(Number.singular),
-      ),
-      _SubjectNounChoice(
-        label: 'dog',
-        phrase: dog.toNounPhrase(Number.singular),
-      ),
-    ],
+    label: 'pets',
+    choices: _subjectNounChoices(animal_categories.singularPetAnimals),
   ),
   _SubjectNounGroup(
-    label: 'people',
-    choices: [
-      _SubjectNounChoice(
-        label: 'John',
-        phrase: john.toNounPhrase(Number.singular),
-      ),
-      _SubjectNounChoice(
-        label: 'Mary',
-        phrase: mary.toNounPhrase(Number.singular),
-      ),
-      _SubjectNounChoice(
-        label: 'friend',
-        phrase: friend.toNounPhrase(Number.singular),
-      ),
-      _SubjectNounChoice(
-        label: 'enemy',
-        phrase: enemy.toNounPhrase(Number.singular),
-      ),
-    ],
+    label: 'farm animals',
+    choices: _subjectNounChoices(animal_categories.singularFarmAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'wild animals',
+    choices: _subjectNounChoices(animal_categories.singularWildAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'small animals',
+    choices: _subjectNounChoices(animal_categories.singularSmallAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'birds',
+    choices: _subjectNounChoices(animal_categories.singularBirdAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'water animals',
+    choices: _subjectNounChoices(animal_categories.singularWaterAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'names',
+    choices: _subjectNounChoices(people_categories.singularNamedPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'family',
+    choices: _subjectNounChoices(people_categories.singularFamilyPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'school people',
+    choices: _subjectNounChoices(people_categories.singularSchoolPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'work people',
+    choices: _subjectNounChoices(people_categories.singularWorkPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'creative people',
+    choices: _subjectNounChoices(people_categories.singularCreativePeople),
+  ),
+  _SubjectNounGroup(
+    label: 'social people',
+    choices: _subjectNounChoices(people_categories.singularSocialPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'public people',
+    choices: _subjectNounChoices(people_categories.singularPublicPeople),
   ),
   _SubjectNounGroup(
     label: 'someone words',
@@ -2135,36 +2156,67 @@ final _singularSubjectNounGroups = [
 
 final _pluralSubjectNounGroups = [
   _SubjectNounGroup(
-    label: 'animals',
-    choices: [
-      _SubjectNounChoice(
-        label: 'cats',
-        phrase: cat.toNounPhrase(Number.plural),
-      ),
-      _SubjectNounChoice(
-        label: 'dogs',
-        phrase: dog.toNounPhrase(Number.plural),
-      ),
-    ],
+    label: 'pets',
+    choices: _subjectNounChoices(animal_categories.pluralPetAnimals),
   ),
   _SubjectNounGroup(
-    label: 'people',
-    choices: [
-      _SubjectNounChoice(
-        label: 'friends',
-        phrase: friend.toNounPhrase(Number.plural),
-      ),
-      _SubjectNounChoice(
-        label: 'enemies',
-        phrase: enemy.toNounPhrase(Number.plural),
-      ),
-      _SubjectNounChoice(
-        label: 'people',
-        phrase: person.toNounPhrase(Number.plural),
-      ),
-    ],
+    label: 'farm animals',
+    choices: _subjectNounChoices(animal_categories.pluralFarmAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'wild animals',
+    choices: _subjectNounChoices(animal_categories.pluralWildAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'small animals',
+    choices: _subjectNounChoices(animal_categories.pluralSmallAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'birds',
+    choices: _subjectNounChoices(animal_categories.pluralBirdAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'water animals',
+    choices: _subjectNounChoices(animal_categories.pluralWaterAnimals),
+  ),
+  _SubjectNounGroup(
+    label: 'names',
+    choices: _subjectNounChoices(people_categories.pluralNamedPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'family',
+    choices: _subjectNounChoices(people_categories.pluralFamilyPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'school people',
+    choices: _subjectNounChoices(people_categories.pluralSchoolPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'work people',
+    choices: _subjectNounChoices(people_categories.pluralWorkPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'creative people',
+    choices: _subjectNounChoices(people_categories.pluralCreativePeople),
+  ),
+  _SubjectNounGroup(
+    label: 'social people',
+    choices: _subjectNounChoices(people_categories.pluralSocialPeople),
+  ),
+  _SubjectNounGroup(
+    label: 'public people',
+    choices: _subjectNounChoices(people_categories.pluralPublicPeople),
   ),
 ];
+
+List<_SubjectNounChoice> _subjectNounChoices(List<NounPhrase> phrases) {
+  final seen = <String>{};
+  return [
+    for (final phrase in phrases)
+      if (seen.add(phrase.text))
+        _SubjectNounChoice(label: phrase.text, phrase: phrase),
+  ];
+}
 
 class _SubjectOverlayChoice {
   final String label;
