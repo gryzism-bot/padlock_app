@@ -623,6 +623,21 @@ void main() {
       expect(sentence, 'John works on grammar.');
     });
 
+    test('topic surface can render as an over phrase', () {
+      final sentence = render(
+        SentenceState(
+          agent: john.toNounPhrase(Number.singular),
+          action: think,
+          topic: plan,
+          topicPreposition: TopicPreposition.over,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'John thinks over plan.');
+    });
+
     test('topic surface can render as a with phrase', () {
       final sentence = render(
         SentenceState(

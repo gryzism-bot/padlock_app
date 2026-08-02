@@ -49,6 +49,7 @@ enum PredicatePathKind {
   aboutTopic,
   ofTopic,
   onTopic,
+  overTopic,
   withTopic,
   forBeneficiary,
   fromSource,
@@ -75,6 +76,7 @@ const predicateTopicPathKinds = [
   PredicatePathKind.aboutTopic,
   PredicatePathKind.ofTopic,
   PredicatePathKind.onTopic,
+  PredicatePathKind.overTopic,
   PredicatePathKind.withTopic,
 ];
 
@@ -99,6 +101,7 @@ String? predicateTopicConnectorFor(PredicatePathKind kind) {
     PredicatePathKind.aboutTopic => 'about',
     PredicatePathKind.ofTopic => 'of',
     PredicatePathKind.onTopic => 'on',
+    PredicatePathKind.overTopic => 'over',
     PredicatePathKind.withTopic => 'with',
     _ => null,
   };
@@ -201,6 +204,15 @@ class PredicatePath {
     bool requiresObject = false,
   }) : this._(
          kind: PredicatePathKind.onTopic,
+         nouns: nouns,
+         requiresObject: requiresObject,
+       );
+
+  const PredicatePath.overTopic(
+    List<NounPhrase> nouns, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.overTopic,
          nouns: nouns,
          requiresObject: requiresObject,
        );
@@ -744,6 +756,17 @@ final _basicTopics = _uniqueByText([
   ...object_categories.pluralMediaObjects,
   ...object_categories.singularDeviceObjects,
   ...object_categories.pluralDeviceObjects,
+]);
+final _overTopics = _uniqueByText([
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.plan,
+  object_data.rule.toNounPhrase(Number.singular),
+  fixed_object.grammar,
+  fixed_object.homework,
+  ..._textObjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
 ]);
 final _analysisObjects = _uniqueByText([
   ..._genericObjects,
@@ -1367,6 +1390,7 @@ final guidedPredicateUnlocks = [
     _uniqueByText([..._textObjects, ..._spokenLanguages]),
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.overTopic(_overTopics),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
@@ -1396,6 +1420,14 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.toDestination(_people),
       PredicatePath.withCompanion(_people),
+      PredicatePath.overTopic([
+        fixed_object.grammar,
+        fixed_object.homework,
+        fixed_object.plan,
+        fixed_object.problem,
+        object_data.rule.toNounPhrase(Number.singular),
+        ..._textObjects,
+      ]),
       _places(_everydayPlaces),
       _fromLocations(_everydayPlaces),
       _purposes(_movementPurposes),
@@ -1508,6 +1540,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.ofTopic(_peopleAndAnimals),
+      PredicatePath.overTopic(_overTopics),
       PredicatePath.withCompanion(_people),
       _manners([
         manner_data.carefullyMannerPhrase,
@@ -1808,6 +1841,7 @@ final guidedPredicateUnlocks = [
     verb: talk,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
+      PredicatePath.overTopic(_overTopics),
       PredicatePath.toAddressee(_peopleAndAnimals),
       PredicatePath.withCompanion(_people),
       ..._speechContexts(),

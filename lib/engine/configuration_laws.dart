@@ -255,6 +255,7 @@ PredicatePathKind predicatePathKindForSurface(
       TopicPreposition.about => PredicatePathKind.aboutTopic,
       TopicPreposition.of => PredicatePathKind.ofTopic,
       TopicPreposition.on => PredicatePathKind.onTopic,
+      TopicPreposition.over => PredicatePathKind.overTopic,
       TopicPreposition.withPrep => PredicatePathKind.withTopic,
     },
     PrepositionalParticipantKind.beneficiary =>

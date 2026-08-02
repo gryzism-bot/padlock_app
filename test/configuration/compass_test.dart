@@ -1481,7 +1481,7 @@ void main() {
       );
       var state = lock.applyMove(
         ConfigurationState.initial(),
-        const SetAction(go),
+        const SetAction(run),
       );
 
       expect(
@@ -1511,7 +1511,7 @@ void main() {
       );
     });
 
-    test('topic suggestions can use about of and on routes', () {
+    test('topic suggestions can use about of on and over routes', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
@@ -1529,6 +1529,7 @@ void main() {
 
       expect(labels, contains('about grammar'));
       expect(labels, contains('of John'));
+      expect(labels, contains('over plan'));
       expect(
         render(
           suggestions
@@ -1536,6 +1537,14 @@ void main() {
               .preview,
         ),
         'You think of John.',
+      );
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'over plan')
+              .preview,
+        ),
+        'You think over plan.',
       );
 
       state = lock.applyMove(state, const SetAction(work));

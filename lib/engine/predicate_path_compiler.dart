@@ -25,6 +25,10 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
       _first(path.nouns, path),
       topicPreposition: TopicPreposition.on,
     ),
+    PredicatePathKind.overTopic => SetTopic(
+      _first(path.nouns, path),
+      topicPreposition: TopicPreposition.over,
+    ),
     PredicatePathKind.withTopic => SetTopic(
       _first(path.nouns, path),
       topicPreposition: TopicPreposition.withPrep,

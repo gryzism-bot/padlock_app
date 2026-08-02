@@ -455,6 +455,17 @@ void main() {
       expect(state.recipient, isNull);
     });
 
+    test('topic can recognize an over phrase', () {
+      final state = engine.recognize('John thought over plan.');
+
+      expectAgent(state, text: 'john');
+      expectTopic(state, text: 'plan');
+      expect(state.action, think);
+      expect(state.topicPreposition, TopicPreposition.over);
+      expect(state.object, isNull);
+      expect(state.recipient, isNull);
+    });
+
     test('topic can recognize a with phrase', () {
       final state = engine.recognize('John helped with homework.');
 

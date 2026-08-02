@@ -105,6 +105,7 @@ String predicatePathKindAuditLabel(PredicatePathKind kind) {
     PredicatePathKind.aboutTopic => 'about',
     PredicatePathKind.ofTopic => 'of',
     PredicatePathKind.onTopic => 'on topic',
+    PredicatePathKind.overTopic => 'over topic',
     PredicatePathKind.withTopic => 'with topic',
     PredicatePathKind.forBeneficiary => 'for someone',
     PredicatePathKind.fromSource => 'from someone',

@@ -80,6 +80,7 @@ void main() {
             PredicatePathKind.aboutTopic => isA<SetTopic>(),
             PredicatePathKind.ofTopic => isA<SetTopic>(),
             PredicatePathKind.onTopic => isA<SetTopic>(),
+            PredicatePathKind.overTopic => isA<SetTopic>(),
             PredicatePathKind.withTopic => isA<SetTopic>(),
             PredicatePathKind.forBeneficiary => isA<SetBeneficiary>(),
             PredicatePathKind.fromSource => isA<SetSource>(),
@@ -156,6 +157,11 @@ void main() {
             action: listen,
             kind: PredicatePathKind.onTopic,
             text: 'You listen on speakers.',
+          ),
+          (
+            action: think,
+            kind: PredicatePathKind.overTopic,
+            text: 'You think over problem.',
           ),
           (
             action: help,
@@ -959,6 +965,7 @@ void main() {
             case PredicatePathKind.aboutTopic:
             case PredicatePathKind.ofTopic:
             case PredicatePathKind.onTopic:
+            case PredicatePathKind.overTopic:
             case PredicatePathKind.withTopic:
               expect(unlocks.verb.takesTopic, isTrue, reason: reason);
               expect(path.nouns, isNotEmpty, reason: reason);
@@ -1333,8 +1340,15 @@ void main() {
         ]),
       );
       expect(predicateTopicConnectorsFor(work), ['on']);
-      expect(predicateTopicConnectorsFor(think), ['about', 'of']);
+      expect(predicateTopicConnectorsFor(think), ['about', 'of', 'over']);
       expect(predicateTopicConnectorsFor(help), ['with']);
+      expect(
+        predicateNounChoicesFor(
+          think,
+          PredicatePathKind.overTopic,
+        ).map((topic) => topic.text),
+        containsAll(['plan', 'problem', 'grammar', 'document']),
+      );
       expect(
         predicateNounChoicesFor(
           help,
@@ -1798,6 +1812,7 @@ enum _ReviewedRouteKind {
   aboutTopic,
   ofTopic,
   withTopic,
+  overTopic,
   beneficiary,
   source,
   place,
@@ -1947,6 +1962,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(read, _ReviewedRouteKind.time, text: 'at night'),
   _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
+  _ReviewedRoute(read, _ReviewedRouteKind.overTopic, text: 'story'),
   _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'school'),
   _ReviewedRoute(read, _ReviewedRouteKind.purpose, text: 'work'),
   _ReviewedRoute(read, _ReviewedRouteKind.directObject, text: 'English'),
@@ -1980,6 +1996,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'there'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'now'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'today'),
+  _ReviewedRoute(go, _ReviewedRouteKind.overTopic, text: 'grammar'),
 
   _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'slowly'),
@@ -2100,6 +2117,7 @@ const _essentialVerbReviewRoutes = [
 
   _ReviewedRoute(think, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(think, _ReviewedRouteKind.ofTopic),
+  _ReviewedRoute(think, _ReviewedRouteKind.overTopic, text: 'plan'),
   _ReviewedRoute(think, _ReviewedRouteKind.companion),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'quickly'),
@@ -2816,6 +2834,8 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return _nounPathHas(route.verb, PredicatePathKind.ofTopic, text);
     case _ReviewedRouteKind.withTopic:
       return _nounPathHas(route.verb, PredicatePathKind.withTopic, text);
+    case _ReviewedRouteKind.overTopic:
+      return _nounPathHas(route.verb, PredicatePathKind.overTopic, text);
     case _ReviewedRouteKind.onTopic:
       return _nounPathHas(route.verb, PredicatePathKind.onTopic, text);
     case _ReviewedRouteKind.beneficiary:

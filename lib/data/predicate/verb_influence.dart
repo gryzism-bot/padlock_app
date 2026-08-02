@@ -189,6 +189,7 @@ PredicateInfluence _influenceForPath(
     PredicatePathKind.aboutTopic ||
     PredicatePathKind.ofTopic ||
     PredicatePathKind.onTopic ||
+    PredicatePathKind.overTopic ||
     PredicatePathKind.withTopic => _predicateProperty(
       action,
       'topic',

@@ -178,6 +178,7 @@ void main() {
             PredicatePathKind.aboutTopic => 'topic',
             PredicatePathKind.ofTopic => 'topic',
             PredicatePathKind.onTopic => 'topic',
+            PredicatePathKind.overTopic => 'topic',
             PredicatePathKind.withTopic => 'topic',
             PredicatePathKind.forBeneficiary => 'beneficiary',
             PredicatePathKind.fromSource => 'source',

@@ -324,6 +324,7 @@ String? _prepositionTranslation(String preposition, Language language) {
     'for' => 'dla',
     'about' => 'o',
     'of' => 'o',
+    'over' => 'nad',
     'by' => 'przez',
     'with' => 'z',
     'at' => 'w',
