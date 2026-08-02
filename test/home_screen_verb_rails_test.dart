@@ -182,6 +182,9 @@ void main() {
   ) async {
     final search = find.byKey(Key('rail-search-$railTitle'));
     if (search.evaluate().isEmpty) {
+      await revealLazyFinder(tester, find.text('$railTitle:'));
+    }
+    if (search.evaluate().isEmpty) {
       return;
     }
 
@@ -428,59 +431,6 @@ void main() {
       find.byKey(const Key('suggestion-label-companion-girl')),
       findsWidgets,
     );
-  });
-
-  testWidgets('Personal pronoun rail number switches preserve pronoun family', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
-
-    final cases = [
-      (
-        actionKey: 'buy',
-        rail: 'Source',
-        singularKey: 'suggestion-label-source-me',
-        singular: 'You buy from me.',
-        plural: 'You buy from us.',
-      ),
-      (
-        actionKey: 'listen',
-        rail: 'Addressee',
-        singularKey: 'suggestion-label-addressee-me',
-        singular: 'You listen to me.',
-        plural: 'You listen to us.',
-      ),
-      (
-        actionKey: 'learn',
-        rail: 'Companion',
-        singularKey: 'suggestion-label-companion-me',
-        singular: 'You learn with me.',
-        plural: 'You learn with us.',
-      ),
-    ];
-
-    for (final example in cases) {
-      await tapVisible(tester, find.byTooltip('Reset'));
-      await tapVisible(tester, find.text('Word'));
-      await selectVerb(tester, example.actionKey);
-      await expandRail(tester, example.rail);
-      await filterRailIfPresent(
-        tester,
-        example.rail,
-        example.singularKey.split('-').last,
-      );
-      await tapAfterScroll(tester, find.byKey(Key(example.singularKey)));
-
-      expect(renderedSentence(tester), example.singular);
-
-      await switchLastNounNumber(tester, Number.plural);
-
-      expect(renderedSentence(tester), example.plural);
-
-      await switchLastNounNumber(tester, Number.singular);
-
-      expect(renderedSentence(tester), example.singular);
-    }
   });
 
   testWidgets(

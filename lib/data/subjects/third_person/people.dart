@@ -46,6 +46,34 @@ const david = Noun(
   pluralTranslations: {Language.pl: 'Dawidowie'},
 );
 
+const sophia = Noun(
+  singular: 'Sophia',
+  plural: 'Sophias',
+  singularTranslations: {Language.pl: 'Zofia'},
+  pluralTranslations: {Language.pl: 'Zofie'},
+);
+
+const mark = Noun(
+  singular: 'Mark',
+  plural: 'Marks',
+  singularTranslations: {Language.pl: 'Marek'},
+  pluralTranslations: {Language.pl: 'Markowie'},
+);
+
+const emma = Noun(
+  singular: 'Emma',
+  plural: 'Emmas',
+  singularTranslations: {Language.pl: 'Emma'},
+  pluralTranslations: {Language.pl: 'Emmy'},
+);
+
+const adam = Noun(
+  singular: 'Adam',
+  plural: 'Adams',
+  singularTranslations: {Language.pl: 'Adam'},
+  pluralTranslations: {Language.pl: 'Adamowie'},
+);
+
 const choir = Noun(
   singular: 'choir',
   plural: 'choirs',
@@ -226,6 +254,62 @@ const brother = Noun(
   plural: 'brothers',
   singularTranslations: {Language.pl: 'brat'},
   pluralTranslations: {Language.pl: 'bracia'},
+);
+
+const aunt = Noun(
+  singular: 'aunt',
+  plural: 'aunts',
+  singularTranslations: {Language.pl: 'ciocia'},
+  pluralTranslations: {Language.pl: 'ciocie'},
+);
+
+const uncle = Noun(
+  singular: 'uncle',
+  plural: 'uncles',
+  singularTranslations: {Language.pl: 'wujek'},
+  pluralTranslations: {Language.pl: 'wujkowie'},
+);
+
+const cousin = Noun(
+  singular: 'cousin',
+  plural: 'cousins',
+  singularTranslations: {Language.pl: 'kuzyn'},
+  pluralTranslations: {Language.pl: 'kuzyni'},
+);
+
+const wife = Noun(
+  singular: 'wife',
+  plural: 'wives',
+  singularTranslations: {Language.pl: 'zona'},
+  pluralTranslations: {Language.pl: 'zony'},
+);
+
+const husband = Noun(
+  singular: 'husband',
+  plural: 'husbands',
+  singularTranslations: {Language.pl: 'maz'},
+  pluralTranslations: {Language.pl: 'mezowie'},
+);
+
+const son = Noun(
+  singular: 'son',
+  plural: 'sons',
+  singularTranslations: {Language.pl: 'syn'},
+  pluralTranslations: {Language.pl: 'synowie'},
+);
+
+const daughter = Noun(
+  singular: 'daughter',
+  plural: 'daughters',
+  singularTranslations: {Language.pl: 'corka'},
+  pluralTranslations: {Language.pl: 'corki'},
+);
+
+const baby = Noun(
+  singular: 'baby',
+  plural: 'babies',
+  singularTranslations: {Language.pl: 'dziecko'},
+  pluralTranslations: {Language.pl: 'dzieci'},
 );
 
 const boss = Noun(
@@ -417,6 +501,188 @@ const guide = Noun(
   pluralTranslations: {Language.pl: 'przewodnicy'},
 );
 
+const pupil = Noun(
+  singular: 'pupil',
+  plural: 'pupils',
+  singularTranslations: {Language.pl: 'uczen'},
+  pluralTranslations: {Language.pl: 'uczniowie'},
+);
+
+const professor = Noun(
+  singular: 'professor',
+  plural: 'professors',
+  singularTranslations: {Language.pl: 'profesor'},
+  pluralTranslations: {Language.pl: 'profesorowie'},
+);
+
+const principal = Noun(
+  singular: 'principal',
+  plural: 'principals',
+  singularTranslations: {Language.pl: 'dyrektor szkoly'},
+  pluralTranslations: {Language.pl: 'dyrektorzy szkoly'},
+);
+
+const assistant = Noun(
+  singular: 'assistant',
+  plural: 'assistants',
+  singularTranslations: {Language.pl: 'asystent'},
+  pluralTranslations: {Language.pl: 'asystenci'},
+);
+
+const accountant = Noun(
+  singular: 'accountant',
+  plural: 'accountants',
+  singularTranslations: {Language.pl: 'ksiegowy'},
+  pluralTranslations: {Language.pl: 'ksiegowi'},
+);
+
+const cashier = Noun(
+  singular: 'cashier',
+  plural: 'cashiers',
+  singularTranslations: {Language.pl: 'kasjer'},
+  pluralTranslations: {Language.pl: 'kasjerzy'},
+);
+
+const secretary = Noun(
+  singular: 'secretary',
+  plural: 'secretaries',
+  singularTranslations: {Language.pl: 'sekretarz'},
+  pluralTranslations: {Language.pl: 'sekretarze'},
+);
+
+const developer = Noun(
+  singular: 'developer',
+  plural: 'developers',
+  singularTranslations: {Language.pl: 'programista'},
+  pluralTranslations: {Language.pl: 'programisci'},
+);
+
+const designer = Noun(
+  singular: 'designer',
+  plural: 'designers',
+  singularTranslations: {Language.pl: 'projektant'},
+  pluralTranslations: {Language.pl: 'projektanci'},
+);
+
+const architect = Noun(
+  singular: 'architect',
+  plural: 'architects',
+  singularTranslations: {Language.pl: 'architekt'},
+  pluralTranslations: {Language.pl: 'architekci'},
+);
+
+const cleaner = Noun(
+  singular: 'cleaner',
+  plural: 'cleaners',
+  singularTranslations: {Language.pl: 'sprzatacz'},
+  pluralTranslations: {Language.pl: 'sprzatacze'},
+);
+
+const plumber = Noun(
+  singular: 'plumber',
+  plural: 'plumbers',
+  singularTranslations: {Language.pl: 'hydraulik'},
+  pluralTranslations: {Language.pl: 'hydraulicy'},
+);
+
+const electrician = Noun(
+  singular: 'electrician',
+  plural: 'electricians',
+  singularTranslations: {Language.pl: 'elektryk'},
+  pluralTranslations: {Language.pl: 'elektrycy'},
+);
+
+const dancer = Noun(
+  singular: 'dancer',
+  plural: 'dancers',
+  singularTranslations: {Language.pl: 'tancerz'},
+  pluralTranslations: {Language.pl: 'tancerze'},
+);
+
+const photographer = Noun(
+  singular: 'photographer',
+  plural: 'photographers',
+  singularTranslations: {Language.pl: 'fotograf'},
+  pluralTranslations: {Language.pl: 'fotografowie'},
+);
+
+const journalist = Noun(
+  singular: 'journalist',
+  plural: 'journalists',
+  singularTranslations: {Language.pl: 'dziennikarz'},
+  pluralTranslations: {Language.pl: 'dziennikarze'},
+);
+
+const partner = Noun(
+  singular: 'partner',
+  plural: 'partners',
+  singularTranslations: {Language.pl: 'partner'},
+  pluralTranslations: {Language.pl: 'partnerzy'},
+);
+
+const stranger = Noun(
+  singular: 'stranger',
+  plural: 'strangers',
+  singularTranslations: {Language.pl: 'nieznajomy'},
+  pluralTranslations: {Language.pl: 'nieznajomi'},
+);
+
+const leader = Noun(
+  singular: 'leader',
+  plural: 'leaders',
+  singularTranslations: {Language.pl: 'lider'},
+  pluralTranslations: {Language.pl: 'liderzy'},
+);
+
+const member = Noun(
+  singular: 'member',
+  plural: 'members',
+  singularTranslations: {Language.pl: 'czlonek'},
+  pluralTranslations: {Language.pl: 'czlonkowie'},
+);
+
+const volunteer = Noun(
+  singular: 'volunteer',
+  plural: 'volunteers',
+  singularTranslations: {Language.pl: 'wolontariusz'},
+  pluralTranslations: {Language.pl: 'wolontariusze'},
+);
+
+const firefighter = Noun(
+  singular: 'firefighter',
+  plural: 'firefighters',
+  singularTranslations: {Language.pl: 'strazak'},
+  pluralTranslations: {Language.pl: 'strazacy'},
+);
+
+const soldier = Noun(
+  singular: 'soldier',
+  plural: 'soldiers',
+  singularTranslations: {Language.pl: 'zolnierz'},
+  pluralTranslations: {Language.pl: 'zolnierze'},
+);
+
+const pilot = Noun(
+  singular: 'pilot',
+  plural: 'pilots',
+  singularTranslations: {Language.pl: 'pilot'},
+  pluralTranslations: {Language.pl: 'piloci'},
+);
+
+const judge = Noun(
+  singular: 'judge',
+  plural: 'judges',
+  singularTranslations: {Language.pl: 'sedzia'},
+  pluralTranslations: {Language.pl: 'sedziowie'},
+);
+
+const barber = Noun(
+  singular: 'barber',
+  plural: 'barbers',
+  singularTranslations: {Language.pl: 'fryzjer'},
+  pluralTranslations: {Language.pl: 'fryzjerzy'},
+);
+
 const someone = NounPhrase(
   text: 'someone',
   person: Person.third,
@@ -452,6 +718,10 @@ const peopleNouns = [
   anna,
   alice,
   david,
+  sophia,
+  mark,
+  emma,
+  adam,
   choir,
   person,
   teacher,
@@ -478,6 +748,14 @@ const peopleNouns = [
   grandfather,
   sister,
   brother,
+  aunt,
+  uncle,
+  cousin,
+  wife,
+  husband,
+  son,
+  daughter,
+  baby,
   boss,
   colleague,
   classmate,
@@ -505,6 +783,32 @@ const peopleNouns = [
   tourist,
   passenger,
   guide,
+  pupil,
+  professor,
+  principal,
+  assistant,
+  accountant,
+  cashier,
+  secretary,
+  developer,
+  designer,
+  architect,
+  cleaner,
+  plumber,
+  electrician,
+  dancer,
+  photographer,
+  journalist,
+  partner,
+  stranger,
+  leader,
+  member,
+  volunteer,
+  firefighter,
+  soldier,
+  pilot,
+  judge,
+  barber,
 ];
 
 const indefinitePeople = [someone, anyone, nobody, everyone];

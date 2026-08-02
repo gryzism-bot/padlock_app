@@ -325,6 +325,83 @@ const crab = Noun(
   pluralTranslations: {Language.pl: 'kraby'},
 );
 
+const penguin = Noun(
+  singular: 'penguin',
+  plural: 'penguins',
+  singularTranslations: {Language.pl: 'pingwin'},
+  pluralTranslations: {Language.pl: 'pingwiny'},
+);
+
+const crow = Noun(
+  singular: 'crow',
+  plural: 'crows',
+  singularTranslations: {Language.pl: 'wrona'},
+  pluralTranslations: {Language.pl: 'wrony'},
+);
+
+const sparrow = Noun(
+  singular: 'sparrow',
+  plural: 'sparrows',
+  singularTranslations: {Language.pl: 'wrobel'},
+  pluralTranslations: {Language.pl: 'wroble'},
+);
+
+const falcon = Noun(
+  singular: 'falcon',
+  plural: 'falcons',
+  singularTranslations: {Language.pl: 'sokol'},
+  pluralTranslations: {Language.pl: 'sokoly'},
+);
+
+const rhino = Noun(
+  singular: 'rhino',
+  plural: 'rhinos',
+  singularTranslations: {Language.pl: 'nosorozec'},
+  pluralTranslations: {Language.pl: 'nosorozce'},
+);
+
+const hippo = Noun(
+  singular: 'hippo',
+  plural: 'hippos',
+  singularTranslations: {Language.pl: 'hipopotam'},
+  pluralTranslations: {Language.pl: 'hipopotamy'},
+);
+
+const kangaroo = Noun(
+  singular: 'kangaroo',
+  plural: 'kangaroos',
+  singularTranslations: {Language.pl: 'kangur'},
+  pluralTranslations: {Language.pl: 'kangury'},
+);
+
+const koala = Noun(
+  singular: 'koala',
+  plural: 'koalas',
+  singularTranslations: {Language.pl: 'koala'},
+  pluralTranslations: {Language.pl: 'koale'},
+);
+
+const panda = Noun(
+  singular: 'panda',
+  plural: 'pandas',
+  singularTranslations: {Language.pl: 'panda'},
+  pluralTranslations: {Language.pl: 'pandy'},
+);
+
+const otter = Noun(
+  singular: 'otter',
+  plural: 'otters',
+  singularTranslations: {Language.pl: 'wydra'},
+  pluralTranslations: {Language.pl: 'wydry'},
+);
+
+const sealAnimal = Noun(
+  singular: 'seal',
+  plural: 'seals',
+  singularTranslations: {Language.pl: 'foka'},
+  pluralTranslations: {Language.pl: 'foki'},
+);
+
 const animalNouns = [
   cat,
   dog,
@@ -372,6 +449,17 @@ const animalNouns = [
   goose,
   swan,
   crab,
+  penguin,
+  crow,
+  sparrow,
+  falcon,
+  rhino,
+  hippo,
+  kangaroo,
+  koala,
+  panda,
+  otter,
+  sealAnimal,
 ];
 
 final List<NounPhrase> singularAnimals = [

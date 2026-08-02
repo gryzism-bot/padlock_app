@@ -243,11 +243,27 @@ void main() {
           'mother',
           'lawyer',
           'guest',
+          'Sophia',
+          'Adam',
+          'aunt',
+          'cashier',
+          'developer',
+          'firefighter',
         ]),
       );
       expect(
         animal_data.singularAnimals.map((noun) => noun.text),
-        containsAll(['cat', 'dog', 'puppy', 'dolphin', 'hamster', 'swan']),
+        containsAll([
+          'cat',
+          'dog',
+          'puppy',
+          'dolphin',
+          'hamster',
+          'swan',
+          'penguin',
+          'rhino',
+          'seal',
+        ]),
       );
       expect(
         object_data.singularTextObjects.map((noun) => noun.text),
@@ -286,6 +302,10 @@ void main() {
           'dog',
           'hamster',
           'dolphin',
+          'cashier',
+          'aunt',
+          'penguin',
+          'rhino',
         ]),
       );
     });
@@ -301,6 +321,10 @@ void main() {
           'lawyer',
           'mechanic',
           'guard',
+          'cashier',
+          'developer',
+          'plumber',
+          'electrician',
         ]),
       );
       expect(
@@ -312,6 +336,12 @@ void main() {
           'grandfather',
           'sister',
           'brother',
+          'aunt',
+          'uncle',
+          'cousin',
+          'wife',
+          'husband',
+          'daughter',
         ]),
       );
       expect(
@@ -320,7 +350,7 @@ void main() {
       );
       expect(
         animal_categories.singularWaterAnimals.map((noun) => noun.text),
-        containsAll(['fish', 'dolphin', 'whale', 'shark']),
+        containsAll(['fish', 'dolphin', 'whale', 'shark', 'otter', 'seal']),
       );
       expect(
         object_categories.singularFoodObjects.map((noun) => noun.text),

@@ -10,6 +10,10 @@ const namedPersonNouns = [
   people.anna,
   people.alice,
   people.david,
+  people.sophia,
+  people.mark,
+  people.emma,
+  people.adam,
 ];
 
 const familyPersonNouns = [
@@ -25,9 +29,24 @@ const familyPersonNouns = [
   people.woman,
   people.boy,
   people.girl,
+  people.aunt,
+  people.uncle,
+  people.cousin,
+  people.wife,
+  people.husband,
+  people.son,
+  people.daughter,
+  people.baby,
 ];
 
-const schoolPersonNouns = [people.teacher, people.student, people.classmate];
+const schoolPersonNouns = [
+  people.teacher,
+  people.student,
+  people.classmate,
+  people.pupil,
+  people.professor,
+  people.principal,
+];
 
 const workPersonNouns = [
   people.boss,
@@ -43,6 +62,16 @@ const workPersonNouns = [
   people.lawyer,
   people.mechanic,
   people.guard,
+  people.assistant,
+  people.accountant,
+  people.cashier,
+  people.secretary,
+  people.developer,
+  people.designer,
+  people.architect,
+  people.cleaner,
+  people.plumber,
+  people.electrician,
 ];
 
 const creativePersonNouns = [
@@ -54,6 +83,9 @@ const creativePersonNouns = [
   people.writer,
   people.cook,
   people.baker,
+  people.dancer,
+  people.photographer,
+  people.journalist,
 ];
 
 const socialPersonNouns = [
@@ -65,6 +97,11 @@ const socialPersonNouns = [
   people.player,
   people.person,
   people.guest,
+  people.partner,
+  people.stranger,
+  people.leader,
+  people.member,
+  people.volunteer,
 ];
 
 const publicPersonNouns = [
@@ -76,6 +113,11 @@ const publicPersonNouns = [
   people.tourist,
   people.passenger,
   people.guide,
+  people.firefighter,
+  people.soldier,
+  people.pilot,
+  people.judge,
+  people.barber,
 ];
 
 List<NounPhrase> _singular(List<Noun> nouns) {

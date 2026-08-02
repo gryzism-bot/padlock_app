@@ -169,6 +169,9 @@ void main() {
     if (searchField.evaluate().isEmpty) {
       await revealLazyFinder(tester, find.text('$railTitle:'));
     }
+    if (searchField.evaluate().isEmpty) {
+      return;
+    }
 
     await tester.enterText(searchField, query);
     await tester.pumpAndSettle();
@@ -952,6 +955,7 @@ void main() {
       expect(renderedSentence(tester), 'You introduce to a cat.');
 
       await expandRail(tester, 'Object');
+      await filterRail(tester, 'Object', 'dog');
       await tapAfterScroll(
         tester,
         find.byKey(const Key('suggestion-label-object-dog')),
@@ -994,6 +998,7 @@ void main() {
       expect(find.text('By-agent:'), findsOneWidget);
 
       await expandRail(tester, 'By-agent');
+      await filterRail(tester, 'By-agent', 'Mary');
       await tapAfterScroll(
         tester,
         find.byKey(const Key('suggestion-label-passiveAgentNoun-mary')),

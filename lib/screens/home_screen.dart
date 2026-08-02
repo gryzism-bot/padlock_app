@@ -3337,10 +3337,16 @@ class _CompassSlotSectionState extends State<_CompassSlotSection> {
     }
 
     final terms = query.split(RegExp(r'\s+'));
-    return [
+    final matches = [
       for (final suggestion in widget.suggestions)
         if (_suggestionMatchesTerms(suggestion, terms)) suggestion,
     ];
+    matches.sort((left, right) {
+      final leftRank = _suggestionSearchRank(left, terms);
+      final rightRank = _suggestionSearchRank(right, terms);
+      return leftRank.compareTo(rightRank);
+    });
+    return matches;
   }
 
   @override
@@ -3647,8 +3653,30 @@ bool _suggestionMatchesTerms(
   ConfigurationSuggestion suggestion,
   List<String> terms,
 ) {
+  return _suggestionSearchRank(suggestion, terms) < 1000;
+}
+
+int _suggestionSearchRank(
+  ConfigurationSuggestion suggestion,
+  List<String> terms,
+) {
   final text = _suggestionSearchText(suggestion).toLowerCase();
-  return terms.every(text.contains);
+  final tokens = text
+      .split(RegExp(r'[^a-z0-9]+'))
+      .where((token) => token.isNotEmpty)
+      .toList();
+  var rank = 0;
+  for (final term in terms) {
+    if (tokens.any((token) => token == term)) {
+      continue;
+    }
+    if (tokens.any((token) => token.startsWith(term))) {
+      rank += 1;
+      continue;
+    }
+    return 1000;
+  }
+  return rank;
 }
 
 String _suggestionSearchText(ConfigurationSuggestion suggestion) {

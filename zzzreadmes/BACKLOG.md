@@ -81,6 +81,12 @@ These are no longer active backlog items unless a regression appears.
   - tools/devices/openables: screwdriver, saw, glue, tape, pot, pan, bowl,
     microphone, app, server, envelope, package, suitcase, fridge
   - food, media, clothing, furniture, vehicle, and abstract route nouns
+- Third-person noun saturation widened people and animal shelves:
+  - people: extra names, family nouns, school roles, work roles, creative roles,
+    social roles, and public roles
+  - animals: extra wild, bird, and water animals
+  - PredicatePaths inherits the wider `people`, `animals`, and
+    `peopleAndAnimals` shelves without per-verb rewiring
 
 ## PredicatePath Status
 
@@ -130,10 +136,11 @@ Saturation should follow noun atomization:
 Useful next shelves:
 
 - people/person-like:
-  - family, workplace, public roles, social roles, learners, customers,
-    performers, drivers, passengers
+  - refine grouping and semantic filtering for family, workplace, public,
+    social, learner, customer, performer, driver, and passenger roles
 - animals:
-  - pet/farm/wild/bird/water/small animals
+  - refine grouping and semantic filtering for pet/farm/wild/bird/water/small
+    animals
 - everyday objects:
   - containers, household items, bags, room objects, office objects
 - foods and drinks:

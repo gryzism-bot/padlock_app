@@ -1707,7 +1707,7 @@ void main() {
       );
       final labels = suggestions.map((suggestion) => suggestion.label);
 
-      expect(labels, containsAll(['John', 'Mary', 'friend']));
+      expect(labels, containsAll(['John', 'Mary', 'friend', 'me', 'us']));
       expect(
         render(
           suggestions
@@ -1716,7 +1716,90 @@ void main() {
         ),
         'You learn from Mary.',
       );
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'me')
+              .preview,
+        ),
+        'You learn from me.',
+      );
     });
+
+    test(
+      'authored prepositional participant suggestions keep object pronouns',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+
+        final sourceState = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(learn),
+        );
+        final sourceSuggestions = authoredCompass.suggestionsFor(
+          sourceState,
+          ConfigurationCompassSlot.source,
+          limit: 0,
+        );
+        expect(
+          sourceSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['me', 'us']),
+        );
+        expect(
+          render(
+            sourceSuggestions
+                .firstWhere((suggestion) => suggestion.label == 'us')
+                .preview,
+          ),
+          'You learn from us.',
+        );
+
+        final addresseeState = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(listen),
+        );
+        final addresseeSuggestions = authoredCompass.suggestionsFor(
+          addresseeState,
+          ConfigurationCompassSlot.addressee,
+          limit: 0,
+        );
+        expect(
+          addresseeSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['me', 'us']),
+        );
+        expect(
+          render(
+            addresseeSuggestions
+                .firstWhere((suggestion) => suggestion.label == 'me')
+                .preview,
+          ),
+          'You listen to me.',
+        );
+
+        final companionState = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(learn),
+        );
+        final companionSuggestions = authoredCompass.suggestionsFor(
+          companionState,
+          ConfigurationCompassSlot.companion,
+          limit: 0,
+        );
+        expect(
+          companionSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['me', 'us']),
+        );
+        expect(
+          render(
+            companionSuggestions
+                .firstWhere((suggestion) => suggestion.label == 'me')
+                .preview,
+          ),
+          'You learn with me.',
+        );
+      },
+    );
 
     test('prepositional participant rails share the same compass surface', () {
       final authoredCompass = ConfigurationCompass(

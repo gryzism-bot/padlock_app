@@ -41,6 +41,11 @@ const wildAnimalNouns = [
   animals.giraffe,
   animals.zebra,
   animals.squirrel,
+  animals.rhino,
+  animals.hippo,
+  animals.kangaroo,
+  animals.koala,
+  animals.panda,
 ];
 
 const smallAnimalNouns = [
@@ -63,6 +68,10 @@ const birdAnimalNouns = [
   animals.owl,
   animals.eagle,
   animals.parrot,
+  animals.penguin,
+  animals.crow,
+  animals.sparrow,
+  animals.falcon,
 ];
 
 const waterAnimalNouns = [
@@ -70,6 +79,9 @@ const waterAnimalNouns = [
   animals.dolphin,
   animals.whale,
   animals.shark,
+  animals.otter,
+  animals.sealAnimal,
+  animals.penguin,
 ];
 
 List<NounPhrase> _singular(List<Noun> nouns) {
