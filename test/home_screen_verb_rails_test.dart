@@ -223,6 +223,7 @@ void main() {
     await tapVisible(tester, find.text('Word'));
     await selectVerb(tester, 'buy');
     await expandRail(tester, 'Object');
+    await filterRailIfPresent(tester, 'Object', 'book');
 
     await tester.scrollUntilVisible(
       find.text('sg'),
@@ -263,6 +264,7 @@ void main() {
 
     expect(renderedSentence(tester), 'You buy book.');
 
+    await filterRailIfPresent(tester, 'Object', 'no object');
     await tapAfterScroll(tester, find.text('no object', findRichText: true));
 
     expect(renderedSentence(tester), 'You buy.');

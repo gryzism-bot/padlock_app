@@ -536,14 +536,17 @@ void main() {
     expectRailSurfaceMarker(tester, 'Beneficiary', 'for');
     expectRailSurfaceMarker(tester, 'Topic', 'on');
     await expandRail(tester, 'Topic');
+    await filterRail(tester, 'Topic', 'grammar');
     expect(
       find.byKey(const Key('suggestion-label-topic-on-grammar')),
       findsOneWidget,
     );
+    await filterRail(tester, 'Topic', 'car');
     expect(
       find.byKey(const Key('suggestion-label-topic-on-car')),
       findsOneWidget,
     );
+    await filterRail(tester, 'Topic', 'project');
     expect(
       find.byKey(const Key('suggestion-label-topic-on-project')),
       findsOneWidget,

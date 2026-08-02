@@ -459,6 +459,8 @@ final _cuttingInstruments = _objectsWithText(_toolObjects, [
   'knife',
   'knives',
   'scissors',
+  'saw',
+  'saws',
 ]);
 final _eatingInstruments = _objectsWithText(_toolObjects, [
   'fork',
@@ -466,7 +468,12 @@ final _eatingInstruments = _objectsWithText(_toolObjects, [
   'spoon',
   'spoons',
 ]);
-final _mixingInstruments = _objectsWithText(_toolObjects, ['spoon', 'spoons']);
+final _mixingInstruments = _objectsWithText(_toolObjects, [
+  'spoon',
+  'spoons',
+  'bowl',
+  'bowls',
+]);
 final _photoInstruments = _objectsWithText(_toolObjects, [
   'camera',
   'cameras',

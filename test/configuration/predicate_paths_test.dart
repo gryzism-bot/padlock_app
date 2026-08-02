@@ -340,6 +340,11 @@ void main() {
           'sugar',
           'salt',
           'oil',
+          'tomato',
+          'chicken',
+          'chocolate',
+          'cookie',
+          'cereal',
         ]),
       );
       expect(
@@ -357,11 +362,32 @@ void main() {
           'cable',
           'notebook',
           'ruler',
+          'screwdriver',
+          'saw',
+          'glue',
+          'tape',
+          'pot',
+          'pan',
+          'bowl',
+          'microphone',
         ]),
       );
       expect(
         object_categories.singularOpenableObjects.map((noun) => noun.text),
-        containsAll(['door', 'window', 'box', 'wallet', 'drawer', 'folder']),
+        containsAll([
+          'door',
+          'window',
+          'box',
+          'wallet',
+          'drawer',
+          'folder',
+          'envelope',
+          'package',
+          'suitcase',
+          'fridge',
+          'app',
+          'file',
+        ]),
       );
       expect(
         object_categories.singularMediaObjects.map((noun) => noun.text),
@@ -375,6 +401,9 @@ void main() {
           'song',
           'photo',
           'painting',
+          'website',
+          'podcast',
+          'playlist',
         ]),
       );
       expect(
@@ -393,15 +422,22 @@ void main() {
           'lesson',
           'language',
           'skill',
+          'task',
+          'goal',
+          'rule',
+          'system',
+          'route',
+          'topic',
+          'decision',
         ]),
       );
       expect(
         object_categories.singularVehicleObjects.map((noun) => noun.text),
-        containsAll(['car', 'bus', 'train', 'bicycle']),
+        containsAll(['car', 'bus', 'train', 'bicycle', 'motorcycle', 'truck']),
       );
       expect(
         object_categories.singularDrivableObjects.map((noun) => noun.text),
-        containsAll(['car', 'bus', 'train']),
+        containsAll(['car', 'bus', 'train', 'motorcycle', 'truck', 'taxi']),
       );
       expect(
         object_categories.singularDrivableObjects.map((noun) => noun.text),
@@ -409,7 +445,7 @@ void main() {
       );
       expect(
         object_categories.singularRideableObjects.map((noun) => noun.text),
-        containsAll(['bicycle', 'bus', 'train']),
+        containsAll(['bicycle', 'bus', 'train', 'motorcycle']),
       );
     });
 
@@ -518,19 +554,76 @@ void main() {
       );
     });
 
+    test('fourth vocabulary batch widens everyday object route shelves', () {
+      expect(
+        predicateNounChoicesFor(
+          read,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['recipe', 'menu', 'contract', 'file', 'website', 'code']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          write,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['recipe', 'bill', 'receipt', 'page', 'code']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          use,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['screwdriver', 'saw', 'glue', 'tape', 'microphone']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          open,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['envelope', 'package', 'suitcase', 'fridge', 'app']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          cooking_data.cook,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['tomato', 'chicken', 'chocolate', 'cookie', 'cereal']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          work,
+          PredicatePathKind.onTopic,
+        ).map((object) => object.text),
+        containsAll(['task', 'goal', 'rule', 'system', 'route', 'topic']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          drive,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        containsAll(['motorcycle', 'truck', 'taxi']),
+      );
+    });
+
     test('fixed object frames consume semantic category shelves', () {
       final examples = [
         (action: write, object: object_data.email),
         (action: write, object: object_data.message),
         (action: write, object: object_data.report),
+        (action: write, object: object_data.page),
         (action: read, object: object_data.article),
         (action: read, object: object_data.document),
+        (action: read, object: object_data.recipe),
         (action: use, object: object_data.camera),
         (action: use, object: object_data.tablet),
+        (action: use, object: object_data.screwdriver),
         (action: open, object: object_data.box),
         (action: open, object: object_data.drawer),
+        (action: open, object: object_data.suitcase),
         (action: close, object: object_data.wallet),
         (action: close, object: object_data.folder),
+        (action: close, object: object_data.fridge),
         (action: watch, object: object_data.movie),
         (action: watch, object: object_data.photo),
       ];

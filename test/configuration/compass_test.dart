@@ -2233,7 +2233,20 @@ void main() {
 
       expect(
         suggestions.map((suggestion) => suggestion.label),
-        unorderedEquals(['car', 'cars', 'bus', 'buses', 'train', 'trains']),
+        unorderedEquals([
+          'bus',
+          'buses',
+          'car',
+          'cars',
+          'motorcycle',
+          'motorcycles',
+          'taxi',
+          'taxis',
+          'train',
+          'trains',
+          'truck',
+          'trucks',
+        ]),
       );
     });
 

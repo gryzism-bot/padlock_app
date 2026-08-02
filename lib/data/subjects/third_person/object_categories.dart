@@ -33,6 +33,11 @@ const foodObjectNouns = [
   objects.juice,
   objects.water,
   objects.milk,
+  objects.tomato,
+  objects.chicken,
+  objects.chocolate,
+  objects.cookie,
+  objects.cereal,
 ];
 
 const textObjectNouns = [
@@ -52,6 +57,15 @@ const textObjectNouns = [
   objects.list,
   objects.card,
   objects.script,
+  objects.recipe,
+  objects.menu,
+  objects.bill,
+  objects.receipt,
+  objects.contract,
+  objects.fileObject,
+  objects.page,
+  objects.website,
+  objects.code,
 ];
 
 const toolObjectNouns = [
@@ -76,6 +90,14 @@ const toolObjectNouns = [
   objects.cable,
   objects.notebook,
   objects.ruler,
+  objects.screwdriver,
+  objects.saw,
+  objects.glue,
+  objects.tape,
+  objects.pot,
+  objects.pan,
+  objects.bowl,
+  objects.microphone,
 ];
 
 const deviceObjectNouns = [
@@ -93,6 +115,9 @@ const deviceObjectNouns = [
   objects.tablet,
   objects.charger,
   objects.cable,
+  objects.server,
+  objects.app,
+  objects.microphone,
 ];
 
 const openableObjectNouns = [
@@ -107,6 +132,13 @@ const openableObjectNouns = [
   objects.drawer,
   objects.cabinet,
   objects.folder,
+  objects.envelope,
+  objects.package,
+  objects.suitcase,
+  objects.fridge,
+  objects.laptop,
+  objects.app,
+  objects.fileObject,
 ];
 
 const vehicleObjectNouns = [
@@ -114,14 +146,25 @@ const vehicleObjectNouns = [
   objects.bus,
   objects.train,
   objects.bicycle,
+  objects.motorcycle,
+  objects.truck,
+  objects.taxi,
 ];
 
-const drivableObjectNouns = [objects.car, objects.bus, objects.train];
+const drivableObjectNouns = [
+  objects.car,
+  objects.bus,
+  objects.train,
+  objects.motorcycle,
+  objects.truck,
+  objects.taxi,
+];
 
 const rideableObjectNouns = [
   objects.bicycle,
   objects.bus,
   objects.train,
+  objects.motorcycle,
   animals.horse,
 ];
 
@@ -141,6 +184,9 @@ const mediaObjectNouns = [
   objects.song,
   objects.photo,
   objects.painting,
+  objects.website,
+  objects.podcast,
+  objects.playlist,
 ];
 
 const clothingObjectNouns = [
@@ -148,6 +194,8 @@ const clothingObjectNouns = [
   objects.coat,
   objects.shoe,
   objects.hat,
+  objects.jacket,
+  objects.sock,
 ];
 
 const furnitureObjectNouns = [
@@ -157,6 +205,9 @@ const furnitureObjectNouns = [
   objects.desk,
   objects.sofa,
   objects.lamp,
+  objects.shelf,
+  objects.blanket,
+  objects.fridge,
 ];
 
 const moneyObjectNouns = [
@@ -164,6 +215,8 @@ const moneyObjectNouns = [
   objects.coin,
   objects.wallet,
   objects.ticket,
+  objects.bill,
+  objects.receipt,
 ];
 
 const musicObjectNouns = [
@@ -199,6 +252,13 @@ const abstractObjectNouns = [
   objects.lesson,
   objects.language,
   objects.skill,
+  objects.task,
+  objects.goal,
+  objects.rule,
+  objects.system,
+  objects.route,
+  objects.topicNoun,
+  objects.decision,
 ];
 
 List<NounPhrase> _singular(List<Noun> nouns) {

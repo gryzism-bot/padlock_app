@@ -990,6 +990,328 @@ const skill = Noun(
   pluralTranslations: {Language.pl: 'umiejetnosci'},
 );
 
+const recipe = Noun(
+  singular: 'recipe',
+  plural: 'recipes',
+  singularTranslations: {Language.pl: 'przepis'},
+  pluralTranslations: {Language.pl: 'przepisy'},
+);
+
+const menu = Noun(
+  singular: 'menu',
+  plural: 'menus',
+  singularTranslations: {Language.pl: 'menu'},
+  pluralTranslations: {Language.pl: 'menu'},
+);
+
+const bill = Noun(
+  singular: 'bill',
+  plural: 'bills',
+  singularTranslations: {Language.pl: 'rachunek'},
+  pluralTranslations: {Language.pl: 'rachunki'},
+);
+
+const receipt = Noun(
+  singular: 'receipt',
+  plural: 'receipts',
+  singularTranslations: {Language.pl: 'paragon'},
+  pluralTranslations: {Language.pl: 'paragony'},
+);
+
+const contract = Noun(
+  singular: 'contract',
+  plural: 'contracts',
+  singularTranslations: {Language.pl: 'umowa'},
+  pluralTranslations: {Language.pl: 'umowy'},
+);
+
+const fileObject = Noun(
+  singular: 'file',
+  plural: 'files',
+  singularTranslations: {Language.pl: 'plik'},
+  pluralTranslations: {Language.pl: 'pliki'},
+);
+
+const page = Noun(
+  singular: 'page',
+  plural: 'pages',
+  singularTranslations: {Language.pl: 'strona'},
+  pluralTranslations: {Language.pl: 'strony'},
+);
+
+const website = Noun(
+  singular: 'website',
+  plural: 'websites',
+  singularTranslations: {Language.pl: 'strona internetowa'},
+  pluralTranslations: {Language.pl: 'strony internetowe'},
+);
+
+const code = Noun(
+  singular: 'code',
+  plural: 'codes',
+  singularTranslations: {Language.pl: 'kod'},
+  pluralTranslations: {Language.pl: 'kody'},
+);
+
+const app = Noun(
+  singular: 'app',
+  plural: 'apps',
+  singularTranslations: {Language.pl: 'aplikacja'},
+  pluralTranslations: {Language.pl: 'aplikacje'},
+);
+
+const server = Noun(
+  singular: 'server',
+  plural: 'servers',
+  singularTranslations: {Language.pl: 'serwer'},
+  pluralTranslations: {Language.pl: 'serwery'},
+);
+
+const password = Noun(
+  singular: 'password',
+  plural: 'passwords',
+  singularTranslations: {Language.pl: 'haslo'},
+  pluralTranslations: {Language.pl: 'hasla'},
+);
+
+const button = Noun(
+  singular: 'button',
+  plural: 'buttons',
+  singularTranslations: {Language.pl: 'przycisk'},
+  pluralTranslations: {Language.pl: 'przyciski'},
+);
+
+const screwdriver = Noun(
+  singular: 'screwdriver',
+  plural: 'screwdrivers',
+  singularTranslations: {Language.pl: 'srubokret'},
+  pluralTranslations: {Language.pl: 'srubokrety'},
+);
+
+const saw = Noun(
+  singular: 'saw',
+  plural: 'saws',
+  singularTranslations: {Language.pl: 'pila'},
+  pluralTranslations: {Language.pl: 'pily'},
+);
+
+const glue = Noun(
+  singular: 'glue',
+  plural: 'glues',
+  singularTranslations: {Language.pl: 'klej'},
+  pluralTranslations: {Language.pl: 'kleje'},
+);
+
+const tape = Noun(
+  singular: 'tape',
+  plural: 'tapes',
+  singularTranslations: {Language.pl: 'tasma'},
+  pluralTranslations: {Language.pl: 'tasmy'},
+);
+
+const pot = Noun(
+  singular: 'pot',
+  plural: 'pots',
+  singularTranslations: {Language.pl: 'garnek'},
+  pluralTranslations: {Language.pl: 'garnki'},
+);
+
+const pan = Noun(
+  singular: 'pan',
+  plural: 'pans',
+  singularTranslations: {Language.pl: 'patelnia'},
+  pluralTranslations: {Language.pl: 'patelnie'},
+);
+
+const bowl = Noun(
+  singular: 'bowl',
+  plural: 'bowls',
+  singularTranslations: {Language.pl: 'miska'},
+  pluralTranslations: {Language.pl: 'miski'},
+);
+
+const microphone = Noun(
+  singular: 'microphone',
+  plural: 'microphones',
+  singularTranslations: {Language.pl: 'mikrofon'},
+  pluralTranslations: {Language.pl: 'mikrofony'},
+);
+
+const envelope = Noun(
+  singular: 'envelope',
+  plural: 'envelopes',
+  singularTranslations: {Language.pl: 'koperta'},
+  pluralTranslations: {Language.pl: 'koperty'},
+);
+
+const package = Noun(
+  singular: 'package',
+  plural: 'packages',
+  singularTranslations: {Language.pl: 'paczka'},
+  pluralTranslations: {Language.pl: 'paczki'},
+);
+
+const suitcase = Noun(
+  singular: 'suitcase',
+  plural: 'suitcases',
+  singularTranslations: {Language.pl: 'walizka'},
+  pluralTranslations: {Language.pl: 'walizki'},
+);
+
+const fridge = Noun(
+  singular: 'fridge',
+  plural: 'fridges',
+  singularTranslations: {Language.pl: 'lodowka'},
+  pluralTranslations: {Language.pl: 'lodowki'},
+);
+
+const tomato = Noun(
+  singular: 'tomato',
+  plural: 'tomatoes',
+  singularTranslations: {Language.pl: 'pomidor'},
+  pluralTranslations: {Language.pl: 'pomidory'},
+);
+
+const chicken = Noun(
+  singular: 'chicken',
+  plural: 'chickens',
+  singularTranslations: {Language.pl: 'kurczak'},
+  pluralTranslations: {Language.pl: 'kurczaki'},
+);
+
+const chocolate = Noun(
+  singular: 'chocolate',
+  plural: 'chocolates',
+  singularTranslations: {Language.pl: 'czekolada'},
+  pluralTranslations: {Language.pl: 'czekolady'},
+);
+
+const cookie = Noun(
+  singular: 'cookie',
+  plural: 'cookies',
+  singularTranslations: {Language.pl: 'ciastko'},
+  pluralTranslations: {Language.pl: 'ciastka'},
+);
+
+const cereal = Noun(
+  singular: 'cereal',
+  plural: 'cereals',
+  singularTranslations: {Language.pl: 'platki'},
+  pluralTranslations: {Language.pl: 'platki'},
+);
+
+const podcast = Noun(
+  singular: 'podcast',
+  plural: 'podcasts',
+  singularTranslations: {Language.pl: 'podcast'},
+  pluralTranslations: {Language.pl: 'podcasty'},
+);
+
+const playlist = Noun(
+  singular: 'playlist',
+  plural: 'playlists',
+  singularTranslations: {Language.pl: 'playlista'},
+  pluralTranslations: {Language.pl: 'playlisty'},
+);
+
+const jacket = Noun(
+  singular: 'jacket',
+  plural: 'jackets',
+  singularTranslations: {Language.pl: 'kurtka'},
+  pluralTranslations: {Language.pl: 'kurtki'},
+);
+
+const sock = Noun(
+  singular: 'sock',
+  plural: 'socks',
+  singularTranslations: {Language.pl: 'skarpetka'},
+  pluralTranslations: {Language.pl: 'skarpetki'},
+);
+
+const shelf = Noun(
+  singular: 'shelf',
+  plural: 'shelves',
+  singularTranslations: {Language.pl: 'polka'},
+  pluralTranslations: {Language.pl: 'polki'},
+);
+
+const blanket = Noun(
+  singular: 'blanket',
+  plural: 'blankets',
+  singularTranslations: {Language.pl: 'koc'},
+  pluralTranslations: {Language.pl: 'koce'},
+);
+
+const motorcycle = Noun(
+  singular: 'motorcycle',
+  plural: 'motorcycles',
+  singularTranslations: {Language.pl: 'motocykl'},
+  pluralTranslations: {Language.pl: 'motocykle'},
+);
+
+const truck = Noun(
+  singular: 'truck',
+  plural: 'trucks',
+  singularTranslations: {Language.pl: 'ciezarowka'},
+  pluralTranslations: {Language.pl: 'ciezarowki'},
+);
+
+const taxi = Noun(
+  singular: 'taxi',
+  plural: 'taxis',
+  singularTranslations: {Language.pl: 'taksowka'},
+  pluralTranslations: {Language.pl: 'taksowki'},
+);
+
+const task = Noun(
+  singular: 'task',
+  plural: 'tasks',
+  singularTranslations: {Language.pl: 'zadanie'},
+  pluralTranslations: {Language.pl: 'zadania'},
+);
+
+const goal = Noun(
+  singular: 'goal',
+  plural: 'goals',
+  singularTranslations: {Language.pl: 'cel'},
+  pluralTranslations: {Language.pl: 'cele'},
+);
+
+const rule = Noun(
+  singular: 'rule',
+  plural: 'rules',
+  singularTranslations: {Language.pl: 'zasada'},
+  pluralTranslations: {Language.pl: 'zasady'},
+);
+
+const system = Noun(
+  singular: 'system',
+  plural: 'systems',
+  singularTranslations: {Language.pl: 'system'},
+  pluralTranslations: {Language.pl: 'systemy'},
+);
+
+const route = Noun(
+  singular: 'route',
+  plural: 'routes',
+  singularTranslations: {Language.pl: 'trasa'},
+  pluralTranslations: {Language.pl: 'trasy'},
+);
+
+const topicNoun = Noun(
+  singular: 'topic',
+  plural: 'topics',
+  singularTranslations: {Language.pl: 'temat'},
+  pluralTranslations: {Language.pl: 'tematy'},
+);
+
+const decision = Noun(
+  singular: 'decision',
+  plural: 'decisions',
+  singularTranslations: {Language.pl: 'decyzja'},
+  pluralTranslations: {Language.pl: 'decyzje'},
+);
+
 const objectNouns = [
   house,
   apartment,
@@ -1129,6 +1451,52 @@ const objectNouns = [
   lesson,
   language,
   skill,
+  recipe,
+  menu,
+  bill,
+  receipt,
+  contract,
+  fileObject,
+  page,
+  website,
+  code,
+  app,
+  server,
+  password,
+  button,
+  screwdriver,
+  saw,
+  glue,
+  tape,
+  pot,
+  pan,
+  bowl,
+  microphone,
+  envelope,
+  package,
+  suitcase,
+  fridge,
+  tomato,
+  chicken,
+  chocolate,
+  cookie,
+  cereal,
+  podcast,
+  playlist,
+  jacket,
+  sock,
+  shelf,
+  blanket,
+  motorcycle,
+  truck,
+  taxi,
+  task,
+  goal,
+  rule,
+  system,
+  route,
+  topicNoun,
+  decision,
 ];
 
 const textObjectNouns = [
@@ -1148,6 +1516,15 @@ const textObjectNouns = [
   list,
   card,
   script,
+  recipe,
+  menu,
+  bill,
+  receipt,
+  contract,
+  fileObject,
+  page,
+  website,
+  code,
 ];
 
 final List<NounPhrase> singularObjects = [

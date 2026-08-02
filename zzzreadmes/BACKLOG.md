@@ -75,6 +75,12 @@ These are no longer active backlog items unless a regression appears.
 - The developer console has collapsible diagnostics, move trace timing, cache
   controls, and copyable sentence/state text.
 - Rail-local translation toggles exist for the major rails.
+- Fourth vocabulary batch widened everyday object shelves:
+  - text/work items: recipe, menu, bill, receipt, contract, file, page,
+    website, code
+  - tools/devices/openables: screwdriver, saw, glue, tape, pot, pan, bowl,
+    microphone, app, server, envelope, package, suitcase, fridge
+  - food, media, clothing, furniture, vehicle, and abstract route nouns
 
 ## PredicatePath Status
 
@@ -129,13 +135,15 @@ Useful next shelves:
 - animals:
   - pet/farm/wild/bird/water/small animals
 - everyday objects:
-  - phones, devices, furniture, containers, clothes, paper objects
+  - containers, household items, bags, room objects, office objects
 - foods and drinks:
-  - common eat/drink/cook/chop/boil objects
+  - common eat/drink/cook/chop/boil objects, then split cooking ingredients
+    from prepared meals if semantic filtering needs it
 - tools:
-  - write/open/cut/fix/build/use instruments
+  - write/open/cut/fix/build/use instruments, then add tool-specific route
+    tests when a tool should be narrower than the broad `use` shelf
 - openables:
-  - doors, windows, bottles, boxes, bags, laptops, apps
+  - doors, windows, bottles, boxes, bags, laptops, apps, files, packages
 - text/media:
   - books, articles, messages, scripts, scenes, episodes, songs, videos
 - places:
