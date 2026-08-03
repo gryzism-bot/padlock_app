@@ -7,6 +7,7 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/verbs/communication.dart' as communication;
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/engine/idiom_discovery.dart';
 import 'package:padlock_app/engine/idiom_finder.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
@@ -62,6 +63,82 @@ void main() {
     );
 
     expect(matches, isEmpty);
+  });
+
+  test('second batch particle idioms are found as right particles', () {
+    final cases = [
+      (
+        id: 'find-out',
+        state: const SentenceState(
+          action: findVerb,
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'work-out',
+        state: const SentenceState(
+          action: work,
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'think-through',
+        state: const SentenceState(
+          action: think,
+          rightParticle: throughMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'stand-up',
+        state: const SentenceState(
+          action: stand,
+          rightParticle: upMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'sit-down',
+        state: const SentenceState(
+          action: sit,
+          rightParticle: downMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'come-back',
+        state: const SentenceState(
+          action: come,
+          rightParticle: backMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'go-away',
+        state: const SentenceState(
+          action: go,
+          rightParticle: awayMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+    ];
+
+    for (final caseData in cases) {
+      expect(
+        finder.find(caseData.state).map((match) => match.pattern.id),
+        contains(caseData.id),
+        reason: caseData.id,
+      );
+    }
   });
 
   test('discovery count accumulates unique idioms across moves', () {

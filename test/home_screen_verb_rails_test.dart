@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/engine/idiom_progress_store_stub.dart'
+    as idiom_store;
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/screens/home_screen.dart';
 
@@ -205,6 +207,15 @@ void main() {
     );
   }
 
+  Future<void> selectRightParticle(WidgetTester tester, String particle) async {
+    await expandRail(tester, 'Manner phrase');
+    await filterRailIfPresent(tester, 'Manner phrase', particle);
+    await tapAfterScroll(
+      tester,
+      find.byKey(Key('suggestion-label-mannerPhrase-$particle')),
+    );
+  }
+
   Future<void> pressOutlinedText(WidgetTester tester, String label) async {
     final button = find
         .ancestor(of: find.text(label), matching: find.byType(OutlinedButton))
@@ -281,6 +292,8 @@ void main() {
   testWidgets('Give object rail exposes habit nouns for give up routes', (
     tester,
   ) async {
+    idiom_store.resetStoredIdiomIdsForTests();
+    addTearDown(idiom_store.resetStoredIdiomIdsForTests);
     tester.view.physicalSize = const Size(1600, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -309,6 +322,46 @@ void main() {
     expect(find.byKey(const Key('idiom-toast')), findsOneWidget);
     expect(find.text('Idiom found'), findsOneWidget);
     expect(find.text('give up: stop doing something'), findsOneWidget);
+  });
+
+  testWidgets('Idiom discovery badge accumulates unique particle idioms', (
+    tester,
+  ) async {
+    idiom_store.resetStoredIdiomIdsForTests();
+    addTearDown(idiom_store.resetStoredIdiomIdsForTests);
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    expect(find.text('0 / 40 idioms found'), findsOneWidget);
+
+    await selectVerb(tester, 'give');
+    await selectRightParticle(tester, 'up');
+
+    expect(renderedSentence(tester), 'You give up.');
+    expect(find.text('1 / 40 idioms found'), findsOneWidget);
+    expect(find.text('give up: stop trying'), findsOneWidget);
+
+    await selectVerb(tester, 'write');
+    await selectRightParticle(tester, 'back');
+
+    expect(renderedSentence(tester), 'You write back.');
+    expect(find.text('2 / 40 idioms found'), findsOneWidget);
+    expect(find.text('write back: reply in writing'), findsOneWidget);
+
+    await selectVerb(tester, 'take');
+    await selectRightParticle(tester, 'off');
+
+    expect(renderedSentence(tester), 'You take off.');
+    expect(find.text('3 / 40 idioms found'), findsOneWidget);
+    expect(
+      find.text('take off: leave the ground or remove something'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Fixed text rail keeps plural determiner and adjective surface', (

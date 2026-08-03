@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
+import 'package:padlock_app/data/predicate/semantic_icons.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -18,6 +19,22 @@ void main() {
     return tester
         .widget<SelectableText>(find.byKey(const Key('rendered-sentence')))
         .data!;
+  }
+
+  int semanticOutputCountFor(Verb action) {
+    final influenceKeys = [
+      for (final influence in predicateInfluencesFor(action)) influence.key,
+    ];
+    final profile = predicateSemanticIconProfileFor(
+      infinitive: action.infinitive,
+      influenceKeys: influenceKeys,
+    );
+
+    return predicateSemanticOutputCount(
+      infinitive: action.infinitive,
+      influenceKeys: influenceKeys,
+      profile: profile,
+    );
   }
 
   Future<void> revealLazyFinder(
@@ -291,7 +308,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-learn')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(9),
+      findsNWidgets(semanticOutputCountFor(learn)),
     );
 
     await filterRail(tester, 'Verb', 'think');
@@ -317,7 +334,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-go')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(7),
+      findsNWidgets(semanticOutputCountFor(go)),
     );
 
     await filterRail(tester, 'Verb', 'read');
@@ -354,7 +371,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-give')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(6),
+      findsNWidgets(semanticOutputCountFor(give)),
     );
 
     await filterRail(tester, 'Verb', 'run');

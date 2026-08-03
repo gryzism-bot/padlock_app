@@ -1517,7 +1517,14 @@ void main() {
           go,
           PredicatePathKind.mannerPhrase,
         ).map((manner) => manner.text),
-        containsAll(['quickly', 'away', 'back', 'there']),
+        containsAll(['quickly', 'there']),
+      );
+      expect(
+        predicateMannerChoicesFor(
+          go,
+          PredicatePathKind.rightParticle,
+        ).map((manner) => manner.text),
+        containsAll(['away', 'back', 'around']),
       );
       expect(
         predicateMannerChoicesFor(
@@ -1673,12 +1680,12 @@ void main() {
       final cases = [
         (
           action: go,
-          move: const SetMannerPhrase(awayMannerPhrase),
+          move: const SetRightParticle(awayMannerPhrase),
           text: 'You go away.',
         ),
         (
           action: go,
-          move: const SetMannerPhrase(aroundMannerPhrase),
+          move: const SetRightParticle(aroundMannerPhrase),
           text: 'You go around.',
         ),
         (
@@ -1866,7 +1873,7 @@ void main() {
               (
                 action: think,
                 preMoves: const [],
-                move: const SetMannerPhrase(throughMannerPhrase),
+                move: const SetRightParticle(throughMannerPhrase),
                 text: 'You think through.',
               ),
               (
@@ -1918,14 +1925,26 @@ void main() {
               (
                 action: stand,
                 preMoves: const [],
-                move: const SetMannerPhrase(upMannerPhrase),
+                move: const SetRightParticle(upMannerPhrase),
                 text: 'You stand up.',
               ),
               (
                 action: sit,
                 preMoves: const [],
-                move: const SetMannerPhrase(downMannerPhrase),
+                move: const SetRightParticle(downMannerPhrase),
                 text: 'You sit down.',
+              ),
+              (
+                action: go,
+                preMoves: const [],
+                move: const SetRightParticle(awayMannerPhrase),
+                text: 'You go away.',
+              ),
+              (
+                action: come,
+                preMoves: const [],
+                move: const SetRightParticle(backMannerPhrase),
+                text: 'You come back.',
               ),
               (
                 action: work,

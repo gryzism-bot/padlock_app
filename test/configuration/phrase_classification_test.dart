@@ -313,12 +313,12 @@ void main() {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(go));
       state = lock.applyMove(state, const SetPlacePhrase(schoolPlacePhrase));
-      state = lock.applyMove(state, const SetMannerPhrase(awayMannerPhrase));
+      state = lock.applyMove(state, const SetRightParticle(awayMannerPhrase));
       state = lock.applyMove(state, const SetAction(say));
 
       expect(state.sentenceState.action, say);
       expect(state.sentenceState.placePhrase, isNull);
-      expect(state.sentenceState.mannerPhrase, isNull);
+      expect(state.sentenceState.rightParticle, isNull);
     });
 
     test('manner words are currently predicate-bound route material', () {
