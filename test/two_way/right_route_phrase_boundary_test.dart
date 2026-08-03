@@ -376,10 +376,16 @@ void main() {
           object: null,
         ),
         (
-          sentence: 'You gave grammar up.',
+          sentence: 'You gave up grammar.',
           action: give,
           manner: upMannerPhrase,
           object: 'grammar',
+        ),
+        (
+          sentence: 'You gave up smoking.',
+          action: give,
+          manner: upMannerPhrase,
+          object: 'smoking',
         ),
         (
           sentence: 'You gave money away.',
@@ -418,7 +424,7 @@ void main() {
           object: null,
         ),
         (
-          sentence: 'You wrote note down.',
+          sentence: 'You wrote down note.',
           action: write,
           manner: downMannerPhrase,
           object: 'note',
@@ -490,19 +496,19 @@ void main() {
           object: null,
         ),
         (
-          sentence: 'You turned lamp off.',
+          sentence: 'You turned off lamp.',
           action: particle_data.turn,
           manner: offMannerPhrase,
           object: 'lamp',
         ),
         (
-          sentence: 'You picked phone up.',
+          sentence: 'You picked up phone.',
           action: particle_data.pick,
           manner: upMannerPhrase,
           object: 'phone',
         ),
         (
-          sentence: 'You put book down.',
+          sentence: 'You put down book.',
           action: particle_data.put,
           manner: downMannerPhrase,
           object: 'book',
@@ -514,7 +520,7 @@ void main() {
           object: null,
         ),
         (
-          sentence: 'You looked word up.',
+          sentence: 'You looked up word.',
           action: particle_data.look,
           manner: upMannerPhrase,
           object: 'word',
@@ -553,6 +559,60 @@ void main() {
       }
     });
 
+    test(
+      'true manners stay distinct from particle surfaces on the same verb',
+      () {
+        final cases = [
+          (
+            sentence: 'You wrote note carefully.',
+            action: write,
+            manner: carefullyMannerPhrase,
+            object: 'note',
+          ),
+          (
+            sentence: 'You looked carefully.',
+            action: particle_data.look,
+            manner: carefullyMannerPhrase,
+            object: null,
+          ),
+          (
+            sentence: 'You picked phone carefully.',
+            action: particle_data.pick,
+            manner: carefullyMannerPhrase,
+            object: 'phone',
+          ),
+          (
+            sentence: 'You put book carefully.',
+            action: particle_data.put,
+            manner: carefullyMannerPhrase,
+            object: 'book',
+          ),
+        ];
+
+        for (final entry in cases) {
+          final state = recognizeRoundTrip(entry.sentence);
+
+          expect(state.action, entry.action, reason: entry.sentence);
+          expect(state.mannerPhrase, entry.manner, reason: entry.sentence);
+          expect(state.rightParticle, isNull, reason: entry.sentence);
+          if (entry.object == null) {
+            expect(state.object, isNull, reason: entry.sentence);
+          } else {
+            expectNoun(state.object, entry.object!);
+          }
+        }
+      },
+    );
+
+    test('true manner and right particle can coexist on one predicate', () {
+      final state = recognizeRoundTrip('You write down note carefully.');
+
+      expect(state.action, write);
+      expectNoun(state.object, 'note');
+      expect(state.rightParticle, downMannerPhrase);
+      expect(state.mannerPhrase, carefullyMannerPhrase);
+    });
+
     test('on topic remains distinct from on particle', () {
       final cases = [
         (
@@ -574,19 +634,13 @@ void main() {
       }
     });
 
-    test(
-      'particle before object is documented as future object-tail surface',
-      () {
-        final state = recognizeRoundTrip('You gave up grammar.');
+    test('particle before object can be the canonical object-tail surface', () {
+      final state = recognizeRoundTrip('You gave up grammar.');
 
-        expect(state.action, give);
-        expectNoun(state.object, 'grammar');
-        expect(state.rightParticle, upMannerPhrase);
-        expect(state.mannerPhrase, isNull);
-      },
-      skip:
-          'Current canonical surface is "give grammar up"; this needs a '
-          'particle-before-object participant pass.',
-    );
+      expect(state.action, give);
+      expectNoun(state.object, 'grammar');
+      expect(state.rightParticle, upMannerPhrase);
+      expect(state.mannerPhrase, isNull);
+    });
   });
 }

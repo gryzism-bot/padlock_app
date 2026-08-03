@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/modals.dart' hide need;
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
+import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/subjects/adjectives/colors.dart';
@@ -1473,6 +1474,40 @@ void main() {
         ),
         'You do something at home.',
       );
+    });
+
+    test('manner rail keeps true manners separate from right particles', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(give),
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.mannerPhrase,
+        limit: 0,
+      );
+      final carefully = suggestions.firstWhere(
+        (suggestion) => suggestion.label == 'carefully',
+      );
+      final up = suggestions.firstWhere(
+        (suggestion) => suggestion.label == 'up',
+      );
+
+      expect(carefully.move, isA<SetMannerPhrase>());
+      expect(up.move, isA<SetRightParticle>());
+      expect(render(carefully.preview), 'You give carefully.');
+      expect(render(up.preview), 'You give up.');
+      expect(
+        carefully.preview.sentenceState.mannerPhrase,
+        carefullyMannerPhrase,
+      );
+      expect(carefully.preview.sentenceState.rightParticle, isNull);
+      expect(up.preview.sentenceState.mannerPhrase, isNull);
+      expect(up.preview.sentenceState.rightParticle, upMannerPhrase);
     });
 
     test('topic suggestions require topic-capable frame', () {

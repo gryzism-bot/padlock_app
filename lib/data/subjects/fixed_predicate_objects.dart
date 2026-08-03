@@ -367,6 +367,27 @@ const skating = NounPhrase(
   translations: {Language.pl: 'jazda na lyzwach'},
 );
 
+const smoking = NounPhrase(
+  text: 'smoking',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'palenie'},
+);
+
+const gambling = NounPhrase(
+  text: 'gambling',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'hazard'},
+);
+
+const drinking = NounPhrase(
+  text: 'drinking',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'picie'},
+);
+
 const film = NounPhrase(
   text: 'film',
   person: Person.third,

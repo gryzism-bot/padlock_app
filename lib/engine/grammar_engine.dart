@@ -1,3 +1,4 @@
+import 'package:padlock_app/data/predicate/particle_object_order.dart';
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -608,6 +609,13 @@ class GrammarEngine {
         builder.state.rightAction != null &&
         builder.displayRecipient != null &&
         !activeToRecipient;
+    final particleBeforeObject =
+        builder.displayObject != null &&
+        builder.state.rightParticle != null &&
+        rightParticlePlacesObjectAfter(
+          verb: builder.state.action,
+          particle: builder.state.rightParticle!,
+        );
 
     // ---------- RIGHT ACTION ----------
 
@@ -635,6 +643,10 @@ class GrammarEngine {
 
     // ---------- OBJECT ----------
 
+    if (particleBeforeObject) {
+      _addPhrase(parts, builder.rightParticle);
+    }
+
     if (builder.displayObject != null) {
       parts.add(_renderObjectCase(builder.displayObject!));
     }
@@ -647,7 +659,9 @@ class GrammarEngine {
       parts.add(builder.displayObjectAdjectiveComplement!.text);
     }
 
-    _addPhrase(parts, builder.rightParticle);
+    if (!particleBeforeObject) {
+      _addPhrase(parts, builder.rightParticle);
+    }
 
     if (builder.displayRecipient != null && activeToRecipient) {
       parts.add(

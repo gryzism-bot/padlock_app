@@ -950,7 +950,7 @@ void main() {
       expect(sentence, 'You give up.');
     });
 
-    test('right particle follows object tail when object is selected', () {
+    test('right particle can place object after particle when authored', () {
       final sentence = render(
         SentenceState(
           agent: you,
@@ -962,7 +962,38 @@ void main() {
         ),
       );
 
-      expect(sentence, 'You give grammar up.');
+      expect(sentence, 'You give up grammar.');
+    });
+
+    test('right particle object can be a habit noun', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: give,
+          object: smoking,
+          rightParticle: upMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You give up smoking.');
+    });
+
+    test('true manner can follow a right particle without becoming one', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: write,
+          object: note.toNounPhrase(Number.singular),
+          rightParticle: downMannerPhrase,
+          mannerPhrase: carefullyMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You write down note carefully.');
     });
 
     test('agreement verbs can render bound with participant surface', () {

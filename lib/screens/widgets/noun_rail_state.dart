@@ -38,6 +38,10 @@ final Map<ConfigurationCompassSlot, _NounRailSlotPolicy> _nounRailPolicies = {
     read: (state) => state.object,
     choices: (compass, state) => [
       ...fixedObjectChoicesFor(_railBoundTailOwner(state)),
+      ...predicateNounChoicesFor(
+        _railBoundTailOwner(state),
+        PredicatePathKind.directObject,
+      ),
       ...compass.objects,
     ],
     move: (_, nounPhrase) => SetObject(nounPhrase),

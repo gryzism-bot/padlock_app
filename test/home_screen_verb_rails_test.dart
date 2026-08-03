@@ -273,6 +273,30 @@ void main() {
     expect(renderedSentence(tester), 'You buy.');
   });
 
+  testWidgets('Give object rail exposes habit nouns for give up routes', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.text('Word'));
+    await selectVerb(tester, 'give');
+    await expandRail(tester, 'Object');
+    await filterRailIfPresent(tester, 'Object', 'smok');
+
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-smoking')),
+    );
+    await expandRail(tester, 'Manner phrase');
+    await filterRailIfPresent(tester, 'Manner phrase', 'up');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-mannerPhrase-up')),
+    );
+
+    expect(renderedSentence(tester), 'You give up smoking.');
+  });
+
   testWidgets('Fixed text rail keeps plural determiner and adjective surface', (
     tester,
   ) async {

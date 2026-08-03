@@ -1819,7 +1819,13 @@ void main() {
                 action: give,
                 preMoves: const [SetObject(fixed_object.grammar)],
                 move: const SetRightParticle(upMannerPhrase),
-                text: 'You give grammar up.',
+                text: 'You give up grammar.',
+              ),
+              (
+                action: give,
+                preMoves: const [SetObject(fixed_object.smoking)],
+                move: const SetRightParticle(upMannerPhrase),
+                text: 'You give up smoking.',
               ),
               (
                 action: give,
@@ -1869,7 +1875,7 @@ void main() {
                   SetObject(object_data.note.toNounPhrase(Number.singular)),
                 ],
                 move: const SetRightParticle(downMannerPhrase),
-                text: 'You write note down.',
+                text: 'You write down note.',
               ),
               (
                 action: write,
@@ -1985,7 +1991,7 @@ void main() {
                   SetObject(object_data.lamp.toNounPhrase(Number.singular)),
                 ],
                 move: const SetRightParticle(offMannerPhrase),
-                text: 'You turn lamp off.',
+                text: 'You turn off lamp.',
               ),
               (
                 action: particle_data.pick,
@@ -1993,7 +1999,7 @@ void main() {
                   SetObject(object_data.phone.toNounPhrase(Number.singular)),
                 ],
                 move: const SetRightParticle(upMannerPhrase),
-                text: 'You pick phone up.',
+                text: 'You pick up phone.',
               ),
               (
                 action: particle_data.put,
@@ -2001,7 +2007,7 @@ void main() {
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
                 move: const SetRightParticle(downMannerPhrase),
-                text: 'You put book down.',
+                text: 'You put down book.',
               ),
               (
                 action: particle_data.look,
@@ -2013,7 +2019,7 @@ void main() {
                 action: particle_data.look,
                 preMoves: const [SetObject(fixed_object.word)],
                 move: const SetRightParticle(upMannerPhrase),
-                text: 'You look word up.',
+                text: 'You look up word.',
               ),
               (
                 action: particle_data.wake,
@@ -2356,6 +2362,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'smoking'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gambling'),
   _ReviewedRoute(give, _ReviewedRouteKind.recipient),
   _ReviewedRoute(give, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(give, _ReviewedRouteKind.beneficiary),

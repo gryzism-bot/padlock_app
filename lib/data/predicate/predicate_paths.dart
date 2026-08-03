@@ -753,6 +753,9 @@ final _transferObjects = _uniqueByText([
   ..._moneyObjects,
   ..._foodObjects,
   ..._toolObjects,
+  fixed_object.smoking,
+  fixed_object.gambling,
+  fixed_object.drinking,
 ]);
 final _learnSubjects = [
   fixed_object.english,

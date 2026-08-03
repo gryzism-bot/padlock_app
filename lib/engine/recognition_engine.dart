@@ -4,6 +4,7 @@ import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
+import 'package:padlock_app/data/predicate/particle_object_order.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
 import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
@@ -1211,7 +1212,8 @@ class RecognitionEngine {
     }
 
     if (_recognizeControlledRightActionRecipient(builder) ||
-        _recognizeRightActionObjectTail(builder)) {
+        _recognizeRightActionObjectTail(builder) ||
+        _recognizeParticleBeforeObjectTail(builder)) {
       return;
     }
 
@@ -1256,6 +1258,56 @@ class RecognitionEngine {
 
     builder.objectStart = objectStart;
     builder.objectEnd = builder.tokens.length - 1;
+    return true;
+  }
+
+  bool _recognizeParticleBeforeObjectTail(_RecognitionBuilder builder) {
+    final action = builder.action;
+    if (action?.takesObject != true) {
+      return false;
+    }
+
+    final particleStart = builder.verbChainEnd + 1;
+    if (particleStart >= builder.tokens.length) {
+      return false;
+    }
+
+    for (final phrase in mannerPhrases) {
+      if (!_isParticleRoutePhrase(phrase) ||
+          !rightParticlePlacesObjectAfter(verb: action!, particle: phrase)) {
+        continue;
+      }
+
+      final particleWords = phrase.text.toLowerCase().split(' ');
+      if (!_tokensMatchAt(builder.tokens, particleStart, particleWords)) {
+        continue;
+      }
+
+      final objectStart = particleStart + particleWords.length;
+      if (objectStart >= builder.tokens.length ||
+          _startsNonParticipantPhrase(builder, objectStart)) {
+        return false;
+      }
+
+      builder.objectStart = objectStart;
+      builder.objectEnd = builder.tokens.length - 1;
+      return true;
+    }
+
+    return false;
+  }
+
+  bool _tokensMatchAt(List<String> tokens, int start, List<String> words) {
+    if (start < 0 || start + words.length > tokens.length) {
+      return false;
+    }
+
+    for (var index = 0; index < words.length; index++) {
+      if (tokens[start + index].toLowerCase() != words[index]) {
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -1665,6 +1717,12 @@ class RecognitionEngine {
 
   void _trimParticipantBoundaries(_RecognitionBuilder builder) {
     _trimFrontPhrases(builder);
+
+    if (builder.rightParticleStart >= 0 &&
+        builder.objectStart == builder.rightParticleStart &&
+        builder.rightParticleEnd < builder.objectEnd) {
+      builder.objectStart = builder.rightParticleEnd + 1;
+    }
 
     final starts = <int>[
       builder.timePhraseStart,
@@ -2746,16 +2804,24 @@ class RecognitionEngine {
       }
 
       if (_isParticleRoutePhrase(phrase)) {
+        if (builder.rightParticle != null) {
+          continue;
+        }
         builder.rightParticle = phrase;
         builder.rightParticleStart = start;
         builder.rightParticleEnd = end;
       } else {
+        if (builder.mannerPhrase != null) {
+          continue;
+        }
         builder.mannerPhrase = phrase;
         builder.mannerPhraseStart = start;
         builder.mannerPhraseEnd = end;
       }
 
-      return;
+      if (builder.rightParticle != null && builder.mannerPhrase != null) {
+        return;
+      }
     }
   }
 
@@ -3150,4 +3216,7 @@ const _knownFixedObjects = [
   fixed_object.skills,
   fixed_object.swimming,
   fixed_object.skating,
+  fixed_object.smoking,
+  fixed_object.gambling,
+  fixed_object.drinking,
 ];
