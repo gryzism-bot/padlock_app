@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/idioms/idiom_patterns.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
+import 'package:padlock_app/data/predicate/particle_object_order.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/predicate_route_audit.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
@@ -2288,6 +2289,30 @@ void main() {
         }
       },
     );
+
+    test('particle object order rules are reviewable authored route data', () {
+      expect(particleObjectOrderRules, isNotEmpty);
+
+      final seen = <String>{};
+      for (final rule in particleObjectOrderRules) {
+        final key = '${rule.verb.infinitive}:${rule.particle.text}';
+        expect(seen.add(key), isTrue, reason: 'duplicate $key');
+        expect(rule.example, isNotEmpty, reason: key);
+        expect(
+          predicateParticleChoicesFor(rule.verb),
+          contains(rule.particle),
+          reason: key,
+        );
+        expect(
+          rightParticlePlacesObjectAfter(
+            verb: rule.verb,
+            particle: rule.particle,
+          ),
+          isTrue,
+          reason: key,
+        );
+      }
+    });
   });
 }
 
