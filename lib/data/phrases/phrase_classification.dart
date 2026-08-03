@@ -43,6 +43,7 @@ const _particleWords = {
   'up',
   'down',
   'out',
+  'in',
   'off',
   'on',
   'through',

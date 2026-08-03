@@ -194,6 +194,12 @@ const outMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const inMannerPhrase = MannerPhrase(
+  text: 'in',
+  translations: {Language.pl: 'do srodka'},
+  position: PhrasePosition.afterPredicate,
+);
+
 const offMannerPhrase = MannerPhrase(
   text: 'off',
   translations: {Language.pl: 'precz'},
@@ -269,6 +275,7 @@ List<MannerPhrase> mannerPhrases = [
   upMannerPhrase,
   downMannerPhrase,
   outMannerPhrase,
+  inMannerPhrase,
   offMannerPhrase,
   onMannerPhrase,
   throughMannerPhrase,

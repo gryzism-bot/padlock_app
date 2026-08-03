@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/idioms/idiom_patterns.dart';
 import 'package:padlock_app/engine/idiom_progress_store_stub.dart'
     as idiom_store;
 import 'package:padlock_app/models/grammar/subject/number.dart';
@@ -318,7 +319,7 @@ void main() {
     );
 
     expect(renderedSentence(tester), 'You give up smoking.');
-    expect(find.text('1 / 40 idioms found'), findsOneWidget);
+    expect(find.text('1 / $idiomTargetCount idioms found'), findsOneWidget);
     expect(find.byKey(const Key('idiom-toast')), findsOneWidget);
     expect(find.text('Idiom found'), findsOneWidget);
     expect(find.text('give up: stop doing something'), findsOneWidget);
@@ -337,27 +338,27 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
-    expect(find.text('0 / 40 idioms found'), findsOneWidget);
+    expect(find.text('0 / $idiomTargetCount idioms found'), findsOneWidget);
 
     await selectVerb(tester, 'give');
     await selectRightParticle(tester, 'up');
 
     expect(renderedSentence(tester), 'You give up.');
-    expect(find.text('1 / 40 idioms found'), findsOneWidget);
+    expect(find.text('1 / $idiomTargetCount idioms found'), findsOneWidget);
     expect(find.text('give up: stop trying'), findsOneWidget);
 
     await selectVerb(tester, 'write');
     await selectRightParticle(tester, 'back');
 
     expect(renderedSentence(tester), 'You write back.');
-    expect(find.text('2 / 40 idioms found'), findsOneWidget);
+    expect(find.text('2 / $idiomTargetCount idioms found'), findsOneWidget);
     expect(find.text('write back: reply in writing'), findsOneWidget);
 
     await selectVerb(tester, 'take');
     await selectRightParticle(tester, 'off');
 
     expect(renderedSentence(tester), 'You take off.');
-    expect(find.text('3 / 40 idioms found'), findsOneWidget);
+    expect(find.text('3 / $idiomTargetCount idioms found'), findsOneWidget);
     expect(
       find.text('take off: leave the ground or remove something'),
       findsOneWidget,

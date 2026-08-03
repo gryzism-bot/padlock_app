@@ -29,6 +29,7 @@ import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
+import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
@@ -1941,10 +1942,34 @@ void main() {
                 text: 'You go away.',
               ),
               (
+                action: go,
+                preMoves: const [],
+                move: const SetRightParticle(outMannerPhrase),
+                text: 'You go out.',
+              ),
+              (
+                action: go,
+                preMoves: const [],
+                move: const SetRightParticle(backMannerPhrase),
+                text: 'You go back.',
+              ),
+              (
                 action: come,
                 preMoves: const [],
                 move: const SetRightParticle(backMannerPhrase),
                 text: 'You come back.',
+              ),
+              (
+                action: come,
+                preMoves: const [],
+                move: const SetRightParticle(inMannerPhrase),
+                text: 'You come in.',
+              ),
+              (
+                action: come,
+                preMoves: const [],
+                move: const SetRightParticle(outMannerPhrase),
+                text: 'You come out.',
               ),
               (
                 action: work,
@@ -1999,10 +2024,22 @@ void main() {
                 text: 'You break out.',
               ),
               (
+                action: breakVerb,
+                preMoves: const [],
+                move: const SetRightParticle(downMannerPhrase),
+                text: 'You break down.',
+              ),
+              (
                 action: particle_data.turn,
                 preMoves: const [],
                 move: const SetRightParticle(onMannerPhrase),
                 text: 'You turn on.',
+              ),
+              (
+                action: particle_data.turn,
+                preMoves: const [],
+                move: const SetRightParticle(aroundMannerPhrase),
+                text: 'You turn around.',
               ),
               (
                 action: particle_data.turn,
@@ -2029,10 +2066,38 @@ void main() {
                 text: 'You put down book.',
               ),
               (
+                action: particle_data.put,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetRightParticle(awayMannerPhrase),
+                text: 'You put away book.',
+              ),
+              (
+                action: particle_data.put,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetRightParticle(backMannerPhrase),
+                text: 'You put back book.',
+              ),
+              (
                 action: particle_data.look,
                 preMoves: const [],
                 move: const SetRightParticle(aroundMannerPhrase),
                 text: 'You look around.',
+              ),
+              (
+                action: particle_data.look,
+                preMoves: const [],
+                move: const SetRightParticle(outMannerPhrase),
+                text: 'You look out.',
+              ),
+              (
+                action: particle_data.look,
+                preMoves: const [],
+                move: const SetRightParticle(backMannerPhrase),
+                text: 'You look back.',
               ),
               (
                 action: particle_data.look,
@@ -2057,6 +2122,42 @@ void main() {
                 preMoves: const [],
                 move: const SetRightParticle(downMannerPhrase),
                 text: 'You slow down.',
+              ),
+              (
+                action: fall,
+                preMoves: const [],
+                move: const SetRightParticle(downMannerPhrase),
+                text: 'You fall down.',
+              ),
+              (
+                action: take,
+                preMoves: [
+                  SetObject(object_data.key.toNounPhrase(Number.singular)),
+                ],
+                move: const SetRightParticle(outMannerPhrase),
+                text: 'You take out key.',
+              ),
+              (
+                action: bring,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetRightParticle(inMannerPhrase),
+                text: 'You bring in book.',
+              ),
+              (
+                action: bring,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetRightParticle(outMannerPhrase),
+                text: 'You bring out book.',
+              ),
+              (
+                action: work_data.clean,
+                preMoves: const [SetObject(fixed_object.room)],
+                move: const SetRightParticle(upMannerPhrase),
+                text: 'You clean up room.',
               ),
             ];
 

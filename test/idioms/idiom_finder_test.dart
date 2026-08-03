@@ -8,6 +8,8 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart'
 import 'package:padlock_app/data/verbs/communication.dart' as communication;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
+import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/idiom_discovery.dart';
 import 'package:padlock_app/engine/idiom_finder.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
@@ -126,6 +128,160 @@ void main() {
         state: const SentenceState(
           action: go,
           rightParticle: awayMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+    ];
+
+    for (final caseData in cases) {
+      expect(
+        finder.find(caseData.state).map((match) => match.pattern.id),
+        contains(caseData.id),
+        reason: caseData.id,
+      );
+    }
+  });
+
+  test('high frequency phrasal verb batch is found from sentence state', () {
+    final cases = [
+      (
+        id: 'go-out',
+        state: const SentenceState(
+          action: go,
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'go-back',
+        state: const SentenceState(
+          action: go,
+          rightParticle: backMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'come-in',
+        state: const SentenceState(
+          action: come,
+          rightParticle: inMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'come-out',
+        state: const SentenceState(
+          action: come,
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'look-out',
+        state: const SentenceState(
+          action: particle_data.look,
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'look-back',
+        state: const SentenceState(
+          action: particle_data.look,
+          rightParticle: backMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'turn-around',
+        state: const SentenceState(
+          action: particle_data.turn,
+          rightParticle: aroundMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'break-down',
+        state: const SentenceState(
+          action: breakVerb,
+          rightParticle: downMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'fall-down',
+        state: const SentenceState(
+          action: fall,
+          rightParticle: downMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'put-away',
+        state: SentenceState(
+          action: particle_data.put,
+          object: object_data.book.toNounPhrase(Number.singular),
+          rightParticle: awayMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'put-back',
+        state: SentenceState(
+          action: particle_data.put,
+          object: object_data.book.toNounPhrase(Number.singular),
+          rightParticle: backMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'take-out',
+        state: SentenceState(
+          action: take,
+          object: object_data.key.toNounPhrase(Number.singular),
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'bring-in',
+        state: SentenceState(
+          action: bring,
+          object: object_data.book.toNounPhrase(Number.singular),
+          rightParticle: inMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'bring-out',
+        state: SentenceState(
+          action: bring,
+          object: object_data.book.toNounPhrase(Number.singular),
+          rightParticle: outMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'clean-up',
+        state: const SentenceState(
+          action: work_data.clean,
+          object: fixed_object.room,
+          rightParticle: upMannerPhrase,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
