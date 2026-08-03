@@ -1638,7 +1638,11 @@ void main() {
           go,
           PredicatePathKind.mannerPhrase,
         ).map((manner) => manner.text),
-        containsAll(['quickly', 'there']),
+        contains('quickly'),
+      );
+      expect(
+        predicateAuthoredPlaceChoicesFor(go).map((place) => place.noun),
+        contains('there'),
       );
       expect(
         predicateParticleChoicesFor(go).map((particle) => particle.text),
@@ -1763,6 +1767,14 @@ void main() {
           )
           .map((suggestion) => suggestion.label)
           .toList();
+      final particleLabels = authoredCompass
+          .suggestionsFor(
+            state,
+            ConfigurationCompassSlot.rightParticle,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label)
+          .toList();
 
       final sourcePlaceLabels = authoredCompass
           .suggestionsFor(state, ConfigurationCompassSlot.sourcePlace, limit: 0)
@@ -1773,8 +1785,10 @@ void main() {
       expect(placeLabels, isNot(contains('from work')));
       expect(sourcePlaceLabels, containsAll(['from work', 'from school']));
       expect(placeLabels, isNot(contains('bed')));
-      expect(mannerLabels, containsAll(['quickly', 'away', 'back', 'around']));
+      expect(mannerLabels, contains('quickly'));
+      expect(mannerLabels, isNot(contains('away')));
       expect(mannerLabels, isNot(contains('closely')));
+      expect(particleLabels, containsAll(['away', 'back', 'around']));
     });
 
     test('reviewed phrase paths render through the lower Grammar Engine', () {
@@ -2294,6 +2308,7 @@ enum _ReviewedRouteKind {
   sourcePlace,
   time,
   manner,
+  rightParticle,
   lexicalBeNounComplement,
   lexicalBeAdjectiveComplement,
   objectAdjectiveComplement,
@@ -2395,7 +2410,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'room'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'quickly'),
-  _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'out'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.rightParticle, text: 'out'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'someone'),
@@ -2416,7 +2431,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'chair'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'quickly'),
-  _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'down'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.rightParticle, text: 'down'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'cup'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument),
@@ -2429,7 +2444,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(read, _ReviewedRouteKind.addressee),
   _ReviewedRoute(read, _ReviewedRouteKind.companion),
   _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'carefully'),
-  _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'through'),
+  _ReviewedRoute(read, _ReviewedRouteKind.rightParticle, text: 'through'),
   _ReviewedRoute(read, _ReviewedRouteKind.time, text: 'at night'),
   _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(read, _ReviewedRouteKind.overTopic, text: 'story'),
@@ -2461,10 +2476,10 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'work'),
   _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'shop'),
   _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'home'),
-  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'away'),
-  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'back'),
-  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'around'),
-  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'there'),
+  _ReviewedRoute(go, _ReviewedRouteKind.rightParticle, text: 'away'),
+  _ReviewedRoute(go, _ReviewedRouteKind.rightParticle, text: 'back'),
+  _ReviewedRoute(go, _ReviewedRouteKind.rightParticle, text: 'around'),
+  _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'there'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'now'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(go, _ReviewedRouteKind.overTopic, text: 'grammar'),
@@ -2474,8 +2489,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(come, _ReviewedRouteKind.companion),
   _ReviewedRoute(come, _ReviewedRouteKind.destination),
   _ReviewedRoute(come, _ReviewedRouteKind.place, text: 'home'),
-  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'here'),
-  _ReviewedRoute(come, _ReviewedRouteKind.manner, text: 'back'),
+  _ReviewedRoute(come, _ReviewedRouteKind.place, text: 'here'),
+  _ReviewedRoute(come, _ReviewedRouteKind.rightParticle, text: 'back'),
   _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(come, _ReviewedRouteKind.time, text: 'now'),
   _ReviewedRoute(come, _ReviewedRouteKind.sourcePlace),
@@ -2545,7 +2560,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'school'),
   _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'fun'),
   _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'quickly'),
-  _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'off'),
+  _ReviewedRoute(take, _ReviewedRouteKind.rightParticle, text: 'off'),
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
@@ -2579,7 +2594,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.beneficiary),
   _ReviewedRoute(give, _ReviewedRouteKind.companion),
   _ReviewedRoute(give, _ReviewedRouteKind.manner, text: 'carefully'),
-  _ReviewedRoute(give, _ReviewedRouteKind.manner, text: 'up'),
+  _ReviewedRoute(give, _ReviewedRouteKind.rightParticle, text: 'up'),
 
   _ReviewedRoute(write, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(
@@ -2619,7 +2634,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(think, _ReviewedRouteKind.companion),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'quickly'),
-  _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'through'),
+  _ReviewedRoute(think, _ReviewedRouteKind.rightParticle, text: 'through'),
   _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'now'),
 
@@ -2737,7 +2752,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'manually'),
-  _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'out'),
+  _ReviewedRoute(work, _ReviewedRouteKind.rightParticle, text: 'out'),
   _ReviewedRoute(work, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(work, _ReviewedRouteKind.onTopic),
   _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'car'),
@@ -2845,7 +2860,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'well'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'music'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'game'),
-  _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'outside'),
+  _ReviewedRoute(play, _ReviewedRouteKind.place, text: 'outside'),
 
   _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'English'),
   _ReviewedRoute(learn, _ReviewedRouteKind.directObject, text: 'grammar'),
@@ -3356,6 +3371,8 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return _timePathHas(route.verb, text);
     case _ReviewedRouteKind.manner:
       return _mannerPathHas(route.verb, text);
+    case _ReviewedRouteKind.rightParticle:
+      return _rightParticlePathHas(route.verb, text);
     case _ReviewedRouteKind.lexicalBeNounComplement:
       return route.verb == be &&
           (text == null || _beNounComplements.contains(text));
@@ -3417,19 +3434,26 @@ bool _timePathHas(Verb verb, String? text) {
 }
 
 bool _mannerPathHas(Verb verb, String? text) {
-  final choices = <String>[
-    for (final choice in predicateMannerChoicesFor(
-      verb,
-      PredicatePathKind.mannerPhrase,
-    ))
-      choice.text,
-    for (final choice in predicateParticleChoicesFor(verb)) choice.text,
-  ];
+  final choices = predicateMannerChoicesFor(
+    verb,
+    PredicatePathKind.mannerPhrase,
+  ).map((choice) => choice.text);
   if (text == null) {
     return choices.isNotEmpty;
   }
 
   return choices.any((choice) => choice.toLowerCase() == text.toLowerCase());
+}
+
+bool _rightParticlePathHas(Verb verb, String? text) {
+  final choices = predicateParticleChoicesFor(verb);
+  if (text == null) {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.text.toLowerCase() == text.toLowerCase(),
+  );
 }
 
 const _beNounComplements = {

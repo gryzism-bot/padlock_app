@@ -342,24 +342,30 @@ void main() {
       );
     });
 
-    test(
-      'bare direction words that remain phrases are classified as route words',
-      () {
-        final bareDirections = currentPhraseClassifications
-            .where(
-              (classification) => classification.routeHints.contains(
-                PredicateRouteHint.bareDirection,
-              ),
-            )
-            .map((classification) => classification.label)
-            .toList();
+    test('bare place words are classified as place route words', () {
+      final barePlaces = [
+        currentPhraseClassificationFor(herePlacePhrase)!,
+        currentPhraseClassificationFor(therePlacePhrase)!,
+        currentPhraseClassificationFor(outsidePlacePhrase)!,
+      ];
 
-        expect(bareDirections, ['here', 'there', 'outside']);
-        expect(
-          currentPhraseClassificationFor(outsideMannerPhrase)!.note,
-          contains('authored per predicate'),
-        );
-      },
-    );
+      expect(barePlaces.map((classification) => classification.label), [
+        'here',
+        'there',
+        'outside',
+      ]);
+      expect(
+        barePlaces.map((classification) => classification.family),
+        everyElement(PhraseSurfaceFamily.place),
+      );
+      expect(
+        barePlaces.map((classification) => classification.routeHints),
+        everyElement(contains(PredicateRouteHint.location)),
+      );
+      expect(
+        currentPhraseClassificationFor(outsidePlacePhrase)!.note,
+        contains('verb-owned right routes'),
+      );
+    });
   });
 }

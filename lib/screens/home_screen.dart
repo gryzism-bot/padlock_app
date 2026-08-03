@@ -94,6 +94,7 @@ const _phraseTranslationSlots = {
   ConfigurationCompassSlot.timePhrase,
   ConfigurationCompassSlot.frequencyPhrase,
   ConfigurationCompassSlot.mannerPhrase,
+  ConfigurationCompassSlot.rightParticle,
 };
 
 const _rightActionTranslationSlots = {ConfigurationCompassSlot.rightAction};
@@ -4084,6 +4085,7 @@ String? _railTranslationLabel(ConfigurationCompassSlot slot) {
       ConfigurationCompassSlot.timePhrase => 'time',
       ConfigurationCompassSlot.frequencyPhrase => 'frequency',
       ConfigurationCompassSlot.mannerPhrase => 'manner',
+      ConfigurationCompassSlot.rightParticle => 'particles',
       _ => 'phrases',
     };
   }

@@ -209,11 +209,11 @@ void main() {
   }
 
   Future<void> selectRightParticle(WidgetTester tester, String particle) async {
-    await expandRail(tester, 'Manner phrase');
-    await filterRailIfPresent(tester, 'Manner phrase', particle);
+    await expandRail(tester, 'Right particle');
+    await filterRailIfPresent(tester, 'Right particle', particle);
     await tapAfterScroll(
       tester,
-      find.byKey(Key('suggestion-label-mannerPhrase-$particle')),
+      find.byKey(Key('suggestion-label-rightParticle-$particle')),
     );
   }
 
@@ -311,11 +311,11 @@ void main() {
       tester,
       find.byKey(const Key('suggestion-label-object-smoking')),
     );
-    await expandRail(tester, 'Manner phrase');
-    await filterRailIfPresent(tester, 'Manner phrase', 'up');
+    await expandRail(tester, 'Right particle');
+    await filterRailIfPresent(tester, 'Right particle', 'up');
     await tapAfterScroll(
       tester,
-      find.byKey(const Key('suggestion-label-mannerPhrase-up')),
+      find.byKey(const Key('suggestion-label-rightParticle-up')),
     );
 
     expect(renderedSentence(tester), 'You give up smoking.');

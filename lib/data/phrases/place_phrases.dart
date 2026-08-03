@@ -489,6 +489,42 @@ const playgroundPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'plac zabaw'},
 );
 
+const herePlacePhrase = PlacePhrase(
+  noun: 'here',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: null,
+    PlaceMeaning.destination: null,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'tutaj'},
+);
+
+const therePlacePhrase = PlacePhrase(
+  noun: 'there',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: null,
+    PlaceMeaning.destination: null,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'tam'},
+);
+
+const outsidePlacePhrase = PlacePhrase(
+  noun: 'outside',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: null,
+    PlaceMeaning.destination: null,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'na zewnatrz'},
+);
+
 List<PlacePhrase> placePhrases = [
   homePlacePhrase,
   workPlacePhrase,
@@ -531,4 +567,7 @@ List<PlacePhrase> placePhrases = [
   garagePlacePhrase,
   busStopPlacePhrase,
   playgroundPlacePhrase,
+  herePlacePhrase,
+  therePlacePhrase,
+  outsidePlacePhrase,
 ];

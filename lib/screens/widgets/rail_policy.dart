@@ -262,6 +262,7 @@ const _coreParticipantRailSlots = [
   ConfigurationCompassSlot.source,
   ConfigurationCompassSlot.purpose,
   ConfigurationCompassSlot.rightAction,
+  ConfigurationCompassSlot.rightParticle,
   ConfigurationCompassSlot.passiveAgentNoun,
   ConfigurationCompassSlot.complement,
   ConfigurationCompassSlot.adjectiveComplement,
@@ -718,6 +719,21 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     participantValue: (state) => state.rightAction?.infinitive ?? 'none',
     participantFilledWhen: (state) => state.rightAction != null,
   ),
+  ConfigurationCompassSlot.rightParticle: _RailPolicy(
+    slot: ConfigurationCompassSlot.rightParticle,
+    title: (_) => 'Right particle',
+    unlockHint: (_) =>
+        'Choose a verb with a particle path, like give, take, write, or go.',
+    surfaceMarker: (_) => 'particle',
+    isControlled: true,
+    canRenderCollapsedWhen: (state) =>
+        predicateParticleChoicesFor(_railBoundTailOwner(state)).isNotEmpty ||
+        state.rightParticle != null,
+    canRenderWhenEmpty: (state) => state.rightParticle != null,
+    participantLabel: (_) => 'right particle',
+    participantValue: (state) => state.rightParticle?.text ?? 'none',
+    participantFilledWhen: (state) => state.rightParticle != null,
+  ),
   ConfigurationCompassSlot.complement: _RailPolicy(
     slot: ConfigurationCompassSlot.complement,
     title: (_) => 'Noun complement',
@@ -876,14 +892,8 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
           _railBoundTailOwner(state),
           PredicatePathKind.mannerPhrase,
         ).isNotEmpty ||
-        predicateMannerChoicesFor(
-          _railBoundTailOwner(state),
-          PredicatePathKind.rightParticle,
-        ).isNotEmpty ||
-        state.mannerPhrase != null ||
-        state.rightParticle != null,
-    canRenderWhenEmpty: (state) =>
-        state.mannerPhrase != null || state.rightParticle != null,
+        state.mannerPhrase != null,
+    canRenderWhenEmpty: (state) => state.mannerPhrase != null,
   ),
 };
 

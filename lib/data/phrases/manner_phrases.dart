@@ -164,24 +164,6 @@ const alreadyMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
-const hereMannerPhrase = MannerPhrase(
-  text: 'here',
-  translations: {Language.pl: 'tutaj'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const thereMannerPhrase = MannerPhrase(
-  text: 'there',
-  translations: {Language.pl: 'tam'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const outsideMannerPhrase = MannerPhrase(
-  text: 'outside',
-  translations: {Language.pl: 'na zewnÄ…trz'},
-  position: PhrasePosition.afterPredicate,
-);
-
 List<MannerPhrase> mannerPhrases = [
   quicklyMannerPhrase,
   slowlyMannerPhrase,
@@ -210,7 +192,4 @@ List<MannerPhrase> mannerPhrases = [
   manuallyMannerPhrase,
   againMannerPhrase,
   alreadyMannerPhrase,
-  hereMannerPhrase,
-  thereMannerPhrase,
-  outsideMannerPhrase,
 ];

@@ -1469,11 +1469,11 @@ final guidedPredicateUnlocks = [
         object_data.rule.toNounPhrase(Number.singular),
         ..._textObjects,
       ]),
-      _places(_everydayPlaces),
+      _places([..._everydayPlaces, place_data.therePlacePhrase]),
       _fromLocations(_everydayPlaces),
       _purposes(_movementPurposes),
       _times(_basicTimes),
-      _manners([..._movementManners, manner_data.thereMannerPhrase]),
+      _manners(_movementManners),
       _particles([
         particle_words.outParticle,
         particle_words.inParticle,
@@ -1489,10 +1489,10 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.toDestination(_people),
       PredicatePath.withCompanion(_people),
-      _places(_homeSchoolWorkPlaces),
+      _places([..._homeSchoolWorkPlaces, place_data.herePlacePhrase]),
       _fromLocations(_homeSchoolWorkPlaces),
       _times(_basicTimes),
-      _manners([..._movementManners, manner_data.hereMannerPhrase]),
+      _manners(_movementManners),
       _particles([
         particle_words.inParticle,
         particle_words.outParticle,
@@ -1874,7 +1874,8 @@ final guidedPredicateUnlocks = [
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _onLocations(_surfacePlaces),
-      _manners([..._performanceManners, manner_data.outsideMannerPhrase]),
+      _places([place_data.outsidePlacePhrase]),
+      _manners(_performanceManners),
     ],
   ),
   PredicateUnlocks(

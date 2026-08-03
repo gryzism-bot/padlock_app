@@ -1477,7 +1477,7 @@ void main() {
       );
     });
 
-    test('manner rail keeps true manners separate from right particles', () {
+    test('manner and right particle rails stay separate', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
       );
@@ -1491,14 +1491,23 @@ void main() {
         ConfigurationCompassSlot.mannerPhrase,
         limit: 0,
       );
+      final particleSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.rightParticle,
+        limit: 0,
+      );
       final carefully = suggestions.firstWhere(
         (suggestion) => suggestion.label == 'carefully',
       );
-      final up = suggestions.firstWhere(
+      final up = particleSuggestions.firstWhere(
         (suggestion) => suggestion.label == 'up',
       );
 
       expect(carefully.move, isA<SetMannerPhrase>());
+      expect(
+        suggestions.map((suggestion) => suggestion.label),
+        isNot(contains('up')),
+      );
       expect(up.move, isA<SetRightParticle>());
       expect(render(carefully.preview), 'You give carefully.');
       expect(render(up.preview), 'You give up.');

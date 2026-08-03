@@ -11,14 +11,7 @@ enum PhraseSurfaceFamily { place, time, frequency, manner }
 
 enum PhraseSurfaceRole { predicateBoundRoute, clauseLevelModifier }
 
-enum PredicateRouteHint {
-  bareDirection,
-  location,
-  destination,
-  source,
-  manner,
-  particle,
-}
+enum PredicateRouteHint { location, destination, source, manner, particle }
 
 class CurrentPhraseClassification {
   final Object phrase;
@@ -38,7 +31,6 @@ class CurrentPhraseClassification {
   });
 }
 
-const _bareDirectionWords = {'away', 'back', 'here', 'there', 'outside'};
 final currentPhraseClassifications = <CurrentPhraseClassification>[
   for (final phrase in placePhrases)
     CurrentPhraseClassification(
@@ -74,18 +66,11 @@ final currentPhraseClassifications = <CurrentPhraseClassification>[
       label: phrase.text,
       family: PhraseSurfaceFamily.manner,
       role: PhraseSurfaceRole.predicateBoundRoute,
-      routeHints: _mannerRouteHints(phrase.text),
+      routeHints: const {PredicateRouteHint.manner},
       note:
           'Current manner choices should be authored per predicate before product Guided Mode exposes them.',
     ),
 ];
-
-Set<PredicateRouteHint> _mannerRouteHints(String text) {
-  return {
-    if (_bareDirectionWords.contains(text)) PredicateRouteHint.bareDirection,
-    if (!_bareDirectionWords.contains(text)) PredicateRouteHint.manner,
-  };
-}
 
 Set<PredicateRouteHint> _placeRouteHints(PlacePhrase phrase) {
   return {

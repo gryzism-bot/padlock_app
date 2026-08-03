@@ -942,6 +942,8 @@ Set<String> _expectedImmediateRailTitlesFor(Verb verb) {
         break;
       case 'right-action':
         titles.add('Right action');
+      case 'right-particle':
+        titles.add('Right particle');
       case 'complement':
         titles.addAll(['Noun complement', 'Adjective complement']);
       case 'place':

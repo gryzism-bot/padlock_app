@@ -90,6 +90,7 @@ enum ConfigurationCompassSlot {
   sourcePlace,
   timePhrase,
   frequencyPhrase,
+  rightParticle,
   mannerPhrase,
 }
 
@@ -646,6 +647,9 @@ class ConfigurationCompass {
           ),
         ),
       ],
+      ConfigurationCompassSlot.rightParticle => [
+        ..._rightParticleCandidates(sentence),
+      ],
       ConfigurationCompassSlot.mannerPhrase => [
         ..._mannerPhraseCandidates(sentence),
       ],
@@ -979,14 +983,11 @@ class ConfigurationCompass {
 
   Iterable<_CompassCandidate> _mannerPhraseCandidates(SentenceState sentence) {
     final authoredChoices = _mannerChoicesForPath(sentence);
-    final particleChoices = _rightParticleChoicesForPath(sentence);
     if (predicatePathMode == PredicatePathMode.authoredTracks &&
         broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.manner) &&
         authoredChoices != null &&
         authoredChoices.isEmpty &&
-        (particleChoices == null || particleChoices.isEmpty) &&
-        sentence.mannerPhrase == null &&
-        sentence.rightParticle == null) {
+        sentence.mannerPhrase == null) {
       return const <_CompassCandidate>[];
     }
 
@@ -997,13 +998,6 @@ class ConfigurationCompass {
         sentence.mannerPhrase == null ? 130 : 120,
         isSelected: sentence.mannerPhrase == null,
       ),
-      if (sentence.rightParticle != null)
-        _CompassCandidate(
-          const SetRightParticle(null),
-          'no particle',
-          121,
-          isSelected: sentence.rightParticle == null,
-        ),
       ..._mannerChoicesForState(
         sentence.mannerPhrase,
         authoredChoices ?? manners,
@@ -1014,6 +1008,23 @@ class ConfigurationCompass {
           100,
           isSelected: manner == sentence.mannerPhrase,
         ),
+      ),
+    ];
+  }
+
+  Iterable<_CompassCandidate> _rightParticleCandidates(SentenceState sentence) {
+    final particleChoices = _rightParticleChoicesForPath(sentence);
+    if ((particleChoices == null || particleChoices.isEmpty) &&
+        sentence.rightParticle == null) {
+      return const <_CompassCandidate>[];
+    }
+
+    return [
+      _CompassCandidate(
+        const SetRightParticle(null),
+        'no particle',
+        sentence.rightParticle == null ? 130 : 120,
+        isSelected: sentence.rightParticle == null,
       ),
       ..._rightParticleChoicesForState(
         sentence.rightParticle,
