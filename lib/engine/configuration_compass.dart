@@ -929,6 +929,17 @@ class ConfigurationCompass {
     );
   }
 
+  List<MannerPhrase>? _rightParticleChoicesForPath(SentenceState sentence) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    return predicateMannerChoicesFor(
+      _boundTailOwner(sentence),
+      PredicatePathKind.rightParticle,
+    );
+  }
+
   Iterable<_CompassCandidate> _placePhraseCandidates(
     SentenceState sentence, {
     required bool sourceOnly,
@@ -970,11 +981,14 @@ class ConfigurationCompass {
 
   Iterable<_CompassCandidate> _mannerPhraseCandidates(SentenceState sentence) {
     final authoredChoices = _mannerChoicesForPath(sentence);
+    final particleChoices = _rightParticleChoicesForPath(sentence);
     if (predicatePathMode == PredicatePathMode.authoredTracks &&
         broadPhraseFallbackIsDeadInAuthoredMode(PhraseSurfaceFamily.manner) &&
         authoredChoices != null &&
         authoredChoices.isEmpty &&
-        sentence.mannerPhrase == null) {
+        (particleChoices == null || particleChoices.isEmpty) &&
+        sentence.mannerPhrase == null &&
+        sentence.rightParticle == null) {
       return const <_CompassCandidate>[];
     }
 
@@ -985,6 +999,13 @@ class ConfigurationCompass {
         sentence.mannerPhrase == null ? 130 : 120,
         isSelected: sentence.mannerPhrase == null,
       ),
+      if (sentence.rightParticle != null)
+        _CompassCandidate(
+          const SetRightParticle(null),
+          'no particle',
+          121,
+          isSelected: sentence.rightParticle == null,
+        ),
       ..._mannerChoicesForState(
         sentence.mannerPhrase,
         authoredChoices ?? manners,
@@ -994,6 +1015,17 @@ class ConfigurationCompass {
           manner.text,
           100,
           isSelected: manner == sentence.mannerPhrase,
+        ),
+      ),
+      ..._mannerChoicesForState(
+        sentence.rightParticle,
+        particleChoices ?? const <MannerPhrase>[],
+      ).map(
+        (particle) => _CompassCandidate(
+          SetRightParticle(particle),
+          particle.text,
+          110,
+          isSelected: particle == sentence.rightParticle,
         ),
       ),
     ];

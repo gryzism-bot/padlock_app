@@ -404,6 +404,8 @@ class _HomeScreenState extends State<HomeScreen> {
           translator.translateFrequencyPhrase(frequencyPhrase),
         SetMannerPhrase(:final mannerPhrase) when mannerPhrase != null =>
           translator.translateMannerPhrase(mannerPhrase),
+        SetRightParticle(:final rightParticle) when rightParticle != null =>
+          translator.translateMannerPhrase(rightParticle),
         _ => null,
       };
     }
@@ -1757,6 +1759,8 @@ String _moveTraceLabel(ConfigurationMove move) {
       'frequency phrase -> ${frequencyPhrase?.text ?? 'none'}',
     SetMannerPhrase(:final mannerPhrase) =>
       'manner phrase -> ${mannerPhrase?.text ?? 'none'}',
+    SetRightParticle(:final rightParticle) =>
+      'right particle -> ${rightParticle?.text ?? 'none'}',
   };
 }
 

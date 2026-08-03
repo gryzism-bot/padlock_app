@@ -1062,6 +1062,8 @@ String _moveLabel(ConfigurationMove move) {
       'frequency phrase -> ${frequencyPhrase?.text ?? 'none'}',
     SetMannerPhrase(:final mannerPhrase) =>
       'manner phrase -> ${mannerPhrase?.text ?? 'none'}',
+    SetRightParticle(:final rightParticle) =>
+      'right particle -> ${rightParticle?.text ?? 'none'}',
   };
 }
 

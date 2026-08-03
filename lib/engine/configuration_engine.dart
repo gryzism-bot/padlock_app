@@ -314,6 +314,12 @@ class SetRightAction extends ConfigurationMove {
   const SetRightAction(this.rightAction);
 }
 
+class SetRightParticle extends ConfigurationMove {
+  final MannerPhrase? rightParticle;
+
+  const SetRightParticle(this.rightParticle);
+}
+
 class SetComplement extends ConfigurationMove {
   final NounPhrase? complement;
 
@@ -502,6 +508,7 @@ class ConfigurationEngine {
         source: null,
         purpose: null,
         rightAction: null,
+        rightParticle: null,
         complement: null,
         adjectiveComplement: null,
         voice: Voice.active,
@@ -627,6 +634,10 @@ class ConfigurationEngine {
       state.mannerPhrase,
       tailOwner,
     );
+    final rightParticle = _rightParticleAfterActionChange(
+      state.rightParticle,
+      tailOwner,
+    );
     final canKeepPassive =
         state.voice == Voice.passive && action.takesObject && object != null;
     final voice = canKeepPassive ? state.voice : Voice.active;
@@ -668,6 +679,7 @@ class ConfigurationEngine {
       timePhrase: timePhrase,
       frequencyPhrase: frequencyPhrase,
       mannerPhrase: mannerPhrase,
+      rightParticle: rightParticle,
       voice: voice,
       passiveFocus: passiveFocus,
       showPassiveAgent: voice == Voice.passive ? state.showPassiveAgent : true,
@@ -795,6 +807,10 @@ class ConfigurationEngine {
         state,
         rightAction: rightAction,
       ),
+      SetRightParticle(:final rightParticle) => _copy(
+        state,
+        rightParticle: rightParticle,
+      ),
       SetComplement(:final complement) => _copy(
         state,
         complement: complement,
@@ -849,6 +865,7 @@ class ConfigurationEngine {
         source: null,
         purpose: null,
         rightAction: null,
+        rightParticle: null,
         complement: complement,
         adjectiveComplement: null,
         voice: Voice.active,
@@ -868,6 +885,7 @@ class ConfigurationEngine {
         source: null,
         purpose: null,
         rightAction: null,
+        rightParticle: null,
         complement: null,
         adjectiveComplement: adjectiveComplement,
         voice: Voice.active,
@@ -1015,6 +1033,9 @@ class ConfigurationEngine {
     }
     if (previous.rightAction != null && current.rightAction == null) {
       fields.add('right action');
+    }
+    if (previous.rightParticle != null && current.rightParticle == null) {
+      fields.add('right particle');
     }
     if (previous.complement != null && current.complement == null) {
       fields.add('complement');
@@ -1193,6 +1214,21 @@ class ConfigurationEngine {
     return mannerPhrase;
   }
 
+  MannerPhrase? _rightParticleAfterActionChange(
+    MannerPhrase? rightParticle,
+    Verb action,
+  ) {
+    if (rightParticle == null) {
+      return null;
+    }
+
+    if (!_predicatePathAcceptsRightParticle(action, rightParticle)) {
+      return null;
+    }
+
+    return rightParticle;
+  }
+
   bool _predicatePathAcceptsPlace(Verb action, PlacePhrase phrase) {
     if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
       return true;
@@ -1277,6 +1313,24 @@ class ConfigurationEngine {
 
     return choices.any(
       (choice) => choice.text.toLowerCase() == phrase.text.toLowerCase(),
+    );
+  }
+
+  bool _predicatePathAcceptsRightParticle(Verb action, MannerPhrase particle) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateMannerChoicesFor(
+      action,
+      PredicatePathKind.rightParticle,
+    );
+    if (choices.isEmpty) {
+      return false;
+    }
+
+    return choices.any(
+      (choice) => choice.text.toLowerCase() == particle.text.toLowerCase(),
     );
   }
 
@@ -1365,6 +1419,7 @@ class ConfigurationEngine {
     Object? source = _unchanged,
     Object? purpose = _unchanged,
     Object? rightAction = _unchanged,
+    Object? rightParticle = _unchanged,
     Object? complement = _unchanged,
     Object? adjectiveComplement = _unchanged,
     Voice? voice,
@@ -1423,6 +1478,9 @@ class ConfigurationEngine {
       rightAction: identical(rightAction, _unchanged)
           ? state.rightAction
           : rightAction as Verb?,
+      rightParticle: identical(rightParticle, _unchanged)
+          ? state.rightParticle
+          : rightParticle as MannerPhrase?,
       recipientPlacement: state.recipientPlacement,
       recipientPreposition: state.recipientPreposition,
       complement: identical(complement, _unchanged)

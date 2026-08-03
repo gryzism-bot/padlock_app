@@ -1,6 +1,7 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
+import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
@@ -1677,6 +1678,7 @@ class RecognitionEngine {
       builder.sourceStart > 0 ? builder.sourceStart - 1 : -1,
       builder.purposeStart > 0 ? builder.purposeStart - 1 : -1,
       builder.rightActionStart,
+      builder.rightParticleStart,
       if (builder.frequencyPhrase?.position != PhrasePosition.beforeSubject)
         builder.frequencyPhraseStart,
       builder.mannerPhraseStart,
@@ -2736,26 +2738,32 @@ class RecognitionEngine {
         continue;
       }
 
-      builder.mannerPhrase = phrase;
+      final start = builder.verbChainEnd + 1 + wordsBefore;
+      final end = start + phrase.text.split(' ').length - 1;
 
-      builder.mannerPhraseStart = builder.verbChainEnd + 1 + wordsBefore;
-
-      builder.mannerPhraseEnd =
-          builder.mannerPhraseStart + phrase.text.split(' ').length - 1;
-
-      if (_overlapsRecognizedRoute(
-        builder,
-        builder.mannerPhraseStart,
-        builder.mannerPhraseEnd,
-      )) {
-        builder.mannerPhrase = null;
-        builder.mannerPhraseStart = -1;
-        builder.mannerPhraseEnd = -1;
+      if (_overlapsRecognizedRoute(builder, start, end)) {
         continue;
+      }
+
+      if (_isParticleRoutePhrase(phrase)) {
+        builder.rightParticle = phrase;
+        builder.rightParticleStart = start;
+        builder.rightParticleEnd = end;
+      } else {
+        builder.mannerPhrase = phrase;
+        builder.mannerPhraseStart = start;
+        builder.mannerPhraseEnd = end;
       }
 
       return;
     }
+  }
+
+  bool _isParticleRoutePhrase(MannerPhrase phrase) {
+    return currentPhraseClassificationFor(
+          phrase,
+        )?.routeHints.contains(PredicateRouteHint.particle) ??
+        false;
   }
 
   bool _overlapsRecognizedRoute(
@@ -2992,6 +3000,10 @@ class _RecognitionBuilder {
   int mannerPhraseStart = -1;
   int mannerPhraseEnd = -1;
 
+  MannerPhrase? rightParticle;
+  int rightParticleStart = -1;
+  int rightParticleEnd = -1;
+
   _RecognitionBuilder(this.sentence);
 
   final List<String> unknownTokens = [];
@@ -3014,6 +3026,7 @@ class _RecognitionBuilder {
       source: source,
       purpose: purpose,
       rightAction: rightAction,
+      rightParticle: rightParticle,
       recipientPlacement: recipientPlacement,
       recipientPreposition: recipientPreposition,
       complement: complement,
@@ -3065,7 +3078,7 @@ class _RecognitionBuilder {
       'passiveFocus: $passiveFocus',
       'modal: $modal',
       'polarity: $polarity',
-      'phrases: time=${timePhrase?.text} [$timePhraseStart,$timePhraseEnd], place=${placePhrase?.noun}/${placeMeaning?.name} [$placePhraseStart,$placePhraseEnd], frequency=${frequencyPhrase?.text} [$frequencyPhraseStart,$frequencyPhraseEnd], manner=${mannerPhrase?.text} [$mannerPhraseStart,$mannerPhraseEnd]',
+      'phrases: time=${timePhrase?.text} [$timePhraseStart,$timePhraseEnd], place=${placePhrase?.noun}/${placeMeaning?.name} [$placePhraseStart,$placePhraseEnd], frequency=${frequencyPhrase?.text} [$frequencyPhraseStart,$frequencyPhraseEnd], manner=${mannerPhrase?.text} [$mannerPhraseStart,$mannerPhraseEnd], rightParticle=${rightParticle?.text} [$rightParticleStart,$rightParticleEnd]',
       'unknownTokens: $unknownTokens',
       if (action != null) 'state: ${state.summary}',
     ].join('\n');

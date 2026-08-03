@@ -118,6 +118,7 @@ String predicatePathKindAuditLabel(PredicatePathKind kind) {
     PredicatePathKind.timePhrase => 'time phrase',
     PredicatePathKind.frequencyPhrase => 'frequency phrase',
     PredicatePathKind.mannerPhrase => 'manner phrase',
+    PredicatePathKind.rightParticle => 'right particle',
   };
 }
 
@@ -142,7 +143,8 @@ int _pathChoiceCount(PredicatePath path) {
     PredicatePathKind.placePhrase => path.places.length,
     PredicatePathKind.timePhrase => path.times.length,
     PredicatePathKind.frequencyPhrase => path.frequencies.length,
-    PredicatePathKind.mannerPhrase => path.manners.length,
+    PredicatePathKind.mannerPhrase ||
+    PredicatePathKind.rightParticle => path.manners.length,
     _ => path.nouns.length,
   };
 }

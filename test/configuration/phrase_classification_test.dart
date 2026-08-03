@@ -369,6 +369,8 @@ void main() {
           .toList();
 
       expect(particles, [
+        'away',
+        'back',
         'up',
         'down',
         'out',

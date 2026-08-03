@@ -936,6 +936,35 @@ void main() {
       expect(sentence, 'John spoke quietly to Mary.');
     });
 
+    test('right particle renders after the verb without becoming manner', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: give,
+          rightParticle: upMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You give up.');
+    });
+
+    test('right particle follows object tail when object is selected', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: give,
+          object: grammar,
+          rightParticle: upMannerPhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You give grammar up.');
+    });
+
     test('agreement verbs can render bound with participant surface', () {
       final sentence = render(
         SentenceState(

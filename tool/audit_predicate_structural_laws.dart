@@ -40,6 +40,7 @@ void main() {
         case PredicatePathKind.aboutTopic:
         case PredicatePathKind.ofTopic:
         case PredicatePathKind.onTopic:
+        case PredicatePathKind.overTopic:
         case PredicatePathKind.withTopic:
           if (!unlocks.verb.takesTopic) problems.add(reason);
         case PredicatePathKind.forBeneficiary:
@@ -60,6 +61,7 @@ void main() {
         case PredicatePathKind.timePhrase:
         case PredicatePathKind.frequencyPhrase:
         case PredicatePathKind.mannerPhrase:
+        case PredicatePathKind.rightParticle:
           break;
       }
     }

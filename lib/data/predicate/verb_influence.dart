@@ -262,6 +262,12 @@ PredicateInfluence _influenceForPath(
       'manner phrase',
       31,
     ),
+    PredicatePathKind.rightParticle => _predicateProperty(
+      action,
+      'right-particle',
+      'right particle',
+      37,
+    ),
   };
 }
 

@@ -63,6 +63,7 @@ enum PredicatePathKind {
   timePhrase,
   frequencyPhrase,
   mannerPhrase,
+  rightParticle,
 }
 
 const predicateLocationPathKinds = [
@@ -307,6 +308,9 @@ class PredicatePath {
 
   const PredicatePath.mannerPhrase(List<MannerPhrase> manners)
     : this._(kind: PredicatePathKind.mannerPhrase, manners: manners);
+
+  const PredicatePath.rightParticle(List<MannerPhrase> particles)
+    : this._(kind: PredicatePathKind.rightParticle, manners: particles);
 }
 
 class PredicateUnlocks {
@@ -1257,6 +1261,10 @@ PredicatePath _manners(List<MannerPhrase> manners) {
   return PredicatePath.mannerPhrase(_uniqueMannersByText(manners));
 }
 
+PredicatePath _particles(List<MannerPhrase> particles) {
+  return PredicatePath.rightParticle(_uniqueMannersByText(particles));
+}
+
 List<PredicatePath> _cookingContexts() {
   return [
     _inLocations([
@@ -1396,8 +1404,8 @@ final guidedPredicateUnlocks = [
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.byAccidentMannerPhrase,
-        manner_data.outMannerPhrase,
       ]),
+      _particles([manner_data.outMannerPhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -1420,10 +1428,9 @@ final guidedPredicateUnlocks = [
       _manners([
         ..._mistakeManners,
         manner_data.quicklyMannerPhrase,
-        manner_data.upMannerPhrase,
         manner_data.downMannerPhrase,
-        manner_data.outMannerPhrase,
       ]),
+      _particles([manner_data.upMannerPhrase, manner_data.outMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1539,8 +1546,8 @@ final guidedPredicateUnlocks = [
       _atLocations(_everydayPlaces, requiresObject: true),
       _inLocations(_everydayPlaces, requiresObject: true),
       _fromLocations(_everydayPlaces, requiresObject: true),
-      _manners([
-        ..._movementManners,
+      _manners(_movementManners),
+      _particles([
         manner_data.offMannerPhrase,
         manner_data.backMannerPhrase,
         manner_data.awayMannerPhrase,
@@ -1552,7 +1559,8 @@ final guidedPredicateUnlocks = [
     particle_data.turn,
     _switchableObjects,
     paths: [
-      _manners([
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([
         manner_data.onMannerPhrase,
         manner_data.offMannerPhrase,
         manner_data.aroundMannerPhrase,
@@ -1564,7 +1572,8 @@ final guidedPredicateUnlocks = [
     particle_data.pick,
     _smallHeldObjects,
     paths: [
-      _manners([manner_data.upMannerPhrase]),
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([manner_data.upMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1575,7 +1584,8 @@ final guidedPredicateUnlocks = [
       _atLocations(_everydayPlaces, requiresObject: true),
       _inLocations(_everydayPlaces, requiresObject: true),
       _onLocations(_surfacePlaces, requiresObject: true),
-      _manners([manner_data.downMannerPhrase]),
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([manner_data.downMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1584,28 +1594,29 @@ final guidedPredicateUnlocks = [
     _lookupObjects,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
-      _manners([manner_data.upMannerPhrase, manner_data.aroundMannerPhrase]),
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([manner_data.upMannerPhrase, manner_data.aroundMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: particle_data.wake,
     paths: [
-      _manners([manner_data.upMannerPhrase]),
+      _particles([manner_data.upMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: particle_data.calmVerb,
     paths: [
-      _manners([manner_data.downMannerPhrase]),
+      _particles([manner_data.downMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
   PredicateUnlocks(
     verb: particle_data.slowVerb,
     paths: [
-      _manners([manner_data.downMannerPhrase]),
+      _particles([manner_data.downMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1620,7 +1631,8 @@ final guidedPredicateUnlocks = [
       _atLocations(_everydayPlaces, requiresObject: true),
       _inLocations(_everydayPlaces, requiresObject: true),
       _fromLocations(_everydayPlaces, requiresObject: true),
-      _manners([..._movementManners, manner_data.backMannerPhrase]),
+      _manners(_movementManners),
+      _particles([manner_data.backMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1632,7 +1644,8 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _times(_todayTimes),
-      _manners([
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([
         manner_data.upMannerPhrase,
         manner_data.backMannerPhrase,
         manner_data.awayMannerPhrase,
@@ -1921,7 +1934,8 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.withInstrument(_openingInstruments),
       _beneficiaries(),
-      _manners([..._carefulManners, manner_data.upMannerPhrase]),
+      _manners(_carefulManners),
+      _particles([manner_data.upMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1931,7 +1945,8 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.withInstrument(_openingInstruments),
       _beneficiaries(),
-      _manners([..._carefulManners, manner_data.downMannerPhrase]),
+      _manners(_carefulManners),
+      _particles([manner_data.downMannerPhrase]),
       _times(_todayTimes),
     ],
   ),
@@ -1998,7 +2013,7 @@ final guidedPredicateUnlocks = [
     _peopleAndAnimals,
     paths: [
       ..._speechContexts(),
-      _manners([manner_data.backMannerPhrase]),
+      _particles([manner_data.backMannerPhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -2030,7 +2045,8 @@ final guidedPredicateUnlocks = [
       PredicatePath.withInstrument(_writingInstruments),
       _beneficiaries(),
       _onLocations([place_data.tablePlacePhrase]),
-      _manners([manner_data.downMannerPhrase, manner_data.backMannerPhrase]),
+      _manners([manner_data.carefullyMannerPhrase]),
+      _particles([manner_data.downMannerPhrase, manner_data.backMannerPhrase]),
     ],
   ),
   PredicateUnlocks(
@@ -2699,7 +2715,7 @@ final guidedPredicateUnlocks = [
     ]),
     paths: [
       ..._workContexts(),
-      _manners([manner_data.upMannerPhrase]),
+      _particles([manner_data.upMannerPhrase]),
     ],
   ),
   _directWithPaths(
@@ -2734,7 +2750,7 @@ final guidedPredicateUnlocks = [
     _throwCatchObjects,
     paths: [
       ..._sportContexts(),
-      _manners([manner_data.awayMannerPhrase]),
+      _particles([manner_data.awayMannerPhrase]),
     ],
   ),
   _directWithPaths(

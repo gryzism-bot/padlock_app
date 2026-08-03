@@ -564,6 +564,7 @@ class GrammarEngine {
     builder.frequencyPhrase = builder.state.frequencyPhrase?.render() ?? '';
 
     builder.mannerPhrase = builder.state.mannerPhrase?.render() ?? '';
+    builder.rightParticle = builder.state.rightParticle?.render() ?? '';
   }
 
   // -------------------------------------------------------
@@ -645,6 +646,8 @@ class GrammarEngine {
     if (builder.displayObjectAdjectiveComplement != null) {
       parts.add(builder.displayObjectAdjectiveComplement!.text);
     }
+
+    _addPhrase(parts, builder.rightParticle);
 
     if (builder.displayRecipient != null && activeToRecipient) {
       parts.add(
@@ -812,6 +815,7 @@ class _SentenceBuilder {
   String placePhrase = '';
   String frequencyPhrase = '';
   String mannerPhrase = '';
+  String rightParticle = '';
 
   _SentenceBuilder(this.state);
 
@@ -867,6 +871,7 @@ class _SentenceBuilder {
       'displaySource: ${displaySource?.text}',
       'displayPurpose: ${displayPurpose?.text}',
       'rightAction: ${state.rightAction?.infinitive}',
+      'rightParticle: ${state.rightParticle?.text}',
       'displayAgent: ${displayAgent?.text}',
       'displayObjectComplement: ${displayObjectComplement?.text}',
       'displayObjectAdjectiveComplement: ${displayObjectAdjectiveComplement?.text}',
@@ -875,7 +880,7 @@ class _SentenceBuilder {
       'verbChain: ${verbChain.join(' ')}',
       'invertSubjectAndAuxiliary: $invertSubjectAndAuxiliary',
       'punctuation: $punctuation',
-      'phrases: time="$timePhrase", place="$placePhrase", frequency="$frequencyPhrase", manner="$mannerPhrase"',
+      'phrases: time="$timePhrase", place="$placePhrase", frequency="$frequencyPhrase", manner="$mannerPhrase", rightParticle="$rightParticle"',
     ].join('\n');
   }
 

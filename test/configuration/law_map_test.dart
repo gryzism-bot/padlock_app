@@ -191,6 +191,7 @@ void main() {
             PredicatePathKind.timePhrase => 'time',
             PredicatePathKind.frequencyPhrase => 'frequency',
             PredicatePathKind.mannerPhrase => 'manner',
+            PredicatePathKind.rightParticle => 'right-particle',
           };
 
           expect(

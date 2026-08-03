@@ -118,6 +118,13 @@ List<_RouteExpectation> _expectationsFor(Verb verb, String surface) {
     return [_RouteExpectation(PredicatePathKind.mannerPhrase, lower)];
   }
 
+  if (_particleSurfaces.contains(lower)) {
+    return [
+      _RouteExpectation(PredicatePathKind.rightParticle, lower),
+      _RouteExpectation(PredicatePathKind.mannerPhrase, lower),
+    ];
+  }
+
   if (lower.startsWith('to ')) {
     final tail = _cleanNounSurface(lower.substring(3));
     if (tail == 'somewhere') {
@@ -324,6 +331,18 @@ const _mannerSurfaces = {
   'outside',
 };
 
+const _particleSurfaces = {
+  'up',
+  'down',
+  'out',
+  'off',
+  'on',
+  'through',
+  'around',
+  'back',
+  'away',
+};
+
 const _instrumentSurfaces = {
   'tool',
   'key',
@@ -409,7 +428,8 @@ class _RouteExpectation {
       ),
       PredicatePathKind.timePhrase => _timeMatches(verb, text),
       PredicatePathKind.frequencyPhrase => false,
-      PredicatePathKind.mannerPhrase => _mannerMatches(verb, text),
+      PredicatePathKind.mannerPhrase ||
+      PredicatePathKind.rightParticle => _mannerMatches(verb, actualKind, text),
       _ => _nounMatches(verb, actualKind, text),
     };
   }
@@ -462,11 +482,12 @@ bool _timeMatches(Verb verb, String? text) {
   return choices.any((choice) => choice.text.toLowerCase() == text);
 }
 
-bool _mannerMatches(Verb verb, String? text) {
-  final choices = predicateMannerChoicesFor(
-    verb,
-    PredicatePathKind.mannerPhrase,
-  );
+bool _mannerMatches(Verb verb, PredicatePathKind kind, String? text) {
+  final choices = [
+    ...predicateMannerChoicesFor(verb, kind),
+    if (kind == PredicatePathKind.mannerPhrase)
+      ...predicateMannerChoicesFor(verb, PredicatePathKind.rightParticle),
+  ];
   if (text == null) {
     return choices.isNotEmpty;
   }

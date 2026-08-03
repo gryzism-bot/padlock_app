@@ -543,7 +543,8 @@ void main() {
         final state = recognizeRoundTrip(entry.sentence);
 
         expect(state.action, entry.action, reason: entry.sentence);
-        expect(state.mannerPhrase, entry.manner, reason: entry.sentence);
+        expect(state.rightParticle, entry.manner, reason: entry.sentence);
+        expect(state.mannerPhrase, isNull, reason: entry.sentence);
         if (entry.object == null) {
           expect(state.object, isNull, reason: entry.sentence);
         } else {
@@ -568,6 +569,7 @@ void main() {
         expectNoun(state.topic, entry.topic);
         expect(state.topicPreposition, TopicPreposition.on);
         expect(state.mannerPhrase, isNull, reason: entry.sentence);
+        expect(state.rightParticle, isNull, reason: entry.sentence);
         expect(state.timePhrase, todayTimePhrase, reason: entry.sentence);
       }
     });
@@ -579,7 +581,8 @@ void main() {
 
         expect(state.action, give);
         expectNoun(state.object, 'grammar');
-        expect(state.mannerPhrase, upMannerPhrase);
+        expect(state.rightParticle, upMannerPhrase);
+        expect(state.mannerPhrase, isNull);
       },
       skip:
           'Current canonical surface is "give grammar up"; this needs a '

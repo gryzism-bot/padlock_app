@@ -876,8 +876,14 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
           _railBoundTailOwner(state),
           PredicatePathKind.mannerPhrase,
         ).isNotEmpty ||
-        state.mannerPhrase != null,
-    canRenderWhenEmpty: (state) => state.mannerPhrase != null,
+        predicateMannerChoicesFor(
+          _railBoundTailOwner(state),
+          PredicatePathKind.rightParticle,
+        ).isNotEmpty ||
+        state.mannerPhrase != null ||
+        state.rightParticle != null,
+    canRenderWhenEmpty: (state) =>
+        state.mannerPhrase != null || state.rightParticle != null,
   ),
 };
 
