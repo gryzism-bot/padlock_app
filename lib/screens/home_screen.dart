@@ -20,6 +20,9 @@ import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/engine/crude_translation_engine.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
+import 'package:padlock_app/engine/idiom_discovery.dart';
+import 'package:padlock_app/engine/idiom_finder.dart';
+import 'package:padlock_app/engine/idiom_progress_store.dart';
 import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -177,9 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   final GrammarEngine grammar = GrammarEngine();
   final CrudeTranslationEngine translator = const CrudeTranslationEngine();
+  final IdiomFinder idiomFinder = const IdiomFinder();
+  final IdiomProgressStore idiomProgressStore = const IdiomProgressStore();
 
   late ConfigurationState configuration;
   late final _SentencePreviewCache previewCache;
+  late final IdiomDiscovery idiomDiscovery;
   SuggestionDisplayMode? suggestionDisplayMode;
   HeaderPreviewMode? headerPreviewMode;
   PreviewCacheMode? previewCacheMode;
@@ -195,6 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final ValueNotifier<int> previewCacheEntryCountNotifier;
   Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
+  List<IdiomMatch> newlyFoundIdioms = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
   bool isCoreSurfaceExpanded = true;
   bool isVerbRailExpanded = true;
@@ -206,6 +213,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     configuration = ConfigurationState.initial();
     previewCache = _SentencePreviewCache(grammar, maxEntries: null);
+    idiomDiscovery = IdiomDiscovery(
+      finder: idiomFinder,
+      foundIds: idiomProgressStore.loadFoundIds(),
+    );
     moveTraceNotifier = ValueNotifier(moveTrace);
     previewCacheEntryCountNotifier = ValueNotifier(previewCacheEntryCount);
   }
@@ -235,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
       hoveredConfiguration.value = null;
+      _recordIdiomDiscovery(nextConfiguration.sentenceState);
       final nextSentence = grammar
           .generate(nextConfiguration.sentenceState)
           .text;
@@ -268,6 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = ConfigurationState.initial();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
+      newlyFoundIdioms = const [];
       _setMoveTrace(const []);
       _appendTraceEntry(
         _MoveTraceEntry.reset(sentence, elapsed: logicStopwatch.elapsed),
@@ -317,6 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
       configuration = state;
       nounNumbers = _syncNounNumbersWithState(nounNumbers, state.sentenceState);
       hoveredConfiguration.value = null;
+      _recordIdiomDiscovery(state.sentenceState);
       final sentence = grammar.generate(state.sentenceState).text;
       logicStopwatch.stop();
       _setMoveTrace(const []);
@@ -337,6 +351,14 @@ class _HomeScreenState extends State<HomeScreen> {
         expandedRails = {...expandedRails, slot};
       }
     });
+  }
+
+  void _recordIdiomDiscovery(SentenceState state) {
+    final discovered = idiomDiscovery.record(state);
+    newlyFoundIdioms = discovered;
+    if (discovered.isNotEmpty) {
+      idiomProgressStore.saveFoundIds(idiomDiscovery.foundIds);
+    }
   }
 
   void _toggleRailTranslation(ConfigurationCompassSlot slot) {
@@ -668,6 +690,8 @@ class _HomeScreenState extends State<HomeScreen> {
             isDarkMode = !isDarkMode;
           });
         },
+        idiomFoundCount: idiomDiscovery.foundCount,
+        idiomTotal: idiomDiscovery.total,
         onReset: _reset,
         onRandomSentence: _shuffle,
       ),
@@ -911,6 +935,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
+                if (newlyFoundIdioms.isNotEmpty)
+                  Positioned(
+                    left: 16,
+                    bottom: 12,
+                    child: _IdiomToast(matches: newlyFoundIdioms),
+                  ),
               ],
             );
           },
@@ -1196,6 +1226,8 @@ class _BottomDock extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
+  final int idiomFoundCount;
+  final int idiomTotal;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1217,6 +1249,8 @@ class _BottomDock extends StatelessWidget {
     required this.onToggleTranslation,
     required this.isDarkMode,
     required this.onToggleDarkMode,
+    required this.idiomFoundCount,
+    required this.idiomTotal,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1269,6 +1303,8 @@ class _BottomDock extends StatelessWidget {
                             onToggleTranslation: onToggleTranslation,
                             isDarkMode: isDarkMode,
                             onToggleDarkMode: onToggleDarkMode,
+                            idiomFoundCount: idiomFoundCount,
+                            idiomTotal: idiomTotal,
                             onReset: onReset,
                             onRandomSentence: onRandomSentence,
                             cacheStrip: cacheStrip,
@@ -1367,6 +1403,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
+  final int idiomFoundCount;
+  final int idiomTotal;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
   final Widget cacheStrip;
@@ -1384,6 +1422,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.onToggleTranslation,
     required this.isDarkMode,
     required this.onToggleDarkMode,
+    required this.idiomFoundCount,
+    required this.idiomTotal,
     required this.onReset,
     required this.onRandomSentence,
     required this.cacheStrip,
@@ -1438,6 +1478,8 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           onToggleTranslation: onToggleTranslation,
           isDarkMode: isDarkMode,
           onToggleDarkMode: onToggleDarkMode,
+          idiomFoundCount: idiomFoundCount,
+          idiomTotal: idiomTotal,
           onReset: onReset,
           onRandomSentence: onRandomSentence,
         );
@@ -1536,6 +1578,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final VoidCallback onToggleTranslation;
   final bool isDarkMode;
   final VoidCallback onToggleDarkMode;
+  final int idiomFoundCount;
+  final int idiomTotal;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1548,6 +1592,8 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.onToggleTranslation,
     required this.isDarkMode,
     required this.onToggleDarkMode,
+    required this.idiomFoundCount,
+    required this.idiomTotal,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1600,7 +1646,115 @@ class _DiagnosticsToolStrip extends StatelessWidget {
             onPressed: onRandomSentence,
             icon: const Icon(Icons.shuffle),
           ),
+          const SizedBox(width: 6),
+          _IdiomFoundCountBadge(found: idiomFoundCount, total: idiomTotal),
         ],
+      ),
+    );
+  }
+}
+
+class _IdiomFoundCountBadge extends StatelessWidget {
+  final int found;
+  final int total;
+
+  const _IdiomFoundCountBadge({required this.found, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Tooltip(
+      message: 'Known idiom patterns matched by the current sentence',
+      child: Container(
+        key: const Key('idiom-found-count'),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: found > 0
+              ? colors.secondaryContainer
+              : colors.surfaceContainerHighest,
+          border: Border.all(
+            color: found > 0 ? colors.secondary : colors.outlineVariant,
+          ),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          '$found / $total idioms found',
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: found > 0
+                ? colors.onSecondaryContainer
+                : colors.onSurfaceVariant,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IdiomToast extends StatelessWidget {
+  final List<IdiomMatch> matches;
+
+  const _IdiomToast({required this.matches});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final first = matches.first.pattern;
+    final extraCount = matches.length - 1;
+
+    return RepaintBoundary(
+      child: Material(
+        key: const Key('idiom-toast'),
+        color: colors.secondaryContainer,
+        elevation: 8,
+        borderRadius: BorderRadius.circular(8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.emoji_events_outlined,
+                      size: 16,
+                      color: colors.onSecondaryContainer,
+                    ),
+                    const SizedBox(width: 7),
+                    Text(
+                      extraCount == 0
+                          ? 'Idiom found'
+                          : 'Idioms found (${matches.length})',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: colors.onSecondaryContainer,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  '${first.label}: ${first.meaning}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSecondaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  first.pattern,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colors.onSecondaryContainer.withValues(alpha: 0.76),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -3634,9 +3788,13 @@ class _VirtualizedSuggestionRailState
           displayMode: widget.displayMode,
           showSuggestionTranslations: widget.showSuggestionTranslations,
         );
-        final availableWidth = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : MediaQuery.sizeOf(context).width;
+        if (widget.suggestions.isEmpty ||
+            !constraints.maxWidth.isFinite ||
+            constraints.maxWidth <= 0) {
+          return const SizedBox.shrink();
+        }
+
+        final availableWidth = constraints.maxWidth;
         final columnCount = max(
           1,
           ((availableWidth + spacing) / (tileMaxWidth + spacing)).floor(),

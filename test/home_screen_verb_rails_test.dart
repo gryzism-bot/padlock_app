@@ -68,9 +68,6 @@ void main() {
         ? ancestorIconButton.first
         : finder;
 
-    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
-    await tester.pumpAndSettle();
-
     final buttonTarget = descendantButton.evaluate().isNotEmpty
         ? descendantButton.first
         : ancestorButton.evaluate().isNotEmpty
@@ -84,11 +81,19 @@ void main() {
 
     if (buttonTarget != null) {
       tester.widget<OutlinedButton>(buttonTarget).onPressed?.call();
-    } else if (iconButtonTarget != null) {
-      tester.widget<IconButton>(iconButtonTarget).onPressed?.call();
-    } else {
-      await tester.tap(target, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      return;
     }
+    if (iconButtonTarget != null) {
+      tester.widget<IconButton>(iconButtonTarget).onPressed?.call();
+      await tester.pumpAndSettle();
+      return;
+    }
+
+    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
+    await tester.pumpAndSettle();
+
+    await tester.tap(target, warnIfMissed: false);
     await tester.pumpAndSettle();
   }
 
@@ -276,6 +281,11 @@ void main() {
   testWidgets('Give object rail exposes habit nouns for give up routes', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
 
     await tapVisible(tester, find.text('Word'));
@@ -295,6 +305,10 @@ void main() {
     );
 
     expect(renderedSentence(tester), 'You give up smoking.');
+    expect(find.text('1 / 40 idioms found'), findsOneWidget);
+    expect(find.byKey(const Key('idiom-toast')), findsOneWidget);
+    expect(find.text('Idiom found'), findsOneWidget);
+    expect(find.text('give up: stop doing something'), findsOneWidget);
   });
 
   testWidgets('Fixed text rail keeps plural determiner and adjective surface', (
