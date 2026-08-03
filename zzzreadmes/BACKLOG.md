@@ -316,6 +316,18 @@ Idea:
 Review authored verb routes for idiom-capable combinations. When the user builds
 one naturally, show a small `idiom found` note.
 
+Detector shape:
+
+- Match the current rendered `SentenceState`, not the exact click order.
+- Keep strict idioms and looser phrasal-verb constructions distinct:
+  - strict idiom: `give up`, `wake up`, `calm down`, `slow down`, `work out`
+  - phrasal construction: `write letter down`, `call Mary back`,
+    `turn lamp off`, `put book down`
+- Store patterns in data later, probably near PredicatePaths, so authored
+  routes and idiom detection stay traceable to the same language shelf.
+- The same detector should work after normal clicks, random sentence,
+  Recognition input, and future guessing-game target states.
+
 Examples:
 
 - `get over it`

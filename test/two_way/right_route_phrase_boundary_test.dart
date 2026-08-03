@@ -9,6 +9,7 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
+import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -381,10 +382,34 @@ void main() {
           object: 'grammar',
         ),
         (
+          sentence: 'You gave money away.',
+          action: give,
+          manner: awayMannerPhrase,
+          object: 'money',
+        ),
+        (
+          sentence: 'You gave book back.',
+          action: give,
+          manner: backMannerPhrase,
+          object: 'book',
+        ),
+        (
           sentence: 'You took off.',
           action: take,
           manner: offMannerPhrase,
           object: null,
+        ),
+        (
+          sentence: 'You took phone away.',
+          action: take,
+          manner: awayMannerPhrase,
+          object: 'phone',
+        ),
+        (
+          sentence: 'You brought key back.',
+          action: bring,
+          manner: backMannerPhrase,
+          object: 'key',
         ),
         (
           sentence: 'You thought through.',
@@ -413,6 +438,48 @@ void main() {
         (
           sentence: 'You worked out.',
           action: work,
+          manner: outMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You called Mary back.',
+          action: call,
+          manner: backMannerPhrase,
+          object: 'Mary',
+        ),
+        (
+          sentence: 'You wrote letter back.',
+          action: write,
+          manner: backMannerPhrase,
+          object: 'letter',
+        ),
+        (
+          sentence: 'You threw stone away.',
+          action: sport_data.throwVerb,
+          manner: awayMannerPhrase,
+          object: 'stone',
+        ),
+        (
+          sentence: 'You opened up.',
+          action: open,
+          manner: upMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You closed down.',
+          action: close,
+          manner: downMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You broke up.',
+          action: breakVerb,
+          manner: upMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You broke out.',
+          action: breakVerb,
           manner: outMannerPhrase,
           object: null,
         ),

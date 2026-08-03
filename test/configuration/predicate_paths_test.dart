@@ -1807,10 +1807,40 @@ void main() {
                 text: 'You give grammar up.',
               ),
               (
+                action: give,
+                preMoves: const [SetObject(fixed_object.money)],
+                move: const SetMannerPhrase(awayMannerPhrase),
+                text: 'You give money away.',
+              ),
+              (
+                action: give,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(backMannerPhrase),
+                text: 'You give book back.',
+              ),
+              (
                 action: take,
                 preMoves: const [],
                 move: const SetMannerPhrase(offMannerPhrase),
                 text: 'You take off.',
+              ),
+              (
+                action: take,
+                preMoves: [
+                  SetObject(object_data.phone.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(awayMannerPhrase),
+                text: 'You take phone away.',
+              ),
+              (
+                action: bring,
+                preMoves: [
+                  SetObject(object_data.key.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(backMannerPhrase),
+                text: 'You bring key back.',
               ),
               (
                 action: think,
@@ -1843,6 +1873,52 @@ void main() {
                 preMoves: const [],
                 move: const SetMannerPhrase(outMannerPhrase),
                 text: 'You work out.',
+              ),
+              (
+                action: call,
+                preMoves: [
+                  SetObject(people_data.mary.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(backMannerPhrase),
+                text: 'You call Mary back.',
+              ),
+              (
+                action: write,
+                preMoves: [
+                  SetObject(object_data.letter.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(backMannerPhrase),
+                text: 'You write letter back.',
+              ),
+              (
+                action: sport_data.throwVerb,
+                preMoves: const [SetObject(fixed_object.stone)],
+                move: const SetMannerPhrase(awayMannerPhrase),
+                text: 'You throw stone away.',
+              ),
+              (
+                action: open,
+                preMoves: const [],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You open up.',
+              ),
+              (
+                action: close,
+                preMoves: const [],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You close down.',
+              ),
+              (
+                action: breakVerb,
+                preMoves: const [],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You break up.',
+              ),
+              (
+                action: breakVerb,
+                preMoves: const [],
+                move: const SetMannerPhrase(outMannerPhrase),
+                text: 'You break out.',
               ),
               (
                 action: particle_data.turn,
