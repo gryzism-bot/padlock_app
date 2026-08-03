@@ -368,7 +368,15 @@ void main() {
           .map((classification) => classification.label)
           .toList();
 
-      expect(particles, ['up', 'down', 'out', 'off', 'through', 'around']);
+      expect(particles, [
+        'up',
+        'down',
+        'out',
+        'off',
+        'on',
+        'through',
+        'around',
+      ]);
       expect(
         currentPhraseClassificationFor(outMannerPhrase)!.note,
         contains('authored per predicate'),

@@ -39,7 +39,7 @@ class CurrentPhraseClassification {
 }
 
 const _bareDirectionWords = {'away', 'back', 'here', 'there', 'outside'};
-const _particleWords = {'up', 'down', 'out', 'off', 'through', 'around'};
+const _particleWords = {'up', 'down', 'out', 'off', 'on', 'through', 'around'};
 
 final currentPhraseClassifications = <CurrentPhraseClassification>[
   for (final phrase in placePhrases)

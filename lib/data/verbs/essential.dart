@@ -2,6 +2,7 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/cooking.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/particle.dart';
 import 'package:padlock_app/data/verbs/sport.dart';
 import 'package:padlock_app/data/verbs/travel.dart';
 import 'package:padlock_app/data/verbs/work.dart';
@@ -513,6 +514,7 @@ final List<Verb> verbs = [
   ...educationVerbs,
   ...essentialVerbs,
   ...movementVerbs,
+  ...particleVerbs,
   ...sportVerbs,
   ...travelVerbs,
   ...workVerbs,

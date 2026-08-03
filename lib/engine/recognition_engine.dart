@@ -2743,8 +2743,98 @@ class RecognitionEngine {
       builder.mannerPhraseEnd =
           builder.mannerPhraseStart + phrase.text.split(' ').length - 1;
 
+      if (_overlapsRecognizedRoute(
+        builder,
+        builder.mannerPhraseStart,
+        builder.mannerPhraseEnd,
+      )) {
+        builder.mannerPhrase = null;
+        builder.mannerPhraseStart = -1;
+        builder.mannerPhraseEnd = -1;
+        continue;
+      }
+
       return;
     }
+  }
+
+  bool _overlapsRecognizedRoute(
+    _RecognitionBuilder builder,
+    int start,
+    int end,
+  ) {
+    return _overlapsSpan(
+          start,
+          end,
+          builder.placePhraseStart,
+          builder.placePhraseEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.timePhraseStart,
+          builder.timePhraseEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.frequencyPhraseStart,
+          builder.frequencyPhraseEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
+          builder.addresseeEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.companionStart > 0 ? builder.companionStart - 1 : -1,
+          builder.companionEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.instrumentStart > 0 ? builder.instrumentStart - 1 : -1,
+          builder.instrumentEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.destinationStart > 0 ? builder.destinationStart - 1 : -1,
+          builder.destinationEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.topicStart > 0 ? builder.topicStart - 1 : -1,
+          builder.topicEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.beneficiaryStart > 0 ? builder.beneficiaryStart - 1 : -1,
+          builder.beneficiaryEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.sourceStart > 0 ? builder.sourceStart - 1 : -1,
+          builder.sourceEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.purposeStart > 0 ? builder.purposeStart - 1 : -1,
+          builder.purposeEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.rightActionStart,
+          builder.rightActionEnd,
+        );
   }
 
   void _recognizeUnknownTokens(_RecognitionBuilder builder) {

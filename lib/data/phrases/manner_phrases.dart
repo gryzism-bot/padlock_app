@@ -200,6 +200,12 @@ const offMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const onMannerPhrase = MannerPhrase(
+  text: 'on',
+  translations: {Language.pl: 'wlaczone'},
+  position: PhrasePosition.afterPredicate,
+);
+
 const throughMannerPhrase = MannerPhrase(
   text: 'through',
   translations: {Language.pl: 'do konca'},
@@ -264,6 +270,7 @@ List<MannerPhrase> mannerPhrases = [
   downMannerPhrase,
   outMannerPhrase,
   offMannerPhrase,
+  onMannerPhrase,
   throughMannerPhrase,
   aroundMannerPhrase,
   hereMannerPhrase,

@@ -8,9 +8,11 @@ import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -373,6 +375,12 @@ void main() {
           object: null,
         ),
         (
+          sentence: 'You gave grammar up.',
+          action: give,
+          manner: upMannerPhrase,
+          object: 'grammar',
+        ),
+        (
           sentence: 'You took off.',
           action: take,
           manner: offMannerPhrase,
@@ -408,6 +416,60 @@ void main() {
           manner: outMannerPhrase,
           object: null,
         ),
+        (
+          sentence: 'You turned on.',
+          action: particle_data.turn,
+          manner: onMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You turned lamp off.',
+          action: particle_data.turn,
+          manner: offMannerPhrase,
+          object: 'lamp',
+        ),
+        (
+          sentence: 'You picked phone up.',
+          action: particle_data.pick,
+          manner: upMannerPhrase,
+          object: 'phone',
+        ),
+        (
+          sentence: 'You put book down.',
+          action: particle_data.put,
+          manner: downMannerPhrase,
+          object: 'book',
+        ),
+        (
+          sentence: 'You looked around.',
+          action: particle_data.look,
+          manner: aroundMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You looked word up.',
+          action: particle_data.look,
+          manner: upMannerPhrase,
+          object: 'word',
+        ),
+        (
+          sentence: 'You woke up.',
+          action: particle_data.wake,
+          manner: upMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You calmed down.',
+          action: particle_data.calmVerb,
+          manner: downMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You slowed down.',
+          action: particle_data.slowVerb,
+          manner: downMannerPhrase,
+          object: null,
+        ),
       ];
 
       for (final entry in cases) {
@@ -422,5 +484,39 @@ void main() {
         }
       }
     });
+
+    test('on topic remains distinct from on particle', () {
+      final cases = [
+        (
+          sentence: 'John worked on grammar today.',
+          action: work,
+          topic: 'grammar',
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = recognizeRoundTrip(entry.sentence);
+
+        expect(state.action, entry.action, reason: entry.sentence);
+        expectNoun(state.topic, entry.topic);
+        expect(state.topicPreposition, TopicPreposition.on);
+        expect(state.mannerPhrase, isNull, reason: entry.sentence);
+        expect(state.timePhrase, todayTimePhrase, reason: entry.sentence);
+      }
+    });
+
+    test(
+      'particle before object is documented as future object-tail surface',
+      () {
+        final state = recognizeRoundTrip('You gave up grammar.');
+
+        expect(state.action, give);
+        expectNoun(state.object, 'grammar');
+        expect(state.mannerPhrase, upMannerPhrase);
+      },
+      skip:
+          'Current canonical surface is "give grammar up"; this needs a '
+          'particle-before-object participant pass.',
+    );
   });
 }

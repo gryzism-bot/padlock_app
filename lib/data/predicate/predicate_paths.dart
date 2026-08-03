@@ -22,6 +22,7 @@ import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
@@ -702,6 +703,40 @@ final _takeObjects = _uniqueByText([
   object_data.road.toNounPhrase(Number.plural),
   object_data.ticket.toNounPhrase(Number.singular),
   object_data.ticket.toNounPhrase(Number.plural),
+]);
+final _switchableObjects = _uniqueByText([
+  object_data.lamp.toNounPhrase(Number.singular),
+  object_data.lamp.toNounPhrase(Number.plural),
+  object_data.screen.toNounPhrase(Number.singular),
+  object_data.screen.toNounPhrase(Number.plural),
+  object_data.phone.toNounPhrase(Number.singular),
+  object_data.phone.toNounPhrase(Number.plural),
+  object_data.computer.toNounPhrase(Number.singular),
+  object_data.computer.toNounPhrase(Number.plural),
+]);
+final _smallHeldObjects = _uniqueByText([
+  object_data.book.toNounPhrase(Number.singular),
+  object_data.book.toNounPhrase(Number.plural),
+  object_data.phone.toNounPhrase(Number.singular),
+  object_data.phone.toNounPhrase(Number.plural),
+  object_data.key.toNounPhrase(Number.singular),
+  object_data.key.toNounPhrase(Number.plural),
+  object_data.bag.toNounPhrase(Number.singular),
+  object_data.bag.toNounPhrase(Number.plural),
+  object_data.note.toNounPhrase(Number.singular),
+  object_data.note.toNounPhrase(Number.plural),
+  object_data.coat.toNounPhrase(Number.singular),
+  object_data.coat.toNounPhrase(Number.plural),
+  object_data.shoe.toNounPhrase(Number.singular),
+  object_data.shoe.toNounPhrase(Number.plural),
+]);
+final _lookupObjects = _uniqueByText([
+  fixed_object.word,
+  fixed_object.answer,
+  object_data.idea.toNounPhrase(Number.singular),
+  object_data.idea.toNounPhrase(Number.plural),
+  object_data.answer.toNounPhrase(Number.singular),
+  object_data.answer.toNounPhrase(Number.plural),
 ]);
 final _bringObjects = _uniqueByText([
   ..._takeObjects,
@@ -1503,6 +1538,67 @@ final guidedPredicateUnlocks = [
       _inLocations(_everydayPlaces, requiresObject: true),
       _fromLocations(_everydayPlaces, requiresObject: true),
       _manners([..._movementManners, manner_data.offMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    particle_data.turn,
+    _switchableObjects,
+    paths: [
+      _manners([
+        manner_data.onMannerPhrase,
+        manner_data.offMannerPhrase,
+        manner_data.aroundMannerPhrase,
+      ]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    particle_data.pick,
+    _smallHeldObjects,
+    paths: [
+      _manners([manner_data.upMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    particle_data.put,
+    _smallHeldObjects,
+    paths: [
+      _atLocations(_everydayPlaces, requiresObject: true),
+      _inLocations(_everydayPlaces, requiresObject: true),
+      _onLocations(_surfacePlaces, requiresObject: true),
+      _manners([manner_data.downMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  _directWithPaths(
+    particle_data.look,
+    _lookupObjects,
+    paths: [
+      PredicatePath.aboutTopic(_basicTopics),
+      _manners([manner_data.upMannerPhrase, manner_data.aroundMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: particle_data.wake,
+    paths: [
+      _manners([manner_data.upMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: particle_data.calmVerb,
+    paths: [
+      _manners([manner_data.downMannerPhrase]),
+      _times(_todayTimes),
+    ],
+  ),
+  PredicateUnlocks(
+    verb: particle_data.slowVerb,
+    paths: [
+      _manners([manner_data.downMannerPhrase]),
       _times(_todayTimes),
     ],
   ),

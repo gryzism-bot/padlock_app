@@ -26,6 +26,7 @@ import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
@@ -1800,6 +1801,12 @@ void main() {
                 text: 'You give up.',
               ),
               (
+                action: give,
+                preMoves: const [SetObject(fixed_object.grammar)],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You give grammar up.',
+              ),
+              (
                 action: take,
                 preMoves: const [],
                 move: const SetMannerPhrase(offMannerPhrase),
@@ -1836,6 +1843,66 @@ void main() {
                 preMoves: const [],
                 move: const SetMannerPhrase(outMannerPhrase),
                 text: 'You work out.',
+              ),
+              (
+                action: particle_data.turn,
+                preMoves: const [],
+                move: const SetMannerPhrase(onMannerPhrase),
+                text: 'You turn on.',
+              ),
+              (
+                action: particle_data.turn,
+                preMoves: [
+                  SetObject(object_data.lamp.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(offMannerPhrase),
+                text: 'You turn lamp off.',
+              ),
+              (
+                action: particle_data.pick,
+                preMoves: [
+                  SetObject(object_data.phone.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You pick phone up.',
+              ),
+              (
+                action: particle_data.put,
+                preMoves: [
+                  SetObject(object_data.book.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You put book down.',
+              ),
+              (
+                action: particle_data.look,
+                preMoves: const [],
+                move: const SetMannerPhrase(aroundMannerPhrase),
+                text: 'You look around.',
+              ),
+              (
+                action: particle_data.look,
+                preMoves: const [SetObject(fixed_object.word)],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You look word up.',
+              ),
+              (
+                action: particle_data.wake,
+                preMoves: const [],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You wake up.',
+              ),
+              (
+                action: particle_data.calmVerb,
+                preMoves: const [],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You calm down.',
+              ),
+              (
+                action: particle_data.slowVerb,
+                preMoves: const [],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You slow down.',
               ),
             ];
 
