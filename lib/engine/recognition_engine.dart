@@ -1,7 +1,6 @@
 import 'package:padlock_app/data/modals.dart';
 import 'package:padlock_app/data/phrases/frequency_phrases.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
-import 'package:padlock_app/data/phrases/phrase_classification.dart';
 import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/particle_object_order.dart';
@@ -17,6 +16,7 @@ import 'package:padlock_app/data/subjects/third_person/geography.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/essential.dart' hide need;
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -40,6 +40,7 @@ import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -1272,13 +1273,12 @@ class RecognitionEngine {
       return false;
     }
 
-    for (final phrase in mannerPhrases) {
-      if (!_isParticleRoutePhrase(phrase) ||
-          !rightParticlePlacesObjectAfter(verb: action!, particle: phrase)) {
+    for (final particle in rightParticles) {
+      if (!rightParticlePlacesObjectAfter(verb: action!, particle: particle)) {
         continue;
       }
 
-      final particleWords = phrase.text.toLowerCase().split(' ');
+      final particleWords = particle.text.toLowerCase().split(' ');
       if (!_tokensMatchAt(builder.tokens, particleStart, particleWords)) {
         continue;
       }
@@ -1514,6 +1514,12 @@ class RecognitionEngine {
       return;
     }
 
+    if (_startsRightParticleAt(builder, objectStart)) {
+      builder.objectStart = participantStart;
+      builder.objectEnd = recipientEnd;
+      return;
+    }
+
     builder.recipientStart = participantStart;
     builder.recipientEnd = recipientEnd;
     builder.objectStart = objectStart;
@@ -1540,6 +1546,30 @@ class RecognitionEngine {
     }
 
     return null;
+  }
+
+  bool _startsRightParticleAt(_RecognitionBuilder builder, int start) {
+    final action = builder.action;
+    if (action == null || start >= builder.tokens.length) {
+      return false;
+    }
+
+    for (final particle in rightParticles) {
+      final words = particle.text.toLowerCase().split(' ');
+      if (!_tokensMatchAt(builder.tokens, start, words)) {
+        continue;
+      }
+
+      if (!predicateParticleChoicesFor(
+        action,
+      ).any((choice) => choice.text == particle.text)) {
+        continue;
+      }
+
+      return !rightParticlePlacesObjectAfter(verb: action, particle: particle);
+    }
+
+    return false;
   }
 
   int _nounPhraseEnd(_RecognitionBuilder builder, int start) {
@@ -2260,6 +2290,7 @@ class RecognitionEngine {
     _recognizeBeneficiaryPhrase(builder, phraseTokens);
     _recognizePurposePhrase(builder, phraseTokens);
     _recognizeSourcePhrase(builder, phraseTokens);
+    _recognizeRightParticle(builder, phraseTokens);
     _recognizeMannerPhrase(builder, phraseTokens);
   }
 
@@ -2783,6 +2814,32 @@ class RecognitionEngine {
     );
   }
 
+  void _recognizeRightParticle(
+    _RecognitionBuilder builder,
+    List<String> tokens,
+  ) {
+    for (final particle in rightParticles) {
+      final phraseText = particle.text.toLowerCase();
+      final wordsBefore = _phraseWordIndex(tokens, phraseText);
+
+      if (wordsBefore < 0) {
+        continue;
+      }
+
+      final start = builder.verbChainEnd + 1 + wordsBefore;
+      final end = start + particle.text.split(' ').length - 1;
+
+      if (_overlapsRecognizedRoute(builder, start, end)) {
+        continue;
+      }
+
+      builder.rightParticle = particle;
+      builder.rightParticleStart = start;
+      builder.rightParticleEnd = end;
+      return;
+    }
+  }
+
   void _recognizeMannerPhrase(
     _RecognitionBuilder builder,
     List<String> tokens,
@@ -2803,33 +2860,14 @@ class RecognitionEngine {
         continue;
       }
 
-      if (_isParticleRoutePhrase(phrase)) {
-        if (builder.rightParticle != null) {
-          continue;
-        }
-        builder.rightParticle = phrase;
-        builder.rightParticleStart = start;
-        builder.rightParticleEnd = end;
-      } else {
-        if (builder.mannerPhrase != null) {
-          continue;
-        }
-        builder.mannerPhrase = phrase;
-        builder.mannerPhraseStart = start;
-        builder.mannerPhraseEnd = end;
+      if (builder.mannerPhrase != null) {
+        continue;
       }
-
-      if (builder.rightParticle != null && builder.mannerPhrase != null) {
-        return;
-      }
+      builder.mannerPhrase = phrase;
+      builder.mannerPhraseStart = start;
+      builder.mannerPhraseEnd = end;
+      return;
     }
-  }
-
-  bool _isParticleRoutePhrase(MannerPhrase phrase) {
-    return currentPhraseClassificationFor(
-          phrase,
-        )?.routeHints.contains(PredicateRouteHint.particle) ??
-        false;
   }
 
   bool _overlapsRecognizedRoute(
@@ -3066,7 +3104,7 @@ class _RecognitionBuilder {
   int mannerPhraseStart = -1;
   int mannerPhraseEnd = -1;
 
-  MannerPhrase? rightParticle;
+  RightParticle? rightParticle;
   int rightParticleStart = -1;
   int rightParticleEnd = -1;
 
@@ -3219,4 +3257,7 @@ const _knownFixedObjects = [
   fixed_object.smoking,
   fixed_object.gambling,
   fixed_object.drinking,
+  fixed_object.money,
+  fixed_object.stone,
+  fixed_object.word,
 ];

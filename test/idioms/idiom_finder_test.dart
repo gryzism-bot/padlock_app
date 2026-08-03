@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/idioms/idiom_patterns.dart';
-import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
@@ -9,6 +8,7 @@ import 'package:padlock_app/data/verbs/communication.dart' as communication;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/idiom_discovery.dart';
 import 'package:padlock_app/engine/idiom_finder.dart';
@@ -31,7 +31,7 @@ void main() {
       const SentenceState(
         action: give,
         object: fixed_object.smoking,
-        rightParticle: upMannerPhrase,
+        rightParticle: upParticle,
         tense: Tense.present,
         aspect: Aspect.simple,
       ),
@@ -58,7 +58,7 @@ void main() {
     final matches = finder.find(
       const SentenceState(
         action: give,
-        rightParticle: downMannerPhrase,
+        rightParticle: downParticle,
         tense: Tense.present,
         aspect: Aspect.simple,
       ),
@@ -73,7 +73,7 @@ void main() {
         id: 'find-out',
         state: const SentenceState(
           action: findVerb,
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -82,7 +82,7 @@ void main() {
         id: 'work-out',
         state: const SentenceState(
           action: work,
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -91,7 +91,7 @@ void main() {
         id: 'think-through',
         state: const SentenceState(
           action: think,
-          rightParticle: throughMannerPhrase,
+          rightParticle: throughParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -100,7 +100,7 @@ void main() {
         id: 'stand-up',
         state: const SentenceState(
           action: stand,
-          rightParticle: upMannerPhrase,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -109,7 +109,7 @@ void main() {
         id: 'sit-down',
         state: const SentenceState(
           action: sit,
-          rightParticle: downMannerPhrase,
+          rightParticle: downParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -118,7 +118,7 @@ void main() {
         id: 'come-back',
         state: const SentenceState(
           action: come,
-          rightParticle: backMannerPhrase,
+          rightParticle: backParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -127,7 +127,7 @@ void main() {
         id: 'go-away',
         state: const SentenceState(
           action: go,
-          rightParticle: awayMannerPhrase,
+          rightParticle: awayParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -149,7 +149,7 @@ void main() {
         id: 'go-out',
         state: const SentenceState(
           action: go,
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -158,7 +158,7 @@ void main() {
         id: 'go-back',
         state: const SentenceState(
           action: go,
-          rightParticle: backMannerPhrase,
+          rightParticle: backParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -167,7 +167,7 @@ void main() {
         id: 'come-in',
         state: const SentenceState(
           action: come,
-          rightParticle: inMannerPhrase,
+          rightParticle: inParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -176,7 +176,7 @@ void main() {
         id: 'come-out',
         state: const SentenceState(
           action: come,
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -185,7 +185,7 @@ void main() {
         id: 'look-out',
         state: const SentenceState(
           action: particle_data.look,
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -194,7 +194,7 @@ void main() {
         id: 'look-back',
         state: const SentenceState(
           action: particle_data.look,
-          rightParticle: backMannerPhrase,
+          rightParticle: backParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -203,7 +203,7 @@ void main() {
         id: 'turn-around',
         state: const SentenceState(
           action: particle_data.turn,
-          rightParticle: aroundMannerPhrase,
+          rightParticle: aroundParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -212,7 +212,7 @@ void main() {
         id: 'break-down',
         state: const SentenceState(
           action: breakVerb,
-          rightParticle: downMannerPhrase,
+          rightParticle: downParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -221,7 +221,7 @@ void main() {
         id: 'fall-down',
         state: const SentenceState(
           action: fall,
-          rightParticle: downMannerPhrase,
+          rightParticle: downParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -231,7 +231,7 @@ void main() {
         state: SentenceState(
           action: particle_data.put,
           object: object_data.book.toNounPhrase(Number.singular),
-          rightParticle: awayMannerPhrase,
+          rightParticle: awayParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -241,7 +241,7 @@ void main() {
         state: SentenceState(
           action: particle_data.put,
           object: object_data.book.toNounPhrase(Number.singular),
-          rightParticle: backMannerPhrase,
+          rightParticle: backParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -251,7 +251,7 @@ void main() {
         state: SentenceState(
           action: take,
           object: object_data.key.toNounPhrase(Number.singular),
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -261,7 +261,7 @@ void main() {
         state: SentenceState(
           action: bring,
           object: object_data.book.toNounPhrase(Number.singular),
-          rightParticle: inMannerPhrase,
+          rightParticle: inParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -271,7 +271,7 @@ void main() {
         state: SentenceState(
           action: bring,
           object: object_data.book.toNounPhrase(Number.singular),
-          rightParticle: outMannerPhrase,
+          rightParticle: outParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -281,7 +281,7 @@ void main() {
         state: const SentenceState(
           action: work_data.clean,
           object: fixed_object.room,
-          rightParticle: upMannerPhrase,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -305,7 +305,7 @@ void main() {
           .record(
             const SentenceState(
               action: give,
-              rightParticle: upMannerPhrase,
+              rightParticle: upParticle,
               tense: Tense.present,
               aspect: Aspect.simple,
             ),
@@ -321,7 +321,7 @@ void main() {
             SentenceState(
               action: communication.write,
               object: object_data.letter.toNounPhrase(Number.singular),
-              rightParticle: downMannerPhrase,
+              rightParticle: downParticle,
               tense: Tense.present,
               aspect: Aspect.simple,
             ),
@@ -336,7 +336,7 @@ void main() {
           .record(
             const SentenceState(
               action: take,
-              rightParticle: offMannerPhrase,
+              rightParticle: offParticle,
               tense: Tense.present,
               aspect: Aspect.simple,
             ),
@@ -350,7 +350,7 @@ void main() {
       discovery.record(
         const SentenceState(
           action: take,
-          rightParticle: offMannerPhrase,
+          rightParticle: offParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),

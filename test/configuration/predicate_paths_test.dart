@@ -28,6 +28,7 @@ import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
@@ -75,7 +76,7 @@ void main() {
     return unlocks.paths.any(
       (path) =>
           path.kind == PredicatePathKind.rightParticle &&
-          path.manners.any(
+          path.particles.any(
             (choice) => choice.text.toLowerCase() == particle.toLowerCase(),
           ),
     );
@@ -1150,7 +1151,7 @@ void main() {
             case PredicatePathKind.mannerPhrase:
               expect(path.manners, isNotEmpty, reason: reason);
             case PredicatePathKind.rightParticle:
-              expect(path.manners, isNotEmpty, reason: reason);
+              expect(path.particles, isNotEmpty, reason: reason);
           }
         }
       }
@@ -1640,10 +1641,7 @@ void main() {
         containsAll(['quickly', 'there']),
       );
       expect(
-        predicateMannerChoicesFor(
-          go,
-          PredicatePathKind.rightParticle,
-        ).map((manner) => manner.text),
+        predicateParticleChoicesFor(go).map((particle) => particle.text),
         containsAll(['away', 'back', 'around']),
       );
       expect(
@@ -1709,13 +1707,6 @@ void main() {
     });
 
     test('essential verb review sheet is executable route audit', () {
-      final implemented = _essentialVerbReviewRoutes.where(
-        (route) => route.status == _RouteStatus.implemented,
-      );
-      final pending = _essentialVerbReviewRoutes.where(
-        (route) => route.status == _RouteStatus.pending,
-      );
-
       expect(
         _essentialVerbReviewRoutes
             .map((route) => route.verb.infinitive)
@@ -1724,17 +1715,8 @@ void main() {
         reason: 'Every essential verb should have at least one reviewed route.',
       );
 
-      for (final route in implemented) {
+      for (final route in _essentialVerbReviewRoutes) {
         expect(_reviewedRouteExists(route), isTrue, reason: route.description);
-      }
-
-      for (final route in pending) {
-        expect(
-          _reviewedRouteExists(route),
-          isFalse,
-          reason:
-              '${route.description} is intentionally pending; when this turns true, move it to implemented.',
-        );
       }
     });
 
@@ -1748,7 +1730,6 @@ void main() {
             PredicatePathKind.fromLocation => <Object>[...path.places],
             PredicatePathKind.placePhrase => <Object>[...path.places],
             PredicatePathKind.mannerPhrase => <Object>[...path.manners],
-            PredicatePathKind.rightParticle => <Object>[...path.manners],
             _ => const <Object>[],
           };
 
@@ -1800,12 +1781,12 @@ void main() {
       final cases = [
         (
           action: go,
-          move: const SetRightParticle(awayMannerPhrase),
+          move: const SetRightParticle(awayParticle),
           text: 'You go away.',
         ),
         (
           action: go,
-          move: const SetRightParticle(aroundMannerPhrase),
+          move: const SetRightParticle(aroundParticle),
           text: 'You go around.',
         ),
         (
@@ -1927,7 +1908,7 @@ void main() {
               (
                 action: findVerb,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You find out.',
               ),
               (
@@ -1939,25 +1920,25 @@ void main() {
               (
                 action: give,
                 preMoves: const [],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You give up.',
               ),
               (
                 action: give,
                 preMoves: const [SetObject(fixed_object.grammar)],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You give up grammar.',
               ),
               (
                 action: give,
                 preMoves: const [SetObject(fixed_object.smoking)],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You give up smoking.',
               ),
               (
                 action: give,
                 preMoves: const [SetObject(fixed_object.money)],
-                move: const SetRightParticle(awayMannerPhrase),
+                move: const SetRightParticle(awayParticle),
                 text: 'You give money away.',
               ),
               (
@@ -1965,13 +1946,13 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You give book back.',
               ),
               (
                 action: take,
                 preMoves: const [],
-                move: const SetRightParticle(offMannerPhrase),
+                move: const SetRightParticle(offParticle),
                 text: 'You take off.',
               ),
               (
@@ -1979,7 +1960,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.phone.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(awayMannerPhrase),
+                move: const SetRightParticle(awayParticle),
                 text: 'You take phone away.',
               ),
               (
@@ -1987,13 +1968,13 @@ void main() {
                 preMoves: [
                   SetObject(object_data.key.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You bring key back.',
               ),
               (
                 action: think,
                 preMoves: const [],
-                move: const SetRightParticle(throughMannerPhrase),
+                move: const SetRightParticle(throughParticle),
                 text: 'You think through.',
               ),
               (
@@ -2001,7 +1982,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.note.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You write down note.',
               ),
               (
@@ -2045,55 +2026,55 @@ void main() {
               (
                 action: stand,
                 preMoves: const [],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You stand up.',
               ),
               (
                 action: sit,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You sit down.',
               ),
               (
                 action: go,
                 preMoves: const [],
-                move: const SetRightParticle(awayMannerPhrase),
+                move: const SetRightParticle(awayParticle),
                 text: 'You go away.',
               ),
               (
                 action: go,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You go out.',
               ),
               (
                 action: go,
                 preMoves: const [],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You go back.',
               ),
               (
                 action: come,
                 preMoves: const [],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You come back.',
               ),
               (
                 action: come,
                 preMoves: const [],
-                move: const SetRightParticle(inMannerPhrase),
+                move: const SetRightParticle(inParticle),
                 text: 'You come in.',
               ),
               (
                 action: come,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You come out.',
               ),
               (
                 action: work,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You work out.',
               ),
               (
@@ -2101,7 +2082,7 @@ void main() {
                 preMoves: [
                   SetObject(people_data.mary.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You call Mary back.',
               ),
               (
@@ -2109,55 +2090,55 @@ void main() {
                 preMoves: [
                   SetObject(object_data.letter.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You write letter back.',
               ),
               (
                 action: sport_data.throwVerb,
                 preMoves: const [SetObject(fixed_object.stone)],
-                move: const SetRightParticle(awayMannerPhrase),
+                move: const SetRightParticle(awayParticle),
                 text: 'You throw stone away.',
               ),
               (
                 action: open,
                 preMoves: const [],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You open up.',
               ),
               (
                 action: close,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You close down.',
               ),
               (
                 action: breakVerb,
                 preMoves: const [],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You break up.',
               ),
               (
                 action: breakVerb,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You break out.',
               ),
               (
                 action: breakVerb,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You break down.',
               ),
               (
                 action: particle_data.turn,
                 preMoves: const [],
-                move: const SetRightParticle(onMannerPhrase),
+                move: const SetRightParticle(onParticle),
                 text: 'You turn on.',
               ),
               (
                 action: particle_data.turn,
                 preMoves: const [],
-                move: const SetRightParticle(aroundMannerPhrase),
+                move: const SetRightParticle(aroundParticle),
                 text: 'You turn around.',
               ),
               (
@@ -2165,7 +2146,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.lamp.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(offMannerPhrase),
+                move: const SetRightParticle(offParticle),
                 text: 'You turn off lamp.',
               ),
               (
@@ -2173,7 +2154,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.phone.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You pick up phone.',
               ),
               (
@@ -2181,7 +2162,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You put down book.',
               ),
               (
@@ -2189,7 +2170,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(awayMannerPhrase),
+                move: const SetRightParticle(awayParticle),
                 text: 'You put away book.',
               ),
               (
@@ -2197,55 +2178,55 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You put back book.',
               ),
               (
                 action: particle_data.look,
                 preMoves: const [],
-                move: const SetRightParticle(aroundMannerPhrase),
+                move: const SetRightParticle(aroundParticle),
                 text: 'You look around.',
               ),
               (
                 action: particle_data.look,
                 preMoves: const [],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You look out.',
               ),
               (
                 action: particle_data.look,
                 preMoves: const [],
-                move: const SetRightParticle(backMannerPhrase),
+                move: const SetRightParticle(backParticle),
                 text: 'You look back.',
               ),
               (
                 action: particle_data.look,
                 preMoves: const [SetObject(fixed_object.word)],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You look up word.',
               ),
               (
                 action: particle_data.wake,
                 preMoves: const [],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You wake up.',
               ),
               (
                 action: particle_data.calmVerb,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You calm down.',
               ),
               (
                 action: particle_data.slowVerb,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You slow down.',
               ),
               (
                 action: fall,
                 preMoves: const [],
-                move: const SetRightParticle(downMannerPhrase),
+                move: const SetRightParticle(downParticle),
                 text: 'You fall down.',
               ),
               (
@@ -2253,7 +2234,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.key.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You take out key.',
               ),
               (
@@ -2261,7 +2242,7 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(inMannerPhrase),
+                move: const SetRightParticle(inParticle),
                 text: 'You bring in book.',
               ),
               (
@@ -2269,13 +2250,13 @@ void main() {
                 preMoves: [
                   SetObject(object_data.book.toNounPhrase(Number.singular)),
                 ],
-                move: const SetRightParticle(outMannerPhrase),
+                move: const SetRightParticle(outParticle),
                 text: 'You bring out book.',
               ),
               (
                 action: work_data.clean,
                 preMoves: const [SetObject(fixed_object.room)],
-                move: const SetRightParticle(upMannerPhrase),
+                move: const SetRightParticle(upParticle),
                 text: 'You clean up room.',
               ),
             ];
@@ -2295,8 +2276,6 @@ void main() {
     );
   });
 }
-
-enum _RouteStatus { implemented, pending }
 
 enum _ReviewedRouteKind {
   directObject,
@@ -2327,22 +2306,14 @@ class _ReviewedRoute {
   final Verb verb;
   final _ReviewedRouteKind kind;
   final String? text;
-  final _RouteStatus status;
 
-  const _ReviewedRoute(
-    this.verb,
-    this.kind, {
-    this.text,
-    this.status = _RouteStatus.implemented,
-  });
+  const _ReviewedRoute(this.verb, this.kind, {this.text});
 
   String get description {
     final value = text == null ? '' : ' "$text"';
     return '${verb.infinitive} ${kind.name}$value';
   }
 }
-
-const _pending = _RouteStatus.pending;
 
 const _essentialVerbReviewRoutes = [
   _ReviewedRoute(be, _ReviewedRouteKind.lexicalBeAdjectiveComplement),
@@ -3446,17 +3417,19 @@ bool _timePathHas(Verb verb, String? text) {
 }
 
 bool _mannerPathHas(Verb verb, String? text) {
-  final choices = [
-    ...predicateMannerChoicesFor(verb, PredicatePathKind.mannerPhrase),
-    ...predicateMannerChoicesFor(verb, PredicatePathKind.rightParticle),
+  final choices = <String>[
+    for (final choice in predicateMannerChoicesFor(
+      verb,
+      PredicatePathKind.mannerPhrase,
+    ))
+      choice.text,
+    for (final choice in predicateParticleChoicesFor(verb)) choice.text,
   ];
   if (text == null) {
     return choices.isNotEmpty;
   }
 
-  return choices.any(
-    (choice) => choice.text.toLowerCase() == text.toLowerCase(),
-  );
+  return choices.any((choice) => choice.toLowerCase() == text.toLowerCase());
 }
 
 const _beNounComplements = {

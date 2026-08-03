@@ -9,6 +9,7 @@ import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/person.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/language.dart';
@@ -74,6 +75,13 @@ class CrudeTranslationEngine {
     Language language = Language.pl,
   }) {
     return mannerPhrase.translations[language];
+  }
+
+  String? translateRightParticle(
+    RightParticle rightParticle, {
+    Language language = Language.pl,
+  }) {
+    return rightParticle.translations[language];
   }
 
   String translateSentence({
@@ -177,6 +185,12 @@ class CrudeTranslationEngine {
         state.mannerPhrase!.translations[language],
       );
     }
+    if (state.rightParticle != null) {
+      add(
+        state.rightParticle!.render(),
+        state.rightParticle!.translations[language],
+      );
+    }
     if (state.placePhrase != null) {
       final meaning =
           state.placeMeaning ??
@@ -245,7 +259,6 @@ class CrudeTranslationEngine {
         (state.action.usesDestinationPlace
             ? PlaceMeaning.destination
             : PlaceMeaning.location);
-    final preposition = place.prepositions[meaning];
     return translatePlacePhrase(place, meaning: meaning, language: language);
   }
 }

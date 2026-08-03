@@ -164,66 +164,6 @@ const alreadyMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
-const awayMannerPhrase = MannerPhrase(
-  text: 'away',
-  translations: {Language.pl: 'precz'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const backMannerPhrase = MannerPhrase(
-  text: 'back',
-  translations: {Language.pl: 'z powrotem'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const upMannerPhrase = MannerPhrase(
-  text: 'up',
-  translations: {Language.pl: 'w gore'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const downMannerPhrase = MannerPhrase(
-  text: 'down',
-  translations: {Language.pl: 'w dol'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const outMannerPhrase = MannerPhrase(
-  text: 'out',
-  translations: {Language.pl: 'na zewnatrz'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const inMannerPhrase = MannerPhrase(
-  text: 'in',
-  translations: {Language.pl: 'do srodka'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const offMannerPhrase = MannerPhrase(
-  text: 'off',
-  translations: {Language.pl: 'precz'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const onMannerPhrase = MannerPhrase(
-  text: 'on',
-  translations: {Language.pl: 'wlaczone'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const throughMannerPhrase = MannerPhrase(
-  text: 'through',
-  translations: {Language.pl: 'do konca'},
-  position: PhrasePosition.afterPredicate,
-);
-
-const aroundMannerPhrase = MannerPhrase(
-  text: 'around',
-  translations: {Language.pl: 'wokol'},
-  position: PhrasePosition.afterPredicate,
-);
-
 const hereMannerPhrase = MannerPhrase(
   text: 'here',
   translations: {Language.pl: 'tutaj'},
@@ -270,16 +210,6 @@ List<MannerPhrase> mannerPhrases = [
   manuallyMannerPhrase,
   againMannerPhrase,
   alreadyMannerPhrase,
-  awayMannerPhrase,
-  backMannerPhrase,
-  upMannerPhrase,
-  downMannerPhrase,
-  outMannerPhrase,
-  inMannerPhrase,
-  offMannerPhrase,
-  onMannerPhrase,
-  throughMannerPhrase,
-  aroundMannerPhrase,
   hereMannerPhrase,
   thereMannerPhrase,
   outsideMannerPhrase,

@@ -427,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SetMannerPhrase(:final mannerPhrase) when mannerPhrase != null =>
           translator.translateMannerPhrase(mannerPhrase),
         SetRightParticle(:final rightParticle) when rightParticle != null =>
-          translator.translateMannerPhrase(rightParticle),
+          translator.translateRightParticle(rightParticle),
         _ => null,
       };
     }

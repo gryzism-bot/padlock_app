@@ -5,8 +5,5 @@ class Determiner {
 
   final Map<Language, String> translations;
 
-  const Determiner({
-    required this.text,
-    required this.translations,
-  });
+  const Determiner({required this.text, required this.translations});
 }

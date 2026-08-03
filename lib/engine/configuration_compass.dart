@@ -32,6 +32,7 @@ import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -929,15 +930,12 @@ class ConfigurationCompass {
     );
   }
 
-  List<MannerPhrase>? _rightParticleChoicesForPath(SentenceState sentence) {
+  List<RightParticle>? _rightParticleChoicesForPath(SentenceState sentence) {
     if (predicatePathMode != PredicatePathMode.authoredTracks) {
       return null;
     }
 
-    return predicateMannerChoicesFor(
-      _boundTailOwner(sentence),
-      PredicatePathKind.rightParticle,
-    );
+    return predicateParticleChoicesFor(_boundTailOwner(sentence));
   }
 
   Iterable<_CompassCandidate> _placePhraseCandidates(
@@ -1017,9 +1015,9 @@ class ConfigurationCompass {
           isSelected: manner == sentence.mannerPhrase,
         ),
       ),
-      ..._mannerChoicesForState(
+      ..._rightParticleChoicesForState(
         sentence.rightParticle,
-        particleChoices ?? const <MannerPhrase>[],
+        particleChoices ?? const <RightParticle>[],
       ).map(
         (particle) => _CompassCandidate(
           SetRightParticle(particle),
@@ -1476,6 +1474,19 @@ List<MannerPhrase> _mannerChoicesForState(
   return nextChoices;
 }
 
+List<RightParticle> _rightParticleChoicesForState(
+  RightParticle? current,
+  List<RightParticle> choices,
+) {
+  final nextChoices = _uniqueRightParticleChoices(choices);
+
+  if (current != null && !nextChoices.contains(current)) {
+    nextChoices.add(current);
+  }
+
+  return nextChoices;
+}
+
 List<Verb> _verbChoicesForState(Verb? current, List<Verb> choices) {
   final nextChoices = _uniqueVerbChoices(choices);
 
@@ -1550,6 +1561,15 @@ List<FrequencyPhrase> _uniqueFrequencyChoices(List<FrequencyPhrase> choices) {
 }
 
 List<MannerPhrase> _uniqueMannerChoices(List<MannerPhrase> choices) {
+  final seen = <String>{};
+
+  return [
+    for (final choice in choices)
+      if (seen.add(choice.text.toLowerCase())) choice,
+  ];
+}
+
+List<RightParticle> _uniqueRightParticleChoices(List<RightParticle> choices) {
   final seen = <String>{};
 
   return [

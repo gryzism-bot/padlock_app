@@ -39,19 +39,6 @@ class CurrentPhraseClassification {
 }
 
 const _bareDirectionWords = {'away', 'back', 'here', 'there', 'outside'};
-const _particleWords = {
-  'up',
-  'down',
-  'out',
-  'in',
-  'off',
-  'on',
-  'through',
-  'around',
-  'back',
-  'away',
-};
-
 final currentPhraseClassifications = <CurrentPhraseClassification>[
   for (final phrase in placePhrases)
     CurrentPhraseClassification(
@@ -96,9 +83,7 @@ final currentPhraseClassifications = <CurrentPhraseClassification>[
 Set<PredicateRouteHint> _mannerRouteHints(String text) {
   return {
     if (_bareDirectionWords.contains(text)) PredicateRouteHint.bareDirection,
-    if (_particleWords.contains(text)) PredicateRouteHint.particle,
-    if (!_bareDirectionWords.contains(text) && !_particleWords.contains(text))
-      PredicateRouteHint.manner,
+    if (!_bareDirectionWords.contains(text)) PredicateRouteHint.manner,
   };
 }
 

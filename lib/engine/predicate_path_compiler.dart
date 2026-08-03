@@ -68,7 +68,7 @@ ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
       _first(path.manners, path),
     ),
     PredicatePathKind.rightParticle => SetRightParticle(
-      _first(path.manners, path),
+      _first(path.particles, path),
     ),
   };
 }

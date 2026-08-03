@@ -20,6 +20,7 @@ import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/data/verbs/work.dart' as work_data;
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
@@ -1507,7 +1508,7 @@ void main() {
       );
       expect(carefully.preview.sentenceState.rightParticle, isNull);
       expect(up.preview.sentenceState.mannerPhrase, isNull);
-      expect(up.preview.sentenceState.rightParticle, upMannerPhrase);
+      expect(up.preview.sentenceState.rightParticle, upParticle);
     });
 
     test('topic suggestions require topic-capable frame', () {

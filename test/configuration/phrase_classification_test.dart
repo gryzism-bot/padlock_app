@@ -6,8 +6,8 @@ import 'package:padlock_app/data/phrases/place_phrases.dart';
 import 'package:padlock_app/data/phrases/time_phrases.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/subjects/pronouns.dart';
-import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/engine/configuration_compass.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
@@ -313,7 +313,7 @@ void main() {
       var state = ConfigurationState.initial();
       state = lock.applyMove(state, const SetAction(go));
       state = lock.applyMove(state, const SetPlacePhrase(schoolPlacePhrase));
-      state = lock.applyMove(state, const SetRightParticle(awayMannerPhrase));
+      state = lock.applyMove(state, const SetRightParticle(awayParticle));
       state = lock.applyMove(state, const SetAction(say));
 
       expect(state.sentenceState.action, say);
@@ -342,48 +342,24 @@ void main() {
       );
     });
 
-    test('bare direction words are classified as route words', () {
-      final bareDirections = currentPhraseClassifications
-          .where(
-            (classification) => classification.routeHints.contains(
-              PredicateRouteHint.bareDirection,
-            ),
-          )
-          .map((classification) => classification.label)
-          .toList();
+    test(
+      'bare direction words that remain phrases are classified as route words',
+      () {
+        final bareDirections = currentPhraseClassifications
+            .where(
+              (classification) => classification.routeHints.contains(
+                PredicateRouteHint.bareDirection,
+              ),
+            )
+            .map((classification) => classification.label)
+            .toList();
 
-      expect(bareDirections, ['away', 'back', 'here', 'there', 'outside']);
-      expect(
-        currentPhraseClassificationFor(outsideMannerPhrase)!.note,
-        contains('authored per predicate'),
-      );
-    });
-
-    test('particle words are classified as route words', () {
-      final particles = currentPhraseClassifications
-          .where(
-            (classification) =>
-                classification.routeHints.contains(PredicateRouteHint.particle),
-          )
-          .map((classification) => classification.label)
-          .toList();
-
-      expect(particles, [
-        'away',
-        'back',
-        'up',
-        'down',
-        'out',
-        'in',
-        'off',
-        'on',
-        'through',
-        'around',
-      ]);
-      expect(
-        currentPhraseClassificationFor(outMannerPhrase)!.note,
-        contains('authored per predicate'),
-      );
-    });
+        expect(bareDirections, ['here', 'there', 'outside']);
+        expect(
+          currentPhraseClassificationFor(outsideMannerPhrase)!.note,
+          contains('authored per predicate'),
+        );
+      },
+    );
   });
 }

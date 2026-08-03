@@ -21,6 +21,7 @@ import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
@@ -315,7 +316,7 @@ class SetRightAction extends ConfigurationMove {
 }
 
 class SetRightParticle extends ConfigurationMove {
-  final MannerPhrase? rightParticle;
+  final RightParticle? rightParticle;
 
   const SetRightParticle(this.rightParticle);
 }
@@ -1214,8 +1215,8 @@ class ConfigurationEngine {
     return mannerPhrase;
   }
 
-  MannerPhrase? _rightParticleAfterActionChange(
-    MannerPhrase? rightParticle,
+  RightParticle? _rightParticleAfterActionChange(
+    RightParticle? rightParticle,
     Verb action,
   ) {
     if (rightParticle == null) {
@@ -1316,15 +1317,12 @@ class ConfigurationEngine {
     );
   }
 
-  bool _predicatePathAcceptsRightParticle(Verb action, MannerPhrase particle) {
+  bool _predicatePathAcceptsRightParticle(Verb action, RightParticle particle) {
     if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
       return true;
     }
 
-    final choices = predicateMannerChoicesFor(
-      action,
-      PredicatePathKind.rightParticle,
-    );
+    final choices = predicateParticleChoicesFor(action);
     if (choices.isEmpty) {
       return false;
     }
@@ -1480,7 +1478,7 @@ class ConfigurationEngine {
           : rightAction as Verb?,
       rightParticle: identical(rightParticle, _unchanged)
           ? state.rightParticle
-          : rightParticle as MannerPhrase?,
+          : rightParticle as RightParticle?,
       recipientPlacement: state.recipientPlacement,
       recipientPreposition: state.recipientPreposition,
       complement: identical(complement, _unchanged)

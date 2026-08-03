@@ -9,6 +9,7 @@ import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/phrase/place_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -33,7 +34,7 @@ class SentenceState {
   final NounPhrase? source;
   final NounPhrase? purpose;
   final Verb? rightAction;
-  final MannerPhrase? rightParticle;
+  final RightParticle? rightParticle;
   final RecipientPlacement recipientPlacement;
   final RecipientPreposition recipientPreposition;
   final NounPhrase? objectComplement;
@@ -174,7 +175,7 @@ class SentenceState {
           : rightAction as Verb?,
       rightParticle: identical(rightParticle, _unchanged)
           ? this.rightParticle
-          : rightParticle as MannerPhrase?,
+          : rightParticle as RightParticle?,
       recipientPlacement: recipientPlacement ?? this.recipientPlacement,
       recipientPreposition: recipientPreposition ?? this.recipientPreposition,
       objectComplement: identical(objectComplement, _unchanged)

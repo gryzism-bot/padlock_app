@@ -343,7 +343,11 @@ void main() {
             adjective: newAdjective,
           ),
           action: build,
-          agent: worker.toNounPhrase(Number.plural, determiner: theDeterminer, adjective: old),
+          agent: worker.toNounPhrase(
+            Number.plural,
+            determiner: theDeterminer,
+            adjective: old,
+          ),
           voice: Voice.passive,
           tense: Tense.past,
           sentenceForm: SentenceForm.question,
@@ -351,7 +355,10 @@ void main() {
         ),
       );
 
-      expect(sentence.text, 'Had the new bridge been being built by the old workers?');
+      expect(
+        sentence.text,
+        'Had the new bridge been being built by the old workers?',
+      );
     });
   });
 }

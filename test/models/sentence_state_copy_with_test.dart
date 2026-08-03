@@ -6,6 +6,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/education.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
@@ -18,7 +19,7 @@ void main() {
         action: learn,
         object: english,
         rightAction: speak,
-        rightParticle: upMannerPhrase,
+        rightParticle: upParticle,
         mannerPhrase: carefullyMannerPhrase,
         timePhrase: todayTimePhrase,
         tense: Tense.present,
@@ -31,7 +32,7 @@ void main() {
       expect(changed.action, teach);
       expect(changed.object, english);
       expect(changed.rightAction, speak);
-      expect(changed.rightParticle, upMannerPhrase);
+      expect(changed.rightParticle, upParticle);
       expect(changed.mannerPhrase, carefullyMannerPhrase);
       expect(changed.timePhrase, todayTimePhrase);
       expect(changed.tense, Tense.present);
@@ -44,7 +45,7 @@ void main() {
         action: learn,
         object: english,
         rightAction: speak,
-        rightParticle: upMannerPhrase,
+        rightParticle: upParticle,
         mannerPhrase: carefullyMannerPhrase,
         timePhrase: todayTimePhrase,
         tense: Tense.present,

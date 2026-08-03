@@ -143,8 +143,8 @@ int _pathChoiceCount(PredicatePath path) {
     PredicatePathKind.placePhrase => path.places.length,
     PredicatePathKind.timePhrase => path.times.length,
     PredicatePathKind.frequencyPhrase => path.frequencies.length,
-    PredicatePathKind.mannerPhrase ||
-    PredicatePathKind.rightParticle => path.manners.length,
+    PredicatePathKind.mannerPhrase => path.manners.length,
+    PredicatePathKind.rightParticle => path.particles.length,
     _ => path.nouns.length,
   };
 }

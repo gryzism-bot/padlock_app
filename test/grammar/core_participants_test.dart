@@ -18,6 +18,7 @@ import 'package:padlock_app/data/verbs/cooking.dart' as cooking_data;
 import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -941,7 +942,7 @@ void main() {
         SentenceState(
           agent: you,
           action: give,
-          rightParticle: upMannerPhrase,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -956,7 +957,7 @@ void main() {
           agent: you,
           action: give,
           object: grammar,
-          rightParticle: upMannerPhrase,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -971,7 +972,7 @@ void main() {
           agent: you,
           action: give,
           object: smoking,
-          rightParticle: upMannerPhrase,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),
@@ -986,7 +987,7 @@ void main() {
           agent: you,
           action: write,
           object: note.toNounPhrase(Number.singular),
-          rightParticle: downMannerPhrase,
+          rightParticle: downParticle,
           mannerPhrase: carefullyMannerPhrase,
           tense: Tense.present,
           aspect: Aspect.simple,

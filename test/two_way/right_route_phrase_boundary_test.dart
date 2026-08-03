@@ -9,6 +9,7 @@ import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/particle.dart' as particle_data;
+import 'package:padlock_app/data/verbs/right_particles.dart';
 import 'package:padlock_app/data/verbs/sport.dart' as sport_data;
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
@@ -32,9 +33,9 @@ void main() {
     return state;
   }
 
-  void expectNoun(NounPhrase? phrase, String text) {
-    expect(phrase, isNotNull);
-    expect(phrase!.text.toLowerCase(), text.toLowerCase());
+  void expectNoun(NounPhrase? phrase, String text, {String? reason}) {
+    expect(phrase, isNotNull, reason: reason);
+    expect(phrase!.text.toLowerCase(), text.toLowerCase(), reason: reason);
   }
 
   group('Right route phrase boundary', () {
@@ -361,186 +362,186 @@ void main() {
       },
     );
 
-    test('predicate particles stay readable through the manner bridge', () {
+    test('predicate particles stay readable as right particles', () {
       final cases = [
         (
           sentence: 'You find out.',
           action: findVerb,
-          manner: outMannerPhrase,
+          particle: outParticle,
           object: null,
         ),
         (
           sentence: 'You gave up.',
           action: give,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: null,
         ),
         (
           sentence: 'You gave up grammar.',
           action: give,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: 'grammar',
         ),
         (
           sentence: 'You gave up smoking.',
           action: give,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: 'smoking',
         ),
         (
           sentence: 'You gave money away.',
           action: give,
-          manner: awayMannerPhrase,
+          particle: awayParticle,
           object: 'money',
         ),
         (
           sentence: 'You gave book back.',
           action: give,
-          manner: backMannerPhrase,
+          particle: backParticle,
           object: 'book',
         ),
         (
           sentence: 'You took off.',
           action: take,
-          manner: offMannerPhrase,
+          particle: offParticle,
           object: null,
         ),
         (
           sentence: 'You took phone away.',
           action: take,
-          manner: awayMannerPhrase,
+          particle: awayParticle,
           object: 'phone',
         ),
         (
           sentence: 'You brought key back.',
           action: bring,
-          manner: backMannerPhrase,
+          particle: backParticle,
           object: 'key',
         ),
         (
           sentence: 'You thought through.',
           action: think,
-          manner: throughMannerPhrase,
+          particle: throughParticle,
           object: null,
         ),
         (
           sentence: 'You wrote down note.',
           action: write,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: 'note',
         ),
         (
           sentence: 'You stood up.',
           action: stand,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: null,
         ),
         (
           sentence: 'You sat down.',
           action: sit,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: null,
         ),
         (
           sentence: 'You worked out.',
           action: work,
-          manner: outMannerPhrase,
+          particle: outParticle,
           object: null,
         ),
         (
           sentence: 'You called Mary back.',
           action: call,
-          manner: backMannerPhrase,
+          particle: backParticle,
           object: 'Mary',
         ),
         (
           sentence: 'You wrote letter back.',
           action: write,
-          manner: backMannerPhrase,
+          particle: backParticle,
           object: 'letter',
         ),
         (
           sentence: 'You threw stone away.',
           action: sport_data.throwVerb,
-          manner: awayMannerPhrase,
+          particle: awayParticle,
           object: 'stone',
         ),
         (
           sentence: 'You opened up.',
           action: open,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: null,
         ),
         (
           sentence: 'You closed down.',
           action: close,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: null,
         ),
         (
           sentence: 'You broke up.',
           action: breakVerb,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: null,
         ),
         (
           sentence: 'You broke out.',
           action: breakVerb,
-          manner: outMannerPhrase,
+          particle: outParticle,
           object: null,
         ),
         (
           sentence: 'You turned on.',
           action: particle_data.turn,
-          manner: onMannerPhrase,
+          particle: onParticle,
           object: null,
         ),
         (
           sentence: 'You turned off lamp.',
           action: particle_data.turn,
-          manner: offMannerPhrase,
+          particle: offParticle,
           object: 'lamp',
         ),
         (
           sentence: 'You picked up phone.',
           action: particle_data.pick,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: 'phone',
         ),
         (
           sentence: 'You put down book.',
           action: particle_data.put,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: 'book',
         ),
         (
           sentence: 'You looked around.',
           action: particle_data.look,
-          manner: aroundMannerPhrase,
+          particle: aroundParticle,
           object: null,
         ),
         (
           sentence: 'You looked up word.',
           action: particle_data.look,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: 'word',
         ),
         (
           sentence: 'You woke up.',
           action: particle_data.wake,
-          manner: upMannerPhrase,
+          particle: upParticle,
           object: null,
         ),
         (
           sentence: 'You calmed down.',
           action: particle_data.calmVerb,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: null,
         ),
         (
           sentence: 'You slowed down.',
           action: particle_data.slowVerb,
-          manner: downMannerPhrase,
+          particle: downParticle,
           object: null,
         ),
       ];
@@ -549,12 +550,12 @@ void main() {
         final state = recognizeRoundTrip(entry.sentence);
 
         expect(state.action, entry.action, reason: entry.sentence);
-        expect(state.rightParticle, entry.manner, reason: entry.sentence);
+        expect(state.rightParticle, entry.particle, reason: entry.sentence);
         expect(state.mannerPhrase, isNull, reason: entry.sentence);
         if (entry.object == null) {
           expect(state.object, isNull, reason: entry.sentence);
         } else {
-          expectNoun(state.object, entry.object!);
+          expectNoun(state.object, entry.object!, reason: entry.sentence);
         }
       }
     });
@@ -609,7 +610,7 @@ void main() {
 
       expect(state.action, write);
       expectNoun(state.object, 'note');
-      expect(state.rightParticle, downMannerPhrase);
+      expect(state.rightParticle, downParticle);
       expect(state.mannerPhrase, carefullyMannerPhrase);
     });
 
@@ -639,7 +640,7 @@ void main() {
 
       expect(state.action, give);
       expectNoun(state.object, 'grammar');
-      expect(state.rightParticle, upMannerPhrase);
+      expect(state.rightParticle, upParticle);
       expect(state.mannerPhrase, isNull);
     });
   });
