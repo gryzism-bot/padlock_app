@@ -39,6 +39,7 @@ const look = Verb(
   ingForm: 'looking',
   takesObject: true,
   takesTopic: true,
+  takesPurpose: true,
   translations: {Language.pl: 'patrzec'},
 );
 

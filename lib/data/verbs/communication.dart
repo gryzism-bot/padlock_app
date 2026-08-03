@@ -45,6 +45,7 @@ const ask = Verb(
   ingForm: 'asking',
   takesAddressee: true,
   takesTopic: true,
+  takesPurpose: true,
   translations: {Language.pl: 'pytać'},
 );
 

@@ -1605,6 +1605,7 @@ final guidedPredicateUnlocks = [
     _lookupObjects,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
+      _purposes(_findableObjects),
       _manners([manner_data.carefullyMannerPhrase]),
       _particles([
         manner_data.upMannerPhrase,
@@ -2016,6 +2017,7 @@ final guidedPredicateUnlocks = [
     paths: [
       PredicatePath.toAddressee(_peopleAndAnimals),
       PredicatePath.aboutTopic(_basicTopics),
+      _purposes(_helpTopics),
       _manners(_speechManners),
     ],
   ),

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/idioms/idiom_patterns.dart';
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/predicate_route_audit.dart';
@@ -36,6 +37,7 @@ import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/predicate_path_compiler.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -56,6 +58,49 @@ void main() {
     return compileFirstPredicatePathChoice(unlocks, path, lock: lock);
   }
 
+  Verb? verbForIdiom(IdiomPattern pattern) {
+    for (final verb in verbs) {
+      if (verb.infinitive == pattern.verb) {
+        return verb;
+      }
+    }
+    return null;
+  }
+
+  bool hasPathKind(PredicateUnlocks unlocks, PredicatePathKind kind) {
+    return unlocks.paths.any((path) => path.kind == kind);
+  }
+
+  bool hasRightParticle(PredicateUnlocks unlocks, String particle) {
+    return unlocks.paths.any(
+      (path) =>
+          path.kind == PredicatePathKind.rightParticle &&
+          path.manners.any(
+            (choice) => choice.text.toLowerCase() == particle.toLowerCase(),
+          ),
+    );
+  }
+
+  bool hasObjectChoice(PredicateUnlocks unlocks, String objectText) {
+    return unlocks.paths.any(
+      (path) =>
+          path.kind == PredicatePathKind.directObject &&
+          path.nouns.any(
+            (choice) => choice.text.toLowerCase() == objectText.toLowerCase(),
+          ),
+    );
+  }
+
+  PredicatePathKind topicKindFor(TopicPreposition preposition) {
+    return switch (preposition) {
+      TopicPreposition.about => PredicatePathKind.aboutTopic,
+      TopicPreposition.of => PredicatePathKind.ofTopic,
+      TopicPreposition.on => PredicatePathKind.onTopic,
+      TopicPreposition.over => PredicatePathKind.overTopic,
+      TopicPreposition.withPrep => PredicatePathKind.withTopic,
+    };
+  }
+
   group('Predicate paths', () {
     test('predicate path mode is explicit and switchable', () {
       expect(
@@ -65,6 +110,80 @@ void main() {
           PredicatePathMode.legacyCompassFallback,
         ]),
       );
+    });
+
+    test('idiom patterns are reachable through authored predicate paths', () {
+      final failures = <String>[];
+
+      for (final pattern in idiomPatterns) {
+        final verb = verbForIdiom(pattern);
+        if (verb == null) {
+          failures.add('${pattern.id}: unknown verb ${pattern.verb}');
+          continue;
+        }
+
+        final unlocks = predicateUnlocksFor(verb);
+        if (unlocks == null) {
+          failures.add('${pattern.id}: no PredicatePaths for ${pattern.verb}');
+          continue;
+        }
+
+        final rightParticle = pattern.rightParticle;
+        if (rightParticle != null &&
+            !hasRightParticle(unlocks, rightParticle)) {
+          failures.add(
+            '${pattern.id}: missing right particle $rightParticle '
+            'for ${pattern.verb}',
+          );
+        }
+
+        if (pattern.requiresObject &&
+            !hasPathKind(unlocks, PredicatePathKind.directObject)) {
+          failures.add(
+            '${pattern.id}: missing object route for ${pattern.verb}',
+          );
+        }
+
+        for (final objectText in pattern.objectTexts) {
+          if (!hasObjectChoice(unlocks, objectText)) {
+            failures.add(
+              '${pattern.id}: missing object $objectText for ${pattern.verb}',
+            );
+          }
+        }
+
+        final topicPreposition = pattern.topicPreposition;
+        if (topicPreposition != null &&
+            !hasPathKind(unlocks, topicKindFor(topicPreposition))) {
+          failures.add(
+            '${pattern.id}: missing ${topicPreposition.text} topic route '
+            'for ${pattern.verb}',
+          );
+        }
+
+        if (pattern.requiresTopic && topicPreposition == null) {
+          failures.add('${pattern.id}: topic idiom has no topic preposition');
+        }
+
+        if (pattern.requiresSource &&
+            !hasPathKind(unlocks, PredicatePathKind.fromSource) &&
+            !hasPathKind(unlocks, PredicatePathKind.fromLocation)) {
+          failures.add(
+            '${pattern.id}: missing source route for ${pattern.verb}',
+          );
+        }
+
+        if (pattern.requiresPurpose &&
+            !hasPathKind(unlocks, PredicatePathKind.forPurpose)) {
+          failures.add(
+            '${pattern.id}: missing purpose route for ${pattern.verb}',
+          );
+        }
+      }
+
+      if (failures.isNotEmpty) {
+        fail(failures.join('\n'));
+      }
     });
 
     test('predicate path compiler maps authored routes into state moves', () {
