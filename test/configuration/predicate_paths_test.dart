@@ -1655,7 +1655,7 @@ void main() {
       expect(placeLabels, isNot(contains('from work')));
       expect(sourcePlaceLabels, containsAll(['from work', 'from school']));
       expect(placeLabels, isNot(contains('bed')));
-      expect(mannerLabels, containsAll(['quickly', 'away', 'back']));
+      expect(mannerLabels, containsAll(['quickly', 'away', 'back', 'around']));
       expect(mannerLabels, isNot(contains('closely')));
     });
 
@@ -1665,6 +1665,11 @@ void main() {
           action: go,
           move: const SetMannerPhrase(awayMannerPhrase),
           text: 'You go away.',
+        ),
+        (
+          action: go,
+          move: const SetMannerPhrase(aroundMannerPhrase),
+          text: 'You go around.',
         ),
         (
           action: watch,
@@ -1781,6 +1786,56 @@ void main() {
                   people_data.mary.toNounPhrase(Number.singular),
                 ),
                 text: 'You introduce John to Mary.',
+              ),
+              (
+                action: findVerb,
+                preMoves: const [],
+                move: const SetMannerPhrase(outMannerPhrase),
+                text: 'You find out.',
+              ),
+              (
+                action: give,
+                preMoves: const [],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You give up.',
+              ),
+              (
+                action: take,
+                preMoves: const [],
+                move: const SetMannerPhrase(offMannerPhrase),
+                text: 'You take off.',
+              ),
+              (
+                action: think,
+                preMoves: const [],
+                move: const SetMannerPhrase(throughMannerPhrase),
+                text: 'You think through.',
+              ),
+              (
+                action: write,
+                preMoves: [
+                  SetObject(object_data.note.toNounPhrase(Number.singular)),
+                ],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You write note down.',
+              ),
+              (
+                action: stand,
+                preMoves: const [],
+                move: const SetMannerPhrase(upMannerPhrase),
+                text: 'You stand up.',
+              ),
+              (
+                action: sit,
+                preMoves: const [],
+                move: const SetMannerPhrase(downMannerPhrase),
+                text: 'You sit down.',
+              ),
+              (
+                action: work,
+                preMoves: const [],
+                move: const SetMannerPhrase(outMannerPhrase),
+                text: 'You work out.',
               ),
             ];
 
@@ -1928,6 +1983,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.place, text: 'room'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.companion),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'out'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'someone'),
@@ -1948,6 +2004,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'chair'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(breakVerb, _ReviewedRouteKind.manner, text: 'down'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'cup'),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.instrument),
@@ -1960,6 +2017,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(read, _ReviewedRouteKind.addressee),
   _ReviewedRoute(read, _ReviewedRouteKind.companion),
   _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(read, _ReviewedRouteKind.manner, text: 'through'),
   _ReviewedRoute(read, _ReviewedRouteKind.time, text: 'at night'),
   _ReviewedRoute(read, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(read, _ReviewedRouteKind.overTopic, text: 'story'),
@@ -1993,6 +2051,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(go, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'away'),
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'back'),
+  _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'around'),
   _ReviewedRoute(go, _ReviewedRouteKind.manner, text: 'there'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'now'),
   _ReviewedRoute(go, _ReviewedRouteKind.time, text: 'today'),
@@ -2074,6 +2133,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'school'),
   _ReviewedRoute(take, _ReviewedRouteKind.purpose, text: 'fun'),
   _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(take, _ReviewedRouteKind.manner, text: 'off'),
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
@@ -2104,6 +2164,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(give, _ReviewedRouteKind.beneficiary),
   _ReviewedRoute(give, _ReviewedRouteKind.companion),
+  _ReviewedRoute(give, _ReviewedRouteKind.manner, text: 'up'),
 
   _ReviewedRoute(know, _ReviewedRouteKind.directObject),
   _ReviewedRoute(know, _ReviewedRouteKind.directObject, text: 'Mary'),
@@ -2121,6 +2182,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(think, _ReviewedRouteKind.companion),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'quickly'),
+  _ReviewedRoute(think, _ReviewedRouteKind.manner, text: 'through'),
   _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(think, _ReviewedRouteKind.time, text: 'now'),
 
@@ -2238,6 +2300,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'manually'),
+  _ReviewedRoute(work, _ReviewedRouteKind.manner, text: 'out'),
   _ReviewedRoute(work, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(work, _ReviewedRouteKind.onTopic),
   _ReviewedRoute(work, _ReviewedRouteKind.onTopic, text: 'car'),

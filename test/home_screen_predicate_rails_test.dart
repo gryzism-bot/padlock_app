@@ -332,6 +332,7 @@ void main() {
     expect(find.byKey(const Key('verb-wake-give-recipient')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-companion')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-beneficiary')), findsOneWidget);
+    expect(find.byKey(const Key('verb-wake-give-manner')), findsOneWidget);
     expect(find.byKey(const Key('verb-wake-give-time')), findsNothing);
     expect(find.byKey(const Key('verb-wake-output-give')), findsOneWidget);
 
@@ -349,7 +350,7 @@ void main() {
         of: find.byKey(const Key('verb-wake-output-give')),
         matching: find.byType(Icon),
       ),
-      findsNWidgets(4),
+      findsNWidgets(5),
     );
 
     await filterRail(tester, 'Verb', 'run');

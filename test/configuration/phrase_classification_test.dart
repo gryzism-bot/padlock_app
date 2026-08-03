@@ -358,5 +358,21 @@ void main() {
         contains('authored per predicate'),
       );
     });
+
+    test('particle words are classified as route words', () {
+      final particles = currentPhraseClassifications
+          .where(
+            (classification) =>
+                classification.routeHints.contains(PredicateRouteHint.particle),
+          )
+          .map((classification) => classification.label)
+          .toList();
+
+      expect(particles, ['up', 'down', 'out', 'off', 'through', 'around']);
+      expect(
+        currentPhraseClassificationFor(outMannerPhrase)!.note,
+        contains('authored per predicate'),
+      );
+    });
   });
 }

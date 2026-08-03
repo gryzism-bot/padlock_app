@@ -176,6 +176,42 @@ const backMannerPhrase = MannerPhrase(
   position: PhrasePosition.afterPredicate,
 );
 
+const upMannerPhrase = MannerPhrase(
+  text: 'up',
+  translations: {Language.pl: 'w gore'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const downMannerPhrase = MannerPhrase(
+  text: 'down',
+  translations: {Language.pl: 'w dol'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const outMannerPhrase = MannerPhrase(
+  text: 'out',
+  translations: {Language.pl: 'na zewnatrz'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const offMannerPhrase = MannerPhrase(
+  text: 'off',
+  translations: {Language.pl: 'precz'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const throughMannerPhrase = MannerPhrase(
+  text: 'through',
+  translations: {Language.pl: 'do konca'},
+  position: PhrasePosition.afterPredicate,
+);
+
+const aroundMannerPhrase = MannerPhrase(
+  text: 'around',
+  translations: {Language.pl: 'wokol'},
+  position: PhrasePosition.afterPredicate,
+);
+
 const hereMannerPhrase = MannerPhrase(
   text: 'here',
   translations: {Language.pl: 'tutaj'},
@@ -224,6 +260,12 @@ List<MannerPhrase> mannerPhrases = [
   alreadyMannerPhrase,
   awayMannerPhrase,
   backMannerPhrase,
+  upMannerPhrase,
+  downMannerPhrase,
+  outMannerPhrase,
+  offMannerPhrase,
+  throughMannerPhrase,
+  aroundMannerPhrase,
   hereMannerPhrase,
   thereMannerPhrase,
   outsideMannerPhrase,

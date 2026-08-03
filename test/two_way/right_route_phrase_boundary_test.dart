@@ -7,6 +7,7 @@ import 'package:padlock_app/data/subjects/pronouns.dart';
 import 'package:padlock_app/data/subjects/third_person/people.dart';
 import 'package:padlock_app/data/verbs/communication.dart';
 import 'package:padlock_app/data/verbs/essential.dart';
+import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -356,5 +357,70 @@ void main() {
         expect(mannerState.mannerPhrase, carefullyMannerPhrase);
       },
     );
+
+    test('predicate particles stay readable through the manner bridge', () {
+      final cases = [
+        (
+          sentence: 'You find out.',
+          action: findVerb,
+          manner: outMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You gave up.',
+          action: give,
+          manner: upMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You took off.',
+          action: take,
+          manner: offMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You thought through.',
+          action: think,
+          manner: throughMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You wrote note down.',
+          action: write,
+          manner: downMannerPhrase,
+          object: 'note',
+        ),
+        (
+          sentence: 'You stood up.',
+          action: stand,
+          manner: upMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You sat down.',
+          action: sit,
+          manner: downMannerPhrase,
+          object: null,
+        ),
+        (
+          sentence: 'You worked out.',
+          action: work,
+          manner: outMannerPhrase,
+          object: null,
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = recognizeRoundTrip(entry.sentence);
+
+        expect(state.action, entry.action, reason: entry.sentence);
+        expect(state.mannerPhrase, entry.manner, reason: entry.sentence);
+        if (entry.object == null) {
+          expect(state.object, isNull, reason: entry.sentence);
+        } else {
+          expectNoun(state.object, entry.object!);
+        }
+      }
+    });
   });
 }
