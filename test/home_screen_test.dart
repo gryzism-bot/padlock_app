@@ -300,7 +300,7 @@ void main() {
     expect(renderedSentence(tester), 'You learn.');
     expect(find.byKey(const Key('app-footer-brand')), findsOneWidget);
     expect(
-      find.text('Padlock Developer Console, Logos Dynamics 2026'),
+      find.text('Verblock Developer Console, Logos Dynamics 2026'),
       findsOneWidget,
     );
     expect(find.text('Verb:'), findsOneWidget);
