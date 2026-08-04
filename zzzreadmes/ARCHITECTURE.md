@@ -475,6 +475,53 @@ sentence's verb, sees authored routes opened by that verb, and follows one route
 at a time. The developer cockpit may still show broader rails, but the product
 view should feel like word routing rather than phrase dumping.
 
+## Idiom Finder
+
+Idiom Finder is a product layer over already-valid sentence states.
+
+It does not decide whether a sentence is grammatical. It does not decide which
+predicate routes exist. It watches the current `SentenceState` after the Lock,
+Compass, and Predicate Paths have done their work, then asks:
+
+Did the learner just find a memorable phrase?
+
+Examples:
+
+- `give` + `up` -> `give up`
+- `give` + `up` + `smoking` -> `give up smoking`
+- `write` + `down` + object -> `write down`
+- `work` + `on` + topic -> `work on`
+- `hear` + source -> `hear from`
+- `ask` + purpose -> `ask for`
+
+The source of truth is `idiom_patterns.dart`. Patterns can observe:
+
+- `action`
+- `rightParticle`
+- `object`
+- `topic` and `topicPreposition`
+- `source`
+- `purpose`
+
+Predicate Paths make idioms reachable. Idiom Finder recognizes them after they
+are reached. That keeps the split clean:
+
+- Predicate Paths answer: what route can this verb open?
+- Lock answers: is this resulting state legal?
+- Grammar answers: how is this state spoken?
+- Idiom Finder answers: is this state memorable as an idiom?
+
+Two audits protect the layer:
+
+- forward audit: every idiom pattern must have a reachable Predicate Path
+- reverse audit: every authored `rightParticle` route must either be an idiom
+  pattern or an intentional literal particle route
+
+Intentional literal particle routes live next to the idiom patterns. They are
+reviewable by hand because a route such as `look down` or `read through` may be
+literal today and become product-celebrated later. The review copy lives in
+`IDIOM_REVIEW.md`.
+
 ## UI-Only Wires
 
 A UI-only wire is allowed when it changes how an already-known language truth is

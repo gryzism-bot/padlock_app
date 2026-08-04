@@ -103,6 +103,10 @@ void main() {
     };
   }
 
+  String particleRouteKey(String verb, String rightParticle) {
+    return '${verb.toLowerCase()} ${rightParticle.toLowerCase()}';
+  }
+
   group('Predicate paths', () {
     test('predicate path mode is explicit and switchable', () {
       expect(
@@ -186,6 +190,59 @@ void main() {
       if (failures.isNotEmpty) {
         fail(failures.join('\n'));
       }
+    });
+
+    test('authored particle routes are idioms or intentionally literal', () {
+      final idiomParticleRoutes = {
+        for (final pattern in idiomPatterns)
+          if (pattern.rightParticle != null)
+            particleRouteKey(pattern.verb, pattern.rightParticle!),
+      };
+      final literalParticleRoutes = {
+        for (final route in intentionalLiteralParticleRoutes)
+          particleRouteKey(route.verb, route.rightParticle),
+      };
+      final authoredParticleRoutes = <String>{};
+
+      for (final unlocks in guidedPredicateUnlocks) {
+        for (final path in unlocks.paths) {
+          if (path.kind != PredicatePathKind.rightParticle) {
+            continue;
+          }
+
+          for (final particle in path.particles) {
+            authoredParticleRoutes.add(
+              particleRouteKey(unlocks.verb.infinitive, particle.text),
+            );
+          }
+        }
+      }
+
+      final unclassifiedRoutes = [
+        for (final route in authoredParticleRoutes)
+          if (!idiomParticleRoutes.contains(route) &&
+              !literalParticleRoutes.contains(route))
+            route,
+      ]..sort();
+      final orphanLiteralRoutes = [
+        for (final route in literalParticleRoutes)
+          if (!authoredParticleRoutes.contains(route)) route,
+      ]..sort();
+
+      expect(
+        unclassifiedRoutes,
+        isEmpty,
+        reason:
+            'Every rightParticle PredicatePath must be an IdiomPattern or '
+            'an IntentionalLiteralParticleRoute.',
+      );
+      expect(
+        orphanLiteralRoutes,
+        isEmpty,
+        reason:
+            'Literal particle route records should point at real authored '
+            'PredicatePaths.',
+      );
     });
 
     test('predicate path compiler maps authored routes into state moves', () {

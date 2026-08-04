@@ -527,6 +527,44 @@ const idiomPatterns = <IdiomPattern>[
   ),
 ];
 
+const intentionalLiteralParticleRoutes = <IntentionalLiteralParticleRoute>[
+  IntentionalLiteralParticleRoute(
+    verb: 'go',
+    rightParticle: 'in',
+    note: 'literal movement into a place',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'go',
+    rightParticle: 'around',
+    note: 'literal movement around an area',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'read',
+    rightParticle: 'through',
+    note: 'literal completion of a text from start to finish',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'take',
+    rightParticle: 'back',
+    note: 'literal return route for objects',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'turn',
+    rightParticle: 'back',
+    note: 'literal direction change or return',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'look',
+    rightParticle: 'down',
+    note: 'literal gaze direction',
+  ),
+  IntentionalLiteralParticleRoute(
+    verb: 'help',
+    rightParticle: 'out',
+    note: 'support route kept literal until idiom copy is authored',
+  ),
+];
+
 class IdiomPattern {
   final String id;
   final String label;
@@ -601,6 +639,18 @@ class IdiomPattern {
 
     return true;
   }
+}
+
+class IntentionalLiteralParticleRoute {
+  final String verb;
+  final String rightParticle;
+  final String note;
+
+  const IntentionalLiteralParticleRoute({
+    required this.verb,
+    required this.rightParticle,
+    required this.note,
+  });
 }
 
 bool _matchesAnyText(NounPhrase? phrase, List<String> candidates) {

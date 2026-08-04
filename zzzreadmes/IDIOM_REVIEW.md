@@ -70,6 +70,20 @@ ask for - ask for + thing - request something - You ask for help.
 look for - look for + thing - search for something - You look for the key.
 go for - go for + activity - choose or leave to do something - You go for a walk.
 
+## Intentional Literal Particle Routes
+
+These are authored `rightParticle` routes that are deliberately not counted by
+Idiom Finder yet. The reverse audit keeps this list honest: every particle route
+must either be an idiom above or appear here with a reason.
+
+go in - literal movement into a place
+go around - literal movement around an area
+read through - literal completion of a text from start to finish
+take back - literal return route for objects
+turn back - literal direction change or return
+look down - literal gaze direction
+help out - support route kept literal until idiom copy is authored
+
 ## Review Notes
 
 - Right particle idioms use `SentenceState.rightParticle`.
@@ -77,3 +91,6 @@ go for - go for + activity - choose or leave to do something - You go for a walk
 - Source and purpose idioms use their matching core participant fields.
 - Particle/object order is reviewed separately in
   `lib/data/predicate/particle_object_order.dart`.
+- Reverse audit lives in `test/configuration/predicate_paths_test.dart` and
+  checks that every authored particle route is either an idiom or intentional
+  literal route.
