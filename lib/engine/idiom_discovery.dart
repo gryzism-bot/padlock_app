@@ -13,6 +13,12 @@ class IdiomDiscovery {
   int get total => finder.total;
   int get foundCount => _foundIds.length;
   Set<String> get foundIds => Set.unmodifiable(_foundIds);
+  List<IdiomMatch> get foundMatches {
+    return [
+      for (final pattern in finder.patterns)
+        if (_foundIds.contains(pattern.id)) IdiomMatch(pattern),
+    ];
+  }
 
   List<IdiomMatch> record(SentenceState state) {
     final matches = finder.find(state);

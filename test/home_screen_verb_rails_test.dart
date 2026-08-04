@@ -363,6 +363,23 @@ void main() {
       find.text('take off: leave the ground or remove something'),
       findsOneWidget,
     );
+
+    await tester.tap(find.byKey(const Key('idiom-found-count')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('found-idioms-overlay')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('found-idioms-overlay')),
+        matching: find.text('3 / $idiomTargetCount idioms found'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('found-idiom-give-up')), findsOneWidget);
+    expect(find.byKey(const Key('found-idiom-write-back')), findsOneWidget);
+    expect(find.byKey(const Key('found-idiom-take-off')), findsOneWidget);
+    expect(find.text('stop trying'), findsOneWidget);
+    expect(find.text('reply in writing'), findsOneWidget);
   });
 
   testWidgets('Fixed text rail keeps plural determiner and adjective surface', (

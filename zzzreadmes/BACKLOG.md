@@ -50,7 +50,28 @@ Layer map:
    - Add friendlier educational wording from the same source later.
    - Do not lose the current testing value of exact law names.
 
-5. Plan, but do not start yet: Guess The Sentence.
+5. Recognition input overlay.
+   - This is the next big "app speaks by itself" feature.
+   - Click the rendered sentence header and open a focused input overlay.
+   - User types an English sentence.
+   - The app marks known vocabulary green and unknown/out-of-scope words red.
+   - Recognition Engine tries to parse the sentence into `SentenceState`.
+   - If parse succeeds:
+     - update the console state
+     - open or highlight the rails used by the parsed sentence
+     - show how the sentence maps to predicate, participants, particles,
+       phrases, and form
+   - If parse fails:
+     - keep the current state
+     - show which word or segment blocked recognition
+     - distinguish missing vocabulary from unsupported grammar shape
+   - First scope:
+     - app-canonical sentences only
+     - one predicate
+     - current `SentenceState` fields
+     - no free-form language model behavior
+
+6. Plan, but do not start yet: Guess The Sentence.
    - This is the biggest product leap, but it should wait until the console has
      enough vocabulary and translation depth to speak for itself.
 
@@ -308,6 +329,40 @@ First tests later:
 - changing `You learn.` toward `Mary brought a book to John.` reports the
   expected missing fields
 - solved target survives Grammar render and Recognition round trip
+
+## Product Mode: Recognition Input
+
+Goal:
+
+Let someone type a sentence and watch the machine recognize it.
+
+This is the companion to the developer console. The console builds a sentence
+from state; Recognition input starts from text and lights up the same state.
+
+First behavior:
+
+1. Click the sentence header.
+2. Open an input overlay with the current sentence prefilled.
+3. As the user types, tokenize the sentence.
+4. Mark known words green and missing vocabulary red.
+5. Run Recognition Engine when the input is app-canonical enough.
+6. On success, set the current `SentenceState`.
+7. Open/highlight the rails that correspond to recognized fields.
+8. On failure, explain whether the issue is:
+   - unknown word
+   - known word in an unsupported position
+   - grammar shape outside the one-predicate surface
+
+Early examples:
+
+- `You give up.`
+- `You gave up smoking.`
+- `Mary brought a book to John.`
+- `Nobody buys books.`
+- `You learn to speak English with anyone.`
+
+Keep this strict at first. It should parse the app's language, not pretend to be
+a general English parser.
 
 ## Product Side Quest: Idiom Hunting
 

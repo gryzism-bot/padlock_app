@@ -693,6 +693,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         idiomFoundCount: idiomDiscovery.foundCount,
         idiomTotal: idiomDiscovery.total,
+        foundIdioms: idiomDiscovery.foundMatches,
         onReset: _reset,
         onRandomSentence: _shuffle,
       ),
@@ -1229,6 +1230,7 @@ class _BottomDock extends StatelessWidget {
   final VoidCallback onToggleDarkMode;
   final int idiomFoundCount;
   final int idiomTotal;
+  final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1252,6 +1254,7 @@ class _BottomDock extends StatelessWidget {
     required this.onToggleDarkMode,
     required this.idiomFoundCount,
     required this.idiomTotal,
+    required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1306,6 +1309,7 @@ class _BottomDock extends StatelessWidget {
                             onToggleDarkMode: onToggleDarkMode,
                             idiomFoundCount: idiomFoundCount,
                             idiomTotal: idiomTotal,
+                            foundIdioms: foundIdioms,
                             onReset: onReset,
                             onRandomSentence: onRandomSentence,
                             cacheStrip: cacheStrip,
@@ -1406,6 +1410,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final VoidCallback onToggleDarkMode;
   final int idiomFoundCount;
   final int idiomTotal;
+  final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
   final Widget cacheStrip;
@@ -1425,6 +1430,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.onToggleDarkMode,
     required this.idiomFoundCount,
     required this.idiomTotal,
+    required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
     required this.cacheStrip,
@@ -1481,6 +1487,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           onToggleDarkMode: onToggleDarkMode,
           idiomFoundCount: idiomFoundCount,
           idiomTotal: idiomTotal,
+          foundIdioms: foundIdioms,
           onReset: onReset,
           onRandomSentence: onRandomSentence,
         );
@@ -1581,6 +1588,7 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final VoidCallback onToggleDarkMode;
   final int idiomFoundCount;
   final int idiomTotal;
+  final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
 
@@ -1595,6 +1603,7 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.onToggleDarkMode,
     required this.idiomFoundCount,
     required this.idiomTotal,
+    required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
   });
@@ -1648,7 +1657,11 @@ class _DiagnosticsToolStrip extends StatelessWidget {
             icon: const Icon(Icons.shuffle),
           ),
           const SizedBox(width: 6),
-          _IdiomFoundCountBadge(found: idiomFoundCount, total: idiomTotal),
+          _IdiomFoundCountBadge(
+            found: idiomFoundCount,
+            total: idiomTotal,
+            foundIdioms: foundIdioms,
+          ),
         ],
       ),
     );
@@ -1658,34 +1671,174 @@ class _DiagnosticsToolStrip extends StatelessWidget {
 class _IdiomFoundCountBadge extends StatelessWidget {
   final int found;
   final int total;
+  final List<IdiomMatch> foundIdioms;
 
-  const _IdiomFoundCountBadge({required this.found, required this.total});
+  const _IdiomFoundCountBadge({
+    required this.found,
+    required this.total,
+    required this.foundIdioms,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     return Tooltip(
-      message: 'Known idiom patterns matched by the current sentence',
-      child: Container(
-        key: const Key('idiom-found-count'),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: found > 0
-              ? colors.secondaryContainer
-              : colors.surfaceContainerHighest,
-          border: Border.all(
-            color: found > 0 ? colors.secondary : colors.outlineVariant,
-          ),
+      message: found > 0 ? 'Show found idioms' : 'No idioms found yet',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: const Key('idiom-found-count'),
           borderRadius: BorderRadius.circular(999),
+          onTap: () => _showFoundIdiomsOverlay(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: found > 0
+                  ? colors.secondaryContainer
+                  : colors.surfaceContainerHighest,
+              border: Border.all(
+                color: found > 0 ? colors.secondary : colors.outlineVariant,
+              ),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '$found / $total idioms found',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: found > 0
+                    ? colors.onSecondaryContainer
+                    : colors.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
         ),
-        child: Text(
-          '$found / $total idioms found',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: found > 0
-                ? colors.onSecondaryContainer
-                : colors.onSurfaceVariant,
-            fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+
+  void _showFoundIdiomsOverlay(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) =>
+          _FoundIdiomsOverlay(foundIdioms: foundIdioms, total: total),
+    );
+  }
+}
+
+class _FoundIdiomsOverlay extends StatelessWidget {
+  final List<IdiomMatch> foundIdioms;
+  final int total;
+
+  const _FoundIdiomsOverlay({required this.foundIdioms, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final hasManyIdioms = foundIdioms.length > 15;
+
+    return Dialog(
+      key: const Key('found-idioms-overlay'),
+      backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.emoji_events_outlined,
+                    size: 18,
+                    color: colors.secondary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${foundIdioms.length} / $total idioms found',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    key: const Key('found-idioms-close'),
+                    tooltip: 'Close found idioms',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close, size: 18),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              if (foundIdioms.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(2, 8, 4, 12),
+                  child: Text(
+                    'No idioms found yet. Try a particle route like give up, write down, or take off.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                )
+              else
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: hasManyIdioms ? 460 : double.infinity,
+                  ),
+                  child: Scrollbar(
+                    thumbVisibility: hasManyIdioms,
+                    child: ListView.separated(
+                      key: const Key('found-idioms-list'),
+                      shrinkWrap: true,
+                      itemCount: foundIdioms.length,
+                      separatorBuilder: (context, index) =>
+                          Divider(height: 10, color: colors.outlineVariant),
+                      itemBuilder: (context, index) {
+                        final pattern = foundIdioms[index].pattern;
+                        return Tooltip(
+                          message: pattern.meaning,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 3, 4, 5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SelectableText(
+                                  pattern.label,
+                                  key: Key('found-idiom-${pattern.id}'),
+                                  style: Theme.of(context).textTheme.labelLarge
+                                      ?.copyWith(
+                                        color: colors.secondary,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                ),
+                                const SizedBox(height: 2),
+                                SelectableText(
+                                  pattern.meaning,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 1),
+                                SelectableText(
+                                  '${pattern.pattern} - ${pattern.example}',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: colors.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
