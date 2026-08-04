@@ -2897,6 +2897,18 @@ class RecognitionEngine {
         _overlapsSpan(
           start,
           end,
+          builder.mannerPhraseStart,
+          builder.mannerPhraseEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
+          builder.rightParticleStart,
+          builder.rightParticleEnd,
+        ) ||
+        _overlapsSpan(
+          start,
+          end,
           builder.addresseeStart > 0 ? builder.addresseeStart - 1 : -1,
           builder.addresseeEnd,
         ) ||
@@ -2951,7 +2963,12 @@ class RecognitionEngine {
   }
 
   void _recognizeUnknownTokens(_RecognitionBuilder builder) {
-    for (final token in builder.tokens) {
+    for (var index = 0; index < builder.tokens.length; index++) {
+      final token = builder.tokens[index];
+      if (_overlapsRecognizedRoute(builder, index, index)) {
+        continue;
+      }
+
       final normalized = token.toLowerCase();
       if (normalized == 'not') continue;
 

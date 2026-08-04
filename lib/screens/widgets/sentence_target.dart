@@ -26,6 +26,21 @@ class _SentenceTarget {
       railPlan: _SentenceStateRailPlan.fromSentenceState(result.state),
     );
   }
+
+  factory _SentenceTarget.fromGuess({
+    required SentenceState state,
+    required String sentence,
+  }) {
+    return _SentenceTarget(
+      state: state,
+      sentence: sentence,
+      message: 'Guess the target sentence: $sentence',
+      traceLabel: 'guess target',
+      railPlan: _SentenceStateRailPlan.fromSentenceState(state),
+    );
+  }
+
+  String get statePrompt => state.summary;
 }
 
 class _SentenceStateRailPlan {

@@ -39,6 +39,7 @@ import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
+import 'package:padlock_app/models/sentence/sentence_state_diff.dart';
 
 part 'widgets/control_cards.dart';
 part 'widgets/control_deck.dart';
@@ -176,10 +177,12 @@ final _padlockIntellijDarkTheme = ThemeData(
 
 class HomeScreen extends StatefulWidget {
   final SuggestionDisplayMode initialSuggestionDisplayMode;
+  final SentenceState? initialGuessTarget;
 
   const HomeScreen({
     super.key,
     this.initialSuggestionDisplayMode = SuggestionDisplayMode.change,
+    this.initialGuessTarget,
   });
 
   @override
@@ -325,23 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
-    final random = Random();
-    var state = ConfigurationState.initial();
-
-    for (var step = 0; step < 8; step++) {
-      final suggestions = [
-        for (final slot in ConfigurationCompassSlot.values)
-          ...compass
-              .suggestionsFor(state, slot, limit: 0)
-              .where((suggestion) => !suggestion.isSelected),
-      ];
-
-      if (suggestions.isEmpty) {
-        break;
-      }
-
-      state = suggestions[random.nextInt(suggestions.length)].preview;
-    }
+    final state = _randomConfigurationState();
 
     setState(() {
       configuration = state;
@@ -357,6 +344,93 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       expandedRails = const {};
     });
+  }
+
+  Future<void> _startGuessSentence() async {
+    _cancelPendingRailOpening();
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
+    final initial = ConfigurationState.initial();
+    final initialGuessTarget = widget.initialGuessTarget;
+    var targetSentenceState = initialGuessTarget;
+    var targetState = targetSentenceState == null
+        ? _randomConfigurationState()
+        : ConfigurationState(sentenceState: targetSentenceState);
+
+    for (
+      var attempt = 0;
+      attempt < 8 &&
+          initialGuessTarget == null &&
+          targetState.sentenceState.summary == initial.sentenceState.summary;
+      attempt++
+    ) {
+      targetState = _randomConfigurationState();
+    }
+
+    final targetSentence = grammar.generate(targetState.sentenceState).text;
+    final target = _SentenceTarget.fromGuess(
+      state: targetState.sentenceState,
+      sentence: targetSentence,
+    );
+    logicStopwatch.stop();
+
+    setState(() {
+      configuration = initial;
+      nounNumbers = const {};
+      hoveredConfiguration.value = null;
+      newlyFoundIdioms = const [];
+      expandedRails = const {};
+      _setMoveTrace(const []);
+      _appendTraceEntry(
+        _MoveTraceEntry.guess(elapsed: logicStopwatch.elapsed),
+        uiStopwatch,
+      );
+    });
+
+    final result = await showDialog<_RecognitionInputResult>(
+      context: context,
+      builder: (context) => _GuessSentenceDialog(
+        target: target,
+        recognize: _recognizeSentenceInput,
+      ),
+    );
+
+    if (!mounted || result == null) {
+      return;
+    }
+
+    _applyRecognizedSentence(result);
+  }
+
+  ConfigurationState _randomConfigurationState({int steps = 8}) {
+    final random = Random();
+    var state = ConfigurationState.initial();
+
+    for (var step = 0; step < steps; step++) {
+      final suggestions = [
+        for (final slot in ConfigurationCompassSlot.values)
+          ...compass
+              .suggestionsFor(state, slot, limit: 0)
+              .where((suggestion) => !suggestion.isSelected),
+      ];
+
+      if (suggestions.isEmpty) {
+        break;
+      }
+
+      state = suggestions[random.nextInt(suggestions.length)].preview;
+    }
+
+    state = lock.applyMove(
+      state,
+      SetTense(Tense.values[random.nextInt(Tense.values.length)]),
+    );
+    state = lock.applyMove(
+      state,
+      SetAspect(Aspect.values[random.nextInt(Aspect.values.length)]),
+    );
+
+    return state;
   }
 
   Future<void> _openRecognitionInput() async {
@@ -812,6 +886,7 @@ class _HomeScreenState extends State<HomeScreen> {
         foundIdioms: idiomDiscovery.foundMatches,
         onReset: _reset,
         onRandomSentence: _shuffle,
+        onGuessSentence: _startGuessSentence,
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -927,7 +1002,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 .sentenceState,
                                           )
                                         : headerSentence;
-
                                     return _StickySentenceHeader(
                                       child: _SentencePanel(
                                         sentence: headerSentence,

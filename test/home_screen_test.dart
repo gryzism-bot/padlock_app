@@ -3,7 +3,16 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
+    as object_data;
+import 'package:padlock_app/data/subjects/third_person/people.dart'
+    as people_data;
+import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/engine/configuration_engine.dart';
+import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/sentence/sentence_state.dart';
 import 'package:padlock_app/screens/home_screen.dart';
 
 void main() {
@@ -1653,6 +1662,102 @@ void main() {
     expect(find.textContaining('random sentence'), findsOneWidget);
   });
 
+  testWidgets('Guess the sentence starts a visible target round', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Guess the sentence'));
+
+    expect(renderedSentence(tester), 'You learn.');
+    expect(find.byKey(const Key('guess-sentence-dialog')), findsOneWidget);
+    expect(find.text('SentenceState hint'), findsOneWidget);
+    expect(find.byKey(const Key('guess-target-state-hint')), findsOneWidget);
+    expect(find.textContaining('agent:'), findsWidgets);
+    expect(find.textContaining('action:'), findsWidgets);
+    expect(find.byKey(const Key('guess-answer-field')), findsOneWidget);
+    expect(find.textContaining('moves left'), findsNothing);
+    expect(find.textContaining('guess sentence'), findsOneWidget);
+  });
+
+  testWidgets('Guess the sentence can be solved by typing the answer', (
+    tester,
+  ) async {
+    final target = SentenceState(
+      agent: people_data.mary.toNounPhrase(Number.singular),
+      action: education_data.teach,
+      object: object_data.english,
+      tense: Tense.present,
+      aspect: Aspect.simple,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(initialGuessTarget: target)),
+    );
+
+    await tapVisible(tester, find.byTooltip('Guess the sentence'));
+
+    expect(find.text('Target: Mary teaches English.'), findsNothing);
+    expect(find.text('Mary teaches English.'), findsNothing);
+    expect(find.byKey(const Key('guess-sentence-dialog')), findsOneWidget);
+    expect(find.text('SentenceState hint'), findsOneWidget);
+    expect(find.byKey(const Key('guess-target-state-hint')), findsOneWidget);
+    expect(find.textContaining('moves left'), findsNothing);
+    expect(find.text('Set answer'), findsOneWidget);
+    expect(_guessSetAnswerButton(tester).onPressed, isNull);
+
+    await tester.enterText(
+      find.byKey(const Key('guess-answer-field')),
+      'Mary teaches English.',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('guess-answer-correct')), findsOneWidget);
+    expect(find.text('Set answer'), findsOneWidget);
+    expect(find.text('Check answer'), findsNothing);
+    expect(_guessSetAnswerButton(tester).onPressed, isNotNull);
+
+    await tester.tap(find.byKey(const Key('guess-set-answer-button')));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'Mary teaches English.');
+    expect(find.byKey(const Key('guess-sentence-dialog')), findsNothing);
+    expect(find.textContaining('recognized'), findsWidgets);
+  });
+
+  testWidgets('Guess the sentence can solve perfect continuous targets', (
+    tester,
+  ) async {
+    final target = SentenceState(
+      agent: people_data.mary.toNounPhrase(Number.singular),
+      action: education_data.teach,
+      object: object_data.english,
+      tense: Tense.future,
+      aspect: Aspect.perfectContinuous,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(initialGuessTarget: target)),
+    );
+
+    await tapVisible(tester, find.byTooltip('Guess the sentence'));
+    await tester.enterText(
+      find.byKey(const Key('guess-answer-field')),
+      'Mary will have been teaching English.',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('guess-answer-correct')), findsOneWidget);
+    expect(find.text('Set answer'), findsOneWidget);
+    expect(_guessSetAnswerButton(tester).onPressed, isNotNull);
+
+    await tester.tap(find.byKey(const Key('guess-set-answer-button')));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'Mary will have been teaching English.');
+    expect(find.byKey(const Key('guess-sentence-dialog')), findsNothing);
+  });
+
   testWidgets('Recognition input imports a recognized sentence', (
     tester,
   ) async {
@@ -1791,6 +1896,12 @@ void main() {
       findsOneWidget,
     );
   });
+}
+
+FilledButton _guessSetAnswerButton(WidgetTester tester) {
+  return tester.widget<FilledButton>(
+    find.byKey(const Key('guess-set-answer-button')),
+  );
 }
 
 Iterable<TextSpan> _textSpans(InlineSpan span) sync* {

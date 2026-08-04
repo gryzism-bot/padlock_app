@@ -25,12 +25,13 @@ Layer map:
    - Guess The Sentence:
      - button near the sentence header
      - chooses a sensible target `SentenceState`
-     - user transforms the current sentence toward that target
-     - shows remaining moves / mismatched fields
+     - user sees a state hint and types the target sentence
+     - correct answers can be set as the current sentence
      - solved state can trigger a clear success moment
    - These belong together because both start from the sentence itself:
      - Recognition: text -> `SentenceState`
-     - Guess: target `SentenceState` -> user moves -> matching state
+     - Guess: target `SentenceState` -> typed answer -> matching recognized
+       state
    - First scope:
      - one predicate
      - current `SentenceState` fields
@@ -322,18 +323,32 @@ Make the first public play session memorable without a tutorial reel.
 Core loop:
 
 1. Pick a valid target `SentenceState` from a curated deck.
-2. Render the target sentence.
-3. Start from `You learn.`
-4. Let the player use Guided Mode controls to transform the current sentence.
-5. Show remaining moves by comparing normalized state fields.
-6. Mark solved when current state matches target state.
+2. Show the target state as a hint, without leaking the rendered sentence.
+3. Let the player type the sentence that state describes.
+4. Recognition Engine parses the typed answer back into a `SentenceState`.
+5. Mark solved when recognized state matches the target state.
+6. Let the player set the solved sentence into the console.
+
+Presentation polish:
+
+- Make the Guess hint human-readable instead of raw developer `SentenceState`
+  dump.
+- Make the home-screen state preview below the sentence more human-readable
+  too.
+- Keep a developer/raw view available for testing, but make the default preview
+  read like language anatomy:
+  - `subject: you`
+  - `verb: make`
+  - `tense: future`
+  - `object: pastas`
+  - `frequency: once a day`
+  - answer expectation: `You will make pastas once a day.`
 
 First tests later:
 
-- exact match gives zero remaining moves
-- changing only tense is one remaining move
-- changing `You learn.` toward `Mary brought a book to John.` reports the
-  expected missing fields
+- correct typed answer enables `Set answer`
+- incorrect typed answer keeps `Set answer` disabled
+- tense/aspect targets including perfect continuous can be solved
 - solved target survives Grammar render and Recognition round trip
 
 ## Product Mode: Recognition Input

@@ -141,10 +141,16 @@ String _normalizedRecognitionToken(String value) {
 
 class _RecognitionInputDialog extends StatefulWidget {
   final String initialSentence;
+  final String title;
+  final String applyLabel;
+  final String hintText;
   final _RecognitionInputAttempt Function(String input) recognize;
 
   const _RecognitionInputDialog({
     required this.initialSentence,
+    this.title = 'Recognition input',
+    this.applyLabel = 'Use sentence',
+    this.hintText = 'Type a sentence the app can recognize',
     required this.recognize,
   });
 
@@ -201,7 +207,7 @@ class _RecognitionInputDialogState extends State<_RecognitionInputDialog> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Recognition input',
+                      widget.title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
@@ -226,9 +232,9 @@ class _RecognitionInputDialogState extends State<_RecognitionInputDialog> {
                 textInputAction: TextInputAction.done,
                 onChanged: _recognize,
                 onSubmitted: (_) => _applyIfPossible(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Sentence',
-                  hintText: 'Type a sentence the app can recognize',
+                  hintText: widget.hintText,
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
@@ -271,7 +277,7 @@ class _RecognitionInputDialogState extends State<_RecognitionInputDialog> {
                     key: const Key('recognition-apply-button'),
                     onPressed: _attempt.canApply ? _applyIfPossible : null,
                     icon: const Icon(Icons.check),
-                    label: const Text('Use sentence'),
+                    label: Text(widget.applyLabel),
                   ),
                 ],
               ),
@@ -292,6 +298,223 @@ class _RecognitionInputDialogState extends State<_RecognitionInputDialog> {
     final state = _attempt.state;
     final canonicalSentence = _attempt.canonicalSentence;
     if (!_attempt.canApply || state == null || canonicalSentence == null) {
+      return;
+    }
+
+    Navigator.of(context).pop(
+      _RecognitionInputResult(
+        input: _attempt.input,
+        state: state,
+        canonicalSentence: canonicalSentence,
+      ),
+    );
+  }
+}
+
+class _GuessSentenceDialog extends StatefulWidget {
+  final _SentenceTarget target;
+  final _RecognitionInputAttempt Function(String input) recognize;
+
+  const _GuessSentenceDialog({required this.target, required this.recognize});
+
+  @override
+  State<_GuessSentenceDialog> createState() => _GuessSentenceDialogState();
+}
+
+class _GuessSentenceDialogState extends State<_GuessSentenceDialog> {
+  late final TextEditingController _controller;
+  late _RecognitionInputAttempt _attempt;
+  bool _hasChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _attempt = widget.recognize('');
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool get _isCorrect {
+    final state = _attempt.state;
+    if (!_attempt.canApply || state == null) {
+      return false;
+    }
+
+    return SentenceStateDiff.between(
+      current: state,
+      target: widget.target.state,
+    ).isSolved;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final unknownTokenSet = {
+      for (final token in _attempt.unknownTokens)
+        _normalizedRecognitionToken(token),
+    };
+
+    return Dialog(
+      key: const Key('guess-sentence-dialog'),
+      backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760, maxHeight: 760),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.extension_outlined,
+                    size: 18,
+                    color: colors.tertiary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Guess the sentence',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    key: const Key('guess-sentence-close'),
+                    tooltip: 'Close guess',
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close, size: 18),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'SentenceState hint',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colors.tertiary,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Flexible(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHighest.withValues(
+                      alpha: 0.42,
+                    ),
+                    border: Border.all(color: colors.outlineVariant),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    child: SelectableText(
+                      _formattedGuessStateHint(widget.target.statePrompt),
+                      key: const Key('guess-target-state-hint'),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(height: 1.35),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                key: const Key('guess-answer-field'),
+                controller: _controller,
+                autofocus: true,
+                minLines: 1,
+                maxLines: 3,
+                textInputAction: TextInputAction.done,
+                onChanged: _recognize,
+                onSubmitted: (_) => _checkAnswer(),
+                decoration: const InputDecoration(
+                  labelText: 'Answer',
+                  hintText: 'Type the sentence',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (_attempt.tokens.isNotEmpty)
+                Wrap(
+                  key: const Key('guess-token-preview'),
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    for (final token in _attempt.tokens)
+                      _RecognitionTokenChip(
+                        token: token,
+                        isUnknown: unknownTokenSet.contains(
+                          _normalizedRecognitionToken(token),
+                        ),
+                      ),
+                  ],
+                )
+              else
+                Text(
+                  'Read the state, then type the sentence it describes.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              const SizedBox(height: 12),
+              _GuessAnswerStatus(
+                attempt: _attempt,
+                isCorrect: _isCorrect,
+                hasChecked: _hasChecked,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    key: const Key('guess-set-answer-button'),
+                    onPressed: _isCorrect ? _checkAnswer : null,
+                    icon: const Icon(Icons.check),
+                    label: const Text('Set answer'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _recognize(String input) {
+    setState(() {
+      _hasChecked = false;
+      _attempt = widget.recognize(input);
+    });
+  }
+
+  void _checkAnswer() {
+    final state = _attempt.state;
+    final canonicalSentence = _attempt.canonicalSentence;
+    if (!_attempt.canApply || state == null || canonicalSentence == null) {
+      return;
+    }
+
+    if (!_isCorrect) {
+      setState(() {
+        _hasChecked = true;
+      });
       return;
     }
 
@@ -387,6 +610,55 @@ class _RecognitionAttemptStatus extends StatelessWidget {
   }
 }
 
+class _GuessAnswerStatus extends StatelessWidget {
+  final _RecognitionInputAttempt attempt;
+  final bool isCorrect;
+  final bool hasChecked;
+
+  const _GuessAnswerStatus({
+    required this.attempt,
+    required this.isCorrect,
+    required this.hasChecked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    if (attempt.input.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (attempt.error != null || attempt.unknownTokens.isNotEmpty) {
+      return _RecognitionAttemptStatus(attempt: attempt);
+    }
+
+    if (isCorrect) {
+      return _RecognitionStatusBox(
+        key: const Key('guess-answer-correct'),
+        icon: Icons.check_circle_outline,
+        color: _successGreen,
+        title: 'Correct',
+        body: attempt.canonicalSentence ?? attempt.input,
+      );
+    }
+
+    if (!hasChecked) {
+      return _RecognitionAttemptStatus(attempt: attempt);
+    }
+
+    return _RecognitionStatusBox(
+      key: const Key('guess-answer-wrong'),
+      icon: Icons.close_outlined,
+      color: colors.error,
+      title: 'Not this SentenceState',
+      body: 'Recognition got: ${attempt.canonicalSentence ?? attempt.input}',
+    );
+  }
+}
+
+const _successGreen = Color(0xFF5DBB63);
+
 class _RecognitionStatusBox extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -440,4 +712,21 @@ class _RecognitionStatusBox extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formattedGuessStateHint(String prompt) {
+  return prompt
+      .split(', ')
+      .where((entry) => entry.isNotEmpty)
+      .map((entry) {
+        final separator = entry.indexOf('=');
+        if (separator == -1) {
+          return entry;
+        }
+
+        final label = entry.substring(0, separator);
+        final value = entry.substring(separator + 1);
+        return '$label: $value';
+      })
+      .join('\n');
 }

@@ -1,3 +1,4 @@
+import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/models/grammar/phrase/frequency_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/manner_phrase.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -7,6 +8,7 @@ import 'package:padlock_app/models/grammar/subject/adjective.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/right_particle.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -41,199 +43,211 @@ class SentenceStateDiff {
     required SentenceState current,
     required SentenceState target,
   }) {
+    final comparableCurrent = _normalizeFutureModal(current);
+    final comparableTarget = _normalizeFutureModal(target);
     final fields = [
-      _field(SentenceStateField.agent, current.agent, target.agent, _nounValue),
+      _field(
+        SentenceStateField.agent,
+        comparableCurrent.agent,
+        comparableTarget.agent,
+        _nounValue,
+      ),
       _field(
         SentenceStateField.action,
-        current.action,
-        target.action,
+        comparableCurrent.action,
+        comparableTarget.action,
         _verbValue,
       ),
       _field(
         SentenceStateField.object,
-        current.object,
-        target.object,
+        comparableCurrent.object,
+        comparableTarget.object,
         _nounValue,
       ),
       _field(
         SentenceStateField.recipient,
-        current.recipient,
-        target.recipient,
+        comparableCurrent.recipient,
+        comparableTarget.recipient,
         _nounValue,
       ),
       _field(
         SentenceStateField.addressee,
-        current.addressee,
-        target.addressee,
+        comparableCurrent.addressee,
+        comparableTarget.addressee,
         _nounValue,
       ),
       _field(
         SentenceStateField.companion,
-        current.companion,
-        target.companion,
+        comparableCurrent.companion,
+        comparableTarget.companion,
         _nounValue,
       ),
       _field(
         SentenceStateField.instrument,
-        current.instrument,
-        target.instrument,
+        comparableCurrent.instrument,
+        comparableTarget.instrument,
         _nounValue,
       ),
       _field(
         SentenceStateField.destination,
-        current.destination,
-        target.destination,
+        comparableCurrent.destination,
+        comparableTarget.destination,
         _nounValue,
       ),
-      _field(SentenceStateField.topic, current.topic, target.topic, _nounValue),
+      _field(
+        SentenceStateField.topic,
+        comparableCurrent.topic,
+        comparableTarget.topic,
+        _nounValue,
+      ),
       _field(
         SentenceStateField.topicPreposition,
-        current.topicPreposition,
-        target.topicPreposition,
+        comparableCurrent.topicPreposition,
+        comparableTarget.topicPreposition,
         _plainValue,
       ),
       _field(
         SentenceStateField.beneficiary,
-        current.beneficiary,
-        target.beneficiary,
+        comparableCurrent.beneficiary,
+        comparableTarget.beneficiary,
         _nounValue,
       ),
       _field(
         SentenceStateField.source,
-        current.source,
-        target.source,
+        comparableCurrent.source,
+        comparableTarget.source,
         _nounValue,
       ),
       _field(
         SentenceStateField.purpose,
-        current.purpose,
-        target.purpose,
+        comparableCurrent.purpose,
+        comparableTarget.purpose,
         _nounValue,
       ),
       _field(
         SentenceStateField.rightAction,
-        current.rightAction,
-        target.rightAction,
+        comparableCurrent.rightAction,
+        comparableTarget.rightAction,
         _verbValue,
       ),
       _field(
         SentenceStateField.rightParticle,
-        current.rightParticle,
-        target.rightParticle,
+        comparableCurrent.rightParticle,
+        comparableTarget.rightParticle,
         _rightParticleValue,
       ),
       _field(
         SentenceStateField.recipientPlacement,
-        current.recipientPlacement,
-        target.recipientPlacement,
+        comparableCurrent.recipientPlacement,
+        comparableTarget.recipientPlacement,
         _plainValue,
       ),
       _field(
         SentenceStateField.recipientPreposition,
-        current.recipientPreposition,
-        target.recipientPreposition,
+        comparableCurrent.recipientPreposition,
+        comparableTarget.recipientPreposition,
         _plainValue,
       ),
       _field(
         SentenceStateField.objectComplement,
-        current.objectComplement,
-        target.objectComplement,
+        comparableCurrent.objectComplement,
+        comparableTarget.objectComplement,
         _nounValue,
       ),
       _field(
         SentenceStateField.objectAdjectiveComplement,
-        current.objectAdjectiveComplement,
-        target.objectAdjectiveComplement,
+        comparableCurrent.objectAdjectiveComplement,
+        comparableTarget.objectAdjectiveComplement,
         _adjectiveValue,
       ),
       _field(
         SentenceStateField.complement,
-        current.complement,
-        target.complement,
+        comparableCurrent.complement,
+        comparableTarget.complement,
         _nounValue,
       ),
       _field(
         SentenceStateField.adjectiveComplement,
-        current.adjectiveComplement,
-        target.adjectiveComplement,
+        comparableCurrent.adjectiveComplement,
+        comparableTarget.adjectiveComplement,
         _adjectiveValue,
       ),
       _field(
         SentenceStateField.voice,
-        current.voice,
-        target.voice,
+        comparableCurrent.voice,
+        comparableTarget.voice,
         _plainValue,
       ),
       _field(
         SentenceStateField.passiveFocus,
-        current.passiveFocus,
-        target.passiveFocus,
+        comparableCurrent.passiveFocus,
+        comparableTarget.passiveFocus,
         _plainValue,
       ),
       _field(
         SentenceStateField.showPassiveAgent,
-        current.showPassiveAgent,
-        target.showPassiveAgent,
+        comparableCurrent.showPassiveAgent,
+        comparableTarget.showPassiveAgent,
         _plainValue,
       ),
       _field(
         SentenceStateField.tense,
-        current.tense,
-        target.tense,
+        comparableCurrent.tense,
+        comparableTarget.tense,
         _plainValue,
       ),
       _field(
         SentenceStateField.aspect,
-        current.aspect,
-        target.aspect,
+        comparableCurrent.aspect,
+        comparableTarget.aspect,
         _plainValue,
       ),
       _field(
         SentenceStateField.modal,
-        current.modal,
-        target.modal,
+        comparableCurrent.modal,
+        comparableTarget.modal,
         _modalValue,
       ),
       _field(
         SentenceStateField.polarity,
-        current.polarity,
-        target.polarity,
+        comparableCurrent.polarity,
+        comparableTarget.polarity,
         _plainValue,
       ),
       _field(
         SentenceStateField.sentenceForm,
-        current.sentenceForm,
-        target.sentenceForm,
+        comparableCurrent.sentenceForm,
+        comparableTarget.sentenceForm,
         _plainValue,
       ),
       _field(
         SentenceStateField.timePhrase,
-        current.timePhrase,
-        target.timePhrase,
+        comparableCurrent.timePhrase,
+        comparableTarget.timePhrase,
         _timeValue,
       ),
       _field(
         SentenceStateField.placePhrase,
-        current.placePhrase,
-        target.placePhrase,
+        comparableCurrent.placePhrase,
+        comparableTarget.placePhrase,
         _placeValue,
       ),
       _field(
         SentenceStateField.placeMeaning,
-        current.placeMeaning,
-        target.placeMeaning,
+        comparableCurrent.placeMeaning,
+        comparableTarget.placeMeaning,
         _plainValue,
       ),
       _field(
         SentenceStateField.frequencyPhrase,
-        current.frequencyPhrase,
-        target.frequencyPhrase,
+        comparableCurrent.frequencyPhrase,
+        comparableTarget.frequencyPhrase,
         _frequencyValue,
       ),
       _field(
         SentenceStateField.mannerPhrase,
-        current.mannerPhrase,
-        target.mannerPhrase,
+        comparableCurrent.mannerPhrase,
+        comparableTarget.mannerPhrase,
         _mannerValue,
       ),
     ];
@@ -419,3 +433,11 @@ String? _placeValue(PlacePhrase? phrase) {
 }
 
 String? _plainValue(Object? value) => value?.toString();
+
+SentenceState _normalizeFutureModal(SentenceState state) {
+  if (state.modal != modal_data.will) {
+    return state;
+  }
+
+  return state.copyWith(tense: Tense.future, modal: modal_data.noModal);
+}

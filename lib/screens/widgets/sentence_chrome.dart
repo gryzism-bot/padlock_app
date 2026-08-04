@@ -88,7 +88,7 @@ class _SentencePanel extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 if (translation != null) ...[
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   SelectableText(
                     translation!,
                     key: const Key('translation-gloss'),

@@ -13,6 +13,9 @@ import 'package:padlock_app/data/verbs/education.dart' as education_data;
 import 'package:padlock_app/data/verbs/essential.dart';
 import 'package:padlock_app/data/verbs/movement.dart';
 import 'package:padlock_app/data/verbs/travel.dart' as travel_data;
+import 'package:padlock_app/engine/logger/engine_logger.dart';
+import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
+import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/recipient_placement.dart';
@@ -478,6 +481,19 @@ void main() {
       expect(state.instrument, isNull);
     });
 
+    test('recognized time phrase words do not become unknown vocabulary', () {
+      final logger = _RecognitionDiagnosticsSpy();
+      final state = RecognitionEngine(
+        logger: logger,
+      ).recognize('You learn about weak partner in the morning.');
+
+      expectAgent(state, text: 'you');
+      expectTopic(state, text: 'partner', adjective: weak);
+      expect(state.topicPreposition, TopicPreposition.about);
+      expect(state.timePhrase!.text, 'in the morning');
+      expect(logger.diagnostics!.unknownTokens, isEmpty);
+    });
+
     test('manner can stay before object plus bound addressee phrase', () {
       final state = engine.recognize(
         'John explained grammar carefully to Mary.',
@@ -919,4 +935,13 @@ void main() {
       expect(state.passiveFocus, PassiveFocus.recipient);
     });
   });
+}
+
+class _RecognitionDiagnosticsSpy extends EngineLogger {
+  RecognitionDiagnostics? diagnostics;
+
+  @override
+  void logRecognition(RecognitionDiagnostics diagnostics) {
+    this.diagnostics = diagnostics;
+  }
 }

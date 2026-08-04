@@ -23,6 +23,7 @@ class _BottomDock extends StatelessWidget {
   final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
+  final VoidCallback onGuessSentence;
 
   const _BottomDock({
     required this.messages,
@@ -47,6 +48,7 @@ class _BottomDock extends StatelessWidget {
     required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
+    required this.onGuessSentence,
   });
 
   @override
@@ -102,6 +104,7 @@ class _BottomDock extends StatelessWidget {
                             foundIdioms: foundIdioms,
                             onReset: onReset,
                             onRandomSentence: onRandomSentence,
+                            onGuessSentence: onGuessSentence,
                             cacheStrip: cacheStrip,
                           );
 
@@ -203,6 +206,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
   final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
+  final VoidCallback onGuessSentence;
   final Widget cacheStrip;
 
   const _DiagnosticsDockHeader({
@@ -223,6 +227,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
     required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
+    required this.onGuessSentence,
     required this.cacheStrip,
   });
 
@@ -280,6 +285,7 @@ class _DiagnosticsDockHeader extends StatelessWidget {
           foundIdioms: foundIdioms,
           onReset: onReset,
           onRandomSentence: onRandomSentence,
+          onGuessSentence: onGuessSentence,
         );
 
         if (compact) {
@@ -381,6 +387,7 @@ class _DiagnosticsToolStrip extends StatelessWidget {
   final List<IdiomMatch> foundIdioms;
   final VoidCallback onReset;
   final VoidCallback onRandomSentence;
+  final VoidCallback onGuessSentence;
 
   const _DiagnosticsToolStrip({
     required this.previewMode,
@@ -396,6 +403,7 @@ class _DiagnosticsToolStrip extends StatelessWidget {
     required this.foundIdioms,
     required this.onReset,
     required this.onRandomSentence,
+    required this.onGuessSentence,
   });
 
   @override
@@ -445,6 +453,14 @@ class _DiagnosticsToolStrip extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             onPressed: onRandomSentence,
             icon: const Icon(Icons.shuffle),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            key: const Key('guess-sentence-button'),
+            tooltip: 'Guess the sentence',
+            visualDensity: VisualDensity.compact,
+            onPressed: onGuessSentence,
+            icon: const Icon(Icons.extension_outlined),
           ),
           const SizedBox(width: 6),
           _IdiomFoundCountBadge(
@@ -704,7 +720,7 @@ class _IdiomToast extends StatelessWidget {
   }
 }
 
-enum _MoveTraceStatus { accepted, blocked, random, reset, recognized }
+enum _MoveTraceStatus { accepted, blocked, random, reset, recognized, guess }
 
 class _MoveTraceEntry {
   final String label;
@@ -735,6 +751,15 @@ class _MoveTraceEntry {
       label: 'reset',
       sentence: sentence,
       status: _MoveTraceStatus.reset,
+      elapsed: elapsed,
+    );
+  }
+
+  factory _MoveTraceEntry.guess({required Duration elapsed}) {
+    return _MoveTraceEntry(
+      label: 'guess sentence',
+      sentence: 'SentenceState hint opened.',
+      status: _MoveTraceStatus.guess,
       elapsed: elapsed,
     );
   }
@@ -774,6 +799,7 @@ class _MoveTraceEntry {
       _MoveTraceStatus.random => 'random',
       _MoveTraceStatus.reset => 'reset',
       _MoveTraceStatus.recognized => 'recognized',
+      _MoveTraceStatus.guess => 'guess',
     };
     final uiText = uiElapsed == null
         ? 'pending'
