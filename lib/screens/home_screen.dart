@@ -45,6 +45,7 @@ part 'widgets/control_deck.dart';
 part 'widgets/core_participant_surface.dart';
 part 'widgets/diagnostics_dock.dart';
 part 'widgets/sentence_chrome.dart';
+part 'widgets/sentence_target.dart';
 part 'widgets/subject_controls.dart';
 part 'widgets/compass_slot_section.dart';
 part 'widgets/noun_rail_state.dart';
@@ -215,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<_MoveTraceEntry> moveTrace = const [];
   List<IdiomMatch> newlyFoundIdioms = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
-  final List<Timer> _recognitionRailTimers = [];
+  final _RailOpeningSequence railOpeningSequence = _RailOpeningSequence();
   bool isCoreSurfaceExpanded = true;
   bool isVerbRailExpanded = true;
   String verbFilterQuery = '';
@@ -235,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _move(ConfigurationMove move) {
-    _cancelRecognitionRailOpening();
+    _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
 
@@ -283,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _reset() {
-    _cancelRecognitionRailOpening();
+    _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
     final sentence = grammar
@@ -321,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _shuffle() {
-    _cancelRecognitionRailOpening();
+    _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
     final random = Random();
@@ -406,42 +407,42 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _applyRecognizedSentence(_RecognitionInputResult result) {
-    _cancelRecognitionRailOpening();
+    _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
-    final recognizedRails = _expandedRailsForRecognizedState(result.state);
+    final target = _SentenceTarget.fromRecognizedSentence(result);
 
     setState(() {
       configuration = ConfigurationState(
-        sentenceState: result.state,
+        sentenceState: target.state,
         messages: [
           ConfigurationMessage.info(
-            result.message,
+            target.message,
             source: ConfigurationMessageSource.ui,
             lawCategory: ConfigurationLawCategory.stateUpdate,
           ),
         ],
       );
-      nounNumbers = _syncNounNumbersWithState(nounNumbers, result.state);
+      nounNumbers = _syncNounNumbersWithState(nounNumbers, target.state);
       expandedRails = const {};
       hoveredConfiguration.value = null;
-      _recordIdiomDiscovery(result.state);
+      _recordIdiomDiscovery(target.state);
       logicStopwatch.stop();
       _appendTraceEntry(
         _MoveTraceEntry.recognition(
-          result.input,
-          result.canonicalSentence,
+          target.traceLabel,
+          target.sentence,
           elapsed: logicStopwatch.elapsed,
         ),
         uiStopwatch,
       );
     });
 
-    _openRecognizedRailsInSequence(recognizedRails);
+    _openSentenceTargetRails(target.railPlan);
   }
 
   void _toggleRail(ConfigurationCompassSlot slot) {
-    _cancelRecognitionRailOpening();
+    _cancelPendingRailOpening();
     setState(() {
       hoveredConfiguration.value = null;
       if (expandedRails.contains(slot)) {
@@ -452,34 +453,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _openRecognizedRailsInSequence(Set<ConfigurationCompassSlot> rails) {
-    final orderedRails = [
-      for (final slot in ConfigurationCompassSlot.values)
-        if (rails.contains(slot)) slot,
-    ];
-    if (orderedRails.isEmpty) {
-      return;
-    }
-
-    for (var index = 0; index < orderedRails.length; index++) {
-      final timer = Timer(Duration(milliseconds: 55 * (index + 1)), () {
-        if (!mounted) {
-          return;
-        }
-
+  void _openSentenceTargetRails(_SentenceStateRailPlan railPlan) {
+    railOpeningSequence.open(
+      railPlan,
+      isMounted: () => mounted,
+      openSlot: (slot) {
         setState(() {
-          expandedRails = {...expandedRails, orderedRails[index]};
+          expandedRails = {...expandedRails, slot};
         });
-      });
-      _recognitionRailTimers.add(timer);
-    }
+      },
+    );
   }
 
-  void _cancelRecognitionRailOpening() {
-    for (final timer in _recognitionRailTimers) {
-      timer.cancel();
-    }
-    _recognitionRailTimers.clear();
+  void _cancelPendingRailOpening() {
+    railOpeningSequence.cancel();
   }
 
   void _recordIdiomDiscovery(SentenceState state) {
@@ -739,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
-    _cancelRecognitionRailOpening();
+    railOpeningSequence.cancel();
     hoveredConfiguration.dispose();
     moveTraceNotifier.dispose();
     previewCacheEntryCountNotifier.dispose();
