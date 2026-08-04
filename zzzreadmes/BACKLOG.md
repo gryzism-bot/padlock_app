@@ -15,17 +15,37 @@ Layer map:
 
 ## Current Best Next Moves
 
-1. Translate authored route ingredients.
-   - UI toggles now exist for sentence, verbs, objects, companions, location,
-     topic/source/right-action/time/manner, and other major rails.
-   - Remaining work is data quality and coverage, not button plumbing.
-   - First targets:
-     - connectors: `with`, `to`, `from`, `for`, `about`, `of`, `on`, `at`, `in`
-     - reusable route shelves: people/source nouns, places, tools, foods,
-       openables, text/media, study subjects, and everyday objects
-     - better Polish verb fragments where person/number is currently too crude
+1. Build the two sentence-header product modes together.
+   - Recognition Input:
+     - button near the sentence header
+     - opens an overlay with a text input
+     - marks known vocabulary green and missing vocabulary red
+     - parses app-canonical text into `SentenceState`
+     - updates the console and highlights/open rails used by the parsed state
+   - Guess The Sentence:
+     - button near the sentence header
+     - chooses a sensible target `SentenceState`
+     - user transforms the current sentence toward that target
+     - shows remaining moves / mismatched fields
+     - solved state can trigger a clear success moment
+   - These belong together because both start from the sentence itself:
+     - Recognition: text -> `SentenceState`
+     - Guess: target `SentenceState` -> user moves -> matching state
+   - First scope:
+     - one predicate
+     - current `SentenceState` fields
+     - authored PredicatePaths on
+     - strict app-English, not general free-form parsing
 
-2. Continue staged vocabulary saturation.
+2. Improve educational diagnostics.
+   - Keep developer precision: `Lock law alert`, `Compass path alert`,
+     `UI rail alert`.
+   - Add friendlier educational wording from the same source later.
+   - Do not lose the current testing value of exact law names.
+   - This supports both Recognition and Guess because failed input and wrong
+     guesses need useful explanations.
+
+3. Continue staged vocabulary saturation.
    - The cockpit is ready for careful growth:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -38,42 +58,28 @@ Layer map:
      - record whether timing stays acceptable
    - Prefer verb-owned shelves first, broad noun flooding second.
 
-3. Keep route audit tooling current.
+4. Translate authored route ingredients.
+   - UI toggles now exist for sentence, verbs, objects, companions, location,
+     topic/source/right-action/time/manner, and other major rails.
+   - Remaining work is data quality and coverage, not button plumbing.
+   - First targets:
+     - connectors: `with`, `to`, `from`, `for`, `about`, `of`, `on`, `at`, `in`
+     - reusable route shelves: people/source nouns, places, tools, foods,
+       openables, text/media, study subjects, and everyday objects
+     - better Polish verb fragments where person/number is currently too crude
+
+5. Keep route audit tooling current.
    - The route-kind architecture is broad enough for now.
    - Missing rows should usually mean missing authored data, not missing Grammar
      Engine logic.
    - Keep the review sheet executable and rare in pending rows.
 
-4. Improve educational diagnostics.
-   - Keep developer precision: `Lock law alert`, `Compass path alert`,
-     `UI rail alert`.
-   - Add friendlier educational wording from the same source later.
-   - Do not lose the current testing value of exact law names.
-
-5. Recognition input overlay.
-   - This is the next big "app speaks by itself" feature.
-   - Click the rendered sentence header and open a focused input overlay.
-   - User types an English sentence.
-   - The app marks known vocabulary green and unknown/out-of-scope words red.
-   - Recognition Engine tries to parse the sentence into `SentenceState`.
-   - If parse succeeds:
-     - update the console state
-     - open or highlight the rails used by the parsed sentence
-     - show how the sentence maps to predicate, participants, particles,
-       phrases, and form
-   - If parse fails:
-     - keep the current state
-     - show which word or segment blocked recognition
-     - distinguish missing vocabulary from unsupported grammar shape
-   - First scope:
-     - app-canonical sentences only
-     - one predicate
-     - current `SentenceState` fields
-     - no free-form language model behavior
-
-6. Plan, but do not start yet: Guess The Sentence.
-   - This is the biggest product leap, but it should wait until the console has
-     enough vocabulary and translation depth to speak for itself.
+6. Final polish pass.
+   - product copy
+   - small layout tightening
+   - hosted build check
+   - dark/light visual QA
+   - a short presentable seed deck for first users
 
 ## Recently Completed Foundation
 
