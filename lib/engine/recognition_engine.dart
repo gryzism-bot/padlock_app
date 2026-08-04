@@ -10,7 +10,8 @@ import 'package:padlock_app/data/subjects/adjectives/essential_adjectives.dart';
 import 'package:padlock_app/data/subjects/determiners.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
-import 'package:padlock_app/data/subjects/pronouns.dart' show you;
+import 'package:padlock_app/data/subjects/pronouns.dart'
+    show he, i, it, she, subjects, they, we, you, youPlural;
 import 'package:padlock_app/data/subjects/third_person/animals.dart';
 import 'package:padlock_app/data/subjects/third_person/geography.dart';
 import 'package:padlock_app/data/subjects/third_person/objects.dart';
@@ -2951,7 +2952,8 @@ class RecognitionEngine {
 
   void _recognizeUnknownTokens(_RecognitionBuilder builder) {
     for (final token in builder.tokens) {
-      if (token.toLowerCase() == 'not') continue;
+      final normalized = token.toLowerCase();
+      if (normalized == 'not') continue;
 
       if (const {
         'by',
@@ -2961,26 +2963,42 @@ class RecognitionEngine {
         'of',
         'for',
         'from',
-      }.contains(token.toLowerCase())) {
+      }.contains(normalized)) {
         continue;
       }
 
-      if (_lookupVerb(token) != null) continue;
+      if (_knownAuxiliaryTokens.contains(normalized)) continue;
 
-      if (_lookupModal(token) != null) continue;
+      if (_lookupVerb(normalized) != null) continue;
 
-      if (_lookupDeterminer(token) != null) continue;
+      if (_lookupModal(normalized) != null) continue;
 
-      if (_lookupAdjective(token) != null) continue;
+      if (_lookupDeterminer(normalized) != null) continue;
 
-      if (_lookupNoun(token) != null) continue;
+      if (_lookupAdjective(normalized) != null) continue;
 
-      if (_lookupFixedObject(token) != null) continue;
+      if (_lookupNoun(normalized) != null) continue;
 
-      if (_lookupStandaloneNounPhrase(token) != null) continue;
+      if (_lookupFixedObject(normalized) != null) continue;
+
+      if (_lookupStandaloneNounPhrase(normalized) != null) continue;
+
+      if (_lookupRightParticle(normalized) != null) continue;
 
       builder.unknownTokens.add(token);
     }
+  }
+
+  RightParticle? _lookupRightParticle(String token) {
+    final normalized = token.toLowerCase();
+
+    for (final particle in rightParticles) {
+      if (normalized == particle.text.toLowerCase()) {
+        return particle;
+      }
+    }
+
+    return null;
   }
 }
 
@@ -3215,7 +3233,24 @@ class _RecipientPrepositionMatch {
 
 const _knownNouns = [...peopleNouns, czechia, ...objectNouns, ...animalNouns];
 
-const _knownStandaloneNounPhrases = [someone, anyone, nobody, everyone];
+const _knownStandaloneNounPhrases = [
+  ...subjects,
+  someone,
+  anyone,
+  nobody,
+  everyone,
+];
+
+const _knownAuxiliaryTokens = {
+  'am',
+  'are',
+  'was',
+  'were',
+  'been',
+  'being',
+  'did',
+  'does',
+};
 
 const _knownFixedObjects = [
   fixed_object.something,

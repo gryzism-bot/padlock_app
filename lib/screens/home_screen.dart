@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,10 @@ import 'package:padlock_app/engine/grammar_engine.dart';
 import 'package:padlock_app/engine/idiom_discovery.dart';
 import 'package:padlock_app/engine/idiom_finder.dart';
 import 'package:padlock_app/engine/idiom_progress_store.dart';
+import 'package:padlock_app/engine/logger/engine_log_config.dart';
+import 'package:padlock_app/engine/logger/engine_logger.dart';
+import 'package:padlock_app/engine/logger/recognition_diagnostics.dart';
+import 'package:padlock_app/engine/recognition_engine.dart';
 import 'package:padlock_app/models/grammar/participant_surface.dart';
 import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
@@ -39,6 +44,7 @@ part 'widgets/control_cards.dart';
 part 'widgets/control_deck.dart';
 part 'widgets/noun_rail_state.dart';
 part 'widgets/rail_policy.dart';
+part 'widgets/recognition_input.dart';
 part 'widgets/suggestion_chips.dart';
 
 enum SuggestionDisplayMode { change, word }
@@ -204,6 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<_MoveTraceEntry> moveTrace = const [];
   List<IdiomMatch> newlyFoundIdioms = const [];
   Set<ConfigurationCompassSlot> expandedRails = const {};
+  final List<Timer> _recognitionRailTimers = [];
   bool isCoreSurfaceExpanded = true;
   bool isVerbRailExpanded = true;
   String verbFilterQuery = '';
@@ -223,6 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _move(ConfigurationMove move) {
+    _cancelRecognitionRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
 
@@ -270,6 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _reset() {
+    _cancelRecognitionRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
     final sentence = grammar
@@ -307,6 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _shuffle() {
+    _cancelRecognitionRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
     final random = Random();
@@ -343,7 +353,90 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _openRecognitionInput() async {
+    final currentSentence = grammar.generate(configuration.sentenceState).text;
+    final result = await showDialog<_RecognitionInputResult>(
+      context: context,
+      builder: (context) => _RecognitionInputDialog(
+        initialSentence: currentSentence,
+        recognize: _recognizeSentenceInput,
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    _applyRecognizedSentence(result);
+  }
+
+  _RecognitionInputAttempt _recognizeSentenceInput(String input) {
+    final text = input.trim();
+    if (text.isEmpty) {
+      return const _RecognitionInputAttempt.empty();
+    }
+
+    final logger = _RecognitionCaptureLogger();
+    final recognizer = RecognitionEngine(logger: logger);
+
+    try {
+      final state = recognizer.recognize(text);
+      final canonicalSentence = grammar.generate(state).text;
+      final unknownTokens = logger.diagnostics?.unknownTokens ?? const [];
+
+      return _RecognitionInputAttempt.recognized(
+        input: text,
+        state: state,
+        canonicalSentence: canonicalSentence,
+        tokens: logger.diagnostics?.tokens ?? _recognitionTokens(text),
+        unknownTokens: unknownTokens,
+      );
+    } catch (error) {
+      return _RecognitionInputAttempt.failed(
+        input: text,
+        tokens: _recognitionTokens(text),
+        error: logger.failureText ?? error.toString(),
+      );
+    }
+  }
+
+  void _applyRecognizedSentence(_RecognitionInputResult result) {
+    _cancelRecognitionRailOpening();
+    final logicStopwatch = Stopwatch()..start();
+    final uiStopwatch = Stopwatch()..start();
+    final recognizedRails = _expandedRailsForRecognizedState(result.state);
+
+    setState(() {
+      configuration = ConfigurationState(
+        sentenceState: result.state,
+        messages: [
+          ConfigurationMessage.info(
+            result.message,
+            source: ConfigurationMessageSource.ui,
+            lawCategory: ConfigurationLawCategory.stateUpdate,
+          ),
+        ],
+      );
+      nounNumbers = _syncNounNumbersWithState(nounNumbers, result.state);
+      expandedRails = const {};
+      hoveredConfiguration.value = null;
+      _recordIdiomDiscovery(result.state);
+      logicStopwatch.stop();
+      _appendTraceEntry(
+        _MoveTraceEntry.recognition(
+          result.input,
+          result.canonicalSentence,
+          elapsed: logicStopwatch.elapsed,
+        ),
+        uiStopwatch,
+      );
+    });
+
+    _openRecognizedRailsInSequence(recognizedRails);
+  }
+
   void _toggleRail(ConfigurationCompassSlot slot) {
+    _cancelRecognitionRailOpening();
     setState(() {
       hoveredConfiguration.value = null;
       if (expandedRails.contains(slot)) {
@@ -352,6 +445,36 @@ class _HomeScreenState extends State<HomeScreen> {
         expandedRails = {...expandedRails, slot};
       }
     });
+  }
+
+  void _openRecognizedRailsInSequence(Set<ConfigurationCompassSlot> rails) {
+    final orderedRails = [
+      for (final slot in ConfigurationCompassSlot.values)
+        if (rails.contains(slot)) slot,
+    ];
+    if (orderedRails.isEmpty) {
+      return;
+    }
+
+    for (var index = 0; index < orderedRails.length; index++) {
+      final timer = Timer(Duration(milliseconds: 55 * (index + 1)), () {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          expandedRails = {...expandedRails, orderedRails[index]};
+        });
+      });
+      _recognitionRailTimers.add(timer);
+    }
+  }
+
+  void _cancelRecognitionRailOpening() {
+    for (final timer in _recognitionRailTimers) {
+      timer.cancel();
+    }
+    _recognitionRailTimers.clear();
   }
 
   void _recordIdiomDiscovery(SentenceState state) {
@@ -611,6 +734,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _cancelRecognitionRailOpening();
     hoveredConfiguration.dispose();
     moveTraceNotifier.dispose();
     previewCacheEntryCountNotifier.dispose();
@@ -821,6 +945,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         summary: headerConfiguration
                                             .sentenceState
                                             .summary,
+                                        onRecognitionInput:
+                                            _openRecognitionInput,
                                       ),
                                     );
                                   },
@@ -1914,7 +2040,7 @@ class _IdiomToast extends StatelessWidget {
   }
 }
 
-enum _MoveTraceStatus { accepted, blocked, random, reset }
+enum _MoveTraceStatus { accepted, blocked, random, reset, recognized }
 
 class _MoveTraceEntry {
   final String label;
@@ -1949,6 +2075,19 @@ class _MoveTraceEntry {
     );
   }
 
+  factory _MoveTraceEntry.recognition(
+    String input,
+    String sentence, {
+    required Duration elapsed,
+  }) {
+    return _MoveTraceEntry(
+      label: 'recognition input -> $input',
+      sentence: sentence,
+      status: _MoveTraceStatus.recognized,
+      elapsed: elapsed,
+    );
+  }
+
   factory _MoveTraceEntry.fromMove({
     required ConfigurationMove move,
     required String sentence,
@@ -1970,6 +2109,7 @@ class _MoveTraceEntry {
       _MoveTraceStatus.blocked => 'blocked',
       _MoveTraceStatus.random => 'random',
       _MoveTraceStatus.reset => 'reset',
+      _MoveTraceStatus.recognized => 'recognized',
     };
     final uiText = uiElapsed == null
         ? 'pending'
@@ -2157,11 +2297,13 @@ class _SentencePanel extends StatelessWidget {
   final String sentence;
   final String? translation;
   final String summary;
+  final VoidCallback onRecognitionInput;
 
   const _SentencePanel({
     required this.sentence,
     required this.translation,
     required this.summary,
+    required this.onRecognitionInput,
   });
 
   @override
@@ -2173,42 +2315,59 @@ class _SentencePanel extends StatelessWidget {
         border: Border.all(color: colors.outlineVariant),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SelectableText(
-              sentence,
-              key: const Key('rendered-sentence'),
-              textAlign: TextAlign.center,
-              maxLines: translation == null ? 2 : 1,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            if (translation != null) ...[
-              const SizedBox(height: 3),
-              SelectableText(
-                translation!,
-                key: const Key('translation-gloss'),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w600,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SelectableText(
+                  sentence,
+                  key: const Key('rendered-sentence'),
+                  textAlign: TextAlign.center,
+                  maxLines: translation == null ? 2 : 1,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
-              ),
-            ],
-            const SizedBox(height: 2),
-            SelectableText(
-              summary,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(height: 1.15, fontSize: 11),
+                if (translation != null) ...[
+                  const SizedBox(height: 3),
+                  SelectableText(
+                    translation!,
+                    key: const Key('translation-gloss'),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 2),
+                SelectableText(
+                  summary,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(height: 1.15, fontSize: 11),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: IconButton.outlined(
+              key: const Key('recognition-input-button'),
+              tooltip: 'Recognition input',
+              visualDensity: VisualDensity.standard,
+              constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+              padding: const EdgeInsets.all(8),
+              onPressed: onRecognitionInput,
+              icon: const Icon(Icons.keyboard_alt_outlined, size: 24),
+            ),
+          ),
+        ],
       ),
     );
   }

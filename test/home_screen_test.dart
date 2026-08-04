@@ -1652,6 +1652,145 @@ void main() {
     expect(find.text('Move trace'), findsOneWidget);
     expect(find.textContaining('random sentence'), findsOneWidget);
   });
+
+  testWidgets('Recognition input imports a recognized sentence', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Recognition input'));
+
+    expect(find.byKey(const Key('recognition-input-dialog')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('recognition-input-field')),
+      'Mary taught English.',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('recognition-canonical-sentence')),
+      findsOneWidget,
+    );
+    expect(find.text('Mary taught English.'), findsWidgets);
+
+    await tester.tap(find.byKey(const Key('recognition-apply-button')));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'Mary taught English.');
+    expect(
+      find.textContaining('recognition input -> Mary taught English.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Recognition input marks unknown words before import', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Recognition input'));
+
+    await tester.enterText(
+      find.byKey(const Key('recognition-input-field')),
+      'You learn blorple.',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('recognition-unknown-tokens')), findsOneWidget);
+    expect(find.text('Unknown vocabulary'), findsOneWidget);
+    expect(find.text('blorple'), findsWidgets);
+    expect(find.text('You'), findsOneWidget);
+    expect(find.text('You, blorple'), findsNothing);
+    expect(find.byKey(const Key('recognition-token-blorple')), findsOneWidget);
+
+    final applyButton = tester.widget<FilledButton>(
+      find.byKey(const Key('recognition-apply-button')),
+    );
+    expect(applyButton.onPressed, isNull);
+    expect(renderedSentence(tester), 'You learn.');
+  });
+
+  testWidgets(
+    'Recognition input accepts capitalized subject and be auxiliary',
+    (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+      await tapVisible(tester, find.byTooltip('Recognition input'));
+
+      await tester.enterText(
+        find.byKey(const Key('recognition-input-field')),
+        'You are leaving.',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('recognition-unknown-tokens')), findsNothing);
+      expect(
+        find.byKey(const Key('recognition-canonical-sentence')),
+        findsOneWidget,
+      );
+      expect(find.text('You are leaving.'), findsWidgets);
+
+      final applyButton = tester.widget<FilledButton>(
+        find.byKey(const Key('recognition-apply-button')),
+      );
+      expect(applyButton.onPressed, isNotNull);
+    },
+  );
+
+  testWidgets('Recognition input accepts right particle idiom vocabulary', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Recognition input'));
+
+    await tester.enterText(
+      find.byKey(const Key('recognition-input-field')),
+      'You gave up smoking.',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('recognition-unknown-tokens')), findsNothing);
+    expect(
+      find.byKey(const Key('recognition-canonical-sentence')),
+      findsOneWidget,
+    );
+    expect(find.text('You gave up smoking.'), findsWidgets);
+
+    await tester.tap(find.byKey(const Key('recognition-apply-button')));
+    await tester.pumpAndSettle();
+
+    expect(renderedSentence(tester), 'You gave up smoking.');
+    expect(find.text('1 / 55 idioms found'), findsOneWidget);
+  });
+
+  testWidgets('Recognition input opens filled participant rails in sequence', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tapVisible(tester, find.byTooltip('Recognition input'));
+
+    await tester.enterText(
+      find.byKey(const Key('recognition-input-field')),
+      'You are leaving with Anna.',
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('recognition-apply-button')));
+    await tester.pump();
+
+    expect(renderedSentence(tester), 'You are leaving with Anna.');
+    expect(find.text('companion: Anna (filled)'), findsOneWidget);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('suggestion-label-companion-anna')),
+      findsOneWidget,
+    );
+  });
 }
 
 Iterable<TextSpan> _textSpans(InlineSpan span) sync* {

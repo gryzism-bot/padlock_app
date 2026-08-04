@@ -560,6 +560,77 @@ void main() {
       }
     });
 
+    test('predicate particles survive tense and aspect recognition', () {
+      final cases = [
+        (
+          sentence: 'You gave up smoking.',
+          action: give,
+          particle: upParticle,
+          object: 'smoking',
+        ),
+        (
+          sentence: 'You were giving up smoking.',
+          action: give,
+          particle: upParticle,
+          object: 'smoking',
+        ),
+        (
+          sentence: 'You have given up smoking.',
+          action: give,
+          particle: upParticle,
+          object: 'smoking',
+        ),
+        (
+          sentence: 'You had given up smoking.',
+          action: give,
+          particle: upParticle,
+          object: 'smoking',
+        ),
+        (
+          sentence: 'You will give up smoking.',
+          action: give,
+          particle: upParticle,
+          object: 'smoking',
+        ),
+        (
+          sentence: 'You wrote down note carefully.',
+          action: write,
+          particle: downParticle,
+          object: 'note',
+        ),
+        (
+          sentence: 'You have written down note carefully.',
+          action: write,
+          particle: downParticle,
+          object: 'note',
+        ),
+        (
+          sentence: 'You took off.',
+          action: take,
+          particle: offParticle,
+          object: null,
+        ),
+        (
+          sentence: 'You are taking off.',
+          action: take,
+          particle: offParticle,
+          object: null,
+        ),
+      ];
+
+      for (final entry in cases) {
+        final state = recognizeRoundTrip(entry.sentence);
+
+        expect(state.action, entry.action, reason: entry.sentence);
+        expect(state.rightParticle, entry.particle, reason: entry.sentence);
+        if (entry.object == null) {
+          expect(state.object, isNull, reason: entry.sentence);
+        } else {
+          expectNoun(state.object, entry.object!, reason: entry.sentence);
+        }
+      }
+    });
+
     test(
       'true manners stay distinct from particle surfaces on the same verb',
       () {
