@@ -523,6 +523,7 @@ final _toolObjects = _uniqueByText([
   ...object_categories.singularToolObjects,
   ...object_categories.pluralToolObjects,
 ]);
+final _usableObjects = _uniqueByText([..._genericObjects, ..._toolObjects]);
 final _writingInstruments = _objectsWithText(_toolObjects, [
   'pen',
   'pens',
@@ -1984,7 +1985,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     use,
-    _toolObjects,
+    _usableObjects,
     paths: [
       PredicatePath.withCompanion(_people),
       _purposes(_basicPurposes),
@@ -3099,8 +3100,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: use,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author tool object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded generic/tool object, companion, purpose, manner, and time tracks',
   ),
   _migration(
     verb: open,

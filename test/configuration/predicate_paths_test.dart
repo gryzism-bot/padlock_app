@@ -1560,6 +1560,61 @@ void main() {
         semanticDirectObjectFitsAction(fixed_object.money, write),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, use),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          use,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.computer.toNounPhrase(Number.singular),
+          use,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          use,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.keyboard.toNounPhrase(Number.singular),
+          use,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.apple.toNounPhrase(Number.singular),
+          use,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          use,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          use,
+        ),
+        isFalse,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, use), isFalse);
     });
 
     test(
