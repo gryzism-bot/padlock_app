@@ -1183,6 +1183,23 @@ final _playActivities = [
   fixed_object.tennis,
   fixed_object.golf,
 ];
+final _playObjects = _uniqueByText([
+  ..._playActivities,
+  fixed_object.music,
+  object_data.guitar.toNounPhrase(Number.singular),
+  object_data.guitar.toNounPhrase(Number.plural),
+  object_data.piano.toNounPhrase(Number.singular),
+  object_data.piano.toNounPhrase(Number.plural),
+  object_data.violin.toNounPhrase(Number.singular),
+  object_data.violin.toNounPhrase(Number.plural),
+  object_data.drum.toNounPhrase(Number.singular),
+  object_data.drum.toNounPhrase(Number.plural),
+  object_data.song.toNounPhrase(Number.singular),
+  object_data.song.toNounPhrase(Number.plural),
+  object_data.game.toNounPhrase(Number.singular),
+  object_data.game.toNounPhrase(Number.plural),
+  object_data.ball.toNounPhrase(Number.singular),
+]);
 final _practiceObjects = _uniqueByText([
   ..._learnSubjects,
   ..._playActivities,
@@ -2136,9 +2153,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: play,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([..._playActivities, ..._musicObjects, ..._gameObjects]),
-      ),
+      PredicatePath.directObject(_playObjects),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
@@ -3184,8 +3199,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: play,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author activity, music, game, and companion tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded sport, music, game, companion, beneficiary, location, and manner tracks',
   ),
   _migration(
     verb: learn,

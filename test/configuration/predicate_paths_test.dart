@@ -1492,6 +1492,61 @@ void main() {
       expect(semanticDirectObjectFitsAction(fixed_object.money, read), isFalse);
 
       expect(
+        semanticDirectObjectFitsAction(fixed_object.football, play),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.music, play), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.guitar.toNounPhrase(Number.singular),
+          play,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.piano.toNounPhrase(Number.singular),
+          play,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.game.toNounPhrase(Number.singular),
+          play,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          play,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          play,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          play,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          play,
+        ),
+        isFalse,
+      );
+
+      expect(
         semanticDirectObjectFitsAction(
           object_data.story.toNounPhrase(Number.singular),
           write,
@@ -3907,6 +3962,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(play, _ReviewedRouteKind.place, text: 'school'),
   _ReviewedRoute(play, _ReviewedRouteKind.manner, text: 'well'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'music'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'guitar'),
+  _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'piano'),
   _ReviewedRoute(play, _ReviewedRouteKind.directObject, text: 'game'),
   _ReviewedRoute(play, _ReviewedRouteKind.place, text: 'outside'),
 

@@ -443,6 +443,8 @@ play - basketball
 play - volleyball
 play - tennis
 play - music
+play - guitar
+play - piano
 play - a game
 play - with someone
 play - at school
