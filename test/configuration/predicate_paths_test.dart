@@ -1615,6 +1615,58 @@ void main() {
         isFalse,
       );
       expect(semanticDirectObjectFitsAction(fixed_object.money, use), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, watch),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.movie.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.show, watch), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.game.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          people_data.john.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          animal_data.cat.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          watch,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, watch),
+        isFalse,
+      );
     });
 
     test(

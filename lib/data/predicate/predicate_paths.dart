@@ -596,6 +596,11 @@ final _mediaObjects = _uniqueByText([
   object_data.game.toNounPhrase(Number.singular),
   object_data.game.toNounPhrase(Number.plural),
 ]);
+final _watchObjects = _uniqueByText([
+  ..._genericObjects,
+  ..._mediaObjects,
+  ..._peopleAndAnimals,
+]);
 final _moneyObjects = _uniqueByText([
   fixed_object.money,
   ...object_categories.singularMoneyObjects,
@@ -1995,7 +2000,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     watch,
-    _mediaObjects,
+    _watchObjects,
     paths: [
       PredicatePath.withCompanion(_people),
       PredicatePath.toRightAction([
@@ -3136,8 +3141,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: watch,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author media object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded generic/media/person object, companion, right-action, manner, and location tracks',
   ),
   _migration(
     verb: lose,
