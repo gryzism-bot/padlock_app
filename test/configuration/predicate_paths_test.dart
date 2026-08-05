@@ -1707,6 +1707,66 @@ void main() {
         semanticDirectObjectFitsAction(fixed_object.waiting, see),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, findVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          findVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.plural),
+          findVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          findVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.plural),
+          findVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, findVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(people_data.someone, findVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          findVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.yes, findVerb),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.noise, findVerb),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.waiting, findVerb),
+        isFalse,
+      );
     });
 
     test(

@@ -669,10 +669,15 @@ final _breakableObjects = _uniqueByText([
 final _findableObjects = _uniqueByText([
   ..._genericObjects,
   ...object_categories.singularTextObjects,
+  ...object_categories.pluralTextObjects,
   ...object_categories.singularToolObjects,
+  ...object_categories.pluralToolObjects,
   ...object_categories.singularMoneyObjects,
+  ...object_categories.pluralMoneyObjects,
   ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
   ...object_categories.singularPlaceObjects,
+  ...object_categories.pluralPlaceObjects,
   fixed_object.money,
   ..._peopleAndAnimals,
 ]);
@@ -2997,8 +3002,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: findVerb,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author findable object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded findable objects, location, companion, manner, and particle tracks',
   ),
   _migration(
     verb: sing,
