@@ -15,38 +15,19 @@ Layer map:
 
 ## Current Best Next Moves
 
-1. Build the two sentence-header product modes together.
-   - Recognition Input:
-     - button near the sentence header
-     - opens an overlay with a text input
-     - marks known vocabulary green and missing vocabulary red
-     - parses app-canonical text into `SentenceState`
-     - updates the console and highlights/open rails used by the parsed state
-   - Guess The Sentence:
-     - button near the sentence header
-     - chooses a sensible target `SentenceState`
-     - user sees a state hint and types the target sentence
-     - correct answers can be set as the current sentence
-     - solved state can trigger a clear success moment
-   - These belong together because both start from the sentence itself:
-     - Recognition: text -> `SentenceState`
-     - Guess: target `SentenceState` -> typed answer -> matching recognized
-       state
-   - First scope:
-     - one predicate
-     - current `SentenceState` fields
-     - authored PredicatePaths on
-     - strict app-English, not general free-form parsing
+1. Add backend-owned semantic filtering.
+   - Use fast C-section logic to reduce expensive UI chip counts.
+   - PredicatePaths should return smaller shelves where meaning is obvious:
+     - `eat` -> food
+     - `drink` -> drinks
+     - `read` -> text/media
+     - `drive` -> vehicles
+     - `chop/cut/slice` -> cuttable objects
+     - `open/close` -> openables
+   - Keep Explorer Mode able to bypass these filters later.
+   - This should improve both product clarity and render time.
 
-2. Improve educational diagnostics.
-   - Keep developer precision: `Lock law alert`, `Compass path alert`,
-     `UI rail alert`.
-   - Add friendlier educational wording from the same source later.
-   - Do not lose the current testing value of exact law names.
-   - This supports both Recognition and Guess because failed input and wrong
-     guesses need useful explanations.
-
-3. Continue staged vocabulary saturation.
+2. Continue staged vocabulary saturation.
    - The cockpit is ready for careful growth:
      - large rails are virtualized
      - rail-local search can summon late vocabulary
@@ -57,7 +38,15 @@ Layer map:
      - run focused tests
      - sample 10-20 developer-console moves
      - record whether timing stays acceptable
-   - Prefer verb-owned shelves first, broad noun flooding second.
+   - Prefer semantic shelves over broad noun flooding.
+
+3. Improve educational diagnostics.
+   - Keep developer precision: `Lock law alert`, `Compass path alert`,
+     `UI rail alert`.
+   - Add friendlier educational wording from the same source later.
+   - Do not lose the current testing value of exact law names.
+   - This supports Recognition and Guess because failed input and wrong guesses
+     need useful explanations.
 
 4. Translate authored route ingredients.
    - UI toggles now exist for sentence, verbs, objects, companions, location,
@@ -81,6 +70,64 @@ Layer map:
    - hosted build check
    - dark/light visual QA
    - a short presentable seed deck for first users
+
+## UI Performance Work
+
+Recent completed performance passes:
+
+- ControlDeck suggestions are cached by state/slot/limit.
+- Compact SentenceState preview entries are cached by `SentenceState.summary`.
+- Preview cache is bounded or unbounded from the diagnostics dock.
+- Large rails use virtualized, natural chip sizing.
+- Verb rail rendering was narrowed without changing the current layout feel.
+
+Remaining candidates:
+
+1. Stop full-screen rebuilds on every move.
+   - Current state:
+     `_move()` still calls `setState()` on `HomeScreen`, so the whole cockpit
+     participates in every update.
+   - Better shape:
+     move `configuration` into a `ValueNotifier` or small controller, then let
+     header, control deck, core surface, verb rail, opened rails, and
+     diagnostics listen separately.
+   - Invasiveness:
+     medium-high. This touches the main screen architecture and many callback
+     boundaries, but it should not require Grammar/Recognition/Configuration
+     Engine changes.
+
+2. Cache rail translations.
+   - Current state:
+     translated rail labels can still ask translation repeatedly during builds.
+   - Better shape:
+     cache translation fragments by noun/verb/connector key.
+   - Invasiveness:
+     low-medium. Good after semantic filtering or a translation saturation
+     batch.
+
+3. Narrow rebuild scope for expanded rails.
+   - Current state:
+     changing one lower rail can still rebuild upper fixed machinery.
+   - Better shape:
+     make each expanded rail a listenable boundary with cached suggestion input.
+   - Invasiveness:
+     medium. Best done after the controller/listener split or alongside it.
+
+4. Defer non-visible diagnostics and overlays.
+   - Current state:
+     diagnostics are separated with notifiers, but idiom/guess/recognition
+     overlays can become lazier.
+   - Invasiveness:
+     low. Do only if profiling shows these surfaces matter.
+
+5. Add backend semantic filtering before broad vocabulary floods the UI.
+   - Current state:
+     backend logic is usually under 1-2 ms, while UI rebuild/render time is the
+     bottleneck.
+   - Better shape:
+     spend a few backend milliseconds to return fewer, better suggestions.
+   - Invasiveness:
+     medium. It belongs in PredicatePaths/Compass policy, not Flutter layout.
 
 ## Recently Completed Foundation
 

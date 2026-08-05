@@ -71,6 +71,7 @@ const _moveTraceLimit = 10;
 const _suggestionLimit = 96;
 const _actionSuggestionLimit = 192;
 const _nounRailSuggestionLimit = _suggestionLimit * 2;
+const _suggestionCacheEntryLimit = 192;
 const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
 const _mediumRailMaxHeight = 132.0;
@@ -670,11 +671,34 @@ class _HomeScreenState extends State<HomeScreen> {
     ConfigurationCompassSlot slot,
   ) {
     final limit = _suggestionLimitForSlot(slot);
+    return _cachedSuggestionsForSlot(
+      compass,
+      slot,
+      limit: limit,
+      nounNumber: _nounNumberForSlot(slot),
+      filterByNounNumber: _slotHasNounNumberSwitch(slot),
+    );
+  }
+
+  List<ConfigurationSuggestion> _controlSuggestionsForSlot(
+    ConfigurationCompassSlot slot, {
+    required int limit,
+  }) {
+    return _cachedSuggestionsForSlot(compass, slot, limit: limit);
+  }
+
+  List<ConfigurationSuggestion> _cachedSuggestionsForSlot(
+    ConfigurationCompass compass,
+    ConfigurationCompassSlot slot, {
+    required int limit,
+    Number? nounNumber,
+    bool filterByNounNumber = false,
+  }) {
     final cacheKey = _SuggestionCacheKey(
       stateSummary: configuration.sentenceState.summary,
       slot: slot,
       limit: limit,
-      nounNumber: _nounNumberForSlot(slot),
+      nounNumber: nounNumber,
     );
     final cached = suggestionCache[cacheKey.value];
     if (cached != null) {
@@ -687,12 +711,12 @@ class _HomeScreenState extends State<HomeScreen> {
       limit: limit,
     );
 
-    if (!_slotHasNounNumberSwitch(slot)) {
-      suggestionCache[cacheKey.value] = suggestions;
+    if (!filterByNounNumber) {
+      _cacheSuggestions(cacheKey, suggestions);
       return suggestions;
     }
 
-    final targetNumber = _nounNumberForSlot(slot);
+    final targetNumber = nounNumber ?? Number.singular;
 
     final filtered = suggestions
         .where((suggestion) {
@@ -706,8 +730,20 @@ class _HomeScreenState extends State<HomeScreen> {
         })
         .take(_suggestionLimit)
         .toList();
-    suggestionCache[cacheKey.value] = filtered;
+    _cacheSuggestions(cacheKey, filtered);
     return filtered;
+  }
+
+  void _cacheSuggestions(
+    _SuggestionCacheKey cacheKey,
+    List<ConfigurationSuggestion> suggestions,
+  ) {
+    if (!suggestionCache.containsKey(cacheKey.value) &&
+        suggestionCache.length >= _suggestionCacheEntryLimit) {
+      suggestionCache.remove(suggestionCache.keys.first);
+    }
+
+    suggestionCache[cacheKey.value] = suggestions;
   }
 
   int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
@@ -1054,22 +1090,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       _ControlDeck(
                                         currentSentence: sentenceText,
-                                        modalSuggestions: compass
-                                            .suggestionsFor(
-                                              configuration,
+                                        modalSuggestions:
+                                            _controlSuggestionsForSlot(
                                               ConfigurationCompassSlot.modal,
                                               limit: 9,
                                             ),
-                                        passiveFocusSuggestions: compass
-                                            .suggestionsFor(
-                                              configuration,
+                                        passiveFocusSuggestions:
+                                            _controlSuggestionsForSlot(
                                               ConfigurationCompassSlot
                                                   .passiveFocus,
                                               limit: 3,
                                             ),
-                                        passiveAgentSuggestions: compass
-                                            .suggestionsFor(
-                                              configuration,
+                                        passiveAgentSuggestions:
+                                            _controlSuggestionsForSlot(
                                               ConfigurationCompassSlot
                                                   .passiveAgent,
                                               limit: 2,

@@ -124,7 +124,7 @@ class _CompactSentenceStatePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final entries = _compactSentenceStatePreviewEntries(state);
+    final entries = _cachedCompactSentenceStatePreviewEntries(state);
     final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
       height: 1.05,
       fontSize: 10,
@@ -179,6 +179,31 @@ class _SentenceStatePreviewEntry {
     this.value, {
     required this.isActive,
   });
+}
+
+const _compactSentenceStatePreviewCacheLimit = 96;
+final _compactSentenceStatePreviewEntryCache =
+    <String, List<_SentenceStatePreviewEntry>>{};
+
+List<_SentenceStatePreviewEntry> _cachedCompactSentenceStatePreviewEntries(
+  SentenceState state,
+) {
+  final cacheKey = state.summary;
+  final cached = _compactSentenceStatePreviewEntryCache.remove(cacheKey);
+  if (cached != null) {
+    _compactSentenceStatePreviewEntryCache[cacheKey] = cached;
+    return cached;
+  }
+
+  final entries = _compactSentenceStatePreviewEntries(state);
+  if (_compactSentenceStatePreviewEntryCache.length >=
+      _compactSentenceStatePreviewCacheLimit) {
+    _compactSentenceStatePreviewEntryCache.remove(
+      _compactSentenceStatePreviewEntryCache.keys.first,
+    );
+  }
+  _compactSentenceStatePreviewEntryCache[cacheKey] = entries;
+  return entries;
 }
 
 List<_SentenceStatePreviewEntry> _compactSentenceStatePreviewEntries(
