@@ -2,6 +2,7 @@ import 'package:padlock_app/data/modals.dart' as modal_data;
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/predicate/semantic_object_filter.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/phrase_classification.dart';
@@ -222,7 +223,14 @@ class ConfigurationCompass {
     return switch (slot) {
       ConfigurationCompassSlot.action =>
         actions
-            .where((action) => _actionCanBeSuggested(sentence, action, lock))
+            .where(
+              (action) => _actionCanBeSuggested(
+                sentence,
+                action,
+                lock,
+                predicatePathMode,
+              ),
+            )
             .map(
               (action) => _CompassCandidate(
                 SetAction(action),
@@ -257,7 +265,11 @@ class ConfigurationCompass {
             .where(
               (object) =>
                   _sameNounChoice(object, sentence.object) ||
-                  _objectFitsAction(object, _boundTailOwner(sentence)),
+                  _objectFitsAction(
+                    object,
+                    _boundTailOwner(sentence),
+                    predicatePathMode,
+                  ),
             )
             .map((object) {
               final isSelected = _sameNounChoice(object, sentence.object);
@@ -1136,6 +1148,7 @@ bool _actionCanBeSuggested(
   SentenceState sentence,
   Verb action,
   ConfigurationEngine lock,
+  PredicatePathMode predicatePathMode,
 ) {
   if (action == sentence.action) {
     return true;
@@ -1148,7 +1161,7 @@ bool _actionCanBeSuggested(
     IncompatibleTailPolicy.blockWithExplanation =>
       sentence.rightAction != null
           ? rightActionFitsAction(sentence.rightAction!, action)
-          : _objectFitsAction(sentence.object, action) ||
+          : _objectFitsAction(sentence.object, action, predicatePathMode) ||
                 _canClearObjectIntoAction(sentence.object, action),
   };
 }
@@ -1367,9 +1380,17 @@ bool _sameNounChoice(NounPhrase candidate, NounPhrase? current) {
       candidate.number == current.number;
 }
 
-bool _objectFitsAction(NounPhrase? object, Verb action) {
+bool _objectFitsAction(
+  NounPhrase? object,
+  Verb action,
+  PredicatePathMode predicatePathMode,
+) {
   if (object == null) {
     return true;
+  }
+
+  if (predicatePathMode == PredicatePathMode.authoredTracks) {
+    return semanticDirectObjectFitsAction(object, action);
   }
 
   if (hasFixedObjectFrame(action)) {

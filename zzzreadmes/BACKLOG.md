@@ -17,6 +17,9 @@ Layer map:
 
 1. Add backend-owned semantic filtering.
    - Use fast C-section logic to reduce expensive UI chip counts.
+   - First pass is implemented for direct-object shelves:
+     PredicatePaths now feed a backend semantic object filter, and Compass uses
+     it in authored/Guided mode.
    - PredicatePaths should return smaller shelves where meaning is obvious:
      - `eat` -> food
      - `drink` -> drinks
@@ -26,6 +29,11 @@ Layer map:
      - `open/close` -> openables
    - Keep Explorer Mode able to bypass these filters later.
    - This should improve both product clarity and render time.
+   - Remaining work is shelf quality:
+     - split the wide `do/have/get/make/take/bring` shelves where useful
+     - add semantic tests when a shelf is narrowed
+     - add disabled/explained suggestions later if a mode wants to show what
+       Guided hid
 
 2. Continue staged vocabulary saturation.
    - The cockpit is ready for careful growth:

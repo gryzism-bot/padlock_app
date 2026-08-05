@@ -5,6 +5,7 @@ import 'package:padlock_app/data/predicate/particle_object_order.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/data/predicate/predicate_route_audit.dart';
 import 'package:padlock_app/data/predicate/right_action_frames.dart';
+import 'package:padlock_app/data/predicate/semantic_object_filter.dart';
 import 'package:padlock_app/data/predicate/verb_influence.dart';
 import 'package:padlock_app/data/phrases/manner_phrases.dart';
 import 'package:padlock_app/data/phrases/phrase_classification.dart';
@@ -1049,6 +1050,48 @@ void main() {
         expect(learnDirectObjects, isNot(contains('book')));
       },
     );
+
+    test('semantic object filter reads authored direct-object paths', () {
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.english, learn),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          learn,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.apple.toNounPhrase(Number.singular),
+          cooking_data.eat,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          cooking_data.eat,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.car.toNounPhrase(Number.singular),
+          drive,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          drive,
+        ),
+        isFalse,
+      );
+    });
 
     test(
       'authored word-opening queries stay separate from structural helpers',

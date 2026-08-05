@@ -29,6 +29,7 @@ import 'package:padlock_app/models/grammar/passive_focus.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
+import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/grammar/voice.dart';
 
 void main() {
@@ -238,6 +239,114 @@ void main() {
         );
       },
     );
+
+    test('guided semantic object rail is owned by predicate path shelves', () {
+      final guidedCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        objects: [
+          apple.toNounPhrase(Number.singular),
+          book.toNounPhrase(Number.singular),
+          bridge.toNounPhrase(Number.singular),
+          car.toNounPhrase(Number.singular),
+          door.toNounPhrase(Number.singular),
+        ],
+      );
+
+      Iterable<String> objectLabelsFor(Verb action) {
+        final state = lock.applyMove(
+          ConfigurationState.initial(),
+          SetAction(action),
+        );
+        return guidedCompass
+            .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+            .map((suggestion) => suggestion.label);
+      }
+
+      expect(objectLabelsFor(learn), contains('English'));
+      expect(objectLabelsFor(learn), isNot(contains('book')));
+
+      expect(objectLabelsFor(read), contains('book'));
+      expect(objectLabelsFor(read), isNot(contains('apple')));
+
+      expect(objectLabelsFor(cooking_data.eat), contains('apple'));
+      expect(objectLabelsFor(cooking_data.eat), isNot(contains('book')));
+
+      expect(objectLabelsFor(cooking_data.chop), contains('carrot'));
+      expect(objectLabelsFor(cooking_data.chop), isNot(contains('bridge')));
+
+      expect(objectLabelsFor(drive), contains('car'));
+      expect(objectLabelsFor(drive), isNot(contains('book')));
+
+      expect(objectLabelsFor(open), contains('door'));
+      expect(objectLabelsFor(open), isNot(contains('apple')));
+    });
+
+    test('legacy object fallback can stay broad for explorer-style mode', () {
+      final legacyCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.legacyCompassFallback,
+        objects: [
+          book.toNounPhrase(Number.singular),
+          bridge.toNounPhrase(Number.singular),
+        ],
+      );
+      final guidedCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        objects: [
+          book.toNounPhrase(Number.singular),
+          bridge.toNounPhrase(Number.singular),
+        ],
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(give),
+      );
+
+      expect(
+        legacyCompass
+            .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+            .map((suggestion) => suggestion.label),
+        containsAll(['book', 'bridge']),
+      );
+      expect(
+        guidedCompass
+            .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+            .map((suggestion) => suggestion.label),
+        allOf(contains('book'), isNot(contains('bridge'))),
+      );
+    });
+
+    test('guided verb switching shaves only across incompatible shelves', () {
+      final guidedCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+        actions: [read, cooking_data.eat, cooking_data.chop],
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(cooking_data.eat),
+      );
+      state = lock.applyMove(
+        state,
+        SetObject(apple.toNounPhrase(Number.singular)),
+      );
+
+      final suggestions = guidedCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.action,
+        limit: 0,
+      );
+      final readSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'read',
+      );
+      final chopSuggestion = suggestions.singleWhere(
+        (suggestion) => suggestion.label == 'chop',
+      );
+
+      expect(render(state), 'You eat apple.');
+      expect(readSuggestion.preview.sentenceState.object, isNull);
+      expect(render(readSuggestion.preview), 'You read.');
+      expect(chopSuggestion.preview.sentenceState.object?.text, 'apple');
+      expect(render(chopSuggestion.preview), 'You chop apple.');
+    });
 
     test('default vocabulary exposes broader third-person noun surface', () {
       final broadCompass = ConfigurationCompass();
