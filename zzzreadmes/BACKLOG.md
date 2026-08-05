@@ -49,8 +49,21 @@ Layer map:
          creative outputs
        - it no longer inherits raw food/portable leaks such as `apple`,
          `carrot`, `key`, or `phone`
-     - continue splitting wide `take/bring` and any newly noisy shelf where
-       useful
+     - `take` shelf-quality cut is done:
+       - `take` now reads from generic objects plus `money`, `book`, `phone`,
+         and `photo`
+       - it keeps movement-style gates such as source, destination,
+         beneficiary, purpose, companion, manner, time, and particles
+       - it no longer inherits portable/place leaks such as `charger`, `key`,
+         `road`, or `ticket`
+     - `bring` shelf-quality cut is done:
+       - `bring` now owns its shelf separately from `take`
+       - it keeps generic objects plus `money`, `book`, `phone`, and `photo`
+       - it keeps source, destination, companion, location, manner, time, and
+         particle routes as separate gates
+       - it no longer inherits broad food or portable leaks such as `apple`,
+         `charger`, `key`, or `ticket`
+     - continue splitting any newly noisy shelf where useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what
        Guided hid

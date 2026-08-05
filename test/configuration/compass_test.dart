@@ -315,6 +315,24 @@ void main() {
       expect(objectLabelsFor(make), isNot(contains('carrot')));
       expect(objectLabelsFor(make), isNot(contains('key')));
       expect(objectLabelsFor(make), isNot(contains('phone')));
+
+      expect(objectLabelsFor(take), contains('book'));
+      expect(objectLabelsFor(take), contains('phone'));
+      expect(objectLabelsFor(take), contains('photo'));
+      expect(objectLabelsFor(take), contains('money'));
+      expect(objectLabelsFor(take), isNot(contains('charger')));
+      expect(objectLabelsFor(take), isNot(contains('key')));
+      expect(objectLabelsFor(take), isNot(contains('road')));
+      expect(objectLabelsFor(take), isNot(contains('ticket')));
+
+      expect(objectLabelsFor(bring), contains('book'));
+      expect(objectLabelsFor(bring), contains('phone'));
+      expect(objectLabelsFor(bring), contains('photo'));
+      expect(objectLabelsFor(bring), contains('money'));
+      expect(objectLabelsFor(bring), isNot(contains('apple')));
+      expect(objectLabelsFor(bring), isNot(contains('charger')));
+      expect(objectLabelsFor(bring), isNot(contains('key')));
+      expect(objectLabelsFor(bring), isNot(contains('ticket')));
     });
 
     test('legacy object fallback can stay broad for explorer-style mode', () {

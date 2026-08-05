@@ -1250,6 +1250,108 @@ void main() {
         ),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          take,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          take,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.photo.toNounPhrase(Number.singular),
+          take,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, take), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.charger.toNounPhrase(Number.singular),
+          take,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          take,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.road.toNounPhrase(Number.singular),
+          take,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.ticket.toNounPhrase(Number.singular),
+          take,
+        ),
+        isFalse,
+      );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.photo.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, bring), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.apple.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.charger.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.ticket.toNounPhrase(Number.singular),
+          bring,
+        ),
+        isFalse,
+      );
     });
 
     test(
@@ -1842,7 +1944,7 @@ void main() {
           bring,
           PredicatePathKind.directObject,
         ).map((object) => object.text),
-        containsAll(['something', 'book', 'money', 'phone', 'photo', 'food']),
+        containsAll(['something', 'book', 'money', 'phone', 'photo']),
       );
       expect(
         predicatePlaceChoicesFor(

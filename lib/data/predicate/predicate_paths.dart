@@ -813,28 +813,12 @@ final _makeObjects = _uniqueByText([
 final _takeObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.money,
-  object_data.cable.toNounPhrase(Number.singular),
-  object_data.cable.toNounPhrase(Number.plural),
-  object_data.charger.toNounPhrase(Number.singular),
-  object_data.charger.toNounPhrase(Number.plural),
   object_data.book.toNounPhrase(Number.singular),
   object_data.book.toNounPhrase(Number.plural),
   object_data.phone.toNounPhrase(Number.singular),
   object_data.phone.toNounPhrase(Number.plural),
   object_data.photo.toNounPhrase(Number.singular),
   object_data.photo.toNounPhrase(Number.plural),
-  object_data.key.toNounPhrase(Number.singular),
-  object_data.key.toNounPhrase(Number.plural),
-  object_data.bag.toNounPhrase(Number.singular),
-  object_data.bag.toNounPhrase(Number.plural),
-  object_data.gift.toNounPhrase(Number.singular),
-  object_data.gift.toNounPhrase(Number.plural),
-  object_data.notebook.toNounPhrase(Number.singular),
-  object_data.notebook.toNounPhrase(Number.plural),
-  object_data.road.toNounPhrase(Number.singular),
-  object_data.road.toNounPhrase(Number.plural),
-  object_data.ticket.toNounPhrase(Number.singular),
-  object_data.ticket.toNounPhrase(Number.plural),
 ]);
 final _switchableObjects = _uniqueByText([
   object_data.lamp.toNounPhrase(Number.singular),
@@ -871,9 +855,14 @@ final _lookupObjects = _uniqueByText([
   object_data.answer.toNounPhrase(Number.plural),
 ]);
 final _bringObjects = _uniqueByText([
-  ..._takeObjects,
-  ...object_categories.singularFoodObjects,
-  ...object_categories.pluralFoodObjects,
+  ..._genericObjects,
+  fixed_object.money,
+  object_data.book.toNounPhrase(Number.singular),
+  object_data.book.toNounPhrase(Number.plural),
+  object_data.phone.toNounPhrase(Number.singular),
+  object_data.phone.toNounPhrase(Number.plural),
+  object_data.photo.toNounPhrase(Number.singular),
+  object_data.photo.toNounPhrase(Number.plural),
 ]);
 final _transferObjects = _uniqueByText([
   ..._genericObjects,
