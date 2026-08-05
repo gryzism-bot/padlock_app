@@ -304,6 +304,12 @@ void main() {
 
     await tapVisible(tester, find.text('Word'));
     await selectVerb(tester, 'give');
+    await expandRail(tester, 'Right particle');
+    await filterRailIfPresent(tester, 'Right particle', 'up');
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-rightParticle-up')),
+    );
     await expandRail(tester, 'Object');
     await filterRailIfPresent(tester, 'Object', 'smok');
 
@@ -311,15 +317,9 @@ void main() {
       tester,
       find.byKey(const Key('suggestion-label-object-smoking')),
     );
-    await expandRail(tester, 'Right particle');
-    await filterRailIfPresent(tester, 'Right particle', 'up');
-    await tapAfterScroll(
-      tester,
-      find.byKey(const Key('suggestion-label-rightParticle-up')),
-    );
 
     expect(renderedSentence(tester), 'You give up smoking.');
-    expect(find.text('1 / $idiomTargetCount idioms found'), findsOneWidget);
+    expect(find.text('2 / $idiomTargetCount idioms found'), findsOneWidget);
     expect(find.byKey(const Key('idiom-toast')), findsOneWidget);
     expect(find.text('Idiom found'), findsOneWidget);
     expect(find.text('give up: stop doing something'), findsOneWidget);

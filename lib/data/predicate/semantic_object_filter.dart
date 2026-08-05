@@ -1,12 +1,16 @@
 import 'package:padlock_app/data/predicate/fixed_object_frames.dart';
 import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/verb/right_particle.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
-List<NounPhrase> semanticDirectObjectChoicesFor(Verb action) {
-  final authoredChoices = predicateNounChoicesFor(
+List<NounPhrase> semanticDirectObjectChoicesFor(
+  Verb action, {
+  RightParticle? rightParticle,
+}) {
+  final authoredChoices = predicateObjectChoicesFor(
     action,
-    PredicatePathKind.directObject,
+    rightParticle: rightParticle,
   );
 
   if (authoredChoices.isNotEmpty) {
@@ -19,9 +23,13 @@ List<NounPhrase> semanticDirectObjectChoicesFor(Verb action) {
 bool semanticDirectObjectFitsAction(
   NounPhrase object,
   Verb action, {
+  RightParticle? rightParticle,
   bool allowUnowned = true,
 }) {
-  final choices = semanticDirectObjectChoicesFor(action);
+  final choices = semanticDirectObjectChoicesFor(
+    action,
+    rightParticle: rightParticle,
+  );
 
   if (choices.isEmpty) {
     return allowUnowned;

@@ -251,10 +251,10 @@ class ConfigurationCompass {
         if (sentence.object != null)
           const _CompassCandidate(SetObject(null), 'no object', 120),
         ...() {
-              final authoredObjects = _nounChoicesForPath(
+              final owner = _boundTailOwner(sentence);
+              final authoredObjects = _objectChoicesForPath(
                 sentence,
-                PredicatePathKind.directObject,
-                owner: _boundTailOwner(sentence),
+                owner: owner,
               );
               return _objectChoicesForState(
                 sentence,
@@ -269,6 +269,7 @@ class ConfigurationCompass {
                     object,
                     _boundTailOwner(sentence),
                     predicatePathMode,
+                    rightParticle: sentence.rightParticle,
                   ),
             )
             .map((object) {
@@ -872,6 +873,26 @@ class ConfigurationCompass {
     return choices;
   }
 
+  List<NounPhrase>? _objectChoicesForPath(
+    SentenceState sentence, {
+    required Verb owner,
+  }) {
+    if (predicatePathMode != PredicatePathMode.authoredTracks) {
+      return null;
+    }
+
+    final choices = predicateObjectChoicesFor(
+      owner,
+      rightParticle: sentence.rightParticle,
+    );
+
+    if (choices.isEmpty) {
+      return null;
+    }
+
+    return choices;
+  }
+
   List<Verb>? _verbChoicesForPath(
     SentenceState sentence,
     PredicatePathKind kind,
@@ -1383,14 +1404,19 @@ bool _sameNounChoice(NounPhrase candidate, NounPhrase? current) {
 bool _objectFitsAction(
   NounPhrase? object,
   Verb action,
-  PredicatePathMode predicatePathMode,
-) {
+  PredicatePathMode predicatePathMode, {
+  RightParticle? rightParticle,
+}) {
   if (object == null) {
     return true;
   }
 
   if (predicatePathMode == PredicatePathMode.authoredTracks) {
-    return semanticDirectObjectFitsAction(object, action);
+    return semanticDirectObjectFitsAction(
+      object,
+      action,
+      rightParticle: rightParticle,
+    );
   }
 
   if (hasFixedObjectFrame(action)) {

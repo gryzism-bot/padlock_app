@@ -333,7 +333,57 @@ void main() {
       expect(objectLabelsFor(bring), isNot(contains('charger')));
       expect(objectLabelsFor(bring), isNot(contains('key')));
       expect(objectLabelsFor(bring), isNot(contains('ticket')));
+
+      expect(objectLabelsFor(give), contains('book'));
+      expect(objectLabelsFor(give), contains('money'));
+      expect(objectLabelsFor(give), contains('food'));
+      expect(objectLabelsFor(give), contains('gift'));
+      expect(objectLabelsFor(give), isNot(contains('smoking')));
+      expect(objectLabelsFor(give), isNot(contains('letter')));
+      expect(objectLabelsFor(give), isNot(contains('key')));
+      expect(objectLabelsFor(give), isNot(contains('phone')));
     });
+
+    test(
+      'particle-owned object shelves wake only after particle selection',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(give),
+        );
+
+        var labels = authoredCompass
+            .suggestionsFor(state, ConfigurationCompassSlot.object, limit: 0)
+            .map((suggestion) => suggestion.label)
+            .toList();
+
+        expect(labels, isNot(contains('smoking')));
+        expect(labels, isNot(contains('gambling')));
+        expect(labels, contains('money'));
+
+        state = lock.applyMove(state, const SetRightParticle(upParticle));
+        final suggestions = authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.object,
+          limit: 0,
+        );
+        labels = suggestions.map((suggestion) => suggestion.label).toList();
+
+        expect(labels, containsAll(['smoking', 'gambling', 'drinking']));
+        expect(labels, contains('money'));
+        expect(
+          render(
+            suggestions
+                .singleWhere((suggestion) => suggestion.label == 'smoking')
+                .preview,
+          ),
+          'You give up smoking.',
+        );
+      },
+    );
 
     test('legacy object fallback can stay broad for explorer-style mode', () {
       final legacyCompass = ConfigurationCompass(

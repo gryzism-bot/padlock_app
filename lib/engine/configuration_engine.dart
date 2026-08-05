@@ -524,7 +524,15 @@ class ConfigurationEngine {
       recipient: state.recipient,
     );
     final tailOwner = rightAction ?? action;
-    final object = _objectAfterActionChange(state.object, tailOwner);
+    final rightParticle = _rightParticleAfterActionChange(
+      state.rightParticle,
+      tailOwner,
+    );
+    final object = _objectAfterActionChange(
+      state.object,
+      tailOwner,
+      rightParticle: rightParticle,
+    );
     final recipient =
         action.takesRecipient && (object != null || hasRightActionFrame(action))
         ? state.recipient
@@ -633,10 +641,6 @@ class ConfigurationEngine {
     );
     final mannerPhrase = _mannerPhraseAfterActionChange(
       state.mannerPhrase,
-      tailOwner,
-    );
-    final rightParticle = _rightParticleAfterActionChange(
-      state.rightParticle,
       tailOwner,
     );
     final canKeepPassive =
@@ -1074,7 +1078,11 @@ class ConfigurationEngine {
     return '${labels.take(labels.length - 1).join(', ')} and ${labels.last}';
   }
 
-  NounPhrase? _objectAfterActionChange(NounPhrase? object, Verb action) {
+  NounPhrase? _objectAfterActionChange(
+    NounPhrase? object,
+    Verb action, {
+    RightParticle? rightParticle,
+  }) {
     if (object == null) {
       return null;
     }
@@ -1083,10 +1091,10 @@ class ConfigurationEngine {
       return null;
     }
 
-    if (!_predicatePathAcceptsNoun(
+    if (!_predicatePathAcceptsObject(
       action,
-      PredicatePathKind.directObject,
       object,
+      rightParticle: rightParticle,
     )) {
       return null;
     }
@@ -1107,6 +1115,30 @@ class ConfigurationEngine {
     }
 
     return object;
+  }
+
+  bool _predicatePathAcceptsObject(
+    Verb action,
+    NounPhrase noun, {
+    RightParticle? rightParticle,
+  }) {
+    if (modePolicy.predicatePathMode != PredicatePathMode.authoredTracks) {
+      return true;
+    }
+
+    final choices = predicateObjectChoicesFor(
+      action,
+      rightParticle: rightParticle,
+    );
+    if (choices.isEmpty) {
+      return true;
+    }
+
+    return choices.any(
+      (choice) =>
+          choice.text.toLowerCase() == noun.text.toLowerCase() &&
+          choice.number == noun.number,
+    );
   }
 
   NounPhrase? _surfaceAfterActionChange(

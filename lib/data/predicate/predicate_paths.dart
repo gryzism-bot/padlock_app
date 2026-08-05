@@ -122,6 +122,7 @@ class PredicatePath {
   final List<FrequencyPhrase> frequencies;
   final List<MannerPhrase> manners;
   final List<RightParticle> particles;
+  final List<NounPhrase> particleObjectNouns;
 
   const PredicatePath._({
     required this.kind,
@@ -134,6 +135,7 @@ class PredicatePath {
     this.frequencies = const [],
     this.manners = const [],
     this.particles = const [],
+    this.particleObjectNouns = const [],
   });
 
   const PredicatePath.directObject(List<NounPhrase> nouns)
@@ -313,8 +315,14 @@ class PredicatePath {
   const PredicatePath.mannerPhrase(List<MannerPhrase> manners)
     : this._(kind: PredicatePathKind.mannerPhrase, manners: manners);
 
-  const PredicatePath.rightParticle(List<RightParticle> particles)
-    : this._(kind: PredicatePathKind.rightParticle, particles: particles);
+  const PredicatePath.rightParticle(
+    List<RightParticle> particles, {
+    List<NounPhrase> objectNouns = const [],
+  }) : this._(
+         kind: PredicatePathKind.rightParticle,
+         particles: particles,
+         particleObjectNouns: objectNouns,
+       );
 }
 
 class PredicateUnlocks {
@@ -864,12 +872,16 @@ final _bringObjects = _uniqueByText([
   object_data.photo.toNounPhrase(Number.singular),
   object_data.photo.toNounPhrase(Number.plural),
 ]);
-final _transferObjects = _uniqueByText([
+final _giveObjects = _uniqueByText([
   ..._genericObjects,
-  ..._textObjects,
   ..._moneyObjects,
-  ..._foodObjects,
-  ..._toolObjects,
+  ..._objectsWithText(_foodObjects, ['food', 'foods']),
+  object_data.book.toNounPhrase(Number.singular),
+  object_data.book.toNounPhrase(Number.plural),
+  object_data.gift.toNounPhrase(Number.singular),
+  object_data.gift.toNounPhrase(Number.plural),
+]);
+final _giveUpObjects = _uniqueByText([
   fixed_object.smoking,
   fixed_object.gambling,
   fixed_object.drinking,
@@ -1359,8 +1371,14 @@ PredicatePath _manners(List<MannerPhrase> manners) {
   return PredicatePath.mannerPhrase(_uniqueMannersByText(manners));
 }
 
-PredicatePath _particles(List<RightParticle> particles) {
-  return PredicatePath.rightParticle(_uniqueParticlesByText(particles));
+PredicatePath _particles(
+  List<RightParticle> particles, {
+  List<NounPhrase> objectNouns = const [],
+}) {
+  return PredicatePath.rightParticle(
+    _uniqueParticlesByText(particles),
+    objectNouns: _uniqueByText(objectNouns),
+  );
 }
 
 List<PredicatePath> _cookingContexts() {
@@ -1754,17 +1772,14 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: give,
     paths: [
-      PredicatePath.directObject(_transferObjects),
+      PredicatePath.directObject(_giveObjects),
       PredicatePath.toRecipient(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _times(_todayTimes),
       _manners([manner_data.carefullyMannerPhrase]),
-      _particles([
-        particle_words.upParticle,
-        particle_words.backParticle,
-        particle_words.awayParticle,
-      ]),
+      _particles([particle_words.upParticle], objectNouns: _giveUpObjects),
+      _particles([particle_words.backParticle, particle_words.awayParticle]),
     ],
   ),
   _directWithPaths(
@@ -3117,6 +3132,30 @@ List<NounPhrase> predicateNounChoicesFor(Verb verb, PredicatePathKind kind) {
       verb,
     ).where((path) => path.kind == kind))
       ...path.nouns,
+  ]);
+}
+
+List<NounPhrase> predicateObjectChoicesFor(
+  Verb verb, {
+  RightParticle? rightParticle,
+}) {
+  return _uniqueByText([
+    ...predicateNounChoicesFor(verb, PredicatePathKind.directObject),
+    if (rightParticle != null)
+      ...predicateParticleObjectChoicesFor(verb, rightParticle),
+  ]);
+}
+
+List<NounPhrase> predicateParticleObjectChoicesFor(
+  Verb verb,
+  RightParticle rightParticle,
+) {
+  return _uniqueByText([
+    for (final path in predicatePathsFor(
+      verb,
+    ).where((path) => path.kind == PredicatePathKind.rightParticle))
+      if (path.particles.any((particle) => particle.text == rightParticle.text))
+        ...path.particleObjectNouns,
   ]);
 }
 

@@ -84,13 +84,25 @@ void main() {
     );
   }
 
-  bool hasObjectChoice(PredicateUnlocks unlocks, String objectText) {
-    return unlocks.paths.any(
-      (path) =>
-          path.kind == PredicatePathKind.directObject &&
-          path.nouns.any(
-            (choice) => choice.text.toLowerCase() == objectText.toLowerCase(),
-          ),
+  bool hasObjectChoice(
+    PredicateUnlocks unlocks,
+    String objectText, {
+    String? rightParticle,
+  }) {
+    final nouns = [
+      ...predicateNounChoicesFor(unlocks.verb, PredicatePathKind.directObject),
+      if (rightParticle != null)
+        for (final path in unlocks.paths)
+          if (path.kind == PredicatePathKind.rightParticle &&
+              path.particles.any(
+                (choice) =>
+                    choice.text.toLowerCase() == rightParticle.toLowerCase(),
+              ))
+            ...path.particleObjectNouns,
+    ];
+
+    return nouns.any(
+      (choice) => choice.text.toLowerCase() == objectText.toLowerCase(),
     );
   }
 
@@ -152,7 +164,11 @@ void main() {
         }
 
         for (final objectText in pattern.objectTexts) {
-          if (!hasObjectChoice(unlocks, objectText)) {
+          if (!hasObjectChoice(
+            unlocks,
+            objectText,
+            rightParticle: pattern.rightParticle,
+          )) {
             failures.add(
               '${pattern.id}: missing object $objectText for ${pattern.verb}',
             );
@@ -389,9 +405,18 @@ void main() {
 
         for (final example in examples) {
           final unlocks = predicateUnlocksFor(example.action)!;
-          final path = unlocks.paths.singleWhere(
+          final paths = unlocks.paths.where(
             (path) => path.kind == example.kind,
           );
+          final path =
+              example.action == give &&
+                  example.kind == PredicatePathKind.rightParticle
+              ? paths.singleWhere(
+                  (path) => path.particles.any(
+                    (particle) => particle.text == upParticle.text,
+                  ),
+                )
+              : paths.single;
           final state = compileFirstPredicatePathChoice(
             unlocks,
             path,
@@ -1352,6 +1377,62 @@ void main() {
         ),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, give), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.food.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.gift.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.smoking, give),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.smoking,
+          give,
+          rightParticle: upParticle,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.letter.toNounPhrase(Number.singular),
+          give,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          give,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          give,
+        ),
+        isFalse,
+      );
     });
 
     test(
@@ -2307,8 +2388,8 @@ void main() {
               ),
               (
                 action: give,
-                preMoves: const [SetObject(fixed_object.smoking)],
-                move: const SetRightParticle(upParticle),
+                preMoves: const [SetRightParticle(upParticle)],
+                move: const SetObject(fixed_object.smoking),
                 text: 'You give up smoking.',
               ),
               (
@@ -2695,6 +2776,7 @@ enum _ReviewedRouteKind {
   time,
   manner,
   rightParticle,
+  particleObject,
   lexicalBeNounComplement,
   lexicalBeAdjectiveComplement,
   objectAdjectiveComplement,
@@ -2707,8 +2789,9 @@ class _ReviewedRoute {
   final Verb verb;
   final _ReviewedRouteKind kind;
   final String? text;
+  final String? rightParticle;
 
-  const _ReviewedRoute(this.verb, this.kind, {this.text});
+  const _ReviewedRoute(this.verb, this.kind, {this.text, this.rightParticle});
 
   String get description {
     final value = text == null ? '' : ' "$text"';
@@ -2973,8 +3056,18 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
-  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'smoking'),
-  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gambling'),
+  _ReviewedRoute(
+    give,
+    _ReviewedRouteKind.particleObject,
+    text: 'smoking',
+    rightParticle: 'up',
+  ),
+  _ReviewedRoute(
+    give,
+    _ReviewedRouteKind.particleObject,
+    text: 'gambling',
+    rightParticle: 'up',
+  ),
   _ReviewedRoute(give, _ReviewedRouteKind.recipient),
   _ReviewedRoute(give, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(give, _ReviewedRouteKind.beneficiary),
@@ -3759,6 +3852,9 @@ bool _reviewedRouteExists(_ReviewedRoute route) {
       return _mannerPathHas(route.verb, text);
     case _ReviewedRouteKind.rightParticle:
       return _rightParticlePathHas(route.verb, text);
+    case _ReviewedRouteKind.particleObject:
+      return route.rightParticle != null &&
+          _particleObjectPathHas(route.verb, route.rightParticle!, text);
     case _ReviewedRouteKind.lexicalBeNounComplement:
       return route.verb == be &&
           (text == null || _beNounComplements.contains(text));
@@ -3839,6 +3935,28 @@ bool _rightParticlePathHas(Verb verb, String? text) {
 
   return choices.any(
     (choice) => choice.text.toLowerCase() == text.toLowerCase(),
+  );
+}
+
+bool _particleObjectPathHas(
+  Verb verb,
+  String rightParticle,
+  String? objectText,
+) {
+  final particle = predicateParticleChoicesFor(
+    verb,
+  ).where((choice) => choice.text.toLowerCase() == rightParticle.toLowerCase());
+  if (particle.isEmpty) {
+    return false;
+  }
+
+  final choices = predicateParticleObjectChoicesFor(verb, particle.first);
+  if (objectText == null) {
+    return choices.isNotEmpty;
+  }
+
+  return choices.any(
+    (choice) => choice.text.toLowerCase() == objectText.toLowerCase(),
   );
 }
 

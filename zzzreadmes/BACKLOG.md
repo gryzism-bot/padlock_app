@@ -63,6 +63,13 @@ Layer map:
          particle routes as separate gates
        - it no longer inherits broad food or portable leaks such as `apple`,
          `charger`, `key`, or `ticket`
+     - `give` shelf-quality cut is done:
+       - `give` now reads from generic transfer objects plus `money`, `food`,
+         `book`, and `gift`
+       - temporary idiom bridge nouns `smoking`, `gambling`, and `drinking`
+         remain until particle-owned object shelves are split out
+       - it no longer inherits broad text/tool/device leaks such as `letter`,
+         `key`, or `phone`
      - continue splitting any newly noisy shelf where useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what
