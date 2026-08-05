@@ -507,6 +507,15 @@ Examples:
 - `look for`
 - `run into`
 - `give up`
+- `play on someone's nerves`
+- `play someone like a fiddle`
+
+Future `play` idiom work:
+
+- `play on someone's nerves` probably needs a fixed possessive/body-emotion
+  pattern rather than a generic `on topic` route.
+- `play someone like a fiddle` probably needs a comparison route such as
+  `like + noun`, plus an object person before it.
 
 Keep this as a detection layer over valid output, not as a replacement for
 grammar.
