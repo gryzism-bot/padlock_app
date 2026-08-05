@@ -218,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   late final ValueNotifier<List<_MoveTraceEntry>> moveTraceNotifier;
   late final ValueNotifier<int> previewCacheEntryCountNotifier;
+  final Map<String, List<ConfigurationSuggestion>> suggestionCache = {};
   Map<ConfigurationCompassSlot, Number> nounNumbers = const {};
   List<_MoveTraceEntry> moveTrace = const [];
   List<IdiomMatch> newlyFoundIdioms = const [];
@@ -268,9 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       hoveredConfiguration.value = null;
       _recordIdiomDiscovery(nextConfiguration.sentenceState);
-      final nextSentence = grammar
-          .generate(nextConfiguration.sentenceState)
-          .text;
+      suggestionCache.clear();
+      final nextSentence = previewCache.render(nextConfiguration.sentenceState);
       logicStopwatch.stop();
       _appendTraceEntry(
         _MoveTraceEntry.fromMove(
@@ -293,13 +293,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _cancelPendingRailOpening();
     final logicStopwatch = Stopwatch()..start();
     final uiStopwatch = Stopwatch()..start();
-    final sentence = grammar
-        .generate(ConfigurationState.initial().sentenceState)
-        .text;
+    final sentence = previewCache.render(
+      ConfigurationState.initial().sentenceState,
+    );
     logicStopwatch.stop();
 
     setState(() {
       configuration = ConfigurationState.initial();
+      suggestionCache.clear();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
       newlyFoundIdioms = const [];
@@ -323,6 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _clearPreviewCache() {
     setState(() {
       previewCache.clear();
+      suggestionCache.clear();
       _setPreviewCacheEntryCount(0);
     });
   }
@@ -335,10 +337,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       configuration = state;
+      suggestionCache.clear();
       nounNumbers = _syncNounNumbersWithState(nounNumbers, state.sentenceState);
       hoveredConfiguration.value = null;
       _recordIdiomDiscovery(state.sentenceState);
-      final sentence = grammar.generate(state.sentenceState).text;
+      final sentence = previewCache.render(state.sentenceState);
       logicStopwatch.stop();
       _setMoveTrace(const []);
       _appendTraceEntry(
@@ -370,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
       targetState = _randomConfigurationState();
     }
 
-    final targetSentence = grammar.generate(targetState.sentenceState).text;
+    final targetSentence = previewCache.render(targetState.sentenceState);
     final target = _SentenceTarget.fromGuess(
       state: targetState.sentenceState,
       sentence: targetSentence,
@@ -379,6 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       configuration = initial;
+      suggestionCache.clear();
       nounNumbers = const {};
       hoveredConfiguration.value = null;
       newlyFoundIdioms = const [];
@@ -437,7 +441,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _openRecognitionInput() async {
-    final currentSentence = grammar.generate(configuration.sentenceState).text;
+    final currentSentence = previewCache.render(configuration.sentenceState);
     final result = await showDialog<_RecognitionInputResult>(
       context: context,
       builder: (context) => _RecognitionInputDialog(
@@ -501,6 +505,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       );
       nounNumbers = _syncNounNumbersWithState(nounNumbers, target.state);
+      suggestionCache.clear();
       expandedRails = const {};
       hoveredConfiguration.value = null;
       _recordIdiomDiscovery(target.state);
@@ -664,19 +669,32 @@ class _HomeScreenState extends State<HomeScreen> {
     ConfigurationCompass compass,
     ConfigurationCompassSlot slot,
   ) {
+    final limit = _suggestionLimitForSlot(slot);
+    final cacheKey = _SuggestionCacheKey(
+      stateSummary: configuration.sentenceState.summary,
+      slot: slot,
+      limit: limit,
+      nounNumber: _nounNumberForSlot(slot),
+    );
+    final cached = suggestionCache[cacheKey.value];
+    if (cached != null) {
+      return cached;
+    }
+
     final suggestions = compass.suggestionsFor(
       configuration,
       slot,
-      limit: _suggestionLimitForSlot(slot),
+      limit: limit,
     );
 
     if (!_slotHasNounNumberSwitch(slot)) {
+      suggestionCache[cacheKey.value] = suggestions;
       return suggestions;
     }
 
     final targetNumber = _nounNumberForSlot(slot);
 
-    return suggestions
+    final filtered = suggestions
         .where((suggestion) {
           final nounPhrase = _nounPhraseForSlot(
             suggestion.preview.sentenceState,
@@ -688,6 +706,8 @@ class _HomeScreenState extends State<HomeScreen> {
         })
         .take(_suggestionLimit)
         .toList();
+    suggestionCache[cacheKey.value] = filtered;
+    return filtered;
   }
 
   int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
@@ -734,6 +754,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
       }
       nounNumbers = {...nounNumbers, slot: number};
+      suggestionCache.clear();
 
       hoveredConfiguration.value = null;
 
@@ -759,7 +780,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _carrySafeNounModifiers(nounPhrase, variant),
         ),
       );
-      final sentence = grammar.generate(configuration.sentenceState).text;
+      suggestionCache.clear();
+      final sentence = previewCache.render(configuration.sentenceState);
       logicStopwatch.stop();
       _appendTraceEntry(
         _MoveTraceEntry(
@@ -1175,6 +1197,24 @@ int? _cacheEntryLimitForMode(PreviewCacheMode mode) {
     PreviewCacheMode.unbounded => null,
     PreviewCacheMode.bounded => _SentencePreviewCache.defaultMaxEntries,
   };
+}
+
+class _SuggestionCacheKey {
+  final String stateSummary;
+  final ConfigurationCompassSlot slot;
+  final int limit;
+  final Number? nounNumber;
+
+  const _SuggestionCacheKey({
+    required this.stateSummary,
+    required this.slot,
+    required this.limit,
+    required this.nounNumber,
+  });
+
+  String get value {
+    return '$stateSummary|${slot.name}|$limit|${nounNumber?.name ?? '-'}';
+  }
 }
 
 Color _pinnedWorkbenchColor(ColorScheme colors) {

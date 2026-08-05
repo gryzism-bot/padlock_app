@@ -323,7 +323,7 @@ double _railTileMaxWidthFor({
   required SuggestionDisplayMode displayMode,
 }) {
   if (title == 'Verb') {
-    return displayMode == SuggestionDisplayMode.word ? 82 : 126;
+    return displayMode == SuggestionDisplayMode.word ? 112 : 140;
   }
 
   return displayMode == SuggestionDisplayMode.word ? 112 : 190;

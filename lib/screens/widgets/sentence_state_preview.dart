@@ -143,7 +143,7 @@ class _CompactSentenceStatePreview extends StatelessWidget {
       color: colors.onSurfaceVariant.withValues(alpha: 0.46),
     );
 
-    return SelectableText.rich(
+    return Text.rich(
       TextSpan(
         style: textStyle,
         children: [
@@ -163,6 +163,7 @@ class _CompactSentenceStatePreview extends StatelessWidget {
       ),
       key: const Key('sentence-state-compact-preview'),
       textAlign: TextAlign.center,
+      overflow: TextOverflow.fade,
       maxLines: 3,
     );
   }
