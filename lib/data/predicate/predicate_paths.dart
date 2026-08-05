@@ -710,6 +710,29 @@ final _everydayObjects = _uniqueByText([
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
 ]);
+final _visibleObjects = _uniqueByText([
+  ..._genericObjects,
+  ..._peopleAndAnimals,
+  ..._textObjects,
+  ..._toolObjects,
+  ..._deviceObjects,
+  ..._foodObjects,
+  ...object_categories.singularFurnitureObjects,
+  ...object_categories.pluralFurnitureObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  ..._moneyObjects,
+  ..._mediaObjects,
+  ..._gameObjects,
+  ..._clothingObjects,
+  ...object_categories.singularPlaceObjects,
+  ...object_categories.pluralPlaceObjects,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.answer,
+  fixed_object.plan,
+  fixed_object.mistake,
+]);
 final _portableGoodsObjects = _uniqueByText([
   ..._genericObjects,
   ..._textObjects,
@@ -1870,7 +1893,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     see,
-    _uniqueByText([..._peopleAndAnimals, ..._everydayObjects]),
+    _visibleObjects,
     paths: [
       PredicatePath.withCompanion(_people),
       _atLocations(_everydayPlaces),
@@ -3045,8 +3068,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: see,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author visible object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded generic/visible object, companion, manner, time, and location tracks',
   ),
   _migration(
     verb: want,

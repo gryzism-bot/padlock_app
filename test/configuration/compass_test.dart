@@ -384,6 +384,16 @@ void main() {
       expect(objectLabelsFor(watch), isNot(contains('key')));
       expect(objectLabelsFor(watch), isNot(contains('bread')));
       expect(objectLabelsFor(watch), isNot(contains('money')));
+
+      expect(objectLabelsFor(see), contains('something'));
+      expect(objectLabelsFor(see), contains('John'));
+      expect(objectLabelsFor(see), contains('cat'));
+      expect(objectLabelsFor(see), contains('problem'));
+      expect(objectLabelsFor(see), contains('apple'));
+      expect(objectLabelsFor(see), contains('key'));
+      expect(objectLabelsFor(see), isNot(contains('yes')));
+      expect(objectLabelsFor(see), isNot(contains('noise')));
+      expect(objectLabelsFor(see), isNot(contains('waiting')));
     });
 
     test(
