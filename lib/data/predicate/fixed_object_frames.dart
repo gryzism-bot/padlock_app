@@ -78,6 +78,13 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
   ],
   'write': [
     for (final noun in object_categories.textObjectNouns) ..._nounForms(noun),
+    something,
+    anything,
+    nothing,
+    everything,
+    itObject,
+    thisObject,
+    thatObject,
   ],
   'use': [
     for (final noun in object_categories.toolObjectNouns) ..._nounForms(noun),

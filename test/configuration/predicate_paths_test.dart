@@ -815,7 +815,14 @@ void main() {
           write,
           PredicatePathKind.directObject,
         ).map((object) => object.text),
-        containsAll(['recipe', 'bill', 'receipt', 'page', 'code']),
+        containsAll(['recipe', 'contract', 'file', 'page', 'code']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          write,
+          PredicatePathKind.directObject,
+        ).map((object) => object.text),
+        isNot(contains('receipt')),
       );
       expect(
         predicateNounChoicesFor(
@@ -1474,6 +1481,85 @@ void main() {
         isFalse,
       );
       expect(semanticDirectObjectFitsAction(fixed_object.money, read), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          write,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.letter.toNounPhrase(Number.singular),
+          write,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.report.toNounPhrase(Number.singular),
+          write,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.email.toNounPhrase(Number.singular),
+          write,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.code.toNounPhrase(Number.singular),
+          write,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, write),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.newspaper.toNounPhrase(Number.singular),
+          write,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.magazine.toNounPhrase(Number.singular),
+          write,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.website.toNounPhrase(Number.singular),
+          write,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          write,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          write,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, write),
+        isFalse,
+      );
     });
 
     test(
