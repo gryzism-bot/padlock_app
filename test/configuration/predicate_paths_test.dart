@@ -1193,6 +1193,63 @@ void main() {
         ),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.cake.toNounPhrase(Number.singular),
+          make,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.coffee.toNounPhrase(Number.singular),
+          make,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.gift.toNounPhrase(Number.singular),
+          make,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.document.toNounPhrase(Number.singular),
+          make,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.apple.toNounPhrase(Number.singular),
+          make,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.carrot.toNounPhrase(Number.singular),
+          make,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          make,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          make,
+        ),
+        isFalse,
+      );
     });
 
     test(

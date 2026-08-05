@@ -43,7 +43,13 @@ Layer map:
          `something`, `anything`, `nothing`, `everything`, `it`, `this`,
          `that`, `work`, `homework`, `job`, `exercise`, and `task/tasks`
        - it no longer inherits learnable subjects, text objects, or games
-     - continue splitting wide `make/take/bring` and any newly noisy shelf where
+     - `make` shelf-quality cut is done:
+       - `make` now reads from prepared-food and created-output objects
+       - it keeps `cake`, `coffee`, `gift`, `document`, `message`, `plan`, and
+         creative outputs
+       - it no longer inherits raw food/portable leaks such as `apple`,
+         `carrot`, `key`, or `phone`
+     - continue splitting wide `take/bring` and any newly noisy shelf where
        useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what
