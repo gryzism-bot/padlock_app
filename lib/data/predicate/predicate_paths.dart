@@ -592,16 +592,7 @@ final _travelObjects = _uniqueByText([
   object_data.apartment.toNounPhrase(Number.singular),
   object_data.apartment.toNounPhrase(Number.plural),
 ]);
-final _saleObjects = _uniqueByText([
-  ..._moneyObjects,
-  ..._everydayObjects,
-  ...object_categories.singularVehicleObjects,
-  ...object_categories.pluralVehicleObjects,
-  object_data.house.toNounPhrase(Number.singular),
-  object_data.house.toNounPhrase(Number.plural),
-  object_data.apartment.toNounPhrase(Number.singular),
-  object_data.apartment.toNounPhrase(Number.plural),
-]);
+final _saleObjects = _commercialObjects;
 final _throwCatchObjects = _uniqueByText([
   object_data.key.toNounPhrase(Number.singular),
   object_data.key.toNounPhrase(Number.plural),
@@ -661,6 +652,95 @@ final _everydayObjects = _uniqueByText([
   ...object_categories.pluralFurnitureObjects,
   ...object_categories.singularMoneyObjects,
   ...object_categories.pluralMoneyObjects,
+]);
+final _portableGoodsObjects = _uniqueByText([
+  ..._genericObjects,
+  ..._textObjects,
+  ..._toolObjects,
+  ..._deviceObjects,
+  ..._foodObjects,
+  ..._clothingObjects,
+  ..._moneyObjects,
+  ..._mediaObjects,
+  ..._gameObjects,
+]);
+final _possessionObjects = _uniqueByText([
+  ..._portableGoodsObjects,
+  ...object_categories.singularFurnitureObjects,
+  ...object_categories.pluralFurnitureObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
+  fixed_object.time,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.job,
+  fixed_object.plan,
+  fixed_object.mistake,
+]);
+final _obtainableObjects = _uniqueByText([
+  ..._portableGoodsObjects,
+  fixed_object.money,
+  fixed_object.time,
+  fixed_object.answer,
+  fixed_object.helpNoun,
+  fixed_object.job,
+]);
+final _commercialObjects = _uniqueByText([
+  ..._portableGoodsObjects,
+  ...object_categories.singularFurnitureObjects,
+  ...object_categories.pluralFurnitureObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
+]);
+final _wantedObjects = _uniqueByText([
+  ..._genericObjects,
+  ..._peopleAndAnimals,
+  ..._portableGoodsObjects,
+  ...object_categories.singularFurnitureObjects,
+  ...object_categories.pluralFurnitureObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
+  fixed_object.money,
+  fixed_object.time,
+  fixed_object.helpNoun,
+  fixed_object.job,
+  fixed_object.plan,
+]);
+final _neededObjects = _uniqueByText([
+  ..._genericObjects,
+  ..._peopleAndAnimals,
+  ..._portableGoodsObjects,
+  ...object_categories.singularFurnitureObjects,
+  ...object_categories.pluralFurnitureObjects,
+  ...object_categories.singularVehicleObjects,
+  ...object_categories.pluralVehicleObjects,
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.apartment.toNounPhrase(Number.singular),
+  object_data.apartment.toNounPhrase(Number.plural),
+  fixed_object.money,
+  fixed_object.time,
+  fixed_object.answer,
+  fixed_object.helpNoun,
+  fixed_object.workNoun,
+  fixed_object.homework,
+  fixed_object.job,
+  fixed_object.exerciseNoun,
+  fixed_object.schoolNoun,
+  fixed_object.healthNoun,
+  fixed_object.plan,
 ]);
 final _makeObjects = _uniqueByText([
   ..._genericObjects,
@@ -1347,7 +1427,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     have,
-    _everydayObjects,
+    _possessionObjects,
     paths: [
       PredicatePath.withCompanion(_people, requiresObject: true),
       PredicatePath.toRightAction(_rightActionHasTo),
@@ -1502,7 +1582,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     get,
-    _everydayObjects,
+    _obtainableObjects,
     paths: [
       _objectSources(),
       _objectBeneficiaries(),
@@ -1711,9 +1791,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: want,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([..._everydayObjects, ..._people]),
-      ),
+      PredicatePath.directObject(_wantedObjects),
       PredicatePath.toRightAction(_rightActionWants),
       PredicatePath.withCompanion(_people),
       _times([time_data.nowTimePhrase]),
@@ -1722,9 +1800,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: need,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([..._everydayObjects, ..._people]),
-      ),
+      PredicatePath.directObject(_neededObjects),
       PredicatePath.toRightAction(_rightActionNeeds),
       _objectSources(),
       _objectBeneficiaries(),
@@ -1800,9 +1876,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: buy,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([..._moneyObjects, ..._everydayObjects]),
-      ),
+      PredicatePath.directObject(_commercialObjects),
       PredicatePath.toRecipient(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),

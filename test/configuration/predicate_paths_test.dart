@@ -1093,6 +1093,74 @@ void main() {
       );
     });
 
+    test('wide essential verbs use narrowed semantic object shelves', () {
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          have,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.waiting, have),
+        isFalse,
+      );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.message.toNounPhrase(Number.singular),
+          get,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.noise, get), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.apple.toNounPhrase(Number.singular),
+          buy,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.waiting, buy),
+        isFalse,
+      );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.house.toNounPhrase(Number.singular),
+          sell,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.yes, sell), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          want,
+        ),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.noise, want), isFalse);
+      expect(semanticDirectObjectFitsAction(fixed_object.yes, want), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          need,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.helpNoun, need),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.noise, need), isFalse);
+      expect(semanticDirectObjectFitsAction(fixed_object.no, need), isFalse);
+    });
+
     test(
       'authored word-opening queries stay separate from structural helpers',
       () {

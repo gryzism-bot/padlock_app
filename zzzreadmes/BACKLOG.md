@@ -30,7 +30,16 @@ Layer map:
    - Keep Explorer Mode able to bypass these filters later.
    - This should improve both product clarity and render time.
    - Remaining work is shelf quality:
-     - split the wide `do/have/get/make/take/bring` shelves where useful
+     - first shelf-quality cut is done:
+       - `have` now reads from a possession shelf
+       - `get` now reads from an obtainable shelf
+       - `buy/sell` now read from commercial shelves
+     - second shelf-quality cut is done:
+       - `want` now reads from a wanted-object shelf
+       - `need` now reads from a needed-object shelf
+       - both avoid broad everyday leaks such as `yes`, `no`, and `noise`
+     - continue splitting wide `do/make/take/bring` and any newly noisy shelf
+       where useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what
        Guided hid
