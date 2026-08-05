@@ -300,6 +300,12 @@ void main() {
       expect(objectLabelsFor(need), contains('help'));
       expect(objectLabelsFor(need), isNot(contains('noise')));
       expect(objectLabelsFor(need), isNot(contains('no')));
+
+      expect(objectLabelsFor(doVerb), contains('homework'));
+      expect(objectLabelsFor(doVerb), contains('task'));
+      expect(objectLabelsFor(doVerb), isNot(contains('book')));
+      expect(objectLabelsFor(doVerb), isNot(contains('English')));
+      expect(objectLabelsFor(doVerb), isNot(contains('game')));
     });
 
     test('legacy object fallback can stay broad for explorer-style mode', () {

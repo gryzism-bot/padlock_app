@@ -1005,9 +1005,8 @@ final _doObjects = _uniqueByText([
   fixed_object.homework,
   fixed_object.job,
   fixed_object.exerciseNoun,
-  ..._learnSubjects,
-  ..._textObjects,
-  ..._gameObjects,
+  object_data.task.toNounPhrase(Number.singular),
+  object_data.task.toNounPhrase(Number.plural),
 ]);
 final _beginObjects = _uniqueByText([
   fixed_object.lesson,

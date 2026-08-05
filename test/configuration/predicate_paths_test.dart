@@ -1159,6 +1159,40 @@ void main() {
       );
       expect(semanticDirectObjectFitsAction(fixed_object.noise, need), isFalse);
       expect(semanticDirectObjectFitsAction(fixed_object.no, need), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, doVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.homework, doVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.task.toNounPhrase(Number.singular),
+          doVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          doVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.english, doVerb),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.game.toNounPhrase(Number.singular),
+          doVerb,
+        ),
+        isFalse,
+      );
     });
 
     test(

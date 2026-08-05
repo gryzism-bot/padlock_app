@@ -38,8 +38,13 @@ Layer map:
        - `want` now reads from a wanted-object shelf
        - `need` now reads from a needed-object shelf
        - both avoid broad everyday leaks such as `yes`, `no`, and `noise`
-     - continue splitting wide `do/make/take/bring` and any newly noisy shelf
-       where useful
+     - `do` shelf-quality cut is done:
+       - `do` now reads from task/action objects:
+         `something`, `anything`, `nothing`, `everything`, `it`, `this`,
+         `that`, `work`, `homework`, `job`, `exercise`, and `task/tasks`
+       - it no longer inherits learnable subjects, text objects, or games
+     - continue splitting wide `make/take/bring` and any newly noisy shelf where
+       useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what
        Guided hid
