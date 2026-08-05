@@ -268,6 +268,9 @@ class _VirtualizedSuggestionRailState
         );
         final showScrollbar =
             widget.railTitle == 'Verb' && naturalHeight > height;
+        final gridPadding = showScrollbar
+            ? const EdgeInsets.only(right: 14)
+            : EdgeInsets.zero;
 
         return SizedBox(
           height: height,
@@ -279,7 +282,7 @@ class _VirtualizedSuggestionRailState
               key: Key('rail-virtual-grid-${widget.railTitle}'),
               controller: _scrollController,
               primary: false,
-              padding: EdgeInsets.zero,
+              padding: gridPadding,
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: tileMaxWidth,
                 mainAxisExtent: tileHeight,
@@ -323,7 +326,7 @@ double _railTileMaxWidthFor({
   required SuggestionDisplayMode displayMode,
 }) {
   if (title == 'Verb') {
-    return displayMode == SuggestionDisplayMode.word ? 112 : 140;
+    return displayMode == SuggestionDisplayMode.word ? 124 : 152;
   }
 
   return displayMode == SuggestionDisplayMode.word ? 112 : 190;

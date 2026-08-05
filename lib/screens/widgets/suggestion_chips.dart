@@ -87,7 +87,7 @@ class _DenseSuggestionBody extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isVerbChip) {
       return SizedBox(
-        width: 100,
+        width: 112,
         height: hasTranslation ? 48 : 38,
         child: Center(child: child),
       );

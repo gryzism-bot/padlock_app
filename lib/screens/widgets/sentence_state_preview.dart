@@ -126,8 +126,8 @@ class _CompactSentenceStatePreview extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final entries = _compactSentenceStatePreviewEntries(state);
     final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      height: 1.18,
-      fontSize: 11,
+      height: 1.05,
+      fontSize: 10,
       letterSpacing: 0,
       color: colors.onSurfaceVariant,
     );
