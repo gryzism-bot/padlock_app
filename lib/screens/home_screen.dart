@@ -33,7 +33,9 @@ import 'package:padlock_app/models/grammar/sentence_form.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
+import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/grammar/verb/aspect.dart';
+import 'package:padlock_app/models/grammar/verb/modal.dart';
 import 'package:padlock_app/models/grammar/verb/polarity.dart';
 import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
@@ -46,6 +48,7 @@ part 'widgets/control_deck.dart';
 part 'widgets/core_participant_surface.dart';
 part 'widgets/diagnostics_dock.dart';
 part 'widgets/sentence_chrome.dart';
+part 'widgets/sentence_state_preview.dart';
 part 'widgets/sentence_target.dart';
 part 'widgets/subject_controls.dart';
 part 'widgets/compass_slot_section.dart';
@@ -1008,9 +1011,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         translation: showTranslation
                                             ? displayedHeaderSentence
                                             : null,
-                                        summary: headerConfiguration
-                                            .sentenceState
-                                            .summary,
+                                        state:
+                                            headerConfiguration.sentenceState,
                                         onRecognitionInput:
                                             _openRecognitionInput,
                                       ),

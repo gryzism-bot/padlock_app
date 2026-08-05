@@ -1673,8 +1673,8 @@ void main() {
     expect(find.byKey(const Key('guess-sentence-dialog')), findsOneWidget);
     expect(find.text('SentenceState hint'), findsOneWidget);
     expect(find.byKey(const Key('guess-target-state-hint')), findsOneWidget);
-    expect(find.textContaining('agent:'), findsWidgets);
-    expect(find.textContaining('action:'), findsWidgets);
+    expect(find.textContaining('subject:'), findsWidgets);
+    expect(find.textContaining('verb:'), findsWidgets);
     expect(find.byKey(const Key('guess-answer-field')), findsOneWidget);
     expect(find.textContaining('moves left'), findsNothing);
     expect(find.textContaining('guess sentence'), findsOneWidget);

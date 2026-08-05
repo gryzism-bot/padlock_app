@@ -415,14 +415,18 @@ class _GuessSentenceDialogState extends State<_GuessSentenceDialog> {
                     border: Border.all(color: colors.outlineVariant),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: SingleChildScrollView(
+                  child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                    child: SelectableText(
-                      _formattedGuessStateHint(widget.target.statePrompt),
+                    child: KeyedSubtree(
                       key: const Key('guess-target-state-hint'),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(height: 1.35),
+                      child: _SentenceStatePreview(
+                        state: widget.target.state,
+                        columns: 2,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          height: 1.24,
+                          letterSpacing: 0,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -712,21 +716,4 @@ class _RecognitionStatusBox extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formattedGuessStateHint(String prompt) {
-  return prompt
-      .split(', ')
-      .where((entry) => entry.isNotEmpty)
-      .map((entry) {
-        final separator = entry.indexOf('=');
-        if (separator == -1) {
-          return entry;
-        }
-
-        final label = entry.substring(0, separator);
-        final value = entry.substring(separator + 1);
-        return '$label: $value';
-      })
-      .join('\n');
 }

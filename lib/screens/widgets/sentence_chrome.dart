@@ -54,13 +54,13 @@ class _StickySentenceHeader extends StatelessWidget {
 class _SentencePanel extends StatelessWidget {
   final String sentence;
   final String? translation;
-  final String summary;
+  final SentenceState state;
   final VoidCallback onRecognitionInput;
 
   const _SentencePanel({
     required this.sentence,
     required this.translation,
-    required this.summary,
+    required this.state,
     required this.onRecognitionInput,
   });
 
@@ -101,14 +101,7 @@ class _SentencePanel extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 2),
-                SelectableText(
-                  summary,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(height: 1.15, fontSize: 11),
-                ),
+                _CompactSentenceStatePreview(state: state),
               ],
             ),
           ),
