@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:padlock_app/data/idioms/idiom_patterns.dart';
+import 'package:padlock_app/data/phrases/place_phrases.dart' as place_data;
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
+import 'package:padlock_app/data/subjects/object_pronouns.dart'
+    as object_pronouns;
 import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/verbs/communication.dart' as communication;
@@ -66,6 +69,56 @@ void main() {
     );
 
     expect(matches.map((match) => match.pattern.id), contains('close-on'));
+  });
+
+  test(
+    'lose yourself idiom is found with reflexive object and in-location',
+    () {
+      final matches = finder.find(
+        const SentenceState(
+          action: lose,
+          object: object_pronouns.yourself,
+          placePhrase: place_data.officePlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(
+        matches.map((match) => match.pattern.id),
+        contains('lose-yourself-in'),
+      );
+    },
+  );
+
+  test('lose yourself idiom requires an in-location', () {
+    final atHome = finder.find(
+      const SentenceState(
+        action: lose,
+        object: object_pronouns.yourself,
+        placePhrase: place_data.homePlacePhrase,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+      ),
+    );
+    final inOfficeWithoutReflexive = finder.find(
+      SentenceState(
+        action: lose,
+        object: object_data.key.toNounPhrase(Number.singular),
+        placePhrase: place_data.officePlacePhrase,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+      ),
+    );
+
+    expect(
+      atHome.map((match) => match.pattern.id),
+      isNot(contains('lose-yourself-in')),
+    );
+    expect(
+      inOfficeWithoutReflexive.map((match) => match.pattern.id),
+      isNot(contains('lose-yourself-in')),
+    );
   });
 
   test('plain verb with unrelated particle is not treated as an idiom', () {
@@ -218,6 +271,15 @@ void main() {
         state: const SentenceState(
           action: particle_data.turn,
           rightParticle: aroundParticle,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
+      (
+        id: 'break-up',
+        state: const SentenceState(
+          action: breakVerb,
+          rightParticle: upParticle,
           tense: Tense.present,
           aspect: Aspect.simple,
         ),

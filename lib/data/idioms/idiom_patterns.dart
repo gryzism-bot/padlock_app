@@ -1,8 +1,9 @@
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
+import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-const idiomTargetCount = 56;
+const idiomTargetCount = 57;
 
 const idiomPatterns = <IdiomPattern>[
   IdiomPattern(
@@ -90,6 +91,25 @@ const idiomPatterns = <IdiomPattern>[
     verb: 'close',
     topicPreposition: TopicPreposition.on,
     requiresTopic: true,
+  ),
+  IdiomPattern(
+    id: 'lose-yourself-in',
+    label: 'lose yourself',
+    pattern: 'lose + reflexive object + in + place',
+    meaning: 'become deeply absorbed in a place, activity, or situation',
+    example: 'You lose yourself in the office.',
+    verb: 'lose',
+    objectTexts: [
+      'myself',
+      'yourself',
+      'himself',
+      'herself',
+      'itself',
+      'ourselves',
+      'yourselves',
+      'themselves',
+    ],
+    requiresInLocation: true,
   ),
   IdiomPattern(
     id: 'break-up',
@@ -590,6 +610,7 @@ class IdiomPattern {
   final bool requiresTopic;
   final bool requiresSource;
   final bool requiresPurpose;
+  final bool requiresInLocation;
 
   const IdiomPattern({
     required this.id,
@@ -606,6 +627,7 @@ class IdiomPattern {
     this.requiresTopic = false,
     this.requiresSource = false,
     this.requiresPurpose = false,
+    this.requiresInLocation = false,
   });
 
   bool matches(SentenceState state) {
@@ -647,6 +669,10 @@ class IdiomPattern {
       return false;
     }
 
+    if (requiresInLocation && !_hasInLocation(state)) {
+      return false;
+    }
+
     return true;
   }
 }
@@ -670,4 +696,18 @@ bool _matchesAnyText(NounPhrase? phrase, List<String> candidates) {
   }
 
   return candidates.any((candidate) => candidate.toLowerCase() == text);
+}
+
+bool _hasInLocation(SentenceState state) {
+  final place = state.placePhrase;
+  if (place == null) {
+    return false;
+  }
+
+  final meaning = state.placeMeaning ?? PlaceMeaning.location;
+  if (meaning != PlaceMeaning.location) {
+    return false;
+  }
+
+  return place.render(PlaceMeaning.location).toLowerCase().startsWith('in ');
 }

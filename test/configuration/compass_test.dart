@@ -428,6 +428,35 @@ void main() {
       expect(objectLabelsFor(close), contains('office'));
       expect(objectLabelsFor(close), isNot(contains('bread')));
       expect(objectLabelsFor(close), isNot(contains('money')));
+
+      expect(objectLabelsFor(breakVerb), contains('something'));
+      expect(objectLabelsFor(breakVerb), contains('door'));
+      expect(objectLabelsFor(breakVerb), contains('doors'));
+      expect(objectLabelsFor(breakVerb), contains('window'));
+      expect(objectLabelsFor(breakVerb), contains('windows'));
+      expect(objectLabelsFor(breakVerb), contains('phone'));
+      expect(objectLabelsFor(breakVerb), contains('cup'));
+      expect(objectLabelsFor(breakVerb), contains('chair'));
+      expect(objectLabelsFor(breakVerb), isNot(contains('eye')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('eyes')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('store')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('office')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('book')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('bread')));
+      expect(objectLabelsFor(breakVerb), isNot(contains('money')));
+
+      expect(objectLabelsFor(lose), contains('something'));
+      expect(objectLabelsFor(lose), contains('yourself'));
+      expect(objectLabelsFor(lose), contains('money'));
+      expect(objectLabelsFor(lose), contains('key'));
+      expect(objectLabelsFor(lose), contains('keys'));
+      expect(objectLabelsFor(lose), contains('phone'));
+      expect(objectLabelsFor(lose), contains('game'));
+      expect(objectLabelsFor(lose), contains('cards'));
+      expect(objectLabelsFor(lose), isNot(contains('book')));
+      expect(objectLabelsFor(lose), isNot(contains('bread')));
+      expect(objectLabelsFor(lose), isNot(contains('yes')));
+      expect(objectLabelsFor(lose), isNot(contains('noise')));
     });
 
     test(

@@ -81,14 +81,24 @@ sing - well
 sing - badly
 
 break - something
+break - anything
 break - a cup
+break - cups
+break - a door
+break - doors
+break - glass
 break - a phone
 break - a window
+break - windows
 break - a chair
+break - chairs
 break - by accident
 break - with a tool
 break - quickly
 break - today
+break - up
+break - out
+break - down
 
 read - a book
 read - books
@@ -410,12 +420,21 @@ analyze - clearly
 analyze - today
 
 lose - something
+lose - yourself
 lose - money
 lose - a key
+lose - keys
 lose - a phone
 lose - a game
+lose - a card
+lose - cards
+lose - a ticket
+lose - a wallet
+lose - a bag
+lose - a document
 lose - at home
 lose - in the park
+lose - yourself in the office
 lose - today
 lose - by accident
 

@@ -20,6 +20,8 @@ import 'package:padlock_app/data/subjects/third_person/objects.dart'
     as object_data;
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as fixed_object;
+import 'package:padlock_app/data/subjects/object_pronouns.dart'
+    as object_pronouns;
 import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
     as people_categories;
 import 'package:padlock_app/data/subjects/third_person/people.dart'
@@ -200,6 +202,13 @@ void main() {
             !hasPathKind(unlocks, PredicatePathKind.forPurpose)) {
           failures.add(
             '${pattern.id}: missing purpose route for ${pattern.verb}',
+          );
+        }
+
+        if (pattern.requiresInLocation &&
+            !hasPathKind(unlocks, PredicatePathKind.inLocation)) {
+          failures.add(
+            '${pattern.id}: missing in-location route for ${pattern.verb}',
           );
         }
       }
@@ -1852,6 +1861,139 @@ void main() {
         semanticDirectObjectFitsAction(fixed_object.money, close),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, breakVerb),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.window.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.window.toNounPhrase(Number.plural),
+          breakVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.chair.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.cup.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.eye.toNounPhrase(Number.plural),
+          breakVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.store.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.office.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          breakVerb,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, breakVerb),
+        isFalse,
+      );
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, lose),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(object_pronouns.yourself, lose),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, lose), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          lose,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          lose,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.game.toNounPhrase(Number.singular),
+          lose,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.card.toNounPhrase(Number.plural),
+          lose,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          lose,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          lose,
+        ),
+        isFalse,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.yes, lose), isFalse);
+      expect(semanticDirectObjectFitsAction(fixed_object.noise, lose), isFalse);
     });
 
     test(

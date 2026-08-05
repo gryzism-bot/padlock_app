@@ -7,7 +7,7 @@ Use this as the hand-authored idiom audit sheet. These are not broad grammar
 rules; they are memorable predicate routes the product can recognize and
 celebrate when the user finds them.
 
-Current target: 56 idioms.
+Current target: 57 idioms.
 
 ## Right Particle Idioms
 
@@ -70,6 +70,7 @@ ask for - ask for + thing - request something - You ask for help.
 look for - look for + thing - search for something - You look for the key.
 go for - go for + activity - choose or leave to do something - You go for a walk.
 close on - close on + topic - come near to an agreement or capture - You close on a deal.
+lose yourself - lose + reflexive object + in + place - become deeply absorbed in a place, activity, or situation - You lose yourself in the office.
 
 ## Intentional Literal Particle Routes
 
