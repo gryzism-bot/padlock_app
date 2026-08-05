@@ -1867,7 +1867,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You gave up smoking.');
-    expect(find.text('1 / 55 idioms found'), findsOneWidget);
+    expect(find.text('1 / 56 idioms found'), findsOneWidget);
   });
 
   testWidgets('Recognition input opens filled participant rails in sequence', (

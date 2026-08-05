@@ -453,6 +453,7 @@ const close = Verb(
   takesObject: true,
   takesInstrument: true,
   takesBeneficiary: true,
+  takesTopic: true,
   translations: {Language.pl: 'zamykać'},
 );
 

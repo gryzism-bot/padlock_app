@@ -491,6 +491,10 @@ open - a door
 open - a window
 open - a book
 open - a box
+open - eyes
+open - a store
+open - a workshop
+open - an office
 open - with a key
 open - for someone
 open - quickly
@@ -501,6 +505,11 @@ close - a door
 close - a window
 close - a book
 close - a box
+close - eyes
+close - a store
+close - a workshop
+close - an office
+close - on a deal
 close - with a key
 close - for someone
 close - quickly

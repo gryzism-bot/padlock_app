@@ -586,6 +586,7 @@ final _deviceObjects = _uniqueByText([
   ...object_categories.pluralDeviceObjects,
 ]);
 final _openableObjects = _uniqueByText([
+  ..._genericObjects,
   ...object_categories.singularOpenableObjects,
   ...object_categories.pluralOpenableObjects,
 ]);
@@ -1015,6 +1016,19 @@ final _overTopics = _uniqueByText([
   ..._textObjects,
   ...object_categories.singularAbstractObjects,
   ...object_categories.pluralAbstractObjects,
+]);
+final _closeOnTopics = _uniqueByText([
+  fixed_object.something,
+  object_data.deal.toNounPhrase(Number.singular),
+  object_data.deal.toNounPhrase(Number.plural),
+  object_data.contract.toNounPhrase(Number.singular),
+  object_data.contract.toNounPhrase(Number.plural),
+  object_data.house.toNounPhrase(Number.singular),
+  object_data.house.toNounPhrase(Number.plural),
+  object_data.store.toNounPhrase(Number.singular),
+  object_data.store.toNounPhrase(Number.plural),
+  fixed_object.plan,
+  object_data.plan.toNounPhrase(Number.plural),
 ]);
 final _analysisObjects = _uniqueByText([
   ..._genericObjects,
@@ -2145,6 +2159,7 @@ final guidedPredicateUnlocks = [
     close,
     _openableObjects,
     paths: [
+      PredicatePath.onTopic(_closeOnTopics),
       PredicatePath.withInstrument(_openingInstruments),
       _beneficiaries(),
       _manners(_carefulManners),
@@ -3141,13 +3156,15 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: open,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author openable object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded openable object, instrument, beneficiary, manner, particle, and time tracks',
   ),
   _migration(
     verb: close,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author openable object tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'seeded openable object, on-topic, instrument, beneficiary, manner, particle, and time tracks',
   ),
   _migration(
     verb: help,

@@ -2,7 +2,7 @@ import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-const idiomTargetCount = 55;
+const idiomTargetCount = 56;
 
 const idiomPatterns = <IdiomPattern>[
   IdiomPattern(
@@ -80,6 +80,16 @@ const idiomPatterns = <IdiomPattern>[
     example: 'The shop closes down.',
     verb: 'close',
     rightParticle: 'down',
+  ),
+  IdiomPattern(
+    id: 'close-on',
+    label: 'close on',
+    pattern: 'close on + topic',
+    meaning: 'come near to an agreement or capture',
+    example: 'You close on a deal.',
+    verb: 'close',
+    topicPreposition: TopicPreposition.on,
+    requiresTopic: true,
   ),
   IdiomPattern(
     id: 'break-up',

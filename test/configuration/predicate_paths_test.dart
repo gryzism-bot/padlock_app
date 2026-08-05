@@ -1767,6 +1767,91 @@ void main() {
         semanticDirectObjectFitsAction(fixed_object.waiting, findVerb),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, open),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.eye.toNounPhrase(Number.plural),
+          open,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.store.toNounPhrase(Number.singular),
+          open,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.workshop.toNounPhrase(Number.singular),
+          open,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.office.toNounPhrase(Number.singular),
+          open,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          open,
+        ),
+        isFalse,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, open), isFalse);
+
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.something, close),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.eye.toNounPhrase(Number.plural),
+          close,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.store.toNounPhrase(Number.singular),
+          close,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.workshop.toNounPhrase(Number.singular),
+          close,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.office.toNounPhrase(Number.singular),
+          close,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          close,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, close),
+        isFalse,
+      );
     });
 
     test(
@@ -2263,6 +2348,14 @@ void main() {
         ).map((topic) => topic.text),
         containsAll(['homework', 'problem', 'question']),
       );
+      expect(
+        predicateNounChoicesFor(
+          close,
+          PredicatePathKind.onTopic,
+        ).map((topic) => topic.text),
+        containsAll(['something', 'deal', 'contract', 'house', 'store']),
+      );
+      expect(predicateTopicConnectorsFor(close), ['on']);
       expect(
         predicatePlaceChoicesFor(
           work,
@@ -3861,6 +3954,10 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'window'),
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'box'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'eyes'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'store'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'workshop'),
+  _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'office'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(open, _ReviewedRouteKind.instrument),
@@ -3871,6 +3968,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'window'),
   _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'box'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'eyes'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'store'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'workshop'),
+  _ReviewedRoute(close, _ReviewedRouteKind.directObject, text: 'office'),
+  _ReviewedRoute(close, _ReviewedRouteKind.onTopic, text: 'deal'),
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(close, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(close, _ReviewedRouteKind.instrument),

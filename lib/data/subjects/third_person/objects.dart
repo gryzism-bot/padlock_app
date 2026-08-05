@@ -206,6 +206,13 @@ const window = Noun(
   pluralTranslations: {Language.pl: 'okna'},
 );
 
+const eye = Noun(
+  singular: 'eye',
+  plural: 'eyes',
+  singularTranslations: {Language.pl: 'oko'},
+  pluralTranslations: {Language.pl: 'oczy'},
+);
+
 const key = Noun(
   singular: 'key',
   plural: 'keys',
@@ -885,6 +892,27 @@ const station = Noun(
   pluralTranslations: {Language.pl: 'stacje'},
 );
 
+const store = Noun(
+  singular: 'store',
+  plural: 'stores',
+  singularTranslations: {Language.pl: 'sklep'},
+  pluralTranslations: {Language.pl: 'sklepy'},
+);
+
+const workshop = Noun(
+  singular: 'workshop',
+  plural: 'workshops',
+  singularTranslations: {Language.pl: 'warsztat'},
+  pluralTranslations: {Language.pl: 'warsztaty'},
+);
+
+const office = Noun(
+  singular: 'office',
+  plural: 'offices',
+  singularTranslations: {Language.pl: 'biuro'},
+  pluralTranslations: {Language.pl: 'biura'},
+);
+
 const airport = Noun(
   singular: 'airport',
   plural: 'airports',
@@ -1312,6 +1340,13 @@ const decision = Noun(
   pluralTranslations: {Language.pl: 'decyzje'},
 );
 
+const deal = Noun(
+  singular: 'deal',
+  plural: 'deals',
+  singularTranslations: {Language.pl: 'umowa'},
+  pluralTranslations: {Language.pl: 'umowy'},
+);
+
 const objectNouns = [
   house,
   apartment,
@@ -1340,6 +1375,7 @@ const objectNouns = [
   bed,
   door,
   window,
+  eye,
   key,
   bottle,
   cup,
@@ -1436,6 +1472,9 @@ const objectNouns = [
   road,
   street,
   station,
+  store,
+  workshop,
+  office,
   airport,
   hotel,
   beach,
@@ -1497,6 +1536,7 @@ const objectNouns = [
   route,
   topicNoun,
   decision,
+  deal,
 ];
 
 const textObjectNouns = [

@@ -124,6 +124,7 @@ const openableObjectNouns = [
   objects.book,
   objects.door,
   objects.window,
+  objects.eye,
   objects.bottle,
   objects.box,
   objects.schoolbag,
@@ -139,6 +140,9 @@ const openableObjectNouns = [
   objects.laptop,
   objects.app,
   objects.fileObject,
+  objects.store,
+  objects.workshop,
+  objects.office,
 ];
 
 const vehicleObjectNouns = [
@@ -259,6 +263,7 @@ const abstractObjectNouns = [
   objects.route,
   objects.topicNoun,
   objects.decision,
+  objects.deal,
 ];
 
 List<NounPhrase> _singular(List<Noun> nouns) {

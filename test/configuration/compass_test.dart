@@ -406,6 +406,28 @@ void main() {
       expect(objectLabelsFor(findVerb), isNot(contains('yes')));
       expect(objectLabelsFor(findVerb), isNot(contains('noise')));
       expect(objectLabelsFor(findVerb), isNot(contains('waiting')));
+
+      expect(objectLabelsFor(open), contains('something'));
+      expect(objectLabelsFor(open), contains('door'));
+      expect(objectLabelsFor(open), contains('doors'));
+      expect(objectLabelsFor(open), contains('eye'));
+      expect(objectLabelsFor(open), contains('eyes'));
+      expect(objectLabelsFor(open), contains('store'));
+      expect(objectLabelsFor(open), contains('workshop'));
+      expect(objectLabelsFor(open), contains('office'));
+      expect(objectLabelsFor(open), isNot(contains('bread')));
+      expect(objectLabelsFor(open), isNot(contains('money')));
+
+      expect(objectLabelsFor(close), contains('something'));
+      expect(objectLabelsFor(close), contains('door'));
+      expect(objectLabelsFor(close), contains('doors'));
+      expect(objectLabelsFor(close), contains('eye'));
+      expect(objectLabelsFor(close), contains('eyes'));
+      expect(objectLabelsFor(close), contains('store'));
+      expect(objectLabelsFor(close), contains('workshop'));
+      expect(objectLabelsFor(close), contains('office'));
+      expect(objectLabelsFor(close), isNot(contains('bread')));
+      expect(objectLabelsFor(close), isNot(contains('money')));
     });
 
     test(
@@ -1904,6 +1926,26 @@ void main() {
               .preview,
         ),
         'You work on cars.',
+      );
+
+      state = lock.applyMove(state, const SetAction(close));
+      final closeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final closeLabels = closeSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(closeLabels, containsAll(['on deal', 'on contract', 'on house']));
+      expect(
+        render(
+          closeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'on deal')
+              .preview,
+        ),
+        'You close on deal.',
       );
     });
 

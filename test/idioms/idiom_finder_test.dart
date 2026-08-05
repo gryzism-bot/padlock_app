@@ -54,6 +54,20 @@ void main() {
     expect(matches.map((match) => match.pattern.id), contains('work-on'));
   });
 
+  test('close on idiom is found from on-topic sentence state', () {
+    final matches = finder.find(
+      SentenceState(
+        action: close,
+        topic: object_data.deal.toNounPhrase(Number.singular),
+        topicPreposition: TopicPreposition.on,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+      ),
+    );
+
+    expect(matches.map((match) => match.pattern.id), contains('close-on'));
+  });
+
   test('plain verb with unrelated particle is not treated as an idiom', () {
     final matches = finder.find(
       const SentenceState(

@@ -132,10 +132,24 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
       ..._nounForms(noun),
   ],
   'open': [
+    itObject,
+    thisObject,
+    thatObject,
+    something,
+    anything,
+    nothing,
+    everything,
     for (final noun in object_categories.openableObjectNouns)
       ..._nounForms(noun),
   ],
   'close': [
+    itObject,
+    thisObject,
+    thatObject,
+    something,
+    anything,
+    nothing,
+    everything,
     for (final noun in object_categories.openableObjectNouns)
       ..._nounForms(noun),
   ],

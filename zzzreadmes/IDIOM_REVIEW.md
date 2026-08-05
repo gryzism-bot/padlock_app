@@ -7,7 +7,7 @@ Use this as the hand-authored idiom audit sheet. These are not broad grammar
 rules; they are memorable predicate routes the product can recognize and
 celebrate when the user finds them.
 
-Current target: 55 idioms.
+Current target: 56 idioms.
 
 ## Right Particle Idioms
 
@@ -69,6 +69,7 @@ hear from - hear from + person - receive news from someone - You hear from Mary.
 ask for - ask for + thing - request something - You ask for help.
 look for - look for + thing - search for something - You look for the key.
 go for - go for + activity - choose or leave to do something - You go for a walk.
+close on - close on + topic - come near to an agreement or capture - You close on a deal.
 
 ## Intentional Literal Particle Routes
 
