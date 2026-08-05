@@ -1433,6 +1433,47 @@ void main() {
         ),
         isFalse,
       );
+
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.book.toNounPhrase(Number.singular),
+          read,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.newspaper.toNounPhrase(Number.singular),
+          read,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.english, read),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          read,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          read,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          read,
+        ),
+        isFalse,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, read), isFalse);
     });
 
     test(

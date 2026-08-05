@@ -424,6 +424,7 @@ final _textObjects = _uniqueByText([
   ...object_categories.singularTextObjects,
   ...object_categories.pluralTextObjects,
 ]);
+final _readObjects = _uniqueByText([..._textObjects, ..._spokenLanguages]);
 final _genericObjects = _uniqueByText([
   fixed_object.something,
   fixed_object.anything,
@@ -1552,7 +1553,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     read,
-    _uniqueByText([..._textObjects, ..._spokenLanguages]),
+    _readObjects,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.overTopic(_overTopics),

@@ -342,6 +342,16 @@ void main() {
       expect(objectLabelsFor(give), isNot(contains('letter')));
       expect(objectLabelsFor(give), isNot(contains('key')));
       expect(objectLabelsFor(give), isNot(contains('phone')));
+
+      expect(objectLabelsFor(read), contains('book'));
+      expect(objectLabelsFor(read), contains('newspaper'));
+      expect(objectLabelsFor(read), contains('story'));
+      expect(objectLabelsFor(read), contains('English'));
+      expect(objectLabelsFor(read), isNot(contains('phone')));
+      expect(objectLabelsFor(read), isNot(contains('key')));
+      expect(objectLabelsFor(read), isNot(contains('bread')));
+      expect(objectLabelsFor(read), isNot(contains('money')));
+      expect(objectLabelsFor(read), isNot(contains('game')));
     });
 
     test(
