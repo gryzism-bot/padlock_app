@@ -269,13 +269,28 @@ class _MoveButton extends StatelessWidget {
 ButtonStyle _compactOutlinedStyle({
   required bool selected,
   required ColorScheme colors,
+  bool isEscape = false,
 }) {
+  final foreground = isEscape
+      ? colors.onSurfaceVariant
+      : selected
+      ? colors.primary
+      : null;
+  final side = selected
+      ? BorderSide(
+          color: isEscape ? colors.outlineVariant : colors.primary,
+          width: isEscape ? 1 : 2,
+        )
+      : isEscape
+      ? BorderSide(color: colors.outlineVariant)
+      : null;
+
   return OutlinedButton.styleFrom(
     visualDensity: VisualDensity.compact,
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     minimumSize: const Size(0, 26),
     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    foregroundColor: selected ? colors.primary : null,
-    side: selected ? BorderSide(color: colors.primary, width: 2) : null,
+    foregroundColor: foreground,
+    side: side,
   );
 }

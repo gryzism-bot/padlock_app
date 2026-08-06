@@ -843,6 +843,7 @@ final Map<ConfigurationCompassSlot, _RailPolicy> _railPolicies = {
     slot: ConfigurationCompassSlot.timePhrase,
     title: (_) => 'Time phrase',
     unlockHint: (_) => 'No open move from here.',
+    surfaceMarker: (_) => 'when',
     isControlled: true,
     canRenderCollapsedWhen: (_) => true,
     canRenderWhenEmpty: (_) => true,

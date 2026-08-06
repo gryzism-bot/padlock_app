@@ -25,6 +25,7 @@ class _SuggestionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isVerbChip = suggestion.slot == ConfigurationCompassSlot.action;
+    final isEscapeChip = _isEscapeSuggestion(suggestion);
     final wakeSignal = _verbWakeSignal(suggestion, colors);
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -37,6 +38,7 @@ class _SuggestionButton extends StatelessWidget {
           suggestionTranslation: suggestionTranslation,
           preview: preview,
           wakeSignal: wakeSignal,
+          isEscape: isEscapeChip,
         ),
       ],
     );
@@ -47,6 +49,7 @@ class _SuggestionButton extends StatelessWidget {
         style: _compactOutlinedStyle(
           selected: suggestion.isSelected,
           colors: colors,
+          isEscape: isEscapeChip,
         ),
         onPressed: onPressed,
         child: dense
@@ -107,6 +110,7 @@ class _SuggestionLabel extends StatelessWidget {
   final String? suggestionTranslation;
   final String? preview;
   final _VerbWakeSignal? wakeSignal;
+  final bool isEscape;
 
   const _SuggestionLabel({
     required this.suggestion,
@@ -115,15 +119,23 @@ class _SuggestionLabel extends StatelessWidget {
     required this.suggestionTranslation,
     required this.preview,
     required this.wakeSignal,
+    required this.isEscape,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final foreground = isEscape
+        ? colors.onSurfaceVariant
+        : suggestion.isSelected
+        ? colors.primary
+        : colors.onSurface;
     final baseStyle = TextStyle(
-      color: suggestion.isSelected ? colors.primary : colors.onSurface,
+      color: foreground,
       fontSize: 12,
-      fontWeight: displayMode == SuggestionDisplayMode.word
+      fontWeight: isEscape
+          ? FontWeight.w400
+          : displayMode == SuggestionDisplayMode.word
           ? suggestion.isSelected
                 ? FontWeight.w700
                 : FontWeight.w500
@@ -533,6 +545,10 @@ String _suggestionLabelKey(ConfigurationSuggestion suggestion) {
 
 String _suggestionHoverKey(ConfigurationSuggestion suggestion) {
   return 'suggestion-hover-${suggestion.slot.name}-${_safeSuggestionKeyPart(suggestion.label)}';
+}
+
+bool _isEscapeSuggestion(ConfigurationSuggestion suggestion) {
+  return suggestion.label.toLowerCase().startsWith('no ');
 }
 
 String _safeSuggestionKeyPart(String label) {

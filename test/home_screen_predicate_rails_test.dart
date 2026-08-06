@@ -577,6 +577,7 @@ void main() {
     expectRailSurfaceMarker(tester, 'Subject', '-');
     expectRailSurfaceMarker(tester, 'Companion', 'with');
     expectRailSurfaceMarker(tester, 'Right action', 'to');
+    expectRailSurfaceMarker(tester, 'Time phrase', 'when');
 
     await selectVerb(tester, 'work');
     expectRailSurfaceMarker(tester, 'Beneficiary', 'for');
