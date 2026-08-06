@@ -1475,6 +1475,60 @@ void main() {
       );
 
       expect(
+        semanticDirectObjectFitsAction(fixed_object.something, know),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          people_data.mary.toNounPhrase(Number.singular),
+          know,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          animal_data.cat.toNounPhrase(Number.singular),
+          know,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.english, know),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.grammar, know),
+        isTrue,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.answer, know), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.question, know),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          know,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          know,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          know,
+        ),
+        isFalse,
+      );
+      expect(semanticDirectObjectFitsAction(fixed_object.money, know), isFalse);
+
+      expect(
         semanticDirectObjectFitsAction(
           object_data.book.toNounPhrase(Number.singular),
           read,

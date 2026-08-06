@@ -1008,6 +1008,17 @@ final _lookupObjects = _uniqueByText([
   object_data.answer.toNounPhrase(Number.singular),
   object_data.answer.toNounPhrase(Number.plural),
 ]);
+final _knowObjects = _uniqueByText([
+  ..._genericObjects,
+  fixed_object.answer,
+  fixed_object.question,
+  fixed_object.problem,
+  fixed_object.word,
+  ..._peopleAndAnimals,
+  ..._learnSubjects,
+  ...object_categories.singularAbstractObjects,
+  ...object_categories.pluralAbstractObjects,
+]);
 final _bringObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.money,
@@ -1961,11 +1972,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     know,
-    _uniqueByText([
-      fixed_object.answer,
-      ..._peopleAndAnimals,
-      ..._learnSubjects,
-    ]),
+    _knowObjects,
     paths: [
       PredicatePath.aboutTopic(_basicTopics),
       _manners([manner_data.wellMannerPhrase, manner_data.alreadyMannerPhrase]),
@@ -3166,7 +3173,7 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: know,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author knowable object/topic tracks',
+    note: 'authored knowledge object, about-topic, manner, and time tracks',
   ),
   _migration(
     verb: think,
