@@ -375,21 +375,13 @@ bool _surfaceCanWakeFromState(
 }
 
 Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
-  Set<ConfigurationCompassSlot> current,
   SentenceState state,
 ) {
   if (state.rightAction == null) {
-    return {...current}..remove(ConfigurationCompassSlot.rightAction);
+    return const {};
   }
 
-  final configuration = ConfigurationState(sentenceState: state);
-
-  return {
-    for (final slot in current)
-      if (slot == ConfigurationCompassSlot.rightAction ||
-          _railPolicy(slot).canRenderCollapsed(configuration))
-        slot,
-  };
+  return const {ConfigurationCompassSlot.rightAction};
 }
 
 final _prepositionalSurfaceRailPolicies = [

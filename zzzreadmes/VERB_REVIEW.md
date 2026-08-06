@@ -329,12 +329,47 @@ need - for someone
 need - for work
 need - for school
 need - to go
+need - to work
 need - to learn
+need - to do
+need - to get
+need - to make
+need - to take
+need - to give
+need - to see
+need - to find
+need - to know
+need - to remember
+need - to call
+need - to ask
+need - to answer
+need - to listen
+need - to talk
+need - to explain
+need - to describe
+need - to discuss
+need - to travel
+need - to visit
+need - to return
+need - to swim
+need - to exercise
+need - to train
+need - to meet
+need - to use
+need - to open
+need - to close
 need - to speak
+need - to watch
 need - to sleep
 need - to read
 need - to write
+need - to play
+need - to sing
 need - to help
+need - badly
+need - carefully
+need - quickly
+need - slowly
 need - now
 
 meet - someone

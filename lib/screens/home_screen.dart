@@ -257,7 +257,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       if (move is SetRightAction) {
         expandedRails = _expandedRailsAfterRightActionMove(
-          expandedRails,
           nextConfiguration.sentenceState,
         );
       }

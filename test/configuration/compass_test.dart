@@ -1916,6 +1916,62 @@ void main() {
       },
     );
 
+    test(
+      'need exposes true manner while object-gated rails stay conditional',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(need),
+        );
+
+        Iterable<ConfigurationSuggestion> suggestions(
+          ConfigurationCompassSlot slot,
+        ) {
+          return authoredCompass.suggestionsFor(state, slot, limit: 0);
+        }
+
+        expect(suggestions(ConfigurationCompassSlot.source), isEmpty);
+        expect(suggestions(ConfigurationCompassSlot.beneficiary), isEmpty);
+        expect(suggestions(ConfigurationCompassSlot.purpose), isEmpty);
+
+        final mannerSuggestions = suggestions(
+          ConfigurationCompassSlot.mannerPhrase,
+        );
+        expect(
+          mannerSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['badly', 'carefully', 'quickly', 'slowly']),
+        );
+        expect(
+          render(
+            mannerSuggestions
+                .firstWhere((suggestion) => suggestion.label == 'badly')
+                .preview,
+          ),
+          'You need badly.',
+        );
+
+        state = lock.applyMove(state, SetObject(fixed_object.butter));
+
+        expect(
+          render(
+            suggestions(
+              ConfigurationCompassSlot.mannerPhrase,
+            ).firstWhere((suggestion) => suggestion.label == 'badly').preview,
+          ),
+          'You need butter badly.',
+        );
+        expect(
+          suggestions(
+            ConfigurationCompassSlot.purpose,
+          ).map((suggestion) => suggestion.label),
+          containsAll(['work', 'school']),
+        );
+      },
+    );
+
     test('manner and right particle rails stay separate', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
@@ -3105,6 +3161,56 @@ void main() {
           'use',
           'open',
           'close',
+        ]),
+      );
+
+      final needState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(need),
+      );
+      final needLabels = compass
+          .suggestionsFor(
+            needState,
+            ConfigurationCompassSlot.rightAction,
+            limit: 0,
+          )
+          .map((suggestion) => suggestion.label);
+
+      expect(needLabels, containsAll(['go', 'work', 'learn', 'swim']));
+      expect(needLabels, containsAll(['speak', 'sleep', 'read', 'write']));
+      expect(
+        needLabels,
+        containsAll([
+          'do',
+          'get',
+          'make',
+          'take',
+          'give',
+          'see',
+          'find',
+          'know',
+          'remember',
+          'call',
+          'ask',
+          'answer',
+          'listen',
+          'talk',
+          'explain',
+          'describe',
+          'discuss',
+          'travel',
+          'visit',
+          'return',
+          'exercise',
+          'train',
+          'meet',
+          'use',
+          'open',
+          'close',
+          'watch',
+          'play',
+          'sing',
+          'help',
         ]),
       );
     });
