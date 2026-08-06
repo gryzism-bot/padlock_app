@@ -320,28 +320,35 @@ void main() {
       expect(objectLabelsFor(take), contains('phone'));
       expect(objectLabelsFor(take), contains('photo'));
       expect(objectLabelsFor(take), contains('money'));
-      expect(objectLabelsFor(take), isNot(contains('charger')));
-      expect(objectLabelsFor(take), isNot(contains('key')));
+      expect(objectLabelsFor(take), contains('charger'));
+      expect(objectLabelsFor(take), contains('key'));
+      expect(objectLabelsFor(take), contains('ticket'));
+      expect(objectLabelsFor(take), contains('bag'));
       expect(objectLabelsFor(take), isNot(contains('road')));
-      expect(objectLabelsFor(take), isNot(contains('ticket')));
 
       expect(objectLabelsFor(bring), contains('book'));
       expect(objectLabelsFor(bring), contains('phone'));
       expect(objectLabelsFor(bring), contains('photo'));
       expect(objectLabelsFor(bring), contains('money'));
+      expect(objectLabelsFor(bring), contains('letter'));
+      expect(objectLabelsFor(bring), contains('key'));
+      expect(objectLabelsFor(bring), contains('ticket'));
+      expect(objectLabelsFor(bring), contains('bag'));
+      expect(objectLabelsFor(bring), contains('coffee'));
       expect(objectLabelsFor(bring), isNot(contains('apple')));
-      expect(objectLabelsFor(bring), isNot(contains('charger')));
-      expect(objectLabelsFor(bring), isNot(contains('key')));
-      expect(objectLabelsFor(bring), isNot(contains('ticket')));
+      expect(objectLabelsFor(bring).length, greaterThanOrEqualTo(30));
 
       expect(objectLabelsFor(give), contains('book'));
       expect(objectLabelsFor(give), contains('money'));
       expect(objectLabelsFor(give), contains('food'));
       expect(objectLabelsFor(give), contains('gift'));
+      expect(objectLabelsFor(give), contains('letter'));
+      expect(objectLabelsFor(give), contains('key'));
+      expect(objectLabelsFor(give), contains('phone'));
+      expect(objectLabelsFor(give), contains('ticket'));
+      expect(objectLabelsFor(give), contains('coffee'));
       expect(objectLabelsFor(give), isNot(contains('smoking')));
-      expect(objectLabelsFor(give), isNot(contains('letter')));
-      expect(objectLabelsFor(give), isNot(contains('key')));
-      expect(objectLabelsFor(give), isNot(contains('phone')));
+      expect(objectLabelsFor(give).length, greaterThanOrEqualTo(30));
 
       expect(objectLabelsFor(know), contains('something'));
       expect(objectLabelsFor(know), contains('Mary'));

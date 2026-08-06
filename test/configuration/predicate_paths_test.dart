@@ -1319,14 +1319,14 @@ void main() {
           object_data.charger.toNounPhrase(Number.singular),
           take,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
         semanticDirectObjectFitsAction(
           object_data.key.toNounPhrase(Number.singular),
           take,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
         semanticDirectObjectFitsAction(
@@ -1340,7 +1340,7 @@ void main() {
           object_data.ticket.toNounPhrase(Number.singular),
           take,
         ),
-        isFalse,
+        isTrue,
       );
 
       expect(
@@ -1377,21 +1377,21 @@ void main() {
           object_data.charger.toNounPhrase(Number.singular),
           bring,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
         semanticDirectObjectFitsAction(
           object_data.key.toNounPhrase(Number.singular),
           bring,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
         semanticDirectObjectFitsAction(
           object_data.ticket.toNounPhrase(Number.singular),
           bring,
         ),
-        isFalse,
+        isTrue,
       );
 
       expect(
@@ -1402,6 +1402,27 @@ void main() {
         isTrue,
       );
       expect(semanticDirectObjectFitsAction(fixed_object.money, give), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.letter.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          give,
+        ),
+        isTrue,
+      );
       expect(
         semanticDirectObjectFitsAction(
           object_data.food.toNounPhrase(Number.singular),
@@ -1451,27 +1472,6 @@ void main() {
           rightParticle: upParticle,
         ),
         isTrue,
-      );
-      expect(
-        semanticDirectObjectFitsAction(
-          object_data.letter.toNounPhrase(Number.singular),
-          give,
-        ),
-        isFalse,
-      );
-      expect(
-        semanticDirectObjectFitsAction(
-          object_data.key.toNounPhrase(Number.singular),
-          give,
-        ),
-        isFalse,
-      );
-      expect(
-        semanticDirectObjectFitsAction(
-          object_data.phone.toNounPhrase(Number.singular),
-          give,
-        ),
-        isFalse,
       );
 
       expect(
@@ -3940,6 +3940,8 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(take, _ReviewedRouteKind.rightParticle, text: 'off'),
   _ReviewedRoute(take, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'ticket'),
   _ReviewedRoute(take, _ReviewedRouteKind.destination),
   _ReviewedRoute(take, _ReviewedRouteKind.place, text: 'school'),
 
@@ -3950,6 +3952,10 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'phone'),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'photo'),
   _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'money'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'letter'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'ticket'),
+  _ReviewedRoute(bring, _ReviewedRouteKind.directObject, text: 'coffee'),
   _ReviewedRoute(bring, _ReviewedRouteKind.destination),
   _ReviewedRoute(bring, _ReviewedRouteKind.source),
   _ReviewedRoute(bring, _ReviewedRouteKind.sourcePlace, text: 'school'),
@@ -3964,6 +3970,10 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'book'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'food'),
   _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'gift'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'letter'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'key'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'phone'),
+  _ReviewedRoute(give, _ReviewedRouteKind.directObject, text: 'ticket'),
   _ReviewedRoute(
     give,
     _ReviewedRouteKind.particleObject,

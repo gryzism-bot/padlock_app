@@ -964,16 +964,6 @@ final _makeObjects = _uniqueByText([
   fixed_object.plan,
   fixed_object.mistake,
 ]);
-final _takeObjects = _uniqueByText([
-  ..._genericObjects,
-  fixed_object.money,
-  object_data.book.toNounPhrase(Number.singular),
-  object_data.book.toNounPhrase(Number.plural),
-  object_data.phone.toNounPhrase(Number.singular),
-  object_data.phone.toNounPhrase(Number.plural),
-  object_data.photo.toNounPhrase(Number.singular),
-  object_data.photo.toNounPhrase(Number.plural),
-]);
 final _switchableObjects = _uniqueByText([
   object_data.lamp.toNounPhrase(Number.singular),
   object_data.lamp.toNounPhrase(Number.plural),
@@ -999,6 +989,80 @@ final _smallHeldObjects = _uniqueByText([
   object_data.coat.toNounPhrase(Number.plural),
   object_data.shoe.toNounPhrase(Number.singular),
   object_data.shoe.toNounPhrase(Number.plural),
+]);
+final _transferableObjects = _uniqueByText([
+  ..._genericObjects,
+  fixed_object.money,
+  ..._moneyObjects,
+  ..._objectsWithText(_textObjects, [
+    'book',
+    'books',
+    'letter',
+    'letters',
+    'document',
+    'documents',
+    'message',
+    'messages',
+    'note',
+    'notes',
+    'card',
+    'cards',
+    'list',
+    'lists',
+  ]),
+  ..._objectsWithText(_toolObjects, [
+    'phone',
+    'phones',
+    'key',
+    'keys',
+    'pen',
+    'pens',
+    'pencil',
+    'pencils',
+    'notebook',
+    'notebooks',
+    'map',
+    'maps',
+    'charger',
+    'chargers',
+    'cable',
+    'cables',
+  ]),
+  ..._objectsWithText(_foodObjects, [
+    'food',
+    'foods',
+    'bread',
+    'breads',
+    'sandwich',
+    'sandwiches',
+    'coffee',
+    'coffees',
+    'water',
+    'waters',
+    'pizza',
+    'pizzas',
+    'cake',
+    'cakes',
+  ]),
+  ..._objectsWithText(_clothingObjects, [
+    'coat',
+    'coats',
+    'shoe',
+    'shoes',
+    'hat',
+    'hats',
+  ]),
+  object_data.bag.toNounPhrase(Number.singular),
+  object_data.bag.toNounPhrase(Number.plural),
+  object_data.envelope.toNounPhrase(Number.singular),
+  object_data.envelope.toNounPhrase(Number.plural),
+  object_data.package.toNounPhrase(Number.singular),
+  object_data.package.toNounPhrase(Number.plural),
+]);
+final _takeObjects = _uniqueByText([
+  ..._transferableObjects,
+  object_data.photo.toNounPhrase(Number.singular),
+  object_data.photo.toNounPhrase(Number.plural),
 ]);
 final _lookupObjects = _uniqueByText([
   fixed_object.word,
@@ -1026,24 +1090,11 @@ final _rememberObjects = _uniqueByText([
 ]);
 final _forgetObjects = _rememberObjects;
 final _bringObjects = _uniqueByText([
-  ..._genericObjects,
-  fixed_object.money,
-  object_data.book.toNounPhrase(Number.singular),
-  object_data.book.toNounPhrase(Number.plural),
-  object_data.phone.toNounPhrase(Number.singular),
-  object_data.phone.toNounPhrase(Number.plural),
+  ..._transferableObjects,
   object_data.photo.toNounPhrase(Number.singular),
   object_data.photo.toNounPhrase(Number.plural),
 ]);
-final _giveObjects = _uniqueByText([
-  ..._genericObjects,
-  ..._moneyObjects,
-  ..._objectsWithText(_foodObjects, ['food', 'foods']),
-  object_data.book.toNounPhrase(Number.singular),
-  object_data.book.toNounPhrase(Number.plural),
-  object_data.gift.toNounPhrase(Number.singular),
-  object_data.gift.toNounPhrase(Number.plural),
-]);
+final _giveObjects = _uniqueByText([..._transferableObjects]);
 final _giveUpObjects = _uniqueByText([
   fixed_object.smoking,
   fixed_object.gambling,
