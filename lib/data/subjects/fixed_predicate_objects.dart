@@ -136,6 +136,27 @@ const time = NounPhrase(
   translations: {Language.pl: 'czas'},
 );
 
+const rain = NounPhrase(
+  text: 'rain',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'deszcz'},
+);
+
+const heat = NounPhrase(
+  text: 'heat',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'cieplo'},
+);
+
+const cold = NounPhrase(
+  text: 'cold',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'zimno'},
+);
+
 const problem = NounPhrase(
   text: 'problem',
   person: Person.third,

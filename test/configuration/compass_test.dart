@@ -1796,6 +1796,9 @@ void main() {
       }
 
       expect(suggestions(ConfigurationCompassSlot.companion), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.topic), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.source), isEmpty);
+      expect(suggestions(ConfigurationCompassSlot.sourcePlace), isEmpty);
       expect(suggestions(ConfigurationCompassSlot.beneficiary), isEmpty);
       expect(suggestions(ConfigurationCompassSlot.purpose), isEmpty);
       expect(suggestions(ConfigurationCompassSlot.placePhrase), isEmpty);
@@ -1821,6 +1824,11 @@ void main() {
         ConfigurationCompassSlot.beneficiary,
       );
       final purposeSuggestions = suggestions(ConfigurationCompassSlot.purpose);
+      final topicSuggestions = suggestions(ConfigurationCompassSlot.topic);
+      final sourceSuggestions = suggestions(ConfigurationCompassSlot.source);
+      final sourcePlaceSuggestions = suggestions(
+        ConfigurationCompassSlot.sourcePlace,
+      );
       final placeSuggestions = suggestions(
         ConfigurationCompassSlot.placePhrase,
       );
@@ -1844,6 +1852,41 @@ void main() {
       expect(
         purposeSuggestions.map((suggestion) => suggestion.label),
         contains('work'),
+      );
+      expect(
+        topicSuggestions.map((suggestion) => suggestion.label),
+        containsAll([
+          'about it',
+          'about this',
+          'about that',
+          'about rain',
+          'about heat',
+          'about cold',
+        ]),
+      );
+      expect(
+        sourceSuggestions.map((suggestion) => suggestion.label),
+        isNot(contains('Mary')),
+      );
+      expect(
+        sourcePlaceSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['from home', 'from work', 'from afar']),
+      );
+      expect(
+        render(
+          topicSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about it')
+              .preview,
+        ),
+        'You do something about it.',
+      );
+      expect(
+        render(
+          sourcePlaceSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'from afar')
+              .preview,
+        ),
+        'You do something from afar.',
       );
       expect(
         placeSuggestions.map((suggestion) => suggestion.label),

@@ -139,7 +139,14 @@ void main() {
 
   String? participantDoorKeyForTitle(String title) {
     return switch (title) {
-      'Object' || 'Subject' || 'Activity' || 'Text' || 'Openable' => 'object',
+      'Object' ||
+      'Subject' ||
+      'Activity' ||
+      'Text' ||
+      'Tool' ||
+      'Media' ||
+      'Vehicle' ||
+      'Openable' => 'object',
       'Object complement' => 'objectComplement',
       'Object adjective complement' => 'objectAdjectiveComplement',
       'Recipient' => 'recipient',
@@ -244,8 +251,17 @@ void main() {
     );
 
     await expandRail(tester, route.railTitle);
+    final choiceFinder = find.byKey(
+      Key('suggestion-label-object-${route.choiceKey}'),
+    );
+    if (choiceFinder.evaluate().isEmpty) {
+      final searchFinder = find.byKey(Key('rail-search-${route.railTitle}'));
+      if (searchFinder.evaluate().isNotEmpty) {
+        await filterRail(tester, route.railTitle, route.choiceKey);
+      }
+    }
     expect(
-      find.byKey(Key('suggestion-label-object-${route.choiceKey}')),
+      choiceFinder,
       findsOneWidget,
       reason: '${route.actionKey} should expose ${route.choiceKey}',
     );
@@ -814,6 +830,27 @@ void main() {
     );
 
     expect(renderedSentence(tester), 'You do something for fun.');
+  });
+
+  testWidgets('Large noun rails expose suggestions beyond the old rail cap', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await selectVerb(tester, 'do');
+    await tapAfterScroll(tester, find.text('object: none (awake)'));
+    await tapAfterScroll(
+      tester,
+      find.byKey(const Key('suggestion-label-object-nothing')),
+    );
+
+    await expandRail(tester, 'Topic');
+    await filterRail(tester, 'Topic', 'pilot');
+
+    expect(
+      find.byKey(const Key('suggestion-label-topic-about-pilot')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Guided UI names authored location rails explicitly', (

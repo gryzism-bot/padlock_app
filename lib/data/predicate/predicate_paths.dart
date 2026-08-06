@@ -1241,6 +1241,18 @@ final _doObjects = _uniqueByText([
   object_data.task.toNounPhrase(Number.singular),
   object_data.task.toNounPhrase(Number.plural),
 ]);
+final _doTopics = _uniqueByText([
+  fixed_object.itObject,
+  fixed_object.thisObject,
+  fixed_object.thatObject,
+  fixed_object.rain,
+  fixed_object.heat,
+  fixed_object.cold,
+  ..._peopleAndAnimals,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.plan,
+]);
 final _beginObjects = _uniqueByText([
   fixed_object.lesson,
   fixed_object.workNoun,
@@ -1751,6 +1763,7 @@ final guidedPredicateUnlocks = [
     _doObjects,
     paths: [
       PredicatePath.withCompanion(_people, requiresObject: true),
+      PredicatePath.aboutTopic(_doTopics, requiresObject: true),
       _objectBeneficiaries(),
       _objectPurposes([
         fixed_object.workNoun,
@@ -1762,6 +1775,11 @@ final guidedPredicateUnlocks = [
       ]),
       _atLocations(_homeSchoolWorkPlaces, requiresObject: true),
       _inLocations(_homeSchoolWorkPlaces, requiresObject: true),
+      _fromLocations([
+        place_data.homePlacePhrase,
+        place_data.workPlacePhrase,
+        place_data.afarPlacePhrase,
+      ], requiresObject: true),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.carefullyMannerPhrase,

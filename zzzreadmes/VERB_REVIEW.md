@@ -51,10 +51,19 @@ do - exercise
 do - it
 do - this
 do - that
+do - about it
+do - about this
+do - about that
+do - about rain
+do - about heat
+do - about cold
 do - with someone
 do - for someone
 do - for school
 do - at home
+do - from home
+do - from work
+do - from afar
 do - quickly
 do - carefully
 do - again

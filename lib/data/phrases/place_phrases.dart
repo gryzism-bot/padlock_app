@@ -525,6 +525,18 @@ const outsidePlacePhrase = PlacePhrase(
   translations: {Language.pl: 'na zewnatrz'},
 );
 
+const afarPlacePhrase = PlacePhrase(
+  noun: 'afar',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: null,
+    PlaceMeaning.destination: null,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'daleka'},
+);
+
 List<PlacePhrase> placePhrases = [
   homePlacePhrase,
   workPlacePhrase,
@@ -570,4 +582,5 @@ List<PlacePhrase> placePhrases = [
   herePlacePhrase,
   therePlacePhrase,
   outsidePlacePhrase,
+  afarPlacePhrase,
 ];

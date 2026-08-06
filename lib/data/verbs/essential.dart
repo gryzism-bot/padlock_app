@@ -41,6 +41,7 @@ const doVerb = Verb(
   ingForm: 'doing',
   takesObject: true,
   takesCompanion: true,
+  takesTopic: true,
   takesBeneficiary: true,
   takesPurpose: true,
   translations: {Language.pl: 'robić'},

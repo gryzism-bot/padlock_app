@@ -68,9 +68,6 @@ const _stickyFooterHeight = 28.0;
 const _diagnosticsDockReserveHeight = 224.0;
 const _diagnosticsDockCollapsedHeight = 52.0;
 const _moveTraceLimit = 10;
-const _suggestionLimit = 96;
-const _actionSuggestionLimit = 192;
-const _nounRailSuggestionLimit = _suggestionLimit * 2;
 const _suggestionCacheEntryLimit = 192;
 const _railSearchThreshold = 20;
 const _smallRailMaxHeight = 92.0;
@@ -669,11 +666,10 @@ class _HomeScreenState extends State<HomeScreen> {
     ConfigurationCompass compass,
     ConfigurationCompassSlot slot,
   ) {
-    final limit = _suggestionLimitForSlot(slot);
     return _cachedSuggestionsForSlot(
       compass,
       slot,
-      limit: limit,
+      limit: 0,
       nounNumber: _nounNumberForSlot(slot),
       filterByNounNumber: _slotHasNounNumberSwitch(slot),
     );
@@ -717,18 +713,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final targetNumber = nounNumber ?? Number.singular;
 
-    final filtered = suggestions
-        .where((suggestion) {
-          final nounPhrase = _nounPhraseForSlot(
-            suggestion.preview.sentenceState,
-            slot,
-          );
-          return nounPhrase == null ||
-              nounPhrase.number == targetNumber ||
-              suggestion.isSelected;
-        })
-        .take(_suggestionLimit)
-        .toList();
+    final filtered = suggestions.where((suggestion) {
+      final nounPhrase = _nounPhraseForSlot(
+        suggestion.preview.sentenceState,
+        slot,
+      );
+      return nounPhrase == null ||
+          nounPhrase.number == targetNumber ||
+          suggestion.isSelected;
+    }).toList();
     _cacheSuggestions(cacheKey, filtered);
     return filtered;
   }
@@ -743,14 +736,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     suggestionCache[cacheKey.value] = suggestions;
-  }
-
-  int _suggestionLimitForSlot(ConfigurationCompassSlot slot) {
-    return switch (slot) {
-      ConfigurationCompassSlot.action => _actionSuggestionLimit,
-      _ when _slotHasNounNumberSwitch(slot) => _nounRailSuggestionLimit,
-      _ => _suggestionLimit,
-    };
   }
 
   Number? _nounNumberForSlot(ConfigurationCompassSlot slot) {
