@@ -1,4 +1,5 @@
 import 'package:padlock_app/data/predicate/particle_object_order.dart';
+import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/engine/logger/engine_logger.dart';
 import 'package:padlock_app/engine/logger/grammar_diagnostics.dart';
 import 'package:padlock_app/models/grammar/passive_focus.dart';
@@ -616,6 +617,14 @@ class GrammarEngine {
           verb: builder.state.action,
           particle: builder.state.rightParticle!,
         );
+    final objectControlledRightAction =
+        builder.state.voice == Voice.active &&
+        builder.displayObject != null &&
+        builder.state.rightAction != null &&
+        predicateRightActionRequiresObject(
+          builder.state.action,
+          builder.state.rightAction!,
+        );
 
     // ---------- RIGHT ACTION ----------
 
@@ -623,7 +632,7 @@ class GrammarEngine {
       parts.add(_renderObjectCase(builder.displayRecipient!));
     }
 
-    if (builder.state.rightAction != null) {
+    if (builder.state.rightAction != null && !objectControlledRightAction) {
       parts.add('to ${builder.state.rightAction!.infinitive}');
     }
 
@@ -657,6 +666,10 @@ class GrammarEngine {
 
     if (builder.displayObjectAdjectiveComplement != null) {
       parts.add(builder.displayObjectAdjectiveComplement!.text);
+    }
+
+    if (objectControlledRightAction) {
+      parts.add('to ${builder.state.rightAction!.infinitive}');
     }
 
     if (!particleBeforeObject) {

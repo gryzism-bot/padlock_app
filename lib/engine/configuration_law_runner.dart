@@ -157,10 +157,25 @@ void _validateRightActionLaw(_ValidationContext context) {
     return;
   }
 
-  if (predicatePathRequiresRecipient(
-        state.action,
-        PredicatePathKind.toRightAction,
-      ) &&
+  if (predicateRightActionRequiresPastSimple(state.action, rightAction) &&
+      (state.tense != Tense.past ||
+          state.aspect != Aspect.simple ||
+          !state.modal.isNone)) {
+    context.block(
+      '${state.action.infinitive} needs past simple before "${rightAction.infinitive}" can be a right action.',
+      ConfigurationLawCategory.predicateFrameType,
+    );
+  }
+
+  if (predicateRightActionRequiresObject(state.action, rightAction) &&
+      state.object == null) {
+    context.block(
+      '${state.action.infinitive} needs an object before "${rightAction.infinitive}" can be a right action.',
+      ConfigurationLawCategory.predicateFrameType,
+    );
+  }
+
+  if (predicateRightActionRequiresRecipient(state.action, rightAction) &&
       state.recipient == null) {
     context.block(
       '${state.action.infinitive} needs a recipient before a right action complement.',

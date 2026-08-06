@@ -43,6 +43,7 @@ import 'package:padlock_app/engine/predicate_path_compiler.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
@@ -2746,6 +2747,47 @@ void main() {
       },
     );
 
+    test('object-dependent right actions document their prerequisite', () {
+      final unlocks = predicateUnlocksFor(use)!;
+      final toolActionPath = unlocks.paths.singleWhere(
+        (path) =>
+            path.kind == PredicatePathKind.toRightAction &&
+            path.verbs.contains(cooking_data.cut),
+      );
+      final habitPath = unlocks.paths.singleWhere(
+        (path) =>
+            path.kind == PredicatePathKind.toRightAction &&
+            path.verbs.contains(swim),
+      );
+
+      expect(toolActionPath.requiresObject, isTrue);
+      expect(habitPath.requiresObject, isFalse);
+      expect(habitPath.requiresPastSimple, isTrue);
+      expect(predicateRightActionRequiresObject(use, cooking_data.cut), isTrue);
+      expect(predicateRightActionRequiresObject(use, swim), isFalse);
+      expect(predicateRightActionRequiresPastSimple(use, swim), isTrue);
+
+      final state = stateAfterPath(unlocks, toolActionPath);
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object, isNotNull);
+      expect(state.sentenceState.rightAction, cooking_data.cut);
+      expect(
+        grammar.generate(state.sentenceState).text,
+        'You use something to cut.',
+      );
+
+      final habitState = stateAfterPath(unlocks, habitPath);
+
+      expect(wasBlocked(habitState), isFalse);
+      expect(habitState.sentenceState.rightAction, swim);
+      expect(habitState.sentenceState.tense, Tense.past);
+      expect(
+        grammar.generate(habitState.sentenceState).text,
+        'You used to swim.',
+      );
+    });
+
     test('seed paths document the intended first product tracks', () {
       final examples = <Verb, List<String>>{
         learn: [
@@ -4283,7 +4325,11 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'phone'),
   _ReviewedRoute(use, _ReviewedRouteKind.directObject, text: 'computer'),
+  _ReviewedRoute(use, _ReviewedRouteKind.rightAction, text: 'cut'),
+  _ReviewedRoute(use, _ReviewedRouteKind.rightAction, text: 'swim'),
   _ReviewedRoute(use, _ReviewedRouteKind.companion),
+  _ReviewedRoute(use, _ReviewedRouteKind.place, text: 'home'),
+  _ReviewedRoute(use, _ReviewedRouteKind.place, text: 'office'),
   _ReviewedRoute(use, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(use, _ReviewedRouteKind.time, text: 'today'),
   _ReviewedRoute(use, _ReviewedRouteKind.purpose),

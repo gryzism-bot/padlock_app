@@ -901,11 +901,25 @@ class ConfigurationCompass {
       return null;
     }
 
-    final choices = predicateVerbChoicesFor(sentence.action, kind);
-
-    if (choices.isEmpty) {
+    final paths = predicatePathsFor(
+      sentence.action,
+    ).where((path) => path.kind == kind);
+    if (paths.isEmpty) {
       return null;
     }
+
+    final seen = <String>{};
+    final choices = [
+      for (final path in paths)
+        if ((!path.requiresObject || sentence.object != null) &&
+            (!path.requiresRecipient || sentence.recipient != null) &&
+            (!path.requiresPastSimple ||
+                (sentence.tense == Tense.past &&
+                    sentence.aspect == Aspect.simple &&
+                    sentence.modal.isNone)))
+          for (final choice in path.verbs)
+            if (seen.add(choice.infinitive)) choice,
+    ];
 
     return choices;
   }

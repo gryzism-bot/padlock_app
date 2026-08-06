@@ -115,6 +115,7 @@ class PredicatePath {
   final PredicatePathKind kind;
   final bool requiresObject;
   final bool requiresRecipient;
+  final bool requiresPastSimple;
   final List<NounPhrase> nouns;
   final List<Verb> verbs;
   final List<PlacePhrase> places;
@@ -128,6 +129,7 @@ class PredicatePath {
     required this.kind,
     this.requiresObject = false,
     this.requiresRecipient = false,
+    this.requiresPastSimple = false,
     this.nouns = const [],
     this.verbs = const [],
     this.places = const [],
@@ -143,11 +145,15 @@ class PredicatePath {
 
   const PredicatePath.toRightAction(
     List<Verb> verbs, {
+    bool requiresObject = false,
     bool requiresRecipient = false,
+    bool requiresPastSimple = false,
   }) : this._(
          kind: PredicatePathKind.toRightAction,
          verbs: verbs,
+         requiresObject: requiresObject,
          requiresRecipient: requiresRecipient,
+         requiresPastSimple: requiresPastSimple,
        );
 
   const PredicatePath.toRecipient(List<NounPhrase> nouns)
@@ -1448,6 +1454,8 @@ final _rightActionHates = [
 ];
 final _rightActionHelps = [work, learn, speak, read, write];
 final _rightActionTeaches = [speak, swim, read, write, work, learn];
+final _rightActionUsesTools = [cooking_data.cut];
+final _rightActionUsedTo = [swim];
 final _rightActionMovementPurposes = [
   sport_data.exercise,
   sport_data.train,
@@ -2279,8 +2287,12 @@ final guidedPredicateUnlocks = [
     use,
     _usableObjects,
     paths: [
+      PredicatePath.toRightAction(_rightActionUsesTools, requiresObject: true),
+      PredicatePath.toRightAction(_rightActionUsedTo, requiresPastSimple: true),
       PredicatePath.withCompanion(_people),
       _purposes(_basicPurposes),
+      _atLocations(_homeSchoolWorkPlaces),
+      _inLocations(_homeSchoolWorkPlaces),
       _manners(_carefulManners),
       _times(_todayTimes),
     ],
@@ -3403,7 +3415,7 @@ final essentialPredicatePathMigration = [
     verb: use,
     readiness: PredicatePathReadiness.seeded,
     note:
-        'seeded generic/tool object, companion, purpose, manner, and time tracks',
+        'seeded generic/tool object, companion, purpose, location, right-action, manner, and time tracks',
   ),
   _migration(
     verb: open,
@@ -3476,6 +3488,33 @@ bool predicatePathRequiresRecipient(Verb verb, PredicatePathKind kind) {
   return predicatePathsFor(
     verb,
   ).any((path) => path.kind == kind && path.requiresRecipient);
+}
+
+bool predicateRightActionRequiresObject(Verb verb, Verb rightAction) {
+  return predicatePathsFor(verb).any(
+    (path) =>
+        path.kind == PredicatePathKind.toRightAction &&
+        path.requiresObject &&
+        path.verbs.contains(rightAction),
+  );
+}
+
+bool predicateRightActionRequiresRecipient(Verb verb, Verb rightAction) {
+  return predicatePathsFor(verb).any(
+    (path) =>
+        path.kind == PredicatePathKind.toRightAction &&
+        path.requiresRecipient &&
+        path.verbs.contains(rightAction),
+  );
+}
+
+bool predicateRightActionRequiresPastSimple(Verb verb, Verb rightAction) {
+  return predicatePathsFor(verb).any(
+    (path) =>
+        path.kind == PredicatePathKind.toRightAction &&
+        path.requiresPastSimple &&
+        path.verbs.contains(rightAction),
+  );
 }
 
 List<NounPhrase> predicateNounChoicesFor(Verb verb, PredicatePathKind kind) {

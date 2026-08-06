@@ -866,6 +866,50 @@ void main() {
       expect(sentence, 'A key was used for exercise by John.');
     });
 
+    test('use can render an object and location surface', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: use,
+          object: camera.toNounPhrase(Number.singular, determiner: aDeterminer),
+          placePhrase: homePlacePhrase,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You use a camera at home.');
+    });
+
+    test('object-gated right action renders after use object', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: use,
+          object: scissors.toNounPhrase(Number.plural),
+          rightAction: cooking_data.cut,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You use scissors to cut.');
+    });
+
+    test('used to renders as past use plus an inferior action', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: use,
+          rightAction: swim,
+          tense: Tense.past,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You used to swim.');
+    });
+
     test('purpose surface works for learning movement and cooking verbs', () {
       final cases = [
         (

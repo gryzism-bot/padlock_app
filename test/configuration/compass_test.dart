@@ -3381,6 +3381,100 @@ void main() {
       }
     });
 
+    test('use right action suggestions separate habit from object tools', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(use),
+      );
+
+      var labels = authoredCompass
+          .suggestionsFor(state, ConfigurationCompassSlot.rightAction, limit: 0)
+          .map((suggestion) => suggestion.label);
+
+      expect(labels, isEmpty);
+
+      final pastUseState = lock.applyMove(state, const SetTense(Tense.past));
+      final pastUseSuggestions = authoredCompass.suggestionsFor(
+        pastUseState,
+        ConfigurationCompassSlot.rightAction,
+        limit: 0,
+      );
+      labels = pastUseSuggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, contains('swim'));
+      expect(labels, isNot(contains('cut')));
+      expect(
+        render(
+          pastUseSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'swim')
+              .preview,
+        ),
+        'You used to swim.',
+      );
+
+      state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(use),
+      );
+      state = lock.applyMove(
+        state,
+        SetObject(scissors.toNounPhrase(Number.plural)),
+      );
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.rightAction,
+        limit: 0,
+      );
+      labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, contains('cut'));
+      expect(labels, isNot(contains('swim')));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'cut')
+              .preview,
+        ),
+        'You use scissors to cut.',
+      );
+    });
+
+    test('use can wake authored location routes', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(use),
+      );
+      state = lock.applyMove(
+        state,
+        SetObject(
+          camera.toNounPhrase(Number.singular, determiner: aDeterminer),
+        ),
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(labels, contains('at home'));
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'at home')
+              .preview,
+        ),
+        'You use a camera at home.',
+      );
+    });
+
     test('right action suggestions include clear and selected states', () {
       var state = ConfigurationState.initial();
 

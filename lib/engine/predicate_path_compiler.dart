@@ -2,6 +2,7 @@ import 'package:padlock_app/data/predicate/predicate_paths.dart';
 import 'package:padlock_app/engine/configuration_engine.dart';
 import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
+import 'package:padlock_app/models/grammar/verb/tense.dart';
 import 'package:padlock_app/models/grammar/verb/verb.dart';
 
 ConfigurationMove firstMoveForPredicatePath(PredicatePath path, {Verb? owner}) {
@@ -106,6 +107,10 @@ ConfigurationState compileFirstPredicatePathChoice(
         firstMoveForPredicatePath(recipientPath, owner: unlocks.verb),
       );
     }
+  }
+
+  if (path.requiresPastSimple) {
+    state = lock.applyMove(state, const SetTense(Tense.past));
   }
 
   return lock.applyMove(
