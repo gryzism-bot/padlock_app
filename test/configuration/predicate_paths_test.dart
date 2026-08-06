@@ -1596,6 +1596,84 @@ void main() {
 
       expect(
         semanticDirectObjectFitsAction(
+          fixed_object.something,
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          people_data.mary.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          animal_data.cat.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.english,
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.grammar,
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.newspaper.toNounPhrase(Number.singular),
+          education_data.forget,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.money,
+          education_data.forget,
+        ),
+        isFalse,
+      );
+
+      expect(
+        semanticDirectObjectFitsAction(
           object_data.book.toNounPhrase(Number.singular),
           read,
         ),

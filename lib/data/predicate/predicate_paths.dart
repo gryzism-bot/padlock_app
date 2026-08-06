@@ -1024,6 +1024,7 @@ final _rememberObjects = _uniqueByText([
   object_data.story.toNounPhrase(Number.singular),
   object_data.story.toNounPhrase(Number.plural),
 ]);
+final _forgetObjects = _rememberObjects;
 final _bringObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.money,
@@ -2517,7 +2518,7 @@ final guidedPredicateUnlocks = [
   ),
   _directWithPaths(
     education_data.forget,
-    _uniqueByText([..._genericObjects, ..._learnSubjects, ..._people]),
+    _forgetObjects,
     paths: [
       PredicatePath.toRightAction(_rightActionForgets),
       ..._studySurfaceContexts(),
