@@ -66,10 +66,19 @@ Layer map:
      - `give` shelf-quality cut is done:
        - `give` now reads from generic transfer objects plus `money`, `food`,
          `book`, and `gift`
-       - temporary idiom bridge nouns `smoking`, `gambling`, and `drinking`
-         remain until particle-owned object shelves are split out
+       - `give up` habit nouns `smoking`, `gambling`, and `drinking` are now
+         particle-owned object choices rather than plain `give` objects
        - it no longer inherits broad text/tool/device leaks such as `letter`,
          `key`, or `phone`
+     - recent additional shelf-quality cuts are done:
+       - `read` owns text/study objects and rejects device/food/money leaks
+       - `write` owns written-output objects and rejects readable-media leaks
+       - `use` owns generic/tool/device objects and rejects food/text/money
+         leaks
+       - `watch` owns media/person/animal objects and rejects tool/food/money
+         leaks
+       - `see`, `find`, `open`, `close`, `break`, `lose`, `play`, and `sing`
+         have focused object shelves with regression tests
      - continue splitting any newly noisy shelf where useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what

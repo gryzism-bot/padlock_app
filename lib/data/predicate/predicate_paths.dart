@@ -3092,12 +3092,14 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: have,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author possession object tracks',
+    note:
+        'authored possession object, source, beneficiary, purpose, right-action, companion, location, and time tracks',
   ),
   _migration(
     verb: doVerb,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'decide whether do is product-visible or structural only',
+    note:
+        'authored task/action object, companion, beneficiary, purpose, location, manner, and time tracks',
   ),
   _migration(
     verb: findVerb,
@@ -3135,12 +3137,14 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: get,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author obtainable object tracks',
+    note:
+        'authored obtainable object, source, beneficiary, purpose, location, and time tracks',
   ),
   _migration(
     verb: make,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object, recipient, and object-complement tracks',
+    note:
+        'authored created-output object, recipient, companion, beneficiary, purpose, and manner tracks',
   ),
   _migration(
     verb: take,
@@ -3156,7 +3160,8 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: give,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and recipient tracks',
+    note:
+        'authored transfer object, recipient, companion, beneficiary, time, manner, and particle tracks',
   ),
   _migration(
     verb: know,
@@ -3182,12 +3187,13 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: want,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and right-action tracks',
+    note: 'authored wanted-object, right-action, companion, and time tracks',
   ),
   _migration(
     verb: need,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and right-action tracks',
+    note:
+        'authored needed-object, right-action, source, beneficiary, purpose, and time tracks',
   ),
   _migration(
     verb: like,
@@ -3202,7 +3208,8 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: work,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author companion, place, time, and manner tracks',
+    note:
+        'authored companion, instrument, on-topic, beneficiary, location, manner, particle, time, and frequency tracks',
   ),
   _migration(
     verb: play,
@@ -3261,17 +3268,20 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: buy,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and recipient tracks',
+    note:
+        'authored commercial object, recipient, companion, beneficiary, source, location, and time tracks',
   ),
   _migration(
     verb: sell,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and recipient/addressee tracks if supported',
+    note:
+        'authored sale object, addressee, companion, location, and time tracks',
   ),
   _migration(
     verb: read,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author text object tracks',
+    note:
+        'authored text/study object, topic, addressee, companion, beneficiary, purpose, location, time, manner, and particle tracks',
   ),
   _migration(
     verb: watch,

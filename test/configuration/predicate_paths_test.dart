@@ -1421,8 +1421,32 @@ void main() {
         isFalse,
       );
       expect(
+        semanticDirectObjectFitsAction(fixed_object.gambling, give),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.drinking, give),
+        isFalse,
+      );
+      expect(
         semanticDirectObjectFitsAction(
           fixed_object.smoking,
+          give,
+          rightParticle: upParticle,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.gambling,
+          give,
+          rightParticle: upParticle,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          fixed_object.drinking,
           give,
           rightParticle: upParticle,
         ),
