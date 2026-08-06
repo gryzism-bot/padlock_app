@@ -4317,6 +4317,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'story'),
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'English'),
   _ReviewedRoute(remember, _ReviewedRouteKind.directObject, text: 'grammar'),
+  _ReviewedRoute(remember, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'go'),
   _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'call'),
   _ReviewedRoute(remember, _ReviewedRouteKind.rightAction, text: 'work'),
@@ -4370,6 +4371,7 @@ const _essentialVerbReviewRoutes = [
     _ReviewedRouteKind.directObject,
     text: 'grammar',
   ),
+  _ReviewedRoute(education_data.forget, _ReviewedRouteKind.aboutTopic),
   _ReviewedRoute(
     education_data.forget,
     _ReviewedRouteKind.rightAction,

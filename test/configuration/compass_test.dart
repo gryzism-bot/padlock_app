@@ -1953,6 +1953,46 @@ void main() {
         ),
         'You learn about grammar.',
       );
+
+      state = lock.applyMove(state, const SetAction(remember));
+      final rememberSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final rememberLabels = rememberSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(rememberLabels, containsAll(['about grammar', 'about Mary']));
+      expect(
+        render(
+          rememberSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about grammar')
+              .preview,
+        ),
+        'You remember about grammar.',
+      );
+
+      state = lock.applyMove(state, const SetAction(forget));
+      final forgetSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final forgetLabels = forgetSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(forgetLabels, containsAll(['about grammar', 'about Mary']));
+      expect(
+        render(
+          forgetSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about grammar')
+              .preview,
+        ),
+        'You forget about grammar.',
+      );
     });
 
     test('topic suggestions can use about of on and over routes', () {

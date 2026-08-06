@@ -489,6 +489,7 @@ remember - something
 remember - a story
 remember - English
 remember - grammar
+remember - about something
 remember - to go
 remember - to call
 remember - to work
@@ -785,6 +786,7 @@ understand - today
 forget - something
 forget - English
 forget - grammar
+forget - about something
 forget - to go
 forget - to call
 forget - to work

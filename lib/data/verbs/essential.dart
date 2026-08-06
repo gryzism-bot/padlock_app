@@ -419,6 +419,7 @@ const remember = Verb(
   pastParticiple: 'remembered',
   ingForm: 'remembering',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'pamiętać'},
 );
 

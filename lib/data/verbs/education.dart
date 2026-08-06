@@ -84,6 +84,7 @@ const forget = Verb(
   pastParticiple: 'forgotten',
   ingForm: 'forgetting',
   takesObject: true,
+  takesTopic: true,
   translations: {Language.pl: 'zapominać'},
 );
 

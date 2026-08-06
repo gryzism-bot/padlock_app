@@ -2211,6 +2211,7 @@ final guidedPredicateUnlocks = [
     verb: remember,
     paths: [
       PredicatePath.directObject(_rememberObjects),
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toRightAction(_rightActionRemembers),
       _manners([
         manner_data.clearlyMannerPhrase,
@@ -2520,6 +2521,7 @@ final guidedPredicateUnlocks = [
     education_data.forget,
     _forgetObjects,
     paths: [
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toRightAction(_rightActionForgets),
       ..._studySurfaceContexts(),
     ],
@@ -3236,7 +3238,8 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: remember,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'authored memory object, right-action, manner, and time tracks',
+    note:
+        'authored memory object, about-topic, right-action, manner, and time tracks',
   ),
   _migration(
     verb: hate,
