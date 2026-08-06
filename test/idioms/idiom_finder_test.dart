@@ -362,6 +362,15 @@ void main() {
           aspect: Aspect.simple,
         ),
       ),
+      (
+        id: 'sing-along',
+        state: const SentenceState(
+          action: sing,
+          rightParticle: alongParticle,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      ),
     ];
 
     for (final caseData in cases) {

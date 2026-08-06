@@ -951,6 +951,20 @@ void main() {
       expect(sentence, 'You give up.');
     });
 
+    test('sing along renders as a right particle idiom', () {
+      final sentence = render(
+        SentenceState(
+          agent: you,
+          action: sing,
+          rightParticle: alongParticle,
+          tense: Tense.present,
+          aspect: Aspect.simple,
+        ),
+      );
+
+      expect(sentence, 'You sing along.');
+    });
+
     test('right particle can place object after particle when authored', () {
       final sentence = render(
         SentenceState(

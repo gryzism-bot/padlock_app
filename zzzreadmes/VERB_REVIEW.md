@@ -71,6 +71,7 @@ find - quickly
 find - by accident
 
 sing - a song
+sing - songs
 sing - music
 sing - with someone
 sing - to someone
@@ -79,6 +80,7 @@ sing - loudly
 sing - quietly
 sing - well
 sing - badly
+sing - along
 
 break - something
 break - anything

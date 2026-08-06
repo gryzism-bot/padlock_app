@@ -617,6 +617,11 @@ final _musicObjects = _uniqueByText([
   ...object_categories.singularMusicObjects,
   ...object_categories.pluralMusicObjects,
 ]);
+final _singObjects = _uniqueByText([
+  fixed_object.music,
+  object_data.song.toNounPhrase(Number.singular),
+  object_data.song.toNounPhrase(Number.plural),
+]);
 final _listeningDevices = _uniqueByText([
   object_data.speaker.toNounPhrase(Number.plural),
   object_data.headphone.toNounPhrase(Number.plural),
@@ -1698,13 +1703,14 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: sing,
     paths: [
-      PredicatePath.directObject(_musicObjects),
+      PredicatePath.directObject(_singObjects),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),
       _beneficiaries(),
       _atLocations(_homeSchoolWorkPlaces),
       _inLocations(_homeSchoolWorkPlaces),
       _manners(_performanceManners),
+      _particles([particle_words.alongParticle]),
     ],
   ),
   _directWithPaths(
@@ -3101,8 +3107,9 @@ final essentialPredicatePathMigration = [
   ),
   _migration(
     verb: sing,
-    readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author song/performance and companion tracks',
+    readiness: PredicatePathReadiness.seeded,
+    note:
+        'authored song/music object, addressee, companion, beneficiary, location, and manner tracks',
   ),
   _migration(
     verb: breakVerb,

@@ -3,7 +3,7 @@ import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-const idiomTargetCount = 57;
+const idiomTargetCount = 58;
 
 const idiomPatterns = <IdiomPattern>[
   IdiomPattern(
@@ -468,6 +468,15 @@ const idiomPatterns = <IdiomPattern>[
     verb: 'clean',
     rightParticle: 'up',
     requiresObject: true,
+  ),
+  IdiomPattern(
+    id: 'sing-along',
+    label: 'sing along',
+    pattern: 'sing along',
+    meaning: 'sing together with music or another person',
+    example: 'You sing along.',
+    verb: 'sing',
+    rightParticle: 'along',
   ),
   IdiomPattern(
     id: 'work-on',

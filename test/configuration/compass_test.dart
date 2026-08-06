@@ -363,6 +363,14 @@ void main() {
       expect(objectLabelsFor(play), isNot(contains('story')));
       expect(objectLabelsFor(play), isNot(contains('phone')));
 
+      expect(objectLabelsFor(sing), contains('music'));
+      expect(objectLabelsFor(sing), contains('song'));
+      expect(objectLabelsFor(sing), contains('songs'));
+      expect(objectLabelsFor(sing), isNot(contains('guitar')));
+      expect(objectLabelsFor(sing), isNot(contains('piano')));
+      expect(objectLabelsFor(sing), isNot(contains('bread')));
+      expect(objectLabelsFor(sing), isNot(contains('story')));
+
       expect(objectLabelsFor(write), contains('story'));
       expect(objectLabelsFor(write), contains('letter'));
       expect(objectLabelsFor(write), contains('report'));
@@ -1856,6 +1864,23 @@ void main() {
       expect(carefully.preview.sentenceState.rightParticle, isNull);
       expect(up.preview.sentenceState.mannerPhrase, isNull);
       expect(up.preview.sentenceState.rightParticle, upParticle);
+
+      final singState = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(sing),
+      );
+      final singParticles = authoredCompass.suggestionsFor(
+        singState,
+        ConfigurationCompassSlot.rightParticle,
+        limit: 0,
+      );
+      final along = singParticles.firstWhere(
+        (suggestion) => suggestion.label == 'along',
+      );
+
+      expect(along.move, isA<SetRightParticle>());
+      expect(render(along.preview), 'You sing along.');
+      expect(along.preview.sentenceState.rightParticle, alongParticle);
     });
 
     test('topic suggestions require topic-capable frame', () {

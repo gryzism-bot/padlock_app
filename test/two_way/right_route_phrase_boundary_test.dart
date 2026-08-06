@@ -544,6 +544,12 @@ void main() {
           particle: downParticle,
           object: null,
         ),
+        (
+          sentence: 'You sing along.',
+          action: sing,
+          particle: alongParticle,
+          object: null,
+        ),
       ];
 
       for (final entry in cases) {

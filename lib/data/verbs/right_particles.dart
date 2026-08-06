@@ -51,6 +51,11 @@ const aroundParticle = RightParticle(
   translations: {Language.pl: 'wokol'},
 );
 
+const alongParticle = RightParticle(
+  text: 'along',
+  translations: {Language.pl: 'razem'},
+);
+
 const rightParticles = [
   awayParticle,
   backParticle,
@@ -62,4 +67,5 @@ const rightParticles = [
   onParticle,
   throughParticle,
   aroundParticle,
+  alongParticle,
 ];

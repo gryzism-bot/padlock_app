@@ -1546,6 +1546,50 @@ void main() {
         isFalse,
       );
 
+      expect(semanticDirectObjectFitsAction(fixed_object.music, sing), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.song.toNounPhrase(Number.singular),
+          sing,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.song.toNounPhrase(Number.plural),
+          sing,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.guitar.toNounPhrase(Number.singular),
+          sing,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.piano.toNounPhrase(Number.singular),
+          sing,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          sing,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          sing,
+        ),
+        isFalse,
+      );
+
       expect(
         semanticDirectObjectFitsAction(
           object_data.story.toNounPhrase(Number.singular),
@@ -3509,6 +3553,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'someone'),
 
   _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'song'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'songs'),
   _ReviewedRoute(sing, _ReviewedRouteKind.companion),
   _ReviewedRoute(sing, _ReviewedRouteKind.addressee),
   _ReviewedRoute(sing, _ReviewedRouteKind.place, text: 'school'),
@@ -3517,6 +3562,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'well'),
   _ReviewedRoute(sing, _ReviewedRouteKind.manner, text: 'badly'),
   _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'music'),
+  _ReviewedRoute(sing, _ReviewedRouteKind.rightParticle, text: 'along'),
 
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject),
   _ReviewedRoute(breakVerb, _ReviewedRouteKind.directObject, text: 'phone'),

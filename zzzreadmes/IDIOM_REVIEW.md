@@ -7,7 +7,7 @@ Use this as the hand-authored idiom audit sheet. These are not broad grammar
 rules; they are memorable predicate routes the product can recognize and
 celebrate when the user finds them.
 
-Current target: 57 idioms.
+Current target: 58 idioms.
 
 ## Right Particle Idioms
 
@@ -57,6 +57,7 @@ take out - take out + thing - remove something - You take out the key.
 bring in - bring in + thing - carry something inside or introduce something - You bring in the book.
 bring out - bring out + thing - make something visible or available - You bring out the book.
 clean up - clean up + thing - make something clean or tidy - You clean up the room.
+sing along - sing along - sing together with music or another person - You sing along.
 
 ## Prepositional Idioms
 
