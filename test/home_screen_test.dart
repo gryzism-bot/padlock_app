@@ -1178,7 +1178,7 @@ void main() {
     expect(renderedSentence(tester), 'You run to exercise.');
   });
 
-  testWidgets('Right action opens its owned object and companion rails', (
+  testWidgets('Right action keeps owned object and companion rails reachable', (
     tester,
   ) async {
     await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
@@ -1193,13 +1193,19 @@ void main() {
     expect(renderedSentence(tester), 'You learn to speak.');
     expect(find.text('Language:'), findsOneWidget);
     expect(find.text('Companion:'), findsOneWidget);
+    expect(
+      find.byKey(const Key('suggestion-label-object-english')),
+      findsNothing,
+    );
 
+    await expandRail(tester, 'Language');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-english')),
     );
     expect(renderedSentence(tester), 'You learn to speak English.');
 
+    await expandRail(tester, 'Companion');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-companion-anyone')),

@@ -254,6 +254,8 @@ const want = Verb(
   ingForm: 'wanting',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
+  takesSource: true,
   translations: {Language.pl: 'chcieć'},
 );
 

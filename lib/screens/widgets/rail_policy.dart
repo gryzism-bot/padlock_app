@@ -385,24 +385,12 @@ Set<ConfigurationCompassSlot> _expandedRailsAfterRightActionMove(
   final configuration = ConfigurationState(sentenceState: state);
 
   return {
-    ...current,
-    for (final slot in _rightActionOwnedRailSlots)
-      if (_railPolicy(slot).canRenderCollapsed(configuration)) slot,
+    for (final slot in current)
+      if (slot == ConfigurationCompassSlot.rightAction ||
+          _railPolicy(slot).canRenderCollapsed(configuration))
+        slot,
   };
 }
-
-const _rightActionOwnedRailSlots = [
-  ConfigurationCompassSlot.object,
-  ConfigurationCompassSlot.addressee,
-  ConfigurationCompassSlot.companion,
-  ConfigurationCompassSlot.instrument,
-  ConfigurationCompassSlot.destination,
-  ConfigurationCompassSlot.topic,
-  ConfigurationCompassSlot.beneficiary,
-  ConfigurationCompassSlot.source,
-  ConfigurationCompassSlot.purpose,
-  ConfigurationCompassSlot.sourcePlace,
-];
 
 final _prepositionalSurfaceRailPolicies = [
   ..._prepositionalSurfaceRailPolicy(

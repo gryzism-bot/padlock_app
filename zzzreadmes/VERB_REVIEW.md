@@ -277,6 +277,35 @@ want - food
 want - a book
 want - to go
 want - to learn
+want - to do
+want - to get
+want - to buy
+want - to make
+want - to take
+want - to give
+want - to see
+want - to find
+want - to know
+want - to remember
+want - to call
+want - to ask
+want - to answer
+want - to listen
+want - to talk
+want - to explain
+want - to describe
+want - to discuss
+want - to agree
+want - to disagree
+want - to travel
+want - to visit
+want - to return
+want - to exercise
+want - to train
+want - to meet
+want - to use
+want - to open
+want - to close
 want - to speak
 want - to sleep
 want - to read
@@ -284,6 +313,8 @@ want - to write
 want - to play
 want - to sing
 want - to help
+want - something from someone
+want - something for someone
 want - with someone
 want - now
 

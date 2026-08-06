@@ -1859,6 +1859,63 @@ void main() {
       );
     });
 
+    test(
+      'want object-gated source and beneficiary wake after object exists',
+      () {
+        final authoredCompass = ConfigurationCompass(
+          predicatePathMode: PredicatePathMode.authoredTracks,
+        );
+        var state = lock.applyMove(
+          ConfigurationState.initial(),
+          const SetAction(want),
+        );
+
+        Iterable<ConfigurationSuggestion> suggestions(
+          ConfigurationCompassSlot slot,
+        ) {
+          return authoredCompass.suggestionsFor(state, slot, limit: 0);
+        }
+
+        expect(suggestions(ConfigurationCompassSlot.source), isEmpty);
+        expect(suggestions(ConfigurationCompassSlot.beneficiary), isEmpty);
+
+        state = lock.applyMove(
+          state,
+          SetObject(book.toNounPhrase(Number.singular)),
+        );
+
+        final sourceSuggestions = suggestions(ConfigurationCompassSlot.source);
+        final beneficiarySuggestions = suggestions(
+          ConfigurationCompassSlot.beneficiary,
+        );
+
+        expect(
+          sourceSuggestions.map((suggestion) => suggestion.label),
+          containsAll(['John', 'Mary', 'me', 'us']),
+        );
+        expect(
+          beneficiarySuggestions.map((suggestion) => suggestion.label),
+          containsAll(['John', 'Mary', 'friend']),
+        );
+        expect(
+          render(
+            sourceSuggestions
+                .firstWhere((suggestion) => suggestion.label == 'Mary')
+                .preview,
+          ),
+          'You want book from Mary.',
+        );
+        expect(
+          render(
+            beneficiarySuggestions
+                .firstWhere((suggestion) => suggestion.label == 'John')
+                .preview,
+          ),
+          'You want book for John.',
+        );
+      },
+    );
+
     test('manner and right particle rails stay separate', () {
       final authoredCompass = ConfigurationCompass(
         predicatePathMode: PredicatePathMode.authoredTracks,
@@ -3016,6 +3073,40 @@ void main() {
 
       expect(labels, containsAll(['go', 'work', 'learn', 'swim', 'speak']));
       expect(labels, containsAll(['read', 'write', 'play', 'sing', 'help']));
+      expect(
+        labels,
+        containsAll([
+          'do',
+          'get',
+          'buy',
+          'make',
+          'take',
+          'give',
+          'see',
+          'find',
+          'know',
+          'remember',
+          'call',
+          'ask',
+          'answer',
+          'listen',
+          'talk',
+          'explain',
+          'describe',
+          'discuss',
+          'agree',
+          'disagree',
+          'travel',
+          'visit',
+          'return',
+          'exercise',
+          'train',
+          'meet',
+          'use',
+          'open',
+          'close',
+        ]),
+      );
     });
 
     test('authored right action suggestions wake for forget', () {

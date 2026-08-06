@@ -274,6 +274,12 @@ void main() {
     expect(find.text('Companion:', skipOffstage: false), findsOneWidget);
     expect(
       find.byKey(const Key('suggestion-label-object-polish')),
+      findsNothing,
+    );
+
+    await expandRail(tester, 'Language');
+    expect(
+      find.byKey(const Key('suggestion-label-object-polish')),
       findsOneWidget,
     );
     expect(
@@ -284,6 +290,7 @@ void main() {
     await tapAfterScroll(tester, find.byTooltip('You learn to speak Polish.'));
     expect(renderedSentence(tester), 'You learn to speak Polish.');
 
+    await expandRail(tester, 'Companion');
     await tapAfterScroll(
       tester,
       find.byTooltip('You learn to speak Polish with anyone.'),
