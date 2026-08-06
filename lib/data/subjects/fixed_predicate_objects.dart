@@ -157,6 +157,27 @@ const cold = NounPhrase(
   translations: {Language.pl: 'zimno'},
 );
 
+const animals = NounPhrase(
+  text: 'animals',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'zwierzeta'},
+);
+
+const architecture = NounPhrase(
+  text: 'architecture',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'architektura'},
+);
+
+const cooking = NounPhrase(
+  text: 'cooking',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'gotowanie'},
+);
+
 const problem = NounPhrase(
   text: 'problem',
   person: Person.third,

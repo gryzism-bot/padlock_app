@@ -365,6 +365,7 @@ const watch = Verb(
   ingForm: 'watching',
   takesObject: true,
   takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'oglądać'},
 );
 

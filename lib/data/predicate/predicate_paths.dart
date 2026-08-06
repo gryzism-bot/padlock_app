@@ -603,10 +603,12 @@ final _mediaObjects = _uniqueByText([
   object_data.game.toNounPhrase(Number.singular),
   object_data.game.toNounPhrase(Number.plural),
 ]);
-final _watchObjects = _uniqueByText([
-  ..._genericObjects,
-  ..._mediaObjects,
-  ..._peopleAndAnimals,
+final _watchObjects = _uniqueByText([..._genericObjects, ..._mediaObjects]);
+final _watchTopics = _uniqueByText([
+  fixed_object.animals,
+  fixed_object.architecture,
+  fixed_object.cooking,
+  ..._basicTopics,
 ]);
 final _moneyObjects = _uniqueByText([
   fixed_object.money,
@@ -2301,6 +2303,7 @@ final guidedPredicateUnlocks = [
     watch,
     _watchObjects,
     paths: [
+      PredicatePath.aboutTopic(_watchTopics, requiresObject: true),
       PredicatePath.withCompanion(_people),
       PredicatePath.toRightAction([
         education_data.research,
@@ -3456,7 +3459,7 @@ final essentialPredicatePathMigration = [
     verb: watch,
     readiness: PredicatePathReadiness.seeded,
     note:
-        'seeded generic/media/person object, companion, right-action, manner, and location tracks',
+        'seeded generic/media object, object-gated about-topic, companion, right-action, manner, and location tracks',
   ),
   _migration(
     verb: lose,

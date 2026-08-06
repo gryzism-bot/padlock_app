@@ -1,12 +1,6 @@
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart';
-import 'package:padlock_app/data/subjects/object_pronouns.dart'
-    as object_pronouns;
 import 'package:padlock_app/data/subjects/third_person/object_categories.dart'
     as object_categories;
-import 'package:padlock_app/data/subjects/third_person/animal_categories.dart'
-    as animal_categories;
-import 'package:padlock_app/data/subjects/third_person/people_categories.dart'
-    as people_categories;
 import 'package:padlock_app/models/grammar/subject/noun.dart';
 import 'package:padlock_app/models/grammar/subject/number.dart';
 import 'package:padlock_app/models/grammar/subject/noun_phrase.dart';
@@ -117,11 +111,6 @@ final Map<String, List<NounPhrase>> fixedObjectChoicesByVerb = {
         (noun) => noun.singular == 'game',
       ),
     ),
-    ...people_categories.singularEverydayPeople,
-    ...people_categories.pluralEverydayPeople,
-    ...animal_categories.singularEverydayAnimals,
-    ...animal_categories.pluralEverydayAnimals,
-    ...object_pronouns.objectPronouns,
   ],
   'drive': [
     for (final noun in object_categories.drivableObjectNouns)

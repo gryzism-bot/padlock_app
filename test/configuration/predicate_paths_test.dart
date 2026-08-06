@@ -1971,14 +1971,14 @@ void main() {
           people_data.john.toNounPhrase(Number.singular),
           watch,
         ),
-        isTrue,
+        isFalse,
       );
       expect(
         semanticDirectObjectFitsAction(
           animal_data.cat.toNounPhrase(Number.singular),
           watch,
         ),
-        isTrue,
+        isFalse,
       );
       expect(
         semanticDirectObjectFitsAction(
@@ -2785,6 +2785,31 @@ void main() {
       expect(
         grammar.generate(habitState.sentenceState).text,
         'You used to swim.',
+      );
+    });
+
+    test('watch about-topic documents its media object prerequisite', () {
+      final unlocks = predicateUnlocksFor(watch)!;
+      final path = unlocks.paths.singleWhere(
+        (path) =>
+            path.kind == PredicatePathKind.aboutTopic &&
+            path.nouns.contains(fixed_object.animals),
+      );
+
+      expect(path.requiresObject, isTrue);
+      expect(
+        predicatePathRequiresObject(watch, PredicatePathKind.aboutTopic),
+        isTrue,
+      );
+
+      final state = stateAfterPath(unlocks, path);
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object, isNotNull);
+      expect(state.sentenceState.topic, fixed_object.animals);
+      expect(
+        grammar.generate(state.sentenceState).text,
+        'You watch something about animals.',
       );
     });
 
@@ -4349,6 +4374,9 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(watch, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'show'),
   _ReviewedRoute(watch, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.aboutTopic, text: 'animals'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.aboutTopic, text: 'architecture'),
+  _ReviewedRoute(watch, _ReviewedRouteKind.aboutTopic, text: 'cooking'),
   _ReviewedRoute(watch, _ReviewedRouteKind.rightAction, text: 'analyze'),
 
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject),

@@ -441,7 +441,8 @@ void main() {
       expect(objectLabelsFor(watch), contains('film'));
       expect(objectLabelsFor(watch), contains('show'));
       expect(objectLabelsFor(watch), contains('game'));
-      expect(objectLabelsFor(watch), contains('John'));
+      expect(objectLabelsFor(watch), isNot(contains('John')));
+      expect(objectLabelsFor(watch), isNot(contains('cat')));
       expect(objectLabelsFor(watch), isNot(contains('key')));
       expect(objectLabelsFor(watch), isNot(contains('bread')));
       expect(objectLabelsFor(watch), isNot(contains('money')));
@@ -2259,6 +2260,41 @@ void main() {
               .preview,
         ),
         'You work on grammar.',
+      );
+
+      state = lock.applyMove(state, const SetAction(watch));
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.topic,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+      state = lock.applyMove(
+        state,
+        SetObject(movie.toNounPhrase(Number.singular, determiner: aDeterminer)),
+      );
+      final watchSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final watchLabels = watchSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(
+        watchLabels,
+        containsAll(['about animals', 'about architecture', 'about cooking']),
+      );
+      expect(
+        render(
+          watchSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about animals')
+              .preview,
+        ),
+        'You watch a movie about animals.',
       );
       expect(
         render(
