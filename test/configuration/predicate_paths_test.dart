@@ -2688,6 +2688,12 @@ void main() {
             field: (SentenceState state) => state.purpose,
             ending: ' for work.',
           ),
+          (
+            verb: make,
+            kind: PredicatePathKind.atLocation,
+            field: (SentenceState state) => state.placePhrase,
+            ending: ' at home.',
+          ),
         ];
 
         for (final (:verb, :kind, :field, :ending) in examples) {
@@ -3916,6 +3922,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'school'),
   _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'dinner'),
   _ReviewedRoute(make, _ReviewedRouteKind.purpose, text: 'fun'),
+  _ReviewedRoute(make, _ReviewedRouteKind.place, text: 'home'),
 
   _ReviewedRoute(take, _ReviewedRouteKind.directObject),
   _ReviewedRoute(take, _ReviewedRouteKind.directObject, text: 'something'),

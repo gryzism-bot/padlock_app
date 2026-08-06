@@ -1926,6 +1926,7 @@ final guidedPredicateUnlocks = [
       PredicatePath.withCompanion(_people),
       _objectBeneficiaries(),
       _objectPurposes(_makePurposes),
+      _atLocations(_homeSchoolWorkPlaces, requiresObject: true),
       _manners(_carefulManners),
     ],
   ),

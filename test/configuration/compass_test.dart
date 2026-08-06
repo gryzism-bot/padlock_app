@@ -2306,6 +2306,14 @@ void main() {
         ),
         isEmpty,
       );
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.placePhrase,
+          limit: 0,
+        ),
+        isEmpty,
+      );
 
       state = lock.applyMove(state, const SetObject(fixed_object.something));
 
@@ -2317,6 +2325,11 @@ void main() {
       final purposeSuggestions = authoredCompass.suggestionsFor(
         state,
         ConfigurationCompassSlot.purpose,
+        limit: 0,
+      );
+      final placeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
         limit: 0,
       );
 
@@ -2351,6 +2364,18 @@ void main() {
               .preview,
         ),
         'You make something for work.',
+      );
+      expect(
+        placeSuggestions.map((suggestion) => suggestion.label),
+        contains('at home'),
+      );
+      expect(
+        render(
+          placeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'at home')
+              .preview,
+        ),
+        'You make something at home.',
       );
     });
 
