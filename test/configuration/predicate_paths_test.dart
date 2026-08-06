@@ -3994,6 +3994,7 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(give, _ReviewedRouteKind.rightParticle, text: 'up'),
 
   _ReviewedRoute(write, _ReviewedRouteKind.manner, text: 'carefully'),
+  _ReviewedRoute(write, _ReviewedRouteKind.aboutTopic, text: 'grammar'),
   _ReviewedRoute(
     particle_data.turn,
     _ReviewedRouteKind.manner,

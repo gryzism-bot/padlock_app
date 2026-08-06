@@ -2494,6 +2494,7 @@ final guidedPredicateUnlocks = [
     verb: write,
     paths: [
       PredicatePath.directObject(_writeObjects),
+      PredicatePath.aboutTopic(_basicTopics),
       PredicatePath.toRecipient(_people),
       PredicatePath.toAddressee(_people),
       PredicatePath.withCompanion(_people),

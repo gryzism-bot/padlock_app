@@ -2194,6 +2194,44 @@ void main() {
         'You think over plan.',
       );
 
+      state = lock.applyMove(state, const SetAction(read));
+      final readSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final readLabels = readSuggestions.map((suggestion) => suggestion.label);
+
+      expect(readLabels, contains('about grammar'));
+      expect(
+        render(
+          readSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about grammar')
+              .preview,
+        ),
+        'You read about grammar.',
+      );
+
+      state = lock.applyMove(state, const SetAction(write));
+      final writeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final writeLabels = writeSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(writeLabels, contains('about grammar'));
+      expect(
+        render(
+          writeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'about grammar')
+              .preview,
+        ),
+        'You write about grammar.',
+      );
+
       state = lock.applyMove(state, const SetAction(work));
       final workSuggestions = authoredCompass.suggestionsFor(
         state,
