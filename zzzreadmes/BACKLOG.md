@@ -77,8 +77,9 @@ Layer map:
          leaks
        - `watch` owns media/person/animal objects and rejects tool/food/money
          leaks
-       - `see`, `find`, `open`, `close`, `break`, `lose`, `play`, `sing`, and
-         `know` have focused object shelves with regression tests
+       - `see`, `find`, `open`, `close`, `break`, `lose`, `play`, `sing`,
+         `know`, and `remember` have focused object shelves with regression
+         tests
      - continue splitting any newly noisy shelf where useful
      - add semantic tests when a shelf is narrowed
      - add disabled/explained suggestions later if a mode wants to show what

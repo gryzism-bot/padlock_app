@@ -1529,6 +1529,72 @@ void main() {
       expect(semanticDirectObjectFitsAction(fixed_object.money, know), isFalse);
 
       expect(
+        semanticDirectObjectFitsAction(fixed_object.something, remember),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          people_data.mary.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          animal_data.cat.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.english, remember),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.grammar, remember),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.story.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isTrue,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.phone.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.key.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.bread.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(
+          object_data.newspaper.toNounPhrase(Number.singular),
+          remember,
+        ),
+        isFalse,
+      );
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.money, remember),
+        isFalse,
+      );
+
+      expect(
         semanticDirectObjectFitsAction(
           object_data.book.toNounPhrase(Number.singular),
           read,

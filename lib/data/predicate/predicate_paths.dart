@@ -1019,6 +1019,11 @@ final _knowObjects = _uniqueByText([
   ...object_categories.singularAbstractObjects,
   ...object_categories.pluralAbstractObjects,
 ]);
+final _rememberObjects = _uniqueByText([
+  ..._knowObjects,
+  object_data.story.toNounPhrase(Number.singular),
+  object_data.story.toNounPhrase(Number.plural),
+]);
 final _bringObjects = _uniqueByText([
   ..._genericObjects,
   fixed_object.money,
@@ -2204,14 +2209,7 @@ final guidedPredicateUnlocks = [
   PredicateUnlocks(
     verb: remember,
     paths: [
-      PredicatePath.directObject(
-        _uniqueByText([
-          ..._genericObjects,
-          ..._peopleAndAnimals,
-          ..._learnSubjects,
-          ..._textObjects,
-        ]),
-      ),
+      PredicatePath.directObject(_rememberObjects),
       PredicatePath.toRightAction(_rightActionRemembers),
       _manners([
         manner_data.clearlyMannerPhrase,
@@ -3237,7 +3235,7 @@ final essentialPredicatePathMigration = [
   _migration(
     verb: remember,
     readiness: PredicatePathReadiness.pendingHandAuthored,
-    note: 'author object and right-action tracks',
+    note: 'authored memory object, right-action, manner, and time tracks',
   ),
   _migration(
     verb: hate,
