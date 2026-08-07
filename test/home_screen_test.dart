@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:padlock_app/data/idioms/idiom_patterns.dart';
 import 'package:padlock_app/data/subjects/fixed_predicate_objects.dart'
     as object_data;
 import 'package:padlock_app/data/subjects/third_person/people.dart'
@@ -53,15 +54,11 @@ void main() {
       return;
     }
 
-    for (var i = 0; i < 24 && finder.evaluate().isEmpty; i += 1) {
-      await tester.drag(mainScroll, const Offset(0, 300));
-      await tester.pumpAndSettle();
-    }
-
     final direction = delta < 0 ? -1.0 : 1.0;
     final scrollDelta = direction * min(delta.abs(), 120);
+    final viewportDragPoint = tester.getCenter(find.byType(Scaffold));
     for (var i = 0; i < 120 && finder.evaluate().isEmpty; i += 1) {
-      await tester.drag(mainScroll, Offset(0, -scrollDelta));
+      await tester.dragFrom(viewportDragPoint, Offset(0, -scrollDelta));
       await tester.pumpAndSettle();
     }
   }
@@ -99,9 +96,6 @@ void main() {
         ? ancestorIconButton.first
         : finder;
 
-    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
-    await tester.pumpAndSettle();
-
     final buttonTarget = descendantButton.evaluate().isNotEmpty
         ? descendantButton.first
         : ancestorButton.evaluate().isNotEmpty
@@ -115,11 +109,18 @@ void main() {
 
     if (buttonTarget != null) {
       tester.widget<OutlinedButton>(buttonTarget).onPressed?.call();
+      await tester.pumpAndSettle();
+      return;
     } else if (iconButtonTarget != null) {
       tester.widget<IconButton>(iconButtonTarget).onPressed?.call();
-    } else {
-      await tester.tap(target, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      return;
     }
+
+    await tester.scrollUntilVisible(target, delta, scrollable: mainScroll);
+    await tester.pumpAndSettle();
+
+    await tester.tap(target, warnIfMissed: false);
     await tester.pumpAndSettle();
   }
 
@@ -1224,10 +1225,12 @@ void main() {
       tester,
       find.byKey(const Key('suggestion-label-rightAction-speak')),
     );
+    await expandRail(tester, 'Language');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-english')),
     );
+    await expandRail(tester, 'Companion');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-companion-anyone')),
@@ -1252,10 +1255,12 @@ void main() {
       tester,
       find.byKey(const Key('suggestion-label-rightAction-speak')),
     );
+    await expandRail(tester, 'Language');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-english')),
     );
+    await expandRail(tester, 'Companion');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-companion-anyone')),
@@ -1279,10 +1284,12 @@ void main() {
       tester,
       find.byKey(const Key('suggestion-label-rightAction-speak')),
     );
+    await expandRail(tester, 'Language');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-object-english')),
     );
+    await expandRail(tester, 'Companion');
     await tapAfterScroll(
       tester,
       find.byKey(const Key('suggestion-label-companion-anyone')),
@@ -1873,7 +1880,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(renderedSentence(tester), 'You gave up smoking.');
-    expect(find.text('1 / 56 idioms found'), findsOneWidget);
+    expect(find.text('1 / $idiomTargetCount idioms found'), findsOneWidget);
   });
 
   testWidgets('Recognition input opens filled participant rails in sequence', (
