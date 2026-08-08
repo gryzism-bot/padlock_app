@@ -1488,6 +1488,35 @@ void main() {
       );
     });
 
+    test('open wakes card and hand instruments', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      final state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(open),
+      );
+
+      final instrumentSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.instrument,
+        limit: 0,
+      );
+
+      expect(
+        instrumentSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['key', 'card', 'hand']),
+      );
+      expect(
+        render(
+          instrumentSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'card')
+              .preview,
+        ),
+        'You open with card.',
+      );
+    });
+
     test('destination suggestions require movement destination frame', () {
       var state = lock.applyMove(
         ConfigurationState.initial(),
@@ -1511,6 +1540,59 @@ void main() {
         'Mary',
       ]);
       expect(render(suggestions.last.preview), 'You go to Mary.');
+    });
+
+    test('open wakes to-location after an object exists', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(open),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.placePhrase,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(
+        state,
+        SetObject(door.toNounPhrase(Number.singular)),
+      );
+
+      final suggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+      final labels = suggestions.map((suggestion) => suggestion.label);
+
+      expect(
+        labels,
+        containsAll([
+          'to the garage',
+          'to the shop',
+          'to the office',
+          "to the director's office",
+          'to the laboratory',
+          'to the classroom',
+          'to the kitchen',
+          'to the garden',
+        ]),
+      );
+      expect(
+        render(
+          suggestions
+              .firstWhere((suggestion) => suggestion.label == 'to the garage')
+              .preview,
+        ),
+        'You open door to the garage.',
+      );
     });
 
     test(

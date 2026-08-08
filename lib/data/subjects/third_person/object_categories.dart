@@ -76,6 +76,8 @@ const toolObjectNouns = [
   objects.pencil,
   objects.keyboard,
   objects.key,
+  objects.card,
+  objects.hand,
   objects.camera,
   objects.map,
   objects.knife,

@@ -295,6 +295,7 @@ void main() {
             PredicatePathKind.atLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.inLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.onLocation => isA<SetPlacePhrase>(),
+            PredicatePathKind.toLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.fromLocation => isA<SetPlacePhrase>(),
             PredicatePathKind.placePhrase => isA<SetPlacePhrase>(),
             PredicatePathKind.timePhrase => isA<SetTimePhrase>(),
@@ -390,6 +391,11 @@ void main() {
             action: sleep,
             kind: PredicatePathKind.onLocation,
             text: 'You sleep on the bed.',
+          ),
+          (
+            action: open,
+            kind: PredicatePathKind.toLocation,
+            text: 'You open something to the garage.',
           ),
           (
             action: come,
@@ -2459,6 +2465,16 @@ void main() {
                   reason: '$reason -> ${place.render(PlaceMeaning.location)}',
                 );
               }
+            case PredicatePathKind.toLocation:
+              expect(path.places, isNotEmpty, reason: reason);
+              for (final place in path.places) {
+                expect(
+                  place.render(PlaceMeaning.destination).startsWith('to '),
+                  isTrue,
+                  reason:
+                      '$reason -> ${place.render(PlaceMeaning.destination)}',
+                );
+              }
             case PredicatePathKind.fromLocation:
               expect(path.places, isNotEmpty, reason: reason);
               for (final place in path.places) {
@@ -2548,6 +2564,45 @@ void main() {
           'You ${verb.infinitive} something home.',
         );
       }
+    });
+
+    test('open owns object-gated to-location paths', () {
+      final unlocks = predicateUnlocksFor(open)!;
+      final toLocationPath = unlocks.paths.singleWhere(
+        (path) => path.kind == PredicatePathKind.toLocation,
+      );
+
+      expect(toLocationPath.requiresObject, isTrue);
+      expect(
+        predicatePathRequiresObject(open, PredicatePathKind.toLocation),
+        isTrue,
+      );
+      expect(
+        toLocationPath.places.map(
+          (place) => place.render(PlaceMeaning.destination),
+        ),
+        containsAll([
+          'to the garage',
+          'to the shop',
+          'to the office',
+          "to the director's office",
+          'to the laboratory',
+          'to the classroom',
+          'to the kitchen',
+          'to the garden',
+        ]),
+      );
+
+      final state = stateAfterPath(unlocks, toLocationPath);
+
+      expect(wasBlocked(state), isFalse);
+      expect(state.sentenceState.object?.text, 'something');
+      expect(state.sentenceState.placePhrase?.noun, 'garage');
+      expect(state.sentenceState.placeMeaning, PlaceMeaning.destination);
+      expect(
+        grammar.generate(state.sentenceState).text,
+        'You open something to the garage.',
+      );
     });
 
     test('object-dependent prepositional paths compile their prerequisite', () {
@@ -3149,6 +3204,7 @@ void main() {
             PredicatePathKind.atLocation => <Object>[...path.places],
             PredicatePathKind.inLocation => <Object>[...path.places],
             PredicatePathKind.onLocation => <Object>[...path.places],
+            PredicatePathKind.toLocation => <Object>[...path.places],
             PredicatePathKind.fromLocation => <Object>[...path.places],
             PredicatePathKind.placePhrase => <Object>[...path.places],
             PredicatePathKind.mannerPhrase => <Object>[...path.manners],
@@ -4609,9 +4665,19 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'store'),
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'workshop'),
   _ReviewedRoute(open, _ReviewedRouteKind.directObject, text: 'office'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'garage'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'shop'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'office'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: "director's office"),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'laboratory'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'classroom'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'kitchen'),
+  _ReviewedRoute(open, _ReviewedRouteKind.place, text: 'garden'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'quickly'),
   _ReviewedRoute(open, _ReviewedRouteKind.manner, text: 'carefully'),
   _ReviewedRoute(open, _ReviewedRouteKind.instrument),
+  _ReviewedRoute(open, _ReviewedRouteKind.instrument, text: 'card'),
+  _ReviewedRoute(open, _ReviewedRouteKind.instrument, text: 'hand'),
   _ReviewedRoute(open, _ReviewedRouteKind.beneficiary),
 
   _ReviewedRoute(close, _ReviewedRouteKind.directObject),

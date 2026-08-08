@@ -28,6 +28,7 @@ const have = Verb(
   takesObject: true,
   takesCompanion: true,
   takesBeneficiary: true,
+  usesDestinationPlace: true,
   takesSource: true,
   takesPurpose: true,
   translations: {Language.pl: 'mieć'},

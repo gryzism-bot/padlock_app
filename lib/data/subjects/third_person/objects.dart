@@ -220,6 +220,13 @@ const key = Noun(
   pluralTranslations: {Language.pl: 'klucze'},
 );
 
+const hand = Noun(
+  singular: 'hand',
+  plural: 'hands',
+  singularTranslations: {Language.pl: 'reka'},
+  pluralTranslations: {Language.pl: 'rece'},
+);
+
 const bottle = Noun(
   singular: 'bottle',
   plural: 'bottles',
@@ -1377,6 +1384,7 @@ const objectNouns = [
   window,
   eye,
   key,
+  hand,
   bottle,
   cup,
   glass,

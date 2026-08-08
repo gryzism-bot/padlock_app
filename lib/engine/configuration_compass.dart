@@ -1329,6 +1329,7 @@ List<_CompassCandidate> _authoredPlacePhraseCandidatesForState(
 PlaceMeaning _meaningForAuthoredPlacePath(Verb owner, PredicatePathKind kind) {
   return switch (kind) {
     PredicatePathKind.fromLocation => PlaceMeaning.source,
+    PredicatePathKind.toLocation => PlaceMeaning.destination,
     PredicatePathKind.placePhrase =>
       owner.usesDestinationPlace
           ? PlaceMeaning.destination

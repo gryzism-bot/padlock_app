@@ -60,6 +60,7 @@ enum PredicatePathKind {
   atLocation,
   inLocation,
   onLocation,
+  toLocation,
   fromLocation,
   placePhrase,
   timePhrase,
@@ -72,6 +73,7 @@ const predicateLocationPathKinds = [
   PredicatePathKind.atLocation,
   PredicatePathKind.inLocation,
   PredicatePathKind.onLocation,
+  PredicatePathKind.toLocation,
 ];
 
 const predicateSourceLocationPathKinds = [PredicatePathKind.fromLocation];
@@ -95,6 +97,7 @@ String? predicatePlaceConnectorFor(PredicatePathKind kind) {
     PredicatePathKind.atLocation => 'at',
     PredicatePathKind.inLocation => 'in',
     PredicatePathKind.onLocation => 'on',
+    PredicatePathKind.toLocation => 'to',
     PredicatePathKind.fromLocation => 'from',
     _ => null,
   };
@@ -290,6 +293,15 @@ class PredicatePath {
     bool requiresObject = false,
   }) : this._(
          kind: PredicatePathKind.onLocation,
+         places: places,
+         requiresObject: requiresObject,
+       );
+
+  const PredicatePath.toLocation(
+    List<PlacePhrase> places, {
+    bool requiresObject = false,
+  }) : this._(
+         kind: PredicatePathKind.toLocation,
          places: places,
          requiresObject: requiresObject,
        );
@@ -542,7 +554,14 @@ final _writingInstruments = _objectsWithText(_toolObjects, [
   'laptop',
   'laptops',
 ]);
-final _openingInstruments = _objectsWithText(_toolObjects, ['key', 'keys']);
+final _openingInstruments = _objectsWithText(_toolObjects, [
+  'key',
+  'keys',
+  'card',
+  'cards',
+  'hand',
+  'hands',
+]);
 final _cuttingInstruments = _objectsWithText(_toolObjects, [
   'knife',
   'knives',
@@ -1478,7 +1497,9 @@ final _dailyAnchorPlaces = _uniquePlacesByText([
   place_data.marketPlacePhrase,
   place_data.bankPlacePhrase,
   place_data.gymPlacePhrase,
+  place_data.laboratoryPlacePhrase,
   place_data.classroomPlacePhrase,
+  place_data.directorsOfficePlacePhrase,
   place_data.garagePlacePhrase,
   place_data.busStopPlacePhrase,
   place_data.stationPlacePhrase,
@@ -1518,10 +1539,22 @@ final _everydayPlaces = _uniquePlacesByText([
   place_data.marketPlacePhrase,
   place_data.bankPlacePhrase,
   place_data.gymPlacePhrase,
+  place_data.laboratoryPlacePhrase,
   place_data.classroomPlacePhrase,
+  place_data.directorsOfficePlacePhrase,
   place_data.garagePlacePhrase,
   place_data.busStopPlacePhrase,
   place_data.playgroundPlacePhrase,
+]);
+final _doorwayDestinations = _uniquePlacesByText([
+  place_data.garagePlacePhrase,
+  place_data.shopPlacePhrase,
+  place_data.officePlacePhrase,
+  place_data.directorsOfficePlacePhrase,
+  place_data.laboratoryPlacePhrase,
+  place_data.classroomPlacePhrase,
+  place_data.kitchenPlacePhrase,
+  place_data.gardenPlacePhrase,
 ]);
 final _basicTimes = [
   time_data.todayTimePhrase,
@@ -1656,6 +1689,16 @@ PredicatePath _onLocations(
 }) {
   return PredicatePath.onLocation(
     _locationsWithPreposition(places, 'on'),
+    requiresObject: requiresObject,
+  );
+}
+
+PredicatePath _toLocations(
+  List<PlacePhrase> places, {
+  bool requiresObject = false,
+}) {
+  return PredicatePath.toLocation(
+    _placesWithMeaningPreposition(places, PlaceMeaning.destination, 'to'),
     requiresObject: requiresObject,
   );
 }
@@ -2402,6 +2445,7 @@ final guidedPredicateUnlocks = [
     open,
     _openableObjects,
     paths: [
+      _toLocations(_doorwayDestinations, requiresObject: true),
       PredicatePath.withInstrument(_openingInstruments),
       _beneficiaries(),
       _manners(_carefulManners),

@@ -423,6 +423,39 @@ void main() {
     expect(find.byKey(const Key('suggestion-label-action-be')), findsNothing);
   });
 
+  testWidgets('Verb rail search does not prefix-match hidden route labels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+
+    await tester.enterText(find.byKey(const Key('rail-search-Verb')), 'open');
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('suggestion-label-action-open')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-action-close')),
+      findsNothing,
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('rail-search-Verb')),
+      'openable',
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('suggestion-label-action-open')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('suggestion-label-action-close')),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('Predicate extension rails appear only when their frame opens', (
     tester,
   ) async {

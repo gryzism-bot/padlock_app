@@ -232,6 +232,12 @@ PredicateInfluence _influenceForPath(
       'on location',
       35,
     ),
+    PredicatePathKind.toLocation => _predicateProperty(
+      action,
+      'to-location',
+      'to location',
+      35,
+    ),
     PredicatePathKind.fromLocation => _predicateProperty(
       action,
       'from-location',

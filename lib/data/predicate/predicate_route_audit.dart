@@ -113,6 +113,7 @@ String predicatePathKindAuditLabel(PredicatePathKind kind) {
     PredicatePathKind.atLocation => 'at place',
     PredicatePathKind.inLocation => 'in place',
     PredicatePathKind.onLocation => 'on place',
+    PredicatePathKind.toLocation => 'to place',
     PredicatePathKind.fromLocation => 'from place',
     PredicatePathKind.placePhrase => 'place phrase',
     PredicatePathKind.timePhrase => 'time phrase',
@@ -139,6 +140,7 @@ int _pathChoiceCount(PredicatePath path) {
     PredicatePathKind.atLocation ||
     PredicatePathKind.inLocation ||
     PredicatePathKind.onLocation ||
+    PredicatePathKind.toLocation ||
     PredicatePathKind.fromLocation ||
     PredicatePathKind.placePhrase => path.places.length,
     PredicatePathKind.timePhrase => path.times.length,

@@ -418,18 +418,21 @@ int _suggestionSearchRank(
   ConfigurationSuggestion suggestion,
   List<String> terms,
 ) {
-  final text = _suggestionSearchText(suggestion).toLowerCase();
-  final tokens = text
-      .split(RegExp(r'[^a-z0-9]+'))
-      .where((token) => token.isNotEmpty)
-      .toList();
+  final visibleTokens = _searchTokens(_suggestionVisibleSearchText(suggestion));
+  final semanticTokens = _searchTokens(
+    _suggestionSemanticSearchText(suggestion),
+  );
   var rank = 0;
   for (final term in terms) {
-    if (tokens.any((token) => token == term)) {
+    if (visibleTokens.any((token) => token == term)) {
       continue;
     }
-    if (tokens.any((token) => token.startsWith(term))) {
+    if (visibleTokens.any((token) => token.startsWith(term))) {
       rank += 1;
+      continue;
+    }
+    if (semanticTokens.any((token) => token == term)) {
+      rank += 10;
       continue;
     }
     return 1000;
@@ -437,7 +440,19 @@ int _suggestionSearchRank(
   return rank;
 }
 
-String _suggestionSearchText(ConfigurationSuggestion suggestion) {
+List<String> _searchTokens(String text) {
+  return text
+      .toLowerCase()
+      .split(RegExp(r'[^a-z0-9]+'))
+      .where((token) => token.isNotEmpty)
+      .toList();
+}
+
+String _suggestionVisibleSearchText(ConfigurationSuggestion suggestion) {
+  return '${suggestion.slot.name} ${suggestion.label}';
+}
+
+String _suggestionSemanticSearchText(ConfigurationSuggestion suggestion) {
   final parts = <String>[suggestion.slot.name, suggestion.label];
   final move = suggestion.move;
 
