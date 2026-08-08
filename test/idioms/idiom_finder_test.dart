@@ -121,6 +121,31 @@ void main() {
     );
   });
 
+  test('lose it idiom is found from object it', () {
+    final matches = finder.find(
+      const SentenceState(
+        action: lose,
+        object: fixed_object.itObject,
+        tense: Tense.present,
+        aspect: Aspect.simple,
+      ),
+    );
+    final keyMatches = finder.find(
+      SentenceState(
+        action: lose,
+        object: object_data.key.toNounPhrase(Number.singular),
+        tense: Tense.present,
+        aspect: Aspect.simple,
+      ),
+    );
+
+    expect(matches.map((match) => match.pattern.id), contains('lose-it'));
+    expect(
+      keyMatches.map((match) => match.pattern.id),
+      isNot(contains('lose-it')),
+    );
+  });
+
   test('plain verb with unrelated particle is not treated as an idiom', () {
     final matches = finder.find(
       const SentenceState(

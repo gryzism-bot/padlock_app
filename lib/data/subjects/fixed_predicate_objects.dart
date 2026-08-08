@@ -423,11 +423,46 @@ const gambling = NounPhrase(
   translations: {Language.pl: 'hazard'},
 );
 
+const bets = NounPhrase(
+  text: 'bets',
+  person: Person.third,
+  number: Number.plural,
+  translations: {Language.pl: 'zaklady'},
+);
+
 const drinking = NounPhrase(
   text: 'drinking',
   person: Person.third,
   number: Number.singular,
   translations: {Language.pl: 'picie'},
+);
+
+const greed = NounPhrase(
+  text: 'greed',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'chciwosc'},
+);
+
+const council = NounPhrase(
+  text: 'council',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'rada'},
+);
+
+const courtCase = NounPhrase(
+  text: 'court case',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'sprawa sadowa'},
+);
+
+const gardenNoun = NounPhrase(
+  text: 'garden',
+  person: Person.third,
+  number: Number.singular,
+  translations: {Language.pl: 'ogrod'},
 );
 
 const film = NounPhrase(

@@ -3,7 +3,7 @@ import 'package:padlock_app/models/grammar/phrase/place_meaning.dart';
 import 'package:padlock_app/models/grammar/topic_preposition.dart';
 import 'package:padlock_app/models/sentence/sentence_state.dart';
 
-const idiomTargetCount = 58;
+const idiomTargetCount = 59;
 
 const idiomPatterns = <IdiomPattern>[
   IdiomPattern(
@@ -110,6 +110,15 @@ const idiomPatterns = <IdiomPattern>[
       'themselves',
     ],
     requiresInLocation: true,
+  ),
+  IdiomPattern(
+    id: 'lose-it',
+    label: 'lose it',
+    pattern: 'lose + it',
+    meaning: 'lose emotional control',
+    example: 'You lose it.',
+    verb: 'lose',
+    objectTexts: ['it'],
   ),
   IdiomPattern(
     id: 'break-up',

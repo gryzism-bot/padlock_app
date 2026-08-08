@@ -379,6 +379,9 @@ const lose = Verb(
   pastParticiple: 'lost',
   ingForm: 'losing',
   takesObject: true,
+  takesAddressee: true,
+  takesCompanion: true,
+  takesTopic: true,
   translations: {Language.pl: 'zgubić'},
 );
 

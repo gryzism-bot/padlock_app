@@ -508,8 +508,10 @@ void main() {
       expect(objectLabelsFor(breakVerb), isNot(contains('money')));
 
       expect(objectLabelsFor(lose), contains('something'));
+      expect(objectLabelsFor(lose), contains('it'));
       expect(objectLabelsFor(lose), contains('yourself'));
       expect(objectLabelsFor(lose), contains('money'));
+      expect(objectLabelsFor(lose), contains('garden'));
       expect(objectLabelsFor(lose), contains('key'));
       expect(objectLabelsFor(lose), contains('keys'));
       expect(objectLabelsFor(lose), contains('phone'));
@@ -2405,6 +2407,121 @@ void main() {
               .preview,
         ),
         'You close on deal.',
+      );
+
+      state = lock.applyMove(state, const SetAction(lose));
+      final loseTopicSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.topic,
+        limit: 0,
+      );
+      final loseTopicLabels = loseTopicSuggestions.map(
+        (suggestion) => suggestion.label,
+      );
+
+      expect(
+        loseTopicLabels,
+        containsAll([
+          'on bets',
+          'on gambling',
+          'over greed',
+          'over council',
+          'over court case',
+        ]),
+      );
+      expect(
+        render(
+          loseTopicSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'on gambling')
+              .preview,
+        ),
+        'You lose on gambling.',
+      );
+      expect(
+        render(
+          loseTopicSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'over greed')
+              .preview,
+        ),
+        'You lose over greed.',
+      );
+    });
+
+    test('lose wakes competition and context rails', () {
+      final authoredCompass = ConfigurationCompass(
+        predicatePathMode: PredicatePathMode.authoredTracks,
+      );
+      var state = lock.applyMove(
+        ConfigurationState.initial(),
+        const SetAction(lose),
+      );
+
+      expect(
+        authoredCompass.suggestionsFor(
+          state,
+          ConfigurationCompassSlot.addressee,
+          limit: 0,
+        ),
+        isEmpty,
+      );
+
+      state = lock.applyMove(state, const SetTense(Tense.past));
+      state = lock.applyMove(
+        state,
+        SetObject(game.toNounPhrase(Number.singular)),
+      );
+
+      final addresseeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.addressee,
+        limit: 0,
+      );
+      final companionSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.companion,
+        limit: 0,
+      );
+      final placeSuggestions = authoredCompass.suggestionsFor(
+        state,
+        ConfigurationCompassSlot.placePhrase,
+        limit: 0,
+      );
+
+      expect(
+        addresseeSuggestions.map((suggestion) => suggestion.label),
+        contains('Mary'),
+      );
+      expect(
+        render(
+          addresseeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'Mary')
+              .preview,
+        ),
+        'You lost game to Mary.',
+      );
+      expect(
+        companionSuggestions.map((suggestion) => suggestion.label),
+        contains('Anna'),
+      );
+      expect(
+        render(
+          companionSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'Anna')
+              .preview,
+        ),
+        'You lost game with Anna.',
+      );
+      expect(
+        placeSuggestions.map((suggestion) => suggestion.label),
+        containsAll(['at court', 'at the game', 'at school']),
+      );
+      expect(
+        render(
+          placeSuggestions
+              .firstWhere((suggestion) => suggestion.label == 'at court')
+              .preview,
+        ),
+        'You lost game at court.',
       );
     });
 

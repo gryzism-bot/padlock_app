@@ -2274,10 +2274,18 @@ void main() {
         isTrue,
       );
       expect(
+        semanticDirectObjectFitsAction(fixed_object.itObject, lose),
+        isTrue,
+      );
+      expect(
         semanticDirectObjectFitsAction(object_pronouns.yourself, lose),
         isTrue,
       );
       expect(semanticDirectObjectFitsAction(fixed_object.money, lose), isTrue);
+      expect(
+        semanticDirectObjectFitsAction(fixed_object.gardenNoun, lose),
+        isTrue,
+      );
       expect(
         semanticDirectObjectFitsAction(
           object_data.key.toNounPhrase(Number.singular),
@@ -3042,6 +3050,41 @@ void main() {
           PredicatePathKind.inLocation,
         ).map((place) => place.noun),
         contains('park'),
+      );
+      expect(
+        predicateNounChoicesFor(
+          lose,
+          PredicatePathKind.toAddressee,
+        ).map((noun) => noun.text),
+        containsAll(['John', 'Mary']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          lose,
+          PredicatePathKind.withCompanion,
+        ).map((noun) => noun.text),
+        containsAll(['John', 'Mary']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          lose,
+          PredicatePathKind.onTopic,
+        ).map((noun) => noun.text),
+        containsAll(['bets', 'gambling', 'money']),
+      );
+      expect(
+        predicateNounChoicesFor(
+          lose,
+          PredicatePathKind.overTopic,
+        ).map((noun) => noun.text),
+        containsAll(['greed', 'council', 'court case']),
+      );
+      expect(
+        predicatePlaceChoicesFor(
+          lose,
+          PredicatePathKind.atLocation,
+        ).map((place) => place.noun),
+        containsAll(['court', 'game', 'school']),
       );
       expect(
         predicatePlaceChoicesFor(
@@ -4451,9 +4494,20 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(watch, _ReviewedRouteKind.rightAction, text: 'analyze'),
 
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'it'),
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'key'),
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'phone'),
   _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'game'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.directObject, text: 'garden'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.addressee, text: 'Mary'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.companion, text: 'Anna'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.onTopic, text: 'bets'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.onTopic, text: 'gambling'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.overTopic, text: 'greed'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.overTopic, text: 'council'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.overTopic, text: 'court case'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'court'),
+  _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'game'),
   _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'home'),
   _ReviewedRoute(lose, _ReviewedRouteKind.place, text: 'park'),
   _ReviewedRoute(lose, _ReviewedRouteKind.time, text: 'today'),

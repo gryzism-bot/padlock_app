@@ -774,6 +774,7 @@ final _losableObjects = _uniqueByText([
   object_data.schoolbag.toNounPhrase(Number.plural),
   object_data.document.toNounPhrase(Number.singular),
   object_data.document.toNounPhrase(Number.plural),
+  fixed_object.gardenNoun,
   ...object_categories.singularGameObjects,
   ...object_categories.pluralGameObjects,
 ]);
@@ -1192,6 +1193,21 @@ final _closeOnTopics = _uniqueByText([
   object_data.store.toNounPhrase(Number.plural),
   fixed_object.plan,
   object_data.plan.toNounPhrase(Number.plural),
+]);
+final _lossOnTopics = _uniqueByText([
+  fixed_object.bets,
+  fixed_object.gambling,
+  fixed_object.money,
+  object_data.game.toNounPhrase(Number.singular),
+  object_data.game.toNounPhrase(Number.plural),
+]);
+final _lossOverTopics = _uniqueByText([
+  fixed_object.greed,
+  fixed_object.council,
+  fixed_object.courtCase,
+  fixed_object.problem,
+  fixed_object.question,
+  fixed_object.money,
 ]);
 final _analysisObjects = _uniqueByText([
   ..._genericObjects,
@@ -2368,7 +2384,15 @@ final guidedPredicateUnlocks = [
     lose,
     _losableObjects,
     paths: [
-      _atLocations(_everydayPlaces),
+      PredicatePath.toAddressee(_people, requiresObject: true),
+      PredicatePath.withCompanion(_people),
+      PredicatePath.onTopic(_lossOnTopics),
+      PredicatePath.overTopic(_lossOverTopics),
+      _atLocations([
+        ..._everydayPlaces,
+        place_data.courtPlacePhrase,
+        place_data.gamePlacePhrase,
+      ]),
       _inLocations(_everydayPlaces),
       _onLocations(_surfacePlaces),
       _manners(_mistakeManners),

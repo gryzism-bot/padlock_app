@@ -441,6 +441,30 @@ const gymPlacePhrase = PlacePhrase(
   translations: {Language.pl: 'silownia'},
 );
 
+const courtPlacePhrase = PlacePhrase(
+  noun: 'court',
+  takesArticle: false,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'sad'},
+);
+
+const gamePlacePhrase = PlacePhrase(
+  noun: 'game',
+  takesArticle: true,
+  prepositions: {
+    PlaceMeaning.location: at,
+    PlaceMeaning.destination: to,
+    PlaceMeaning.source: from,
+  },
+  position: PhrasePosition.afterPredicate,
+  translations: {Language.pl: 'gra'},
+);
+
 const laboratoryPlacePhrase = PlacePhrase(
   noun: 'laboratory',
   takesArticle: true,
@@ -599,6 +623,8 @@ List<PlacePhrase> placePhrases = [
   marketPlacePhrase,
   bankPlacePhrase,
   gymPlacePhrase,
+  courtPlacePhrase,
+  gamePlacePhrase,
   laboratoryPlacePhrase,
   classroomPlacePhrase,
   directorsOfficePlacePhrase,
