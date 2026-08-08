@@ -55,6 +55,8 @@ const findVerb = Verb(
   ingForm: 'finding',
   takesObject: true,
   takesCompanion: true,
+  takesBeneficiary: true,
+  takesPurpose: true,
   translations: {Language.pl: 'znaleźć'},
 );
 

@@ -2678,6 +2678,18 @@ void main() {
             ending: ' from home.',
           ),
           (
+            verb: findVerb,
+            kind: PredicatePathKind.forBeneficiary,
+            field: (SentenceState state) => state.beneficiary,
+            ending: ' for John.',
+          ),
+          (
+            verb: findVerb,
+            kind: PredicatePathKind.forPurpose,
+            field: (SentenceState state) => state.purpose,
+            ending: ' for work.',
+          ),
+          (
             verb: make,
             kind: PredicatePathKind.forBeneficiary,
             field: (SentenceState state) => state.beneficiary,
@@ -3855,6 +3867,9 @@ const _essentialVerbReviewRoutes = [
   _ReviewedRoute(findVerb, _ReviewedRouteKind.manner, text: 'by accident'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'money'),
   _ReviewedRoute(findVerb, _ReviewedRouteKind.directObject, text: 'someone'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.beneficiary),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.purpose, text: 'fun'),
+  _ReviewedRoute(findVerb, _ReviewedRouteKind.purpose, text: 'school'),
 
   _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'song'),
   _ReviewedRoute(sing, _ReviewedRouteKind.directObject, text: 'songs'),

@@ -1857,6 +1857,8 @@ final guidedPredicateUnlocks = [
       _inLocations(_everydayPlaces),
       _onLocations(_surfacePlaces),
       PredicatePath.withCompanion(_people),
+      _objectBeneficiaries(),
+      _objectPurposes(_basicPurposes),
       _manners([
         manner_data.quicklyMannerPhrase,
         manner_data.byAccidentMannerPhrase,
@@ -3275,7 +3277,7 @@ final essentialPredicatePathMigration = [
     verb: findVerb,
     readiness: PredicatePathReadiness.seeded,
     note:
-        'seeded findable objects, location, companion, manner, and particle tracks',
+        'seeded findable objects, object-gated beneficiary and purpose, location, companion, manner, and particle tracks',
   ),
   _migration(
     verb: sing,
